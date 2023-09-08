@@ -1,0 +1,75 @@
+.nameArea{
+    width:300px;
+}
+
+.prefectureArea{
+    width: 230px;
+}
+
+.fromCityArea{
+    width: 450px;
+}
+
+.birthDateArea{
+    max-width: 534px;
+}
+
+.yearSelect{
+    width: 237px;
+}
+
+.dateSelect{
+    width: 68px;
+}
+
+.addressArea{
+    max-width: 450px;
+}
+
+.smallNumberWithTextArea{
+    width: 389px!important;
+}
+
+.smallNumberArea{
+    width: 180px!important;
+}
+
+/* 全角4文字程度のラベル */
+.mdLabel{
+    max-width: 90px!important;
+    width: 90px!important;
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+}
+
+/* 全角6文字程度のラベル */
+.lgLabel{
+    max-width: 120px!important;
+    width: 120px!important;
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+}
+
+/* 全角２文字程度 */
+.xsInput{
+    max-width: 70px!important;
+    width: 70px!important;
+}
+
+/* 全角６文字程度 */
+.smInput{
+    max-width: 125px!important;
+    width: 125px!important;
+}
+
+.mdInput{
+    max-width: 240px!important;
+    width: 240px!important;
+}
+
+.lgInput{
+    max-width: 360px!important;
+    width: 360px!important;
+}

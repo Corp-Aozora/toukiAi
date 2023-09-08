@@ -1,0 +1,27 @@
+.label{
+    width: 90px;
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+    font-weight: 700!important;
+}
+
+.single-word-label{
+    width: 90px;
+    display: block!important;
+    font-weight: 700!important;
+}
+
+.nameEmPosition{
+    top: -54px;
+    left: 150px;
+}
+
+.emPosition{
+    top: -93px;
+    left: 150px;
+}
+
+::placeholder{
+    text-align: center;
+}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto py-5">
+    <div class="text-center">
+        <h1>ページが存在しない又は削除されました。</h1>
+        <p class="mt-5 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5">
+            <a href="{url `toukApp:index`}">
+                トップページに戻る
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+

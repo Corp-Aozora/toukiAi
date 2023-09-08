@@ -1,0 +1,620 @@
+{% extends "base.html" %}
+{% block title %}{{title}}| {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/index.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+<div id="logoutModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ログアウトしました。</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    ご利用ありがとうございました。<br>
+                    ご入力されたデータはログアウト直前に保存されました。<br>
+                    最終更新日時：本日<span id="lastUpdateDate"></span>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mx-md-auto">
+    <div id="introContent" class="my-5">
+        <h3 class="text-center">
+            <span class="border-start border-5 border-primary ps-3">自分でできる相続登記とは？</span>
+        </h3>
+        <h4 id="introContentSubtitle" class="py-3 mt-4">
+            <div class="text-center fw-bold">
+                相続登記のお悩みを解決します
+            </div>
+            <div class="d-flex align-items-center justify-content-center">
+                <span class="fs-6 ms-lg-2 fw-bold text-dark border border-dark p-1 rounded-1">司法書士監修</span> 
+            </div>
+        </h4>
+        <div class="container d-lg-flex g-0">
+            <div class="col-lg-4 p-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title border-bottom text-center">
+                            <span>
+                                自分で手続をしたいが難しそう
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                                    <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                                </svg>
+                            </span>
+                        </h5>
+                        <div class="card-text fs-6">
+                            <span class="fw-bold">
+                                提示される項目を入力するだけ
+                            </span>
+                            で必要書類がわかり、申請書類ができあがりますので、調べる時間と労力がなくなります！
+                            <div class="mt-2 text-end">
+                                <span class="text-primary fw-bold border-bottom border-dark toSupportContent">
+                                    サポート内容を見る
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 p-3">
+                <div class="card col">
+                    <div class="card-body">
+                        <h5 class="card-title border-bottom text-center">
+                            出費を抑えたい
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-wallet2" viewBox="0 0 16 16">
+                                <path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499L12.136.326zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484L5.562 3zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/>
+                            </svg>
+                        </h5>
+                        <div class="card-text fs-6">
+                            <span class="fw-bold">
+                                司法書士に依頼すると8万円以上の報酬
+                            </span>
+                            が発生することが多いですが、
+                            <span class="fw-bold bg-success-subtle rounded-3">
+                                本システムを利用すると無料
+                            </span>
+                            でできるようになります。<br>
+                            ※面倒な部分のみ専門家に依頼できるオプションもご用意してます。
+                            <div class="text-end mt-2">
+                                <span class="border-bottom border-dark fw-bold text-primary toChargeContent">
+                                    料金表を見る
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 p-3">
+                <div class="card col">
+                    <div class="card-body">
+                        <h5 class="card-title border-bottom text-center">
+                            誰に頼めばいいかわからない
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                            </svg>
+                        </h5>
+                        <div class="card-text fs-6">
+                            <span class="fw-bold">
+                                司法書士によって対応に差があることが多い
+                            </span>
+                            ため、安心して頼める事務所を探すのは大変ですが、弊社では、
+                            <span class="fw-bold">
+                                サービス内容の明示とお問い合わせの対応を徹底
+                            </span>
+                            しております。
+                            <div class="text-end mt-2">
+                                <span class="border-bottom border-dark fw-bold text-primary toChargeContent">
+                                    オプションを見る
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>  
+    </div>
+    <div class="container mt-3">
+        <div class="col-lg-8 mx-auto">
+            <h5 class="text-center">
+                <span class="border-dark border-bottom">
+                    更新情報
+                </span>
+            </h5>
+            <div class="d-flex justify-content-center">
+                {% for article in update_articles %}
+                    {% if update_articles.count == 0 %}
+                    {% elif update_articles.count == 1 %}
+                        <div class="card col-6 m-3 shadow-sm">
+                    {% else %}
+                        <div class="card col m-3 shadow-sm">
+                    {% endif %}
+                        <div class="card-body">
+                            <ul class="ps-0 mb-0">
+                                <li>
+                                    <div class="fw-bold text-center bg-warning-subtle rounded-3">
+                                        {{ article.title }}
+                                    </div>
+                                    <div class="mt-3">
+                                        {{ article.article}}
+                                        <div class="form-text text-end">{{ article.updated_at | date:"Y.n.j" }}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div id="supportContent" class="my-5">
+        <h3 class="text-center">
+            <span class="border-start border-5 border-primary ps-3">サポート内容（全て無料）</span>
+        </h3>
+        <h4 class="py-3 mt-4 fw-bold text-center">
+            ５つのステップで相続登記が完了します
+        </h4>
+        <ul class="container d-flex justify-content-center">
+            <div class="col-xl-8">
+                <span class="form-text">※STEPをクリックすると画面例が表示されます。</span>
+                <li class="card">
+                    <div class="card-body supportStep">
+                        <h5 class="card-title">
+                            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#firstStepModal">
+                                STEP1
+                                <span class="ms-3">
+                                    データ入力
+                                </span>
+                            </button>
+                        </h5>
+                        <div class="modal fade" id="firstStepModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">STEP1</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （Step1の画面を挿入する）
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text fw-bold">
+                            必要書類を確定させるための項目が提示されますのでご入力ください。
+                        </div>
+                    </div>
+                </li>
+                <li class="card mt-4">
+                    <div class="card-body supportStep">
+                        <h5 class="card-title">
+                            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#secondStepModal">
+                                STEP2
+                                <span class="ms-3">
+                                    必要書類取得
+                                </span>
+                            </button>
+                        </h5>
+                        <div class="modal fade" id="secondStepModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">STEP2</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （Step2の画面を挿入する）
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text fw-bold">
+                            表示された必要書類一覧をご取得ください。書類の取得場所や方法なども記載されてます。<br>
+                            書類取得代行又は書類をご取得いただいた後の不足がないかをチェックするオプションをご利用いただけます。<br>
+                            ※一部ご本人様しか取得できない書類もあります。
+                        </div>
+                    </div>
+                </li>
+                <li class="card mt-4">
+                    <div class="card-body supportStep">
+                        <h5 class="card-title">
+                            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#thirdStepModal">
+                                STEP3
+                                <span class="ms-3">
+                                    データ入力
+                                </span>
+                            </button>
+                        </h5>
+                        <div class="modal fade" id="thirdStepModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">STEP3</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （Step3の画面を挿入する）
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text fw-bold">
+                            申請書類の作成に必要な項目が提示されますので、ご取得された書類を確認しながらご入力ください。<br>
+                            書類のどこを確認するのかひと目でわかる画像もつけてますので、簡単に入力が進みます。
+                        </div>
+                    </div>
+                </li>
+                <li class="card mt-4">
+                    <div class="card-body supportStep">
+                        <h5 class="card-title">
+                            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#fourthStepModal">
+                                STEP4
+                                <span class="ms-3">
+                                    書類の印刷と署名押印
+                                </span>
+                            </button>
+                        </h5>
+                        <div class="modal fade" id="fourthStepModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">STEP4</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （Step4の画面を挿入する）
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text fw-bold">
+                            申請書類ができあがりますので、印刷してご署名押印ください。<br>
+                            相続人皆様の署名押印が必要な書類もあります。
+                        </div>
+                    </div>
+                </li>
+                <li class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#fifthStepModal">
+                                STEP5
+                                <span class="ms-3">
+                                    法務局に申請書類を郵送又は持参
+                                </span>
+                            </button>
+                        </h5>
+                        <div class="modal fade" id="fifthStepModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">STEP5</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （Step5の画面を挿入する）
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text fw-bold">
+                            書類が全て揃ったら整理して法務局に郵送または持参していただきます。<br>
+                            申請にご不安がある場合は、提携の司法書士が代理で申請するオプションをご利用いただけます。
+                        </div>
+                    </div>
+                </li>
+                <li class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#ContactModal">
+                                お問い合わせ対応
+                            </button>
+                        </h5>
+                        <div class="modal fade" id="ContactModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">お問い合わせ</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （お問い合わせ画面を挿入する）
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-text fw-bold">
+                            本システムを使用するにあたっての不明点については随時チャット又はメールによるお問い合わせを受け付けてます。<br>
+                            原則24時間以内にご返信します。<br>
+                            ※法的な判断を含むご相談を受けることはご対応できません。
+                        </div>
+                    </div>
+                </li>
+            </div>
+        </ul>
+    </div>
+    <hr>
+    <div id="chargeContent" class="my-5">
+        <h3 class="text-center">
+            <span class="border-start border-5 border-primary ps-3">オプション料金（全て税込価格）</span>
+        </h3>
+        <h4 class="py-3 mt-4 fw-bold text-center">
+            ご自身でお手続きを進めてる最中にやっぱり一部又は全部を丸投げしたくなった方のために<br>
+            以下のオプションをご用意しております（併用できます）。
+        </h4>
+        <div class="container">
+            <div class="d-flex">
+                <div class="col-lg-4 p-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold border-bottom">
+                                必要証明書の代理取得・・・22,000円
+                            </h5>
+                            <div class="card-text">
+                                登記情報や戸籍謄本などの書類（印鑑証明書を除く）を全て代理で取得いたします。<br>
+                                相続登記で一番面倒なところだけ専門家にお任せしてみませんか？<br>
+                                ※取得する書類が15通を超える場合、超過1通ごとに1,100円が加算されます。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 p-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold border-bottom">
+                                必要証明書のチェック・・・11,000円
+                            </h5>
+                            <div class="card-text">
+                                ご取得された証明書に不足がないかチェックいたします。<br>
+                                自分で取得してみたものの大丈夫かな？というご不安を解消します。<br>
+                                ※チェックする書類が15通を超える場合、超過1通ごとに550円が加算されます。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 p-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold border-bottom" data-bs-toggle="tooltip" data-bs-title="かさばる戸籍謄本等の代用になる証明書です" data-bs-custom-class="custom-tooltip">
+                                法定相続証明情報取得・・・16,500円
+                            </h5>
+                            <div class="card-text">
+                                戸籍謄本等をご提供いただく必要があります。<br>
+                                オプションの書類取得代行と併用いただくと提携の司法書士が作成する委任状に押印いただくだけで取得できます。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="col-lg-4 p-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold border-bottom">代理申請・・44,000円</h5>
+                            <div class="card-text">
+                                必要書類の確認、不動産漏れの確認、法務局への申請、手続完了後の書類整理を司法書士が責任を持って行います。<br>
+                                最後は手続内容に間違いがないよう専門家に任せたほうが安心できます。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 p-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold border-bottom">全ておまかせ・・・88,000円</h5>
+                            <div class="card-text">
+                                <div>
+                                    弊社と提携の司法書士にお任せできます。<br>
+                                    本システムを制作した者が面識ある司法書士のみと提携しておりますので、自信をもってご紹介できます<br>
+                                    自分でやろうと思ったけど、やっぱり面倒だなと思われたときにご検討されてはいかがでしょうか？
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ps-3 mt-3">
+                <span class="col card-text fst-italic mt-3 fw-bold">
+                    ※必要書類の取得にかかる役所の手数料や法務局に支払う登録免許税などの実費は、上記料金とは別にご負担が必要です。
+                </span><br>
+                <span>
+                    ・登録免許税は、不動産の固定資産評価額の0.4%です。
+                </span>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div id="qaContent" class="my-5">
+        <h3 class="text-center">
+            <span class="border-start border-5 border-primary ps-3">よくあるお問い合わせ</span>
+        </h3>
+        <div class="row justify-content-center mt-4">
+            <div class="w-75">
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" id="q1">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a1" aria-expanded="false" aria-controls="a1">
+                                <h5 class="mb-0">Q.遺産分割の内容をどう決めるべきかなど法的な内容を含む相談はできますか？</h5>
+                            </button>
+                        </div>
+                        <div id="a1" class="accordion-collapse collapse" aria-labelledby="q1">
+                            <div class="accordion-body ps-5 fs-5">
+                                <p class="fw-bold">
+                                    A.法的な内容を含むご相談への対応は司法書士や弁護士などの専門家の独占業務のためご対応できません。
+                                </p>
+                                <div class="ps-3">
+                                    <p>
+                                        提携の司法書士にご依頼いただいた場合は、その司法書士にご相談いただくことができます。
+                                    </p>
+                                    以下、専門家以外は
+                                    <span class="fw-bold border-bottom border-dark">
+                                        ご対応できない相談例
+                                    </span>
+                                    です<br>
+                                    ・遺産分割の内容をどうすべきか<br>
+                                    ・他の相続人への遺産分割の交渉<br>
+                                    ・相続税額の計算や相続税対策<br>
+                                    ・訴訟、調停の可否、など
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header" id="q2">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a2" aria-expanded="false" aria-controls="a2">
+                                <h5 class="mb-0">Q.相続人の判定はどうすればいいですか？</h5>
+                            </button>
+                        </div>
+                        <div id="a2" class="accordion-collapse collapse" aria-labelledby="q2">
+                            <div class="accordion-body ps-5 fs-5">
+                                <p class="fw-bold">
+                                    A.本システムのSTEP1をご利用いただくことで確認することができます。
+                                </p>
+                                <div class="ps-3">
+                                    <p>
+                                        <span class="fw-bold border-bottom border-dark">
+                                            被相続人の死亡時を基準に
+                                        </span>
+                                        <span class="bg-primary-subtle rounded-3">
+                                            直系卑属※がいたら直系卑属
+                                        </span>
+                                        、
+                                        <span class="bg-success-subtle rounded-3">
+                                            いない場合は直系尊属※
+                                        </span>
+                                        、
+                                        <span class="bg-warning-subtle rounded-3">
+                                            直系尊属がいない場合は兄弟姉妹
+                                        </span>
+                                        の順番で相続人となり、
+                                        <span class="bg-danger-subtle rounded-3">
+                                            配偶者はこれらの相続人と一緒に相続人
+                                        </span>
+                                        になります。<br>
+                                        相続後に亡くなった相続人がいる場合は、その方についても同様の判定を行います。<br>
+                                    </p>
+                                    <p>
+                                        <span class="bg-primary-subtle rounded-3">
+                                            ※直系卑属：
+                                        </span>
+                                        被相続人より後の世代（子、孫、ひ孫...）の続柄のこと（養子を含みます）。<br>
+                                        <span class="bg-success-subtle rounded-3">
+                                            ※直系尊属：
+                                        </span>
+                                        被相続人より前の世代（父母、祖父母...）の続柄のこと（養親を含みます）。<br>
+                                    </p>
+                                    例）被相続人が亡くなったとき配偶者と子1人がいたが、子がその後に亡くなって、その子に配偶者と子が2人いたとき<br>
+                                    <span class="ps-3">
+                                        相続人は、➀被相続人の配偶者➁子の配偶者➂➃子の子2人、の計4名になります。<br>
+                                        ※子が被相続人より先に亡くなっているときは子の配偶者は相続人になりません。
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header" id="q3">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a3" aria-expanded="false" aria-controls="a3">
+                                <h5 class="mb-0">Q.相続登記がなにかすら知らなくてもできますか？</h5>
+                            </button>
+                        </div>
+                        <div id="a3" class="accordion-collapse collapse" aria-labelledby="q3">
+                            <div class="accordion-body ps-5 fs-5">
+                                <p class="fw-bold">
+                                    A.お時間があってやる気がある方であればできます。
+                                </p>
+                                <div class="ps-3">
+                                    相続登記はお亡くなりになった方が所有していた不動産の名義変更手続きのことです。<br>
+                                    本システムを使用すると手続きをどう進めればいいか明確なので
+                                    <span class="fw-bold border-bottom border-dark">
+                                        難しいことはない
+                                    </span>
+                                    です。<br>
+                                    ただ、何をすべきかわかっても役所で証明書を取得したり書類を整理したりする労力は省くことはできないため、
+                                    <span class="fw-bold border-bottom border-dark">
+                                        時間とやる気は必要
+                                    </span>
+                                    になります。<br>
+                                    もし途中で丸投げしたくなった場合はオプションを利用することもできますので、お急ぎでなければ、まずはご自身で
+                                    されてみるのもいいかと思います。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header" id="q4">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a4" aria-expanded="false" aria-controls="a4">
+                                <h5 class="mb-0">Q.実費はいくらぐらいかかりますか？</h5>
+                            </button>
+                        </div>
+                        <div id="a4" class="accordion-collapse collapse" aria-labelledby="q4">
+                            <div class="accordion-body ps-5 fs-5">
+                                <p class="fw-bold">
+                                    A.相続人が何名いるか、不動産の評価額がいくらかによるため一概にお答えできません。
+                                </p>
+                                <div class="ps-3">
+                                    <p>
+                                        例）相続人が配偶者と子3人／不動産が土地1筆、建物1棟で固定資産評価額の合計が3000万円の場合
+                                        <span class="form-text">
+                                            ※固定資産評価額は毎年4月頃に届く固定資産税の納税通知書と一緒に同封されている課税明細書に記載されてます。
+                                        </span><br>
+                                    </p>
+                                    <div class="ps-3">
+                                        ・必要書類の取得費：約6000円（郵送で取得する場合は別途郵送費）<br>
+                                        ・登録免許税：12万円<br>
+                                        ・法務局へ郵送：1040円（レターパックプラス2通）<br>
+                                        <span class="fw-bold border-bottom border-dark">
+                                            計約12万7040円
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header" id="q5">
+                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a5" aria-expanded="false" aria-controls="a5">
+                                <h5 class="mb-0">Q.対応しているブラウザは何ですか？</h5>
+                            </button>
+                        </div>
+                        <div id="a5" class="accordion-collapse collapse" aria-labelledby="q5">
+                            <div class="accordion-body ps-5 fs-5">
+                                <p class="fw-bold">
+                                    A.google chrome、FireFox、Safari、microsoft edgeのいずれを推奨します。<br>
+                                </p>
+                                <div class="ps-3">
+                                    その他のブラウザでは使用状況を検証してません。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/index.js' %}"></script>
+{% endblock %}

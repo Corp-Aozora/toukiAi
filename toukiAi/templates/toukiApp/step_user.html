@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiAi/step_user.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiAi/step_common.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex container-xxl">
+    {% include "toukiApp/step_sidebar.html" %}
+    <div class="pt-4 ps-4 container-xxl">
+        <h4>
+            お客様情報
+        </h4>
+        <hr>
+        <form action="{% url 'toukiApp:user'%}" method="post">
+        {% csrf_token %}
+            <!-- {{ user.as_p }} -->
+            <p class="input-group mt-3">
+                <label class="input-group-text label" for="">
+                    お名前
+                </label>
+            </p>
+            <p class="input-group mt-3">
+                <label class="input-group-text label" for="">
+                    メールアドレス
+                </label>
+            </p>
+            <p class="input-group mt-3">
+                <label class="input-group-text label" for="">
+                    電話番号
+                </label>
+            </p>
+            <p class="input-group mt-3">
+                <label class="input-group-text label" for="">
+                    パスワード
+                </label>
+            </p>
+            <p class="input-group mt-3">
+                <label class="input-group-text label" for="">
+                    パスワード（確認用）
+                </label>
+            </p>
+            <p>
+                <button type="submit" class="btn btn-primary">変更を保存する</button>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiAi/step_user.js' %}"></script>
+    <script src="{% static 'toukiAi/step-common.js' %}"></script>
+{% endblock %}

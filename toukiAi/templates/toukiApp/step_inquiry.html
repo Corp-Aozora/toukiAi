@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiAi/step_sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiAi/step_inquiry.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiAi/step_header.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiAi/step_footer.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiAi/step_common.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+
+{% block content %}
+<div id="thirdStepWrap" class="d-flex container-xxl">
+    {% include "toukiapp/sidebar.html" %}
+    <div class="pt-4 ps-4 container-xxl">
+        <div>
+            <h4>
+                お問い合わせ
+            </h4>
+        </div>
+        <hr>
+        <p>
+            お問い合わせに対して的確にお答えできるように進捗状況、項目、お問い合わせ内容の入力をお願いします。
+        </p>
+        <form class="col-lg-10">
+            <field id="progressField">
+                <div class="input-group">
+                    <span class="input-group-text fw-bold mdLabel" id="progressLabel">進捗状況</span>
+                    <select name="progressList" class="form-select" id="progress" aria-describedby="progressLabel" required>
+                        <option ></option>
+                        {% for progress in sections.keys %}
+                        <option value="{{progress}}">{{progress}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </field>
+            <fieldset id="columnField" class="mt-3" disabled="true">
+                <div class="input-group">
+                    <span class="input-group-text fw-bold mdLabel" id="columnLabel">項目</span>
+                    <select name="columnList" class="form-select" id="column" aria-describedby="columnLabel" required>
+                        <option ></option>
+                        {% for column in sections.values %}
+                        <option value="{{column}}">{{column}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </fieldset>
+            <fieldset id="inquiryContentField" class="mt-3" disabled="true">
+                <div>
+                    <label for="inquiryContent" class="form-label fw-bold">お問い合わせ内容</label>
+                    <textarea id="inquiryContent" class="form-control" rows="10"></textarea>
+                </div>
+            </fieldset>
+            <fieldset id="beforeSubmitBtnField" class="text-center mt-3" disabled="true">
+                <button type="button" id="beforeSubmitBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal">送信</button>
+                <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalTitle" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="submitModalTitle">内容にお間違えはないですか？</h1>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary">送信する</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">修正する</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiAi/step_common.js' %}"></script>
+    <script src="{% static 'toukiAi/step_header.js' %}"></script>
+    <script src="{% static 'toukiAi/step_header.js' %}"></script>
+    <script src="{% static 'toukiAi/step_sidebar.js' %}"></script>
+    <script src="{% static 'toukiAi/step_inquiry.js' %}"></script>
+{% endblock %}

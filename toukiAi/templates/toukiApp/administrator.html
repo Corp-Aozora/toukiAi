@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %} {{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/administrator.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="col-lg-9 mx-auto">
+    <div class="card shadow-sm bg-light">
+        <div class="card-body">
+            <h4 class="card-title border-bottom">
+                <span class="border-start border-5 border-primary ps-3">相続登記について</span>
+            </h4>
+            <div class="card-text mt-3">
+                <p>
+                    <span class="fw-bold border-bottom border-dark">
+                        2024年4月1日から相続登記が義務化
+                    </span>
+                    される法律が施行されます。
+                </p>
+                <p>
+                    これは相続登記の放置により所有者不明の不動産が増加して、公共事業や民間による地域開発などに支障が出て
+                    いることを解消するためのもので、義務化後は、相続発生後3年以内に相続登記を怠ると原則10万円以下の過料が発生します。
+                </p>
+                <p>
+                    ただ、現実的な問題として欲しい不動産でもないのに面倒でお金もかかる手続をするのは気が進まないかと思いますので、
+                    少しでも皆様の相続登記の負担軽減と推進の一助になればと考えて、有志で協力して制作しました。
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9 mx-auto mt-3">
+        <h5 class="text-center my-3">
+            運営者・お問い合わせ先
+        </h5>
+        <div id="companyInfo" class="col-md-8 col-10 mt-3 mx-auto">
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    運営者
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.NAME}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    住所
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.ADDRESS}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    代表取締役
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.CEO}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    電話番号
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.PHONE_NUMBER}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    メールアドレス
+                </div>
+                <div class="col-sm-8">
+                    <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
+                        {{CompanyData.MAIL_ADDRESS}}
+                    </a>
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    営業時間
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.OPENING_HOURS}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    設立年月日
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.ESTABLISH_DATE}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    資本金
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.CAPITAL}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    監修者
+                </div>
+                <div class="col-sm-8">
+                    {{CompanyData.SUPERVISER}}<br>
+                    {{CompanyData.SUPERVISER_BELONG}}
+                </div>
+            </div>
+            <hr>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/administrator.js' %}"></script>
+{% endblock %}

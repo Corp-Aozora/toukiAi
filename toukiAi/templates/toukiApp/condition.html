@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}利用条件確認 | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/condition.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto mt-3">
+    <div class="card shadow-sm">
+        <div class="card-body px-5">
+            <h4 class="card-title border-bottom py-3">
+                ご登録前に本システムで対応できる相続登記か確認させてください。
+            </h4>
+            <div class="px-4">
+                <div class="fw-bold">
+                    該当するものにチェックを入れてください。
+                </div>
+                <div class="input-group mt-3">
+                    <label class="input-group-text cursor-pointer">
+                        <input class="form-check-input mt-0" type="checkbox" value="" aria-label="遺言書は使用しない" autofocus>
+                    </label>
+                    <span class="form-control fw-bold">
+                        遺言書は使用しない
+                    </span>
+                </div>
+                <div class="input-group mt-3">
+                    <label class="input-group-text cursor-pointer">
+                        <input class="form-check-input mt-0" type="checkbox" value="" aria-label="対応可能な相続関係図を確認した">
+                    </label>
+                    <span class="form-control fw-bold">
+                        <span class="ps-1 cursor-pointer text-primary border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#chart">
+                            対応可能な相続関係図
+                        </span>
+                            を確認した
+                    </span>
+                    <div class="modal fade" id="chart" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        対応可能な相続関係の範囲
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="fw-bold">
+                                        ※各続柄に相続人になる条件を記載してます。<br>
+                                        ※<span class="bg-primary-subtle">子、孫</span>が相続人になるとき、10人が上限です。<br>
+                                        ※<span class="bg-warning-subtle">兄弟姉妹</span>が相続人になるとき、10人が上限です。<br>
+                                        ※子以外で相続人になった後に死亡した相続には現在対応しておりません。
+                                    </div>
+                                    <div class="d-flex justify-content-evenly mt-3">
+                                        <div class="card position-relative grandfather">
+                                            <div class="card-body">
+                                                <div class="card-title bg-success-subtle">
+                                                    父方の祖父母
+                                                </div>
+                                                <div class="card-text">
+                                                    父が先に死亡しているとき
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card position-relative grandmother">
+                                            <div class="card-body">
+                                                <div class="card-title bg-success-subtle">
+                                                    母方の祖父母
+                                                </div>
+                                                <div class="card-text">
+                                                    母が先に死亡しているとき
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-evenly mt-5">
+                                        <div class="card position-relative parents">
+                                            <div class="card-body">
+                                                <div class="card-title bg-success-subtle">
+                                                    父母
+                                                </div>
+                                                <div class="card-text">
+                                                    子がいない又は全員死亡して子の相続人がいないとき
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-5">
+                                        <div class="card sameGeneration">
+                                            <div class="card-body">
+                                                <div class="card-title bg-warning-subtle">
+                                                    兄弟姉妹
+                                                </div>
+                                                <div class="card-text">
+                                                    子、父母が相続人でないとき
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="decendant" class="card sameGeneration">
+                                            <div class="card-body">
+                                                <div class="card-title bg-secondary-subtle">
+                                                    被相続人
+                                                </div>
+                                                <div class="card-text">
+                                                    不動産の所有者（登記名義人）
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="spouse" class="card sameGeneration">
+                                            <div class="card-body">
+                                                <div class="card-title bg-danger-subtle">
+                                                    配偶者
+                                                </div>
+                                                <div class="card-text">
+                                                    常に相続人になります
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex mt-5 justify-content-evenly">
+                                        <div id="childSpouse" class="card childGeneraton">
+                                            <div class="card-body">
+                                                <div class="card-title bg-primary-subtle">
+                                                    子の配偶者
+                                                </div>
+                                                <div class="card-text">
+                                                    子が相続した後に死亡したとき
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="child" class="card childGeneraton">
+                                            <div class="card-body">
+                                                <div class="card-title bg-primary-subtle">
+                                                    子
+                                                </div>
+                                                <div class="card-text">
+                                                    被相続人の配偶者とともに最初に相続人になります
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center mt-5">
+                                        <div id="grandchild" class="card">
+                                            <div class="card-body">
+                                                <div class="card-title bg-primary-subtle">
+                                                    孫
+                                                </div>
+                                                <div class="card-text">
+                                                    子が死亡しているとき
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mt-3">
+                    <label class="input-group-text cursor-pointer">
+                        <input class="form-check-input mt-0" type="checkbox" value="" aria-label="相続人全員の間で遺産分割協議済み、又は法定相続分による相続">
+                    </label>
+                    <span class="form-control fw-bold">
+                        相続人全員の間で遺産分割協議済み、又は法定相続分による相続
+                    </span>
+                </div>
+                <div class="input-group mt-3">
+                    <label class="input-group-text cursor-pointer">
+                        <input class="form-check-input mt-0" type="checkbox" value="" aria-label="相続人の中に成年被後見人はいない">
+                    </label>
+                    <span class="form-control fw-bold">
+                        相続人の中に※成年被後見人はいない
+                    </span>
+                </div>
+                <div class="form-text">
+                    ※精神上の障害により判断能力を欠くとして、家庭裁判所から後見人が選任された方のことです。
+                </div>
+                <div class="input-group mt-3">
+                    <label class="input-group-text cursor-pointer">
+                        <input class="form-check-input mt-0" type="checkbox" value="" aria-label="被相続人又は相続人は全員日本国籍">
+                    </label>
+                    <span class="form-control fw-bold">
+                        被相続人又は相続人は全員日本国籍
+                    </span>
+                </div>
+                <div class="input-group mt-3">
+                    <label class="input-group-text cursor-pointer">
+                        <input class="form-check-input mt-0" type="checkbox" value="" aria-label="本システムに相続登記の完了の保証を求めない">
+                    </label>
+                    <span class="form-control fw-bold">
+                        本システムに相続登記の完了の保証を求めない
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+            <div class="card-title text-center">
+                <a id="linkToSignup" class="text-decoration-none">
+                    <button type="button" id="btnSignup" class="btn btn-primary" disabled="true">アカウント登録へ</button>
+                </a>
+            </div>
+            <div id="availableText" class="card-text text-center" style="display:none;">利用条件を満たしているため、ご利用できます。</div>
+        </div>
+    </div>
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+            <div class="card-title text-center">
+                <a href="{% url 'toukiApp:index' %}">
+                    <button type="button" class="btn btn-secondary">トップページへ</button>
+                </a>
+            </div>
+            <div class="card-text text-center">全てにチェックが入らない場合は、申し訳ありませんがご利用いただけません。</div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/condition.js' %}"></script>
+{% endblock %}

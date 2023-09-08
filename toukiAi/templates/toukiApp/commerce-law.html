@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}特定商取引法に基づく表記 | {{ block.super}}{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/commerce-law.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="col-lg-8 mx-auto">
+    <h5 class="text-center my-3">
+        特定商取引法に基づく表記
+    </h5>
+    <div id="companyInfo" class="mt-3 mx-auto">
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                販売業者
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.NAME}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                所在地
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.ADDRESS}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                責任者
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.CEO}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                電話番号
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.PHONE_NUMBER}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                メールアドレス
+            </div>
+            <div class="col-sm-8">
+                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
+                    {{CompanyData.MAIL_ADDRESS}}
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                営業時間
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.OPENING_HOURS}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                サイトURL
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.URL}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                サービス料金
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.CHARGE}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                支払方法
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.PAYMENT}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                支払時期
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.PAYMENT_TERMS}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                サービス提供の開始時期
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.START_TIME}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                キャンセルについて
+            </div>
+            <div class="col-sm-8">
+                {{CompanyData.ABOUT_CANCEL}}
+            </div>
+        </div>
+        <hr>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/commerce-law.js' %}"></script>
+{% endblock %}

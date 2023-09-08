@@ -1,0 +1,34 @@
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
+{% endblock %}
+
+<header id="header" class="navbar navbar-expand-sm navbar-light bg-light p-3 sticky-top shadow-sm">
+    <nav class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#headerMenus" aria-controls="headerMenus" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="headerMenus" class="collapse navbar-collapse">
+            <ul class="navbar-nav py-md-0 justify-content-start">
+                <li id="logoArea" class="navbar-brand nav-item">
+                    <a id="logo" class="text-dark" style="text-decoration: none;" href="{% url 'toukiApp:index' %}">（ロゴ）</a>
+                </li>
+                <li id="linkToAccountArea" class="nav-item my-auto">
+                    <a id="linkToAccount" class="fw-bold text-decoration-none text-dark" href="{% url 'toukiApp:step_user' %}">
+                        {{ user.username }}様
+                    </a>
+                </li>
+                <li id="linkToProgressArea" class="nav-item ms-3" style="display: none;">
+                    <a id="linkToProgress" class="btn btn-outline-primary p-2 fw-bold" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">進捗状況</a>
+                </li>
+            </ul>
+            <div id="logoutArea" class="my-0 ms-auto me-0">
+                <a id="logout" class="btn btn-outline-primary p-2 fw-bold text-decoration-none" href="{% url 'account_logout' %}">ログアウト</a>
+            </div>
+        </div>
+    </nav>
+</header>
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_header.js' %}"></script>
+{% endblock %}

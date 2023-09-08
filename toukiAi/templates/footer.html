@@ -1,0 +1,35 @@
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'footer.css' %}">
+{% endblock %}
+
+<footer class="navbar navbar-expand-md navbar-light bg-light p-3">
+    <nav class="container-xxl flex-wrap flex-md-nowrap" style="justify-content: center;">
+        <div style="display: flex;">
+            <div class="navbar-brand">
+                <a style="text-decoration: none;" href="{% url 'toukiApp:index' %}">（ロゴ）</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
+                    <li class="nav-item col col-md-auto">
+                        <a class="p-2 fw-bold text-decoration-none link-dark" href="{% url 'toukiApp:terms' %}">利用規約</a>
+                    </li>
+                    <li class="nav-item col col-md-auto">
+                        <a class="p-2 fw-bold text-decoration-none link-dark" href="{% url 'toukiApp:privacy' %}">／プライバシーポリシー</a>
+                    </li>
+                    <li class="nav-item col col-md-auto">
+                        <a class="p-2 fw-bold text-decoration-none link-dark" href="{% url 'toukiApp:commerce-law' %}">／特定商取引法に基づく表記</a>
+                    </li>
+                    <li class="nav-item col col-md-auto">
+                        <a class="p-2 fw-bold text-decoration-none link-dark" href="{% url 'toukiApp:administrator' %}">／運営者情報・お問い合わせ</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</footer>
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'footer.js' %}"></script>
+{% endblock %}

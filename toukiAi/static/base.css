@@ -1,0 +1,48 @@
+.cursor-pointer:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+
+.twoRbs{
+    width: 280px!important;
+}
+
+.text-evenly{
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+}
+
+.text-indent{
+    display: inline-block;
+    text-indent: 1rem;
+}
+
+li{
+    list-style: none!important;
+}
+
+.inputError::placeholder{
+    /* color:#f1aeb5; */
+    color:red!important;
+}
+
+.errorMessage {
+    position: absolute;
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.6em;
+    color: #fff;
+    border-radius: 5px;
+    background: var(--bs-danger);
+}
+
+.errorMessage:before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    border: 15px solid transparent;
+    border-top: 15px solid var(--bs-danger);
+    margin-left: -15px;
+}

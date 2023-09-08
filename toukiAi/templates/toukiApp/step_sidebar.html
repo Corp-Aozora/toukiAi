@@ -1,0 +1,118 @@
+<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 border-end sidebar-height">
+    <span class="fs-4 text-center">進捗状況</span>
+    <hr>
+    <ul class="nav flex-column">
+        <li class="nav-item py-2 d-flex">
+            <a id="stepOneLink" class="text-decoration-none" href="{% url 'toukiApp:step_one' %}">
+                <button type="button" id="btnStepOne" class="border-0 bg-white fw-bold fs-5">
+                    <div class="d-flex align-items-center">
+                        １．{{service_content.0}}
+                        {% if user.progress == "1" %}
+                            <svg id="stepOneArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        {% else %}
+                            <svg id="stepOneDone" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+                            </svg>
+                        {% endif %}
+                    </div>
+                </button>
+            </a>
+        </li>
+        <li class="nav-item py-2 d-flex">
+            <a id="stepTwoLink" class="text-decoration-none">
+                <button type="button" id="btnStepTwo" class="border-0 bg-white fs-5" disabled="true">
+                    <div class="d-flex align-items-center">
+                        ２．{{service_content.1}}
+                        {% if user.progress == "2" %}
+                            <svg id="stepTwoArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        {% elif user.progress|floatformat:"0" > 2 %}
+                            <svg id="stepTwoDone" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+                            </svg>
+                        {% else %}
+                        {% endif %}
+                    </div>
+                </button>
+            </a>
+        </li>
+        <li class="nav-item py-2">
+            <a id="stepThreeLink" class="text-decoration-none">
+                <button type="button" id="btnStepThree" class="border-0 bg-white fs-5" disabled="true">
+                    <div class="d-flex align-items-center">
+                    ３．{{service_content.2}}
+                    {% if user.progress == "3" %}
+                        <svg id="stepThreeArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
+                            <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                        </svg>
+                    {% elif user.progress|floatformat:"0" > 3 %}
+                        <svg id="stepThreeDone" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check" viewBox="0 0 16 16">
+                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+                        </svg>
+                    {% endif %}
+                    </div>
+                </button>
+            </a>
+        </li>
+        <li class="nav-item py-2">
+            <a id="stepFourLink" class="text-decoration-none">
+                <button type="button" id="btnStepFour" class="border-0 bg-white fs-5" disabled="true">
+                    <div class="d-flex align-items-center">
+                        ４．{{service_content.3}}
+                        {% if user.progress == "4" %}
+                            <svg id="stepFourArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        {% elif user.progress|floatformat:"0" > 4 %}
+                            <svg id="stepFourDone" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+                            </svg>
+                        {% endif %}
+                    </div>
+                </button>
+            </a>
+        </li>
+        <li class="nav-item py-2">
+            <a id="stepFiveLink" class="text-decoration-none">
+                <button type="button" id="btnStepFive" class="border-0 bg-white fs-5" disabled="true">
+                    <div class="d-flex align-items-center">
+                        ５．{{service_content.4}}
+                        {% if user.progress == "5" %}
+                            <svg id="stepFiveArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        {% elif user.progress|floatformat:"0" > 5 %}
+                            <svg id="stepFiveDone" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+                            </svg>
+                        {% endif %}
+                    </div>
+                </button>
+            </a>
+        </li>
+        <li class="nav-item py-2">
+            <a id="stepSixLink" class="text-decoration-none">
+                <button type="button" id="btnStepSix" class="border-0 bg-white fs-5" disabled="true">
+                    <div class="d-flex align-items-center">
+                        {{service_content.5}}
+                        {% if user.progress == "6" %}
+                            <svg id="stepSixArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                        {% endif %}
+                    </div>
+                </button>
+            </a>
+        </li>
+        <li class="nav-item py-2">
+            <a id="inquiryLink" class="text-decoration-none" href="{% url 'toukiApp:step_inquiry' %}">
+                <button type="button" id="btnInquiry" class="border-0 bg-white fs-5 fw-bold">
+                    お問い合わせ
+                </button>
+            </a>
+        </li>
+    </ul>
+</div>  

@@ -1,0 +1,21 @@
+.label{
+    width: 145px;
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+    font-weight: 700!important;
+}
+
+.cbErrMesX{
+    left: -52px!important;
+}
+
+.emPosition {
+    left: 145px;
+    top: -55px;
+}
+
+#passDisplayToggle{
+    top: 10px;
+    left: 102%;
+}

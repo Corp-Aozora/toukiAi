@@ -1,0 +1,51 @@
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'header.css' %}">
+{% endblock %}
+
+<header id="header" class="navbar navbar-expand-lg navbar-light bg-light p-3 sticky-top shadow-sm">
+    <nav class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-brand">
+            <a style="text-decoration: none;" href="{% url 'toukiApp:index' %}">（ロゴ）</a>
+        </div>
+        <div id="offcanvasMenus" class="offcanvas offcanvas-start" tabindex="-1" aria-labelledby="offcanvasLabel">
+            <div class="offcanvas-header">
+                <h5 id="offcanvasLabel" class="offcanvas-title">
+                    メニュー
+                </h5>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav py-md-0">
+                    <li class="nav-item col col-md-auto">
+                        <button type="button" id="toIntroContentBtn" class="btn btn-outline-primary p-2 fw-bold toIntroContent">自分でできる相続登記とは？</button>
+                    </li>
+                    <li class="nav-item col col-md-auto ms-3">
+                        <button type="button" id="toSupportContentBtn" class="btn btn-outline-primary p-2 fw-bold toSupportContent">サポート内容</button>
+                    </li>
+                    <li class="nav-item col col-md-auto ms-3">
+                        <button type="button" id="toChargeContentBtn" class="btn btn-outline-primary p-2 fw-bold toChargeContent">料金</button>
+                    </li>
+                    <li class="nav-item col col-md-auto ms-3">
+                        <button type="button" id="toQAContentBtn" class="btn btn-outline-primary p-2 fw-bold toQAContent">よくあるお問い合わせ</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            {% if user.is_authenticated %}
+                <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">ログアウト</a>
+            {% else %}
+                <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">ログイン</a>
+                <a class="btn btn-primary p-2 fw-bold" href="{% url 'toukiApp:condition' %}">アカウント登録</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'header.js' %}"></script>
+{% endblock %}

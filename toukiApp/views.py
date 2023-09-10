@@ -28,8 +28,10 @@ def index(request):
     }
     return render(request, "toukiApp/index.html", context)
 
-@login_required
 def step_one(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
     user = User.objects.get(email = request.user)
     
     if request.method == "POST":
@@ -43,7 +45,7 @@ def step_one(request):
             decendant_form.save()
             
         # 親族情報の保存
-            return redirect(to='/toukiapp/service-stepTwo')
+            return redirect(to='/toukiApp/step_Two')
     else:
         pass
         decendant_form = StepOneDecendantForm()
@@ -64,8 +66,10 @@ def step_one(request):
     return render(request, "toukiApp/step_one.html", context)
 
 #ユーザー情報
-@login_required
 def step_user(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
     user = request.user
     
     context = {
@@ -76,8 +80,10 @@ def step_user(request):
     return render(request, 'toukiApp/step_user.html', context)
 
 #お問い合わせ
-@login_required
 def step_inquiry(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
     user = User.objects.get(email = request.user)
     
     context = {

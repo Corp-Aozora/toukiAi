@@ -3,6 +3,9 @@
 requiredInputArr = [email];
 messageElArr = [emailMessageEl];
 messageArr = [emailMessage];
+
+const resentMessage = document.getElementById("resentMessage");
+
 /**
  * 重複メールアドレスとdjangoによるメールアドレス形式チェック
  * @param {string} target 

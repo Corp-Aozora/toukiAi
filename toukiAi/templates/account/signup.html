@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "account/base.html" %}
 {% block title %} アカウント登録 | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
@@ -17,7 +17,7 @@
                 ご検討いただきありがとうございます！<br>
                 無料のサービスなので、ぜひお試しください！
             </p>
-            <form class="mt-4" method="POST">
+            <form class="mt-4" method="POST" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
                     <fieldset>
@@ -44,7 +44,7 @@
                                     </svg>
                                 </button>
                             {% endif %}
-                            <span id="{{field.auto_id}}_message" class="errorMessage emPosition rounded-3" style="display: none;">
+                            <span id="{{field.auto_id}}_messageEl" class="errorMessage emPosition rounded-3" style="display: none;">
                             </span>
                         </div>
                     {% if field.html_name == "password2" %}
@@ -52,18 +52,23 @@
                     {% endif %}
                 {% endfor %}
                 {% if form.errors %}
-                    <hr>
-                    <div class="pt-3 ps-3 fw-bold">
+                    <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                         {% for field, errors in form.errors.items %}
-                            <div class="border rounded-3">
+                            <div>
                                 {% if field == "__all__" %}
-                                    <div>フォーム全体のエラー</div>
+                                    <div>アカウントデータに関するエラー</div>
                                 {% else %}
-                                    <div>{{ field }}のエラー</div>
+                                    {% if field == "email" %}
+                                        <div>メールアドレスのエラー</div>
+                                    {% elif field == "password1" %}
+                                        <div>パスワードのエラー</div>
+                                    {% elif field == "password2" %}
+                                        <div>パスワード（確認用）のエラー</div>
+                                    {% endif %}
                                 {% endif %}
                                 <ul>
                                     {% for error in errors %}
-                                    <li class="text-danger">{{ error }}</li>
+                                    <li style="list-style-type: none;">{{ error }}</li>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -75,18 +80,18 @@
                         ※
                     </div>
                     <div>
-                        アカウント登録ボタンを押していただいた後、
+                        アカウント登録ボタンを押した後、
                         <span class="fw-bold border-bottom border-dark">
                             <span class="bg-warning-subtle">
                                 t.saga@yahoo.ne.jp
                             </span>
-                            から会員様専用ページのリンク
+                            から登録を確定させるためのリンク
                         </span>
-                        をお送りしますので受信の確認をお願いします。
+                        が届きますので受信の確認をお願いします。
                     </div>
                 </div>
                 <div class="text-center">
-                    <input id="signupBtn" class="btn btn-primary" type="submit" value="アカウント登録" tabindex="100">
+                    <input id="submitBtn" class="btn btn-primary" type="submit" value="アカウント登録" tabindex="100">
                 </div>
             </form>
         </div>

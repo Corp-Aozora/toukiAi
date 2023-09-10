@@ -2,11 +2,7 @@
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiAi/step_sidebar.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiAi/step_one.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiAi/step_header.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiAi/step_footer.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiAi/step_common.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_one.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -1263,9 +1259,5 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiAi/step-stepOne.js' %}"></script>
-    <script src="{% static 'toukiAi/step_sidebar.js' %}"></script>
-    <script src="{% static 'toukiAi/step_common.js' %}"></script>
-    <script src="{% static 'toukiAi/step_header.js' %}"></script>
-    <script src="{% static 'toukiAi/step_footer.js' %}"></script>
+    <script src="{% static 'toukiApp/step-stepOne.js' %}"></script>
 {% endblock %}

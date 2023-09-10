@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.conf import settings
 
 def has_permission(request):
     return request.user.is_staff
@@ -18,3 +19,9 @@ urlpatterns = [
     path("account/", include("allauth.urls")),
     path('account/', include('accounts.urls')),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

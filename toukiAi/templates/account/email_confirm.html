@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "account/base.html" %}
 {% block title %} メールアドレス認証 | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
@@ -9,26 +9,60 @@
 {% endblock %}
 
 {% block content %}
+
 {% if confirmation %}
-    <p>
-        ユーザー登録を確定するには下のボタンを押してください。
-    </p>
-    <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">確定</button>
-    </form>
+    <div class="col-lg-7 col-md-9 col-sm-9 mx-auto my-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <h4 class="card-title text-center border-bottom p-1">
+                    <span class="bg-warning-subtle rounded-3">
+                        始める前に
+                    </span>
+                </h4>
+                <div class="mt-3 card-text">
+                    <ol  class="list-group list-group-numbered fw-bold">
+                        <li class="list-group-item d-flex">
+                            <div class="ms-2">
+                                法務局は誤字脱字など細かい間違いにとても厳しいため、回答の選択やデータ入力にあたっては誤りのないようお慎重に願いします。
+                            </div>
+                          </li>
+                        <li class="list-group-item d-flex">
+                            <div class="ms-2">
+                                オプションのご利用は、アカウントページで選択することができます。
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <div class="ms-2">
+                                無料サービスを実現するために最低限の人数でお問い合わせ対応をしております。
+                                大変恐れ入りますが、お問い合わせ頂く前にシステム内の説明文を見落としてないかご確認をお願いします。
+                            </div>
+                        </li>
+                    </ol>
+                    <p class="mt-3 text-center fw-bold">
+                        <span class="border-bottom">
+                            不明なところがありましたら、しっかりサポートいたします。<br>
+                            一緒に頑張って相続登記を完了させましょう！
+                        </span>
+                    </p>
+                    <form method="post" class="mt-3" action="{% url 'account_confirm_email' confirmation.key %}">
+                        {% csrf_token %}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">始める</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% else %}
-    {% url 'account_email' as email_url %}
     <div class="mx-auto my-5">
         <h4>
-            リンクの有効期限（発行から3日以内）が過ぎてしまいました。<br>
+            リンクの無効になっています。<br>
         </h4>
         <p class="fw-bold text-center">
-            恐れ入りますが、再度
             <a class="p-2 fw-bold" href="{% url 'account_signup' %}">
                 アカウント登録
             </a>
-            をお願いします。
         </p>
     </div>
 {% endif %}

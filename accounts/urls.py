@@ -1,8 +1,12 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
  
 app_name = 'accounts'
 
 urlpatterns = [
-    path("signup/email_check", views.email_check, name="email_check"),
+    path("signup/is_new_email", views.is_new_email, name="is_new_email"),
+    path("password/reset/is_user_email", views.is_user_email, name="is_user_email"),
+    path("password/reset/done/is_user_email", views.is_user_email, name="is_user_email"),
+    path('confirm-email/resend_confirmation', views.resend_confirmation, name='resend_confirmation'),
 ]

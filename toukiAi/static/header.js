@@ -15,7 +15,7 @@ const toQAContentBtn = document.getElementById("toQAContentBtn");
     どのボタンが押されたかを取得してindexに移動する
 */
 function moveToIndex(pathname, e){
-    const indexURL = "/index/"
+    const indexURL = "/toukiApp/"
 
     // index以外のページのとき
     if(pathname !== indexURL) {

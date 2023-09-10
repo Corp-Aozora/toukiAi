@@ -49,11 +49,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'django.contrib.sites',    
     'allauth',     
     'allauth.account',     
     'allauth.socialaccount',
     # 'axes'
+]
+
+INTERNAL_IPS = [
+    '127.0.0.1',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     # 'axes.middleware.AxesMiddleware',
 ]
 
@@ -179,11 +185,12 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_AUTHENTICATION_METHOD = 'email'  # メールアドレス認証に変更する設定
 ACCOUNT_USERNAME_REQUIRED = False  # サインナップ、ログイン時のユーザーネーム認証をキャンセル
  
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # サインアップにメールアドレス確認を使用
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # サインアップにメールアドレス確認を使用
 ACCOUNT_EMAIL_REQUIRED = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
-LOGIN_URL = "/account/login"
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URL = 'toukiApp:step_one'  # ログイン成功後の遷移先の指定
 ACCOUNT_LOGOUT_REDIRECT_URL = 'toukiApp:index'  # ログアウト成功後の遷移先の指定
  
@@ -192,8 +199,16 @@ ACCOUNT_LOGOUT_ON_GET = True  # 確認を行わずログアウトする設定
 ACCOUNT_FORMS = {
     "signup": "accounts.forms.CustomSignupForm",
     'login': 'accounts.forms.CustomLoginForm',
+    "reset_password": "accounts.forms.CustomResetPasswordForm",
+    "reset_password_from_key": "accounts.forms.CustomResetPasswordKeyForm",
+    "reset_password_from_key_done": "accounts.forms.CustomResetPasswordKeyDoneForm",
 }
 
+SESSION_COOKIE_AGE = 604800
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+
+ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 0
 # ACCOUNT_ADAPTER = 'accounts.adapter.AccountAdapter'
 
 # # ログインの試行回数制限

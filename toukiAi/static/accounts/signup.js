@@ -3,42 +3,21 @@
 /**
  * 変数
  */
-//input要素
-const email = document.getElementById("id_email");
-const password1 = document.getElementById("id_password1");
-const password2 = document.getElementById("id_password2");
+//入力欄
 requiredInputArr = [email, password1, password2];
 
-const passDisplayToggle = document.getElementById("passDisplayToggle");
-const eye = document.getElementById("eye");
-const eyeSlash = document.getElementById("eyeSlash");
-const signupBtn = document.getElementById("signupBtn");
-const form = document.querySelector("form");
-
 //各欄のエラーメッセージを表示する要素のid
-const emailMessage = document.getElementById("id_email_message");
-const password1Message = document.getElementById("id_password1_message");
-const password2Message = document.getElementById("id_password2_message");
-messageElArr = [emailMessage, password1Message, password2Message];
+messageElArr = [emailMessageEl, password1MessageEl, password2MessageEl];
 
 //エラーメッセージ
-const emailInvalid = "メールアドレスの規格と一致しません";
-const password1Invalid = "半角で英数記号を含む8文字以上を入力してください";
-const password2Invalid = "上のパスワードと一致しません";
-messageArr = [emailInvalid, password1Invalid, password2Invalid];
-
-const emailIndex = 0;
-const password1Index = 1;
-const password2Index = 2;
-
-const errorlist = document.querySelector(".errorlist");
+messageArr = [emailMessage, password1Message, password2Message];
 
 /**
- * 重複メールアドレスチェック
+ * 重複メールアドレスとdjangoによるメールアドレス形式チェック
  * @param {string} target 
  */
-function isValidEmail(target){
-    const url = 'email_check';
+function isNewEmail(target){
+    const url = 'is_new_email';
   
     fetch(url, {
         method: 'POST',
@@ -50,31 +29,16 @@ function isValidEmail(target){
         mode: "same-origin"
     }).then(response => {
         return response.json();
-    })
-    .then(response => {
+    }).then(response => {
         if(response.message !== ""){
-            toggleErrorMessage(false, emailMessage, response.message);
-            return false;
+            toggleErrorMessage(false, messageElArr[emailIndex], response.message);
+            invalidElArr.push(requiredInputArr[index]);
         }else{
-            toggleErrorMessage(true, emailMessage, response.message);
-            return true;
+            toggleErrorMessage(true, messageElArr[emailIndex], response.message);
         }
-    })
-    .catch(error => {
+    }).catch(error => {
         console.log(error);
     });
-}
-
-/**
- * パスワード2の入力制御
- */
-function togglePassword2(){
-    if(password1.value === "" || password1Message.style.display !== "none"){
-        password2.setAttribute("maxlength", 0);
-        password2.value = "";
-    }else{
-        password2.removeAttribute("maxlength");
-    }
 }
 
 /**
@@ -92,8 +56,7 @@ function validationList(index){
         }else{
             invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
             //重複チェックとdjangoのメールアドレスバリデーション
-            isValid = isValidEmail(requiredInputArr[index].value);
-            if(isValid === false) invalidElArr.push(requiredInputArr[index]);
+            isNewEmail(requiredInputArr[index].value);
         }
     }else{
         //メールアドレス欄以外
@@ -122,7 +85,7 @@ window.addEventListener("load", ()=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
                 if(e.target === password2){
-                    signupBtn.focus();
+                    submitBtn.focus();
                 }else{
                     requiredInputArr[i + 1].focus();}
             }

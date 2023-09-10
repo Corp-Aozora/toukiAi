@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}サーバーエラー | {{ block.super}}{% endblock title %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto py-5">
+    <div class="text-center">
+        <h1>
+            システム側でエラーが発生しました
+        </h1>
+        <h4>
+            現在復旧中のため、恐れ入りますがある程度時間が経過した後に再度アクセスしてください。
+        </h4>
+        <p class="mt-5 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5">
+            <a href="{url `toukApp:index`}">
+                トップページに戻る
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+

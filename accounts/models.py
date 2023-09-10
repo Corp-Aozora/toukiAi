@@ -86,7 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     progress = models.CharField(verbose_name="進捗", default=1, choices=progress_choice, max_length=30)
     last_update = models.DateTimeField(verbose_name="最終更新日", auto_now=True)
     is_staff = models.BooleanField(verbose_name="スタッフ権限", default=False)
-    is_active = models.BooleanField(verbose_name="利用状況", default=False)
+    is_active = models.BooleanField(verbose_name="利用状況", default=True)
     date_joined = models.DateTimeField(verbose_name="利用開始日", auto_now_add=True)
 
     objects = UserManager()

@@ -1,6 +1,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_common.css' %}">
 {% endblock %}
 
 <header id="header" class="navbar navbar-expand-sm navbar-light bg-light p-3 sticky-top shadow-sm">
@@ -31,4 +32,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_header.js' %}"></script>
+    <script src="{% static 'toukiApp/step_common.js' %}"></script>
 {% endblock %}

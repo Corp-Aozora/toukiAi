@@ -36,7 +36,7 @@
         </div>
         <div>
             {% if user.is_authenticated %}
-                <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">ログアウト</a>
+                <a id="logoutBtn" class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">ログアウト</a>
             {% else %}
                 <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">ログイン</a>
                 <a class="btn btn-primary p-2 fw-bold" href="{% url 'toukiApp:condition' %}">アカウント登録</a>

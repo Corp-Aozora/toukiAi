@@ -1,0 +1,49 @@
+{% extends "account/base.html" %}
+{% load i18n %}
+
+{% block title %} ソーシャルログイン| {{ block.super }}{% endblock title %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="col-lg-6 mx-auto">
+        {% if process == "connect" %}
+            <h3 class="text-center">
+                {% blocktrans with provider.name as provider %}
+                    {{ provider }}アカウントを使用してログイン中
+                {% endblocktrans %}
+            </h3>
+            <div class="text-center">
+                <div class="spinner-border text-center mt-4" role="status">
+                    <span class="visually-hidden">
+                        確認中
+                    </span>
+                </div>
+            </div>
+        
+        {% else %}
+        <h3 class="text-center">
+            {% blocktrans with provider.name as provider %}
+                {{ provider }}アカウントを使用しますか？
+            {% endblocktrans %}
+        </h3>
+
+        {% endif %}
+
+        <form method="post" class="text-center mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">
+                {% blocktrans with provider.name as provider %}
+                    {{ provider }}
+                {% endblocktrans %}
+                アカウントでログインする
+            </button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

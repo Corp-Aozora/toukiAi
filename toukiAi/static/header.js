@@ -9,6 +9,7 @@ const toIntroContentBtn = document.getElementById("toIntroContentBtn");
 const toSupportContentBtn = document.getElementById("toSupportContentBtn");
 const toChargeContentBtn = document.getElementById("toChargeContentBtn");
 const toQAContentBtn = document.getElementById("toQAContentBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 /*
     index以外のページにいるときにヘッダーにあるボタンが押されたとき、
@@ -53,4 +54,13 @@ toChargeContentBtn.addEventListener("click", (e)=>{
 
 toQAContentBtn.addEventListener("click", (e)=>{
     moveToIndex(location.pathname, e);
+})
+
+logoutBtn.addEventListener("click", ()=>{
+    const date1 = new Date();
+	const date2 = date1.getHours() + "時" + 
+				date1.getMinutes() + "分" + 
+				date1.getSeconds() + "秒"
+    sessionStorage.setItem("logout", "true");
+    sessionStorage.setItem("lastUpdateDate", date2);
 })

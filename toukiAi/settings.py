@@ -37,7 +37,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     # '.localhost', '127.0.0.1', '[::1]'
-    "django-render-efwa.onrender.com"
+    "django-render-6agw.onrender.com/"
 ]
 
 # Application definition

@@ -20,9 +20,11 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 import textwrap
-# from toukiAi.settings import development
 from django.core.mail import BadHeaderError, EmailMessage
 from django.http import HttpResponse
+from django.db import transaction
+from smtplib import SMTPException
+import socket
 
 # Create your views here.
 def index(request):
@@ -30,57 +32,64 @@ def index(request):
     if request.method == "POST":
         form = OpenInquiryForm(request.POST)
         if form.is_valid():
-            form.save()
-            subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
-            content = textwrap.dedent('''
-                このメールはシステムからの自動返信です。
-                送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
+            with transaction.atomic():
+                try:
+                    form.save()
+                    subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
+                    content = textwrap.dedent('''
+                        このメールはシステムからの自動返信です。
+                        送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
 
-                以下の内容でお問い合わせを受け付けました。
-                
-                原則２４時間以内にご回答いたしますので、恐れ入りますが今少しお時間をください。
-                ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。
-                ※{company_mail_address}から受信できるように設定をお願いします。
-                
-                ----------------------------------
+                        以下の内容でお問い合わせを受け付けました。
+                        
+                        原則２４時間以内にご回答いたしますので、恐れ入りますが今少しお時間をください。
+                        ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。
+                        
+                        ----------------------------------
 
-                ・件名
-                {subject}
+                        件名
+                        {subject}
 
-                ・お問い合わせ内容
-                {content}
-                
-                -----------------------------------
-                {company_name}
-                {company_post_number}
-                {company_address}
-                TEL {company_phone_number}
-                営業時間 {company_opening_hours}
-                ホームページ {company_url}
-            ''').format(
-                company_mail_address=CompanyData.MAIL_ADDRESS,
-                subject=form.cleaned_data["subject"],
-                content=form.cleaned_data["content"],
-                company_name=CompanyData.NAME,
-                company_post_number=CompanyData.POST_NUMBER,
-                company_address=CompanyData.ADDRESS,
-                company_phone_number=CompanyData.PHONE_NUMBER,
-                company_opening_hours=CompanyData.OPENING_HOURS,
-                company_url=CompanyData.URL,
-            )
-            to_list = [form.cleaned_data["created_by"]]
-            bcc_list = ["toukiaidev@gmail.com"]
-            try:
-                message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
-                message.send()
-            except BadHeaderError:
-                return HttpResponse("無効なヘッダが検出されました。")
+                        お問い合わせ内容
+                        {content}
+                        
+                        -----------------------------------
+                        {company_name}
+                        {company_post_number}
+                        {company_address}
+                        TEL {company_phone_number}
+                        営業時間 {company_opening_hours}
+                        ホームページ {company_url}
+                    ''').format(
+                        subject=form.cleaned_data["subject"],
+                        content=form.cleaned_data["content"],
+                        company_name=CompanyData.NAME,
+                        company_post_number=CompanyData.POST_NUMBER,
+                        company_address=CompanyData.ADDRESS,
+                        company_phone_number=CompanyData.PHONE_NUMBER,
+                        company_opening_hours=CompanyData.OPENING_HOURS,
+                        company_url=CompanyData.URL,
+                    )
+                    to_list = [form.cleaned_data["created_by"]]
+                    bcc_list = ["toukiaidev@gmail.com"]
+                    message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
+                    message.send()
+                    messages.success(request, 'お問い合わせありがとうございます！')
+                    form = OpenInquiryForm()
+                    
+                except BadHeaderError:
+                    return HttpResponse("無効なヘッダが検出されました。")
+                except SMTPException as e:
+                    messages.error(request, f'SMTPエラーが発生しました {e}')
+                except socket.error as e:
+                    messages.error(request, f'ネットワークエラーが発生しました {e}')
+                except ValidationError as e:
+                    messages.warning(request, "データの保存に失敗しました。入力内容を確認してください。")
+                except Exception as e:
+                    messages.error(request, f'予期しないエラーが発生しました {e}')
             
-            messages.success(request, 'お問い合わせありがとうございます！')
-        
-            return redirect('/toukiApp/index')
         else:
-            messages.error(request, "お問い合わせを受信できませんでした")
+            messages.warning(request, "入力内容に誤りがあったため受付できませんでした")
             
     else:
         forms = OpenInquiryForm()

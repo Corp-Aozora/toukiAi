@@ -5,6 +5,7 @@ app_name = 'toukiApp'
  
 urlpatterns = [
     path("", views.index, name="index"),
+    path("index", views.index, name="index"),
     path("administrator", views.administrator, name="administrator"),
     path("commerce-law", views.commerceLaw, name="commerce-law"),
     path("privacy", views.privacy, name="privacy"),
@@ -16,5 +17,5 @@ urlpatterns = [
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 
     path("get_city", views.get_city, name="get_city"),
-
+    path("is_email", views.is_email, name="is_email"),
 ]

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .prefectures import PREFECTURES
 from .landCategorys import LANDCATEGORYS
 from .customDate import *
@@ -18,15 +18,80 @@ from django.http import JsonResponse
 import requests
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.contrib import messages
+import textwrap
+# from toukiAi.settings import development
+from django.core.mail import BadHeaderError, EmailMessage
+from django.http import HttpResponse
 
 # Create your views here.
 def index(request):
+    
+    if request.method == "POST":
+        form = OpenInquiryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
+            content = textwrap.dedent('''
+                このメールはシステムからの自動返信です。
+                送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
+
+                以下の内容でお問い合わせを受け付けました。
+                
+                原則２４時間以内にご回答いたしますので、恐れ入りますが今少しお時間をください。
+                ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。
+                ※{company_mail_address}から受信できるように設定をお願いします。
+                
+                ----------------------------------
+
+                ・件名
+                {subject}
+
+                ・お問い合わせ内容
+                {content}
+                
+                -----------------------------------
+                {company_name}
+                {company_post_number}
+                {company_address}
+                TEL {company_phone_number}
+                営業時間 {company_opening_hours}
+                ホームページ {company_url}
+            ''').format(
+                company_mail_address=CompanyData.MAIL_ADDRESS,
+                subject=form.cleaned_data["subject"],
+                content=form.cleaned_data["content"],
+                company_name=CompanyData.NAME,
+                company_post_number=CompanyData.POST_NUMBER,
+                company_address=CompanyData.ADDRESS,
+                company_phone_number=CompanyData.PHONE_NUMBER,
+                company_opening_hours=CompanyData.OPENING_HOURS,
+                company_url=CompanyData.URL,
+            )
+            to_list = [form.cleaned_data["created_by"]]
+            bcc_list = ["toukiaidev@gmail.com"]
+            try:
+                message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
+                message.send()
+            except BadHeaderError:
+                return HttpResponse("無効なヘッダが検出されました。")
+            
+            messages.success(request, 'お問い合わせありがとうございます！')
+        
+            return redirect('/toukiApp/index')
+        else:
+            messages.error(request, "お問い合わせを受信できませんでした")
+            
+    else:
+        forms = OpenInquiryForm()
+        
     update_articles = UpdateArticle.objects.order_by("-updated_by")[:2]
-    forms = OpenInquiryForm()
+    
     context = {
         "title" : "トップページ",
         "update_articles": update_articles,
         "forms": forms,
+        "company_mail_address": CompanyData.MAIL_ADDRESS,
     }
     return render(request, "toukiApp/index.html", context)
 
@@ -37,7 +102,6 @@ def step_one(request):
     user = User.objects.get(email = request.user)
     
     if request.method == "POST":
-        pass
         decendant_form = StepOneDecendantForm(request.POST)
         # relation_form = StepOneRelationForm(request.POST)
 
@@ -162,4 +226,18 @@ def get_city(request):
             "city" : "",
         }
         
+    return JsonResponse(context)
+
+#djangoのメール形式チェック
+def is_email(request):
+    input_email = request.POST.get("email")
+    
+    try:
+        validate_email(input_email)
+    except ValidationError:
+        context = {"message" : "メールアドレスの規格と一致しません",}
+        return JsonResponse(context)
+
+    context = {"message":"",}
+    
     return JsonResponse(context)

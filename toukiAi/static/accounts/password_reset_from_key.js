@@ -20,8 +20,6 @@ messageArr = [password1Message, password2Message];
 const password1Index = 0;
 const password2Index = 1;
 
-const errorlist = document.querySelector(".errorlist");
-
 /**
  * パスワード2の入力制御
  */
@@ -46,7 +44,7 @@ function validationList(index){
     toggleErrorMessage(isValid, messageElArr[index], messageArr[index]);
     
     if(isValid === false){
-        if(invalidElArr.indexOf(requiredInputArr[index] === -1)) invalidElArr.push(requiredInputArr[index]);
+        if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
     }else{
         invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
     }

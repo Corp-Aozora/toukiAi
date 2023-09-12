@@ -32,6 +32,54 @@
     </div>
 </div>
 
+{% for message in messages %}
+    {% if message.tags == "success" %}
+        <div id="inqurySuccessModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-center fw-bold">{{message}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        <span class="fw-bold border-bottom">
+                            原則２４時間以内
+                        </span>
+                        にご回答いたしますので、恐れ入りますが今少しお時間をください。<br>
+                        <span class="form-text">
+                            ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。<br>
+                            ※{{company_mail_address}}から受信できるように設定をお願いします。
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "error" %}
+        <div id="inquiryErrorModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-center fw-bold">{{message}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        <span class="fw-bold border-bottom">
+                            恐れ入りますが、エラー内容をご確認のうえ修正して再度お問い合わせをお願いします。
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+
+
 <div class="mx-md-auto">
     <div id="introContent" class="my-5">
         <h3 class="text-center">
@@ -449,7 +497,7 @@
     <hr>
     <div id="qaContent" class="my-5">
         <h3 class="text-center">
-            <span class="border-start border-5 border-primary ps-3">よくあるお問い合わせ</span>
+            <span class="border-start border-5 border-primary ps-3">Ｑ＆Ａ</span>
         </h3>
         <div class="row justify-content-center mt-4">
             <div class="w-75">
@@ -655,7 +703,7 @@
             ご不明な点がありましたらお気軽にお問い合わせください<br>
             サービス向上のためご意見もいただけると嬉しいです<br>
         </h4>
-        <form class="col-lg-6 col-md-8 col-sm-11 mx-auto">
+        <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
             {% csrf_token %}
             {% for field in forms %}
                 {% if not field.html_name == "content" %}
@@ -664,7 +712,7 @@
                             {{ field.label }}
                         </label>
                         {{ field }}
-                        <span class="errorMessage nameEmPosition" style="display: none;">
+                        <span id="{{field.auto_id}}_messageEl" class="errorMessage emPosition rounded-3" style="display: none;">
                         </span>
                     </div>
                 {% else %}
@@ -674,22 +722,71 @@
                         </span>
                         <p class="input-group mt-1">
                             {{ field }}
-                            <span class="errorMessage nameEmPosition" style="display: none;">
+                            <span id="{{field.auto_id}}_messageEl" class="errorMessage emPosition rounded-3" style="display: none;">
                             </span>
                         </p>
                     </div>
                 {% endif%}
             {% endfor %}
+            {% if form.errors %}
+                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                    {% for field, errors in form.errors.items %}
+                        <div>
+                            {% if field == "__all__" %}
+                                <div>アカウントデータに関するエラー</div>
+                            {% else %}
+                                {% if field == "created_by" %}
+                                    <div>メールアドレスのエラー</div>
+                                {% elif field == "subject" %}
+                                    <div>件名のエラー</div>
+                                {% elif field == "content" %}
+                                    <div>お問い合わせ内容のエラー</div>
+                                {% endif %}
+                            {% endif %}
+                            <ul>
+                                {% for error in errors %}
+                                <li style="list-style-type: none;">{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             <div class="text-center mt-3" disabled="true">
-                <button type="button" id="beforeSubmitBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal">送信</button>
+                <p class="text-danger">
+                    ※@yahoo.ne.jpからのメールを受信できるように設定をお願いします。
+                </p>
+                <button type="button" id="beforeSubmitBtn" class="btn btn-primary">送信</button>
                 <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalTitle" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="submitModalTitle">メールアドレスと内容にお間違えはないですか？</h1>
+                                <h1 class="modal-title text-center fs-5" id="submitModalTitle">
+                                    メールアドレスと内容にお間違えはないですか？
+                                </h1>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary">送信する</button>
+                            <div class="modal-body">
+                                <div class="mt-3">
+                                    <div class="badge rounded-pill text-bg-light fs-6 fw-bold">
+                                        メールアドレス
+                                    </div>
+                                    <p>
+                                        <span id="modalCreatedBy">
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="badge rounded-pill text-bg-light fs-6 fw-bold">
+                                        お問い合わせ内容
+                                    </div>
+                                    <p>
+                                        <span id="modalContent">
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-evenly">
+                                <button id="submitBtn" type="submit" class="btn btn-primary">送信する</button>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">修正する</button>
                             </div>
                         </div>

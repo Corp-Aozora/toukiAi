@@ -1,4 +1,5 @@
 class CompanyData:
+    APP_NAME = "誰でも相続登記"
     NAME = "株式会社SAGA"
     POST_NUMBER = "100-1000"
     ADDRESS = "福岡県福岡市天神1丁目1番1号"
@@ -10,7 +11,7 @@ class CompanyData:
     CAPITAL = "100万円"
     SUPERVISER = "司法書士 田中太郎"
     SUPERVISER_BELONG = "福岡県司法書士会所属 第1号"
-    URL = "https://toukiapp"
+    URL = "https://django-render-6agw.onrender.com"
     CHARGE = "サイト上部の料金からご確認いただけます。"
     PAYMENT = "銀行振込／クレジットカード決済"
     PAYMENT_TERMS = "アカウント登録時。オプションは都度。"

@@ -33,8 +33,8 @@ class OpenInquiry(CommonModel):
         settings.AUTH_USER_MODEL,
         verbose_name = "最終回答者",
         on_delete = models.CASCADE,
-        null = False,
-        blank = False,
+        null=True,
+        blank=True,
         related_name = "open_inquiry_updated_by",
         limit_choices_to={"is_staff": True},
     )

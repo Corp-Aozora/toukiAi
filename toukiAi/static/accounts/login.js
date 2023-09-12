@@ -16,7 +16,7 @@ function validationList(index){
         isValid = isEmail(requiredInputArr[index].value);
         if(isValid[0] === false){
             toggleErrorMessage(isValid[0], messageElArr[index], isValid[1]);
-            if(invalidElArr.indexOf(requiredInputArr[index] === -1)) invalidElArr.push(requiredInputArr[index]);
+            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
         }else{
             invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
         }
@@ -28,7 +28,7 @@ function validationList(index){
         toggleErrorMessage(isValid, messageElArr[index], messageArr[index]);
         
         if(isValid === false){
-            if(invalidElArr.indexOf(requiredInputArr[index] === -1)) invalidElArr.push(requiredInputArr[index]);
+            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
         }else{
             invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
         }

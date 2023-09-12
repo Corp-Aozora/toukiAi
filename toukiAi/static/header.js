@@ -4,11 +4,13 @@ let isIntroButton = "isIntroButton";
 let isSupportButton = "isSupportButton";
 let isChargeButton = "isChargeButton";
 let isQAButton = "isQAButton";
+let isInquiryButton = "isInquiryButton";
 let yes = "yes"
 const toIntroContentBtn = document.getElementById("toIntroContentBtn");
 const toSupportContentBtn = document.getElementById("toSupportContentBtn");
 const toChargeContentBtn = document.getElementById("toChargeContentBtn");
 const toQAContentBtn = document.getElementById("toQAContentBtn");
+const toInquiryContentBtn = document.getElementById("toInquiryContentBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 
 /*
@@ -30,6 +32,8 @@ function moveToIndex(pathname, e){
             sessionStorage.setItem(isChargeButton, yes);
         }else if(e.target.classList.contains("toQAContent")){
             sessionStorage.setItem(isQAButton, yes);
+        }else if(e.target.classList.contains("toInquiryContent")){
+            sessionStorage.setItem(isInquiryButton, yes);
         }
         
         //indexに移動する
@@ -53,6 +57,10 @@ toChargeContentBtn.addEventListener("click", (e)=>{
 })
 
 toQAContentBtn.addEventListener("click", (e)=>{
+    moveToIndex(location.pathname, e);
+})
+
+toInquiryContentBtn.addEventListener("click", (e)=>{
     moveToIndex(location.pathname, e);
 })
 

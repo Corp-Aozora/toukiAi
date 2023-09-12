@@ -18,11 +18,17 @@ ALLOWED_HOSTS = [
     '.localhost', '127.0.0.1', '[::1]'
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# DEFAULT_FROM_EMAIL = 't.saga@yahoo.ne.jp'    #送信元のアドレスを指定
-# EMAIL_HOST = 'ymobilesmtp.mail.yahoo.ne.jp' 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
+# DEFAULT_FROM_EMAIL = '誰でも相続登記 <t.saga@yahoo.ne.jp>'    #送信元のアドレスを指定
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.mail.yahoo.co.jp' 
 # EMAIL_PORT = 465                            
 # EMAIL_HOST_USER = 't.saga@yahoo.ne.jp'   
 # EMAIL_HOST_PASSWORD = 'saga2497'           
 # EMAIL_USE_TLS = True    
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'toukiaidev@gmail.com'
+EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
+EMAIL_USE_TLS = True 

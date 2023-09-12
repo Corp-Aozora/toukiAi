@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         (0, "振込"),
         (1, "カード"),
     )
-    payment = models.CharField(verbose_name="支払方法", default=2, choices=payment_choice, max_length=30)
+    payment = models.CharField(verbose_name="支払方法", default=1, choices=payment_choice, max_length=30)
     pay_amount = models.PositiveIntegerField(verbose_name="支払額", default=0)
     progress_choice = (
         (0, "step1"),
@@ -83,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         (4, "step5"),
         (5, "step6"),
     )
-    progress = models.CharField(verbose_name="進捗", default=1, choices=progress_choice, max_length=30)
+    progress = models.CharField(verbose_name="進捗", default=0, choices=progress_choice, max_length=30)
     last_update = models.DateTimeField(verbose_name="最終更新日", auto_now=True)
     is_staff = models.BooleanField(verbose_name="スタッフ権限", default=False)
     is_active = models.BooleanField(verbose_name="利用状況", default=True)

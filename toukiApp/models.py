@@ -16,6 +16,34 @@ from .prefectures import *
 from .common_model import *
 from accounts.models import User
 
+# お問い合わせ内容
+# 質問者のメールアドレス/件名/質問内容/回答内容/回答者/質問日/回答日
+class OpenInquiry(CommonModel):
+    created_by = models.EmailField(verbose_name="メールアドレス")
+    subject_list = (
+        ("サポート内容", "サポート内容"),
+        ("オプション", "オプション"),
+        ("提携司法書士", "提携司法書士"),
+        ("運営者", "運営者"),
+        ("その他", "その他"),
+    )
+    subject = models.CharField(verbose_name="件名", max_length=20, choices=subject_list, null=False, blank=False)
+    content = models.TextField(verbose_name="内容", max_length=300, null=False, blank=False)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終回答者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "open_inquiry_updated_by",
+        limit_choices_to={"is_staff": True},
+    )
+    
+    fields = ["created_by", "subject", "content"]
+    
+    class Meta:
+        verbose_name = _("一般お問い合わせ")
+        verbose_name_plural = _("一般お問い合わせ")
 
 # 被相続人
 # 親：ユーザー
@@ -129,12 +157,6 @@ class Relation(CommonModel):
         verbose_name_plural = _("親族")
 
 # 更新情報
-def validate_staff(value):
-    is_staff = User.objects.filter(pk = value).exists()
-    
-    if is_staff == False:
-        raise ValidationError("スタッフ権限がありません", params={"value": value})
-
 class UpdateArticle(CommonModel):
     title = models.CharField(verbose_name="タイトル", max_length=20)
     article = models.TextField(verbose_name="記事", max_length=100)
@@ -154,6 +176,12 @@ class UpdateArticle(CommonModel):
         blank = False,
         related_name = "update_article_update_by"
     )
+    
+    def validate_staff(value):
+        is_staff = User.objects.filter(pk = value).exists()
+        
+        if is_staff == False:
+            raise ValidationError("スタッフ権限がありません", params={"value": value})
 
     class Meta:
         verbose_name = _("更新情報")

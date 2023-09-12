@@ -22,9 +22,11 @@ from django.core.exceptions import ValidationError
 # Create your views here.
 def index(request):
     update_articles = UpdateArticle.objects.order_by("-updated_by")[:2]
+    forms = OpenInquiryForm()
     context = {
         "title" : "トップページ",
         "update_articles": update_articles,
+        "forms": forms,
     }
     return render(request, "toukiApp/index.html", context)
 

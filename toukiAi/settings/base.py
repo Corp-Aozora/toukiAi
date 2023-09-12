@@ -19,26 +19,14 @@ from dj_database_url import parse as dburl
 env = environ.Env()
 env.read_env(".env")
 
+# DJANGO_SETTINGS_MODULE = env("DJANGO_SETTINGS_MODULE")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.getenv('SECRET_KEY')
-SECRET_KEY = "django-insecure-mb&-%9clmw_gpl1e6=0h3tlg3r=@o08ja75+21b880n&l1xq7t"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
-# DEBUG = "RENDER" not in os.environ
-
-ALLOWED_HOSTS = [
-    # '.localhost', '127.0.0.1', '[::1]'
-    "django-render-6agw.onrender.com"
-]
 
 # Application definition
 INSTALLED_APPS = [
@@ -50,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
     'django.contrib.sites',    
     'allauth',     
     'allauth.account',     
@@ -59,10 +46,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.line',
     'allauth.socialaccount.providers.yahoo',
     # 'axes'
-]
-
-INTERNAL_IPS = [
-    '127.0.0.1',
 ]
 
 MIDDLEWARE = [
@@ -74,7 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     # 'axes.middleware.AxesMiddleware',
 ]
 
@@ -191,8 +173,6 @@ ACCOUNT_USERNAME_REQUIRED = False  # サインナップ、ログイン時のユ�
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # サインアップにメールアドレス確認を使用
 ACCOUNT_EMAIL_REQUIRED = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URL = 'toukiApp:step_one'  # ログイン成功後の遷移先の指定
 ACCOUNT_LOGOUT_REDIRECT_URL = 'toukiApp:index'  # ログアウト成功後の遷移先の指定

@@ -7,17 +7,6 @@
     width: 280px!important;
 }
 
-.text-evenly{
-    display: block!important;
-    text-align: justify!important;
-    text-align-last: justify!important;
-}
-
-.text-indent{
-    display: inline-block;
-    text-indent: 1rem;
-}
-
 li{
     list-style: none!important;
 }
@@ -45,4 +34,15 @@ li{
     border: 15px solid transparent;
     border-top: 15px solid var(--bs-danger);
     margin-left: -15px;
+}
+
+.label{
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+    font-weight: 700!important;
+}
+
+.shadow-sm-above {
+    box-shadow: 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }

@@ -7,6 +7,32 @@ from .models import *
 
 CustomUser = get_user_model()
 
+# 一般お問い合わせ
+# created_by:メールアドレス, subject:件名, content:内容
+class OpenInquiryForm(forms.ModelForm):
+    class Meta:
+        model = OpenInquiry
+        fields = model.fields
+        widgets = {
+            "subject": forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.base_fields['created_by'].widget.attrs.update({
+            'class': 'form-control rounded-end',
+            'autocomplete': 'on',
+            "placeholder": "弊社からの回答が届くメールアドレス",
+        })
+        
+        self.base_fields["subject"].widget.attrs.update({"class": "form-select text-center cursor-pointer"})
+        
+        self.base_fields['content'].widget.attrs.update({
+            'class': 'form-control rounded-end',
+            "placeholder": "例）問い合わせは何回しても対応してくれるの？\n(※300文字まで)",
+        })
+                
+        super().__init__(*args, **kwargs)
+
 # STEP1の被相続人情報
 class StepOneDecendantForm(forms.ModelForm):
     class Meta:

@@ -75,7 +75,6 @@ def index(request):
                     message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
                     message.send()
                     messages.success(request, 'お問い合わせありがとうございます！')
-                    forms = OpenInquiryForm()
                     
                 except BadHeaderError:
                     return HttpResponse("無効なヘッダが検出されました。")
@@ -90,6 +89,8 @@ def index(request):
             
         else:
             messages.warning(request, "入力内容に誤りがあったため受付できませんでした")
+            
+        return redirect("/toukiApp/index")
             
     else:
         forms = OpenInquiryForm()

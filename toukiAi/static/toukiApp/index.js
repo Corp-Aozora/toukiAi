@@ -3,12 +3,14 @@
 const introContent = document.getElementById('introContent');
 const supportContent = document.getElementById('supportContent');
 const chargeContent = document.getElementById('chargeContent');
+const compareContent = document.getElementById('compareContent');
 const qaContent = document.getElementById('qaContent');
 const inquiryContent = document.getElementById('inquiryContent');
 const header = document.getElementById("header");
 const toIntroContent = document.getElementsByClassName("toIntroContent");
 const toSupportContent = document.getElementsByClassName("toSupportContent");
 const toChargeContent = document.getElementsByClassName("toChargeContent");
+const toCompareContent = document.getElementsByClassName("toCompareContent");
 const toQAContent = document.getElementsByClassName("toQAContent");
 const toInquiryContent = document.getElementsByClassName("toInquiryContent");
 
@@ -121,6 +123,7 @@ window.addEventListener("load", ()=>{
     addScrollEvent(toIntroContent, introContent);
     addScrollEvent(toSupportContent, supportContent);
     addScrollEvent(toChargeContent, chargeContent);
+    addScrollEvent(toCompareContent, compareContent);
     addScrollEvent(toQAContent, qaContent);
     addScrollEvent(toInquiryContent, inquiryContent);
 
@@ -136,6 +139,8 @@ window.addEventListener("load", ()=>{
     }
     else if(sessionStorage.getItem(isQAButton) === yes){
         scrollToTarget(qaContent, 0);
+    }else if(sessionStorage.getItem(isCompareButton) === yes){
+        scrollToTarget(compareContent, 0);
     }else if(sessionStorage.getItem(isInquiryButton) === yes){
         scrollToTarget(inquiryContent, 0);
     }

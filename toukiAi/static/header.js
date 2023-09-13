@@ -3,12 +3,14 @@
 let isIntroButton = "isIntroButton";
 let isSupportButton = "isSupportButton";
 let isChargeButton = "isChargeButton";
+let isCompareButton = "isCompareButton";
 let isQAButton = "isQAButton";
 let isInquiryButton = "isInquiryButton";
 let yes = "yes"
 const toIntroContentBtn = document.getElementById("toIntroContentBtn");
 const toSupportContentBtn = document.getElementById("toSupportContentBtn");
 const toChargeContentBtn = document.getElementById("toChargeContentBtn");
+const toCompareContentBtn = document.getElementById("toCompareContentBtn");
 const toQAContentBtn = document.getElementById("toQAContentBtn");
 const toInquiryContentBtn = document.getElementById("toInquiryContentBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -32,6 +34,8 @@ function moveToIndex(pathname, e){
             sessionStorage.setItem(isChargeButton, yes);
         }else if(e.target.classList.contains("toQAContent")){
             sessionStorage.setItem(isQAButton, yes);
+        }else if(e.target.classList.contains("toCompareContent")){
+            sessionStorage.setItem(isCompareButton, yes);
         }else if(e.target.classList.contains("toInquiryContent")){
             sessionStorage.setItem(isInquiryButton, yes);
         }
@@ -53,6 +57,10 @@ toSupportContentBtn.addEventListener("click", (e)=>{
 })
 
 toChargeContentBtn.addEventListener("click", (e)=>{
+    moveToIndex(location.pathname, e);
+})
+
+toCompareContentBtn.addEventListener("click", (e)=>{
     moveToIndex(location.pathname, e);
 })
 

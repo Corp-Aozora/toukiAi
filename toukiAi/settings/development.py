@@ -30,3 +30,14 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'toukiaidev@gmail.com'
 EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
 EMAIL_USE_TLS = True 
+
+DATABASES = {
+    'default':{
+        'ENGINE':'django.db.backends.postgresql',
+        'NAME':'django_render_db_63qk',
+        'USER':'django_user',
+        'PASSWORD':'wmWQekZ8WodiGi2g5fdjZ5J0orMqUWMi',
+        'HOST':'dpg-cjv53lh5mpss7397ds40-a',
+        'PORT':'5432',
+    }
+}

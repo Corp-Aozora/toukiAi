@@ -92,8 +92,19 @@ WSGI_APPLICATION = 'toukiAi.wsgi.application'
 
 default_dburl = "sqlite:///" + str(BASE_DIR / "db.sqlite3")
 
+# DATABASES = {
+#     "default": config("DATABASE_URL", default=default_dburl, cast=dburl),
+# }
+
 DATABASES = {
-    "default": config("DATABASE_URL", default=default_dburl, cast=dburl),
+    'default':{
+        'ENGINE':'django.db.backends.postgresql',
+        'NAME':'toukiai',
+        'USER':'tatsuyasaga',
+        'PASSWORD':'saga2497',
+        'HOST':'localhost',
+        'PORT':'5432',
+    }
 }
 
 

@@ -74,7 +74,7 @@ def index(request):
                     bcc_list = ["toukiaidev@gmail.com"]
                     message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
                     message.send()
-                    messages.success(request, 'お問い合わせありがとうございます！')
+                    messages.info(request, 'お問い合わせ成功')
                     
                 except BadHeaderError:
                     return HttpResponse("無効なヘッダが検出されました。")

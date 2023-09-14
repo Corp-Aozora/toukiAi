@@ -145,14 +145,23 @@ window.addEventListener("load", ()=>{
         scrollToTarget(inquiryContent, 0);
     }
 
-    //ログアウトボタンが押されたときモーダルを表示してログアウトが完了したことを知らせる
-    if(sessionStorage.getItem("logout") === "true"){
-        const logoutModal = new bootstrap.Modal(document.getElementById("logoutModal"));
+    //ログアウトされたとき完了したことを知らせる
+    const logoutModal = new bootstrap.Modal(document.getElementById("logoutModal"));
+    if(logoutModal !== null){
         const lastUpdateDate = document.getElementById("lastUpdateDate");
         lastUpdateDate.innerHTML = sessionStorage.getItem("lastUpdateDate");
         logoutModal.show();
     }
 
+    const inquryInfoModal = new bootstrap.Modal(document.getElementById("inquryInfoModal"));
+    if(inquryInfoModal !== null )inquryInfoModal.show();
+
+    const inquiryErrorModal = new bootstrap.Modal(document.getElementById("inquiryErrorModal"));
+    if(inquiryErrorModal !== null ){
+        inquiryErrorModal.show();
+        scrollToTarget(inquiryContent);
+    }
+    
     //セッション情報を初期化
     sessionStorage.clear();
 
@@ -164,15 +173,6 @@ window.addEventListener("load", ()=>{
                 requiredInputArr[i + 1].focus();
             }
         })
-    }
-
-    const inqurySuccessModal = new bootstrap.Modal(document.getElementById("inqurySuccessModal"));
-    if(inqurySuccessModal !== null )inqurySuccessModal.show();
-
-    const inquiryErrorModal = new bootstrap.Modal(document.getElementById("inquiryErrorModal"));
-    if(inquiryErrorModal !== null ){
-        inquiryErrorModal.show();
-        scrollToTarget(inquiryContent);
     }
 }) 
 

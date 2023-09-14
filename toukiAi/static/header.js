@@ -77,6 +77,5 @@ logoutBtn.addEventListener("click", ()=>{
 	const date2 = date1.getHours() + "時" + 
 				date1.getMinutes() + "分" + 
 				date1.getSeconds() + "秒"
-    sessionStorage.setItem("logout", "true");
     sessionStorage.setItem("lastUpdateDate", date2);
 })

@@ -12,7 +12,7 @@ let checkedCount = 0;
     @param {event} e
 */
 function showResult(e){
-    const signupURL = "/account/signup";
+    const signupURL = "/account/signup/";
     const btnSignup = document.getElementById("btnSignup");
     const availableText = document.getElementById("availableText");
     const linkToSignup = document.getElementById("linkToSignup");

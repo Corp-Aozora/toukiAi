@@ -185,6 +185,7 @@ ACCOUNT_FORMS = {
     "reset_password": "accounts.forms.CustomResetPasswordForm",
     "reset_password_from_key": "accounts.forms.CustomResetPasswordKeyForm",
     "reset_password_from_key_done": "accounts.forms.CustomResetPasswordKeyDoneForm",
+    'change_password': 'accounts.forms.CustomChangePasswordForm',
 }
 
 SESSION_COOKIE_AGE = 604800

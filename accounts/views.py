@@ -14,6 +14,7 @@ import requests
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from allauth.account.utils import send_email_confirmation
+from django.contrib.auth.hashers import check_password
 
 #重複メールアドレスチェック
 def is_new_email(request):
@@ -50,6 +51,16 @@ def is_user_email(request):
     except User.DoesNotExist:
         context = {"message" : "入力されたメールアドレスは登録されてません",}
         return JsonResponse(context)
+
+#パスワードの同一チェック
+def is_oldpassword(request):
+    input = request.POST.get("oldpassword")
+    user = request.user
+    
+    data = {
+        'is_valid': check_password(input, user.password)
+    }
+    return JsonResponse(data)
 
 #不正な投稿があったとき
 def csrf_failure(request, reason=""):

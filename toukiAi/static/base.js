@@ -398,7 +398,7 @@ function isAlphaNumSymbolIncluded(val, el){
  * @param {element} el エラーメッセージを表示する要素
  * @param {string} message エラーメッセージ
  */
-function toggleErrorMessage(isValid, el, message){
+function toggleErrorMessage(isValid, el, message=""){
     //入力値が適切でないとき
     if(isValid){
         //エラーメッセージを隠す

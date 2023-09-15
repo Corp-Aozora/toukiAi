@@ -32,7 +32,7 @@ function isNewEmail(target){
     }).then(response => {
         if(response.message !== ""){
             toggleErrorMessage(false, messageElArr[emailIndex], response.message);
-            invalidElArr.push(requiredInputArr[index]);
+            invalidElArr.push(requiredInputArr[emailIndex]);
         }else{
             toggleErrorMessage(true, messageElArr[emailIndex], response.message);
         }

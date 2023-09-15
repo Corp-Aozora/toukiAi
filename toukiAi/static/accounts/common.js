@@ -3,6 +3,7 @@
  */
 let email = document.getElementById("id_email");
 const password = document.getElementById("id_password");
+const oldpassword = document.getElementById("id_oldpassword");
 const password1 = document.getElementById("id_password1");
 const password2 = document.getElementById("id_password2");
 
@@ -13,16 +14,19 @@ const submitBtn = document.getElementById("submitBtn");
 const form = document.querySelector("form");
 
 let emailMessageEl = document.getElementById("id_email_messageEl");
+const oldpasswordMessageEl = document.getElementById("id_oldpassword_messageEl");
 const passwordMessageEl = document.getElementById("id_password_messageEl");
 const password1MessageEl = document.getElementById("id_password1_messageEl");
 const password2MessageEl = document.getElementById("id_password2_messageEl");
 
 const emailMessage = "メールアドレスの規格と一致しません";
+const oldpasswordMessage = "登録されているパスワードと一致しません";
 const passwordMessage = "半角で英数記号を含む8文字以上を入力してください";
 const password1Message = "半角で英数記号を含む8文字以上を入力してください";
 const password2Message = "上のパスワードと一致しません";
 
 const emailIndex = 0;
+const oldpasswordIndex = 0;
 const passwordIndex = 1;
 const password1Index = 1;
 const password2Index = 2;
@@ -39,6 +43,23 @@ function togglePassword2(){
     if(password1.value === "" || password1MessageEl.style.display !== "none"){
         password2.setAttribute("maxlength", 0);
     }else{
-        password2.removeAttribute("maxlength");
+        password2.setAttribute("maxlength", 30);
     }
 }
+
+window.addEventListener("load", ()=>{
+    //パスワード欄があるとき、パスワードの表示ボタンのトグル機能を追加する
+    if(passDisplayToggle !== null){
+        passDisplayToggle.addEventListener("click", ()=>{
+            if(eye.style.display === hidden){
+                password1.type = "password";
+                eye.style.display = display;
+                eyeSlash.style.display = hidden;
+            }else if(eye.style.display !== hidden) {
+                password1.type = "text";
+                eye.style.display = hidden;
+                eyeSlash.style.display = display;
+            }
+        })
+    }
+})

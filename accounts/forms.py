@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from toukiApp.company_data import Service
 from django.utils import timezone
 from .models import *
-from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm
+from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm, ChangePasswordForm
 
 CustomUser = get_user_model()
 
@@ -89,6 +89,34 @@ class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
         
         self.fields["password2"].widget.attrs.update({
             "tabindex" : "2",
+            "class": "form-control rounded-end",
+            "placeholder": "もう一度ご入力ください",
+            "maxlength": "0",
+        })
+        
+        self.fields["password2"].label = "再入力"
+        
+# パスワードの変更
+class CustomChangePasswordForm(ChangePasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields["oldpassword"].widget.attrs.update({
+            "tabindex" : "1",
+            "class": "form-control rounded-end",
+            "placeholder": "現在のパスワード",
+            "maxlength" :"30",
+        })
+                
+        self.fields["password1"].widget.attrs.update({
+            "tabindex" : "2",
+            "class": "form-control rounded-end",
+            "placeholder": "半角英数記号を含むで8文字以上",
+            "maxlength" :"30",
+        })
+        
+        self.fields["password2"].widget.attrs.update({
+            "tabindex" : "3",
             "class": "form-control rounded-end",
             "placeholder": "もう一度ご入力ください",
             "maxlength": "0",

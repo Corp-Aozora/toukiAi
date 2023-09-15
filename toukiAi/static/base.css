@@ -24,6 +24,8 @@ li{
     color: #fff;
     border-radius: 5px;
     background: var(--bs-danger);
+    background-image: var(--bs-gradient)!important;
+    border-radius: var(--bs-border-radius-lg)!important;
 }
 
 .errorMessage:before {
@@ -34,6 +36,30 @@ li{
     border: 15px solid transparent;
     border-top: 15px solid var(--bs-danger);
     margin-left: -15px;
+    background-image: var(--bs-gradient)!important;
+}
+
+.verifying {
+    position: absolute;
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.6em;
+    color: #fff;
+    border-radius: 5px;
+    background: var(--bs-warning);
+    background-image: var(--bs-gradient)!important;
+    border-radius: var(--bs-border-radius-lg)!important;
+}
+
+.verifying:before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    border: 15px solid transparent;
+    border-top: 15px solid var(--bs-warning);
+    margin-left: -15px;
+    background-image: var(--bs-gradient)!important;
 }
 
 .label{

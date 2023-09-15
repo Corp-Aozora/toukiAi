@@ -13,7 +13,7 @@ urlpatterns = [
     path("condition", views.condition, name="condition"),
     
     path('step_one', views.step_one, name='step_one'),
-    path("step_user", views.step_user, name="step_user"),
+    path("step_option_select", views.step_option_select, name="step_option_select"),
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 
     path("get_city", views.get_city, name="get_city"),

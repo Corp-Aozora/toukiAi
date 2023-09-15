@@ -121,3 +121,8 @@
         </li>
     </ul>
 </div>  
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_sidebar.js' %}"></script>
+{% endblock %}

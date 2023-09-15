@@ -11,12 +11,28 @@
         </button>
         <div id="headerMenus" class="collapse navbar-collapse">
             <ul class="navbar-nav py-md-0 justify-content-start">
-                <li id="logoArea" class="navbar-brand nav-item">
+                <li class="navbar-brand nav-item">
                     <a id="logo" class="text-dark" style="text-decoration: none;" href="{% url 'toukiApp:index' %}">（ロゴ）</a>
                 </li>
-                <li id="linkToAccountArea" class="nav-item my-auto">
-                    <a id="linkToAccount" class="fw-bold text-decoration-none text-dark" href="{% url 'toukiApp:step_user' %}">
-                        {{ user.username }}様
+                <li class="nav-item mx-3">
+                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'toukiApp:step_option_select' %}">
+                        <button class="btn btn-outline-primary p-2 fw-bold">
+                            オプションを利用する
+                        </button>
+                    </a>
+                </li>
+                <li class="nav-item mx-3">
+                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'account_change_password' %}">
+                        <button class="btn btn-outline-primary p-2 fw-bold">
+                            パスワードを変更
+                        </button>
+                    </a>
+                </li>
+                <li class="nav-item mx-3">
+                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'account_email' %}">
+                        <button class="btn btn-outline-primary p-2 fw-bold">
+                            メールアドレスを変更
+                        </button>
                     </a>
                 </li>
                 <li id="linkToProgressArea" class="nav-item ms-3" style="display: none;">

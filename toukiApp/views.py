@@ -149,7 +149,7 @@ def step_one(request):
     return render(request, "toukiApp/step_one.html", context)
 
 #ユーザー情報
-def step_user(request):
+def step_option_select(request):
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
     
@@ -160,7 +160,7 @@ def step_user(request):
         "user": user,
     }
 
-    return render(request, 'toukiApp/step_user.html', context)
+    return render(request, 'toukiApp/step_option_select.html', context)
 
 #お問い合わせ
 def step_inquiry(request):

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{title}}| {{ block.super}}{% endblock title %}
+{% block title %}{{title}}| {{block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/index.css' %}">
@@ -13,14 +13,43 @@
 
 {% block content %}
 
+{% if is_inquiry %}
+    <div class="modal inquiry-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center">
+                    <h5 class="modal-title fw-bold text-center">
+                        お問い合わせありがとうございます！
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pb-3">
+                    <span class="fw-bold border-bottom">
+                        原則２４時間以内
+                    </span>
+                    にご回答いたしますので、恐れ入りますが今少しお時間をください。<br>
+                    <span class="form-text">
+                        ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。<br>
+                        ※{{company_mail_address}}から受信できるように設定をお願いします。
+                    </span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
 {% for message in messages %}
-    {% if message.tags == "success" %}
+    {% if message.tags == "success"%}
         <div id="logoutModal" class="modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">ログアウトしました。</h5>
+                    <div class="modal-header justify-content-center">
+                        <h5 class="modal-title">
+                            ログアウトしました。
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -36,36 +65,12 @@
                 </div>
             </div>
         </div>
-    {% elif message.tags == "info" %}
-        <div id="inquryInfoModal" class="modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title text-center fw-bold">{{message}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body pb-3">
-                        <span class="fw-bold border-bottom">
-                            原則２４時間以内
-                        </span>
-                        にご回答いたしますので、恐れ入りますが今少しお時間をください。<br>
-                        <span class="form-text">
-                            ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。<br>
-                            ※{{company_mail_address}}から受信できるように設定をお願いします。
-                        </span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     {% elif message.tags == "warning" %}
-        <div id="inquiryErrorModal" class="modal" tabindex="-1">
+        <div class="modal modal-warning inquiry-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title text-center fw-bold">お問い合わせを受付できませんでした</h5>
+                    <div class="modal-header justify-content-center">
+                        <h5 class="modal-title fw-bold">お問い合わせを受付できませんでした</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body pb-3">
@@ -80,11 +85,11 @@
             </div>
         </div>
     {% elif message.tags == "error" %}
-        <div id="inquiryErrorModal" class="modal" tabindex="-1">
+        <div class="modal inquiry-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title text-center fw-bold">{{message|until:" "}}</h5>
+                    <div class="modal-header justify-content-center">
+                        <h5 class="modal-title fw-bold">{{message|until:" "}}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body pb-3">
@@ -1038,10 +1043,10 @@
                 <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalTitle" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title text-center fs-5" id="submitModalTitle">
+                            <div class="modal-header justify-content-center">
+                                <h5 class="modal-title" id="submitModalTitle">
                                     メールアドレスと内容にお間違えはないですか？
-                                </h1>
+                                </h5>
                             </div>
                             <div class="modal-body">
                                 <div class="mt-3">

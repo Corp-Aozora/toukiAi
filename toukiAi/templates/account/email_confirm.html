@@ -16,7 +16,7 @@
             <div class="card-body">
                 <h4 class="card-title text-center border-bottom p-1">
                     <span class="bg-warning-subtle rounded-3">
-                        始める前に
+                        ご利用開始の前に
                     </span>
                 </h4>
                 <div class="mt-3 card-text">
@@ -28,21 +28,19 @@
                           </li>
                         <li class="list-group-item d-flex">
                             <div class="ms-2">
-                                オプションのご利用は、アカウントページで選択することができます。
+                                オプションをご利用される場合、会員専用ページの上部にある「オプションを申込む」ボタンからお申込みいただけます。
                             </div>
                         </li>
                         <li class="list-group-item d-flex">
                             <div class="ms-2">
                                 無料サービスを実現するために最低限の人数でお問い合わせ対応をしております。
-                                大変恐れ入りますが、お問い合わせ頂く前にシステム内の説明文を見落としてないかご確認をお願いします。
+                                大変恐れ入りますが、お問い合わせいただく前にシステム内の説明文を見落としてないかご確認をお願いします。
                             </div>
                         </li>
                     </ol>
                     <p class="mt-3 text-center fw-bold">
-                        <span class="border-bottom">
-                            不明なところがありましたら、しっかりサポートいたします。<br>
-                            一緒に頑張って相続登記を完了させましょう！
-                        </span>
+                        ご不明なところがありましたら、しっかりサポートさせていただきます。<br>
+                        一緒に頑張って相続登記を完了させましょう！
                     </p>
                     <form method="post" class="mt-3" action="{% url 'account_confirm_email' confirmation.key %}">
                         {% csrf_token %}

@@ -1,5 +1,5 @@
 from allauth.account.adapter import DefaultAccountAdapter
-from allauth.account.signals import email_confirmed
+from allauth.account.signals import email_confirmed,  user_logged_out
 from django.dispatch import receiver
 from django.contrib.auth import login
 

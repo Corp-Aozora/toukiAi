@@ -33,9 +33,11 @@ const errorlist = document.querySelector(".errorlist");
  * パスワード2の入力制御
  */
 function togglePassword2(){
+    //パス１の値が変更されたら常にパス２は初期化する
+    password2.value = "";
+    //パス１が未入力又はエラー表示されているときは、パス２は入力できないようにする
     if(password1.value === "" || password1MessageEl.style.display !== "none"){
         password2.setAttribute("maxlength", 0);
-        password2.value = "";
     }else{
         password2.removeAttribute("maxlength");
     }

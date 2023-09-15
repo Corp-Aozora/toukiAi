@@ -17,3 +17,4 @@ def after(value, arg):
         return value[index+len(arg):]
     except ValueError:
         return value
+    

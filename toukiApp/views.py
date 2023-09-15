@@ -26,8 +26,12 @@ from django.db import transaction
 from smtplib import SMTPException
 import socket
 
-# Create your views here.
 def index(request):
+    is_inquiry = False
+    
+    if "post_success" in request.session and request.session["post_success"]:
+        is_inquiry = True
+        del request.session["post_success"]
     
     if request.method == "POST":
         form = OpenInquiryForm(request.POST)
@@ -74,7 +78,7 @@ def index(request):
                     bcc_list = ["toukiaidev@gmail.com"]
                     message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
                     message.send()
-                    messages.info(request, 'お問い合わせ成功')
+                    request.session["post_success"] = True
                     
                 except BadHeaderError:
                     return HttpResponse("無効なヘッダが検出されました。")
@@ -103,7 +107,9 @@ def index(request):
         "forms": forms,
         "company_app_name": CompanyData.APP_NAME,
         "company_mail_address": CompanyData.MAIL_ADDRESS,
+        "is_inquiry": is_inquiry,
     }
+    
     return render(request, "toukiApp/index.html", context)
 
 def step_one(request):

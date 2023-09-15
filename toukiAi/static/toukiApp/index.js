@@ -145,23 +145,24 @@ window.addEventListener("load", ()=>{
         scrollToTarget(inquiryContent, 0);
     }
 
+    //問い合わせ関連のモダールを表示する
+    const inquiryModals = document.getElementsByClassName("inquiry-modal")
+    for(let i = 0; i < inquiryModals.length; i++){
+        const modal = new bootstrap.Modal(inquiryModals[i]);
+        modal.show();
+
+        if(inquiryModals[i].classList.contains("modal-warning")) scrollToTarget(inquiryModals[i]);
+    }
+
     //ログアウトされたとき完了したことを知らせる
-    const logoutModal = new bootstrap.Modal(document.getElementById("logoutModal"));
-    if(logoutModal !== null){
+    const logoutModalEl = (document.getElementById("logoutModal"));
+    if(logoutModalEl !== null){
+        const logoutModal = new bootstrap.Modal(logoutModalEl);
         const lastUpdateDate = document.getElementById("lastUpdateDate");
         lastUpdateDate.innerHTML = sessionStorage.getItem("lastUpdateDate");
         logoutModal.show();
     }
 
-    const inquryInfoModal = new bootstrap.Modal(document.getElementById("inquryInfoModal"));
-    if(inquryInfoModal !== null )inquryInfoModal.show();
-
-    const inquiryErrorModal = new bootstrap.Modal(document.getElementById("inquiryErrorModal"));
-    if(inquiryErrorModal !== null ){
-        inquiryErrorModal.show();
-        scrollToTarget(inquiryContent);
-    }
-    
     //セッション情報を初期化
     sessionStorage.clear();
 

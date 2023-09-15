@@ -13,9 +13,3 @@ class Command(BaseCommand):
                 password=settings.SUPERUSER_PASSWORD
             )
             print("スーパーユーザー作成")
-        
-        User.objects.create_superuser(
-            username="test_user",
-            email="t.saga@yahoo.ne.jp",
-            password="111111a;"
-        )

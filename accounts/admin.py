@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import gettext_lazy as _
-from .models import User
+from .models import *
 
 class MyUserChangeForm(UserChangeForm):
     class Meta:
@@ -41,3 +41,25 @@ class MyUserAdmin(UserAdmin):
     ordering = ('username',)
 
 admin.site.register(User, MyUserAdmin)
+
+# 一般お問い合わせ
+class EmailChangeForm(forms.ModelForm):
+    class Meta:
+        model = EmailChange
+        fields = '__all__'
+
+class EmailChangeAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('user', "email", "token")}),
+        (_('Important dates'), {'fields': ('updated_at', "created_at")}),
+    )
+    
+    readonly_fields = ("user", "email", "token",'updated_at', "created_at")
+    
+    form = EmailChangeForm
+    list_display = ('updated_at', 'user', "email")
+    list_filter = ('updated_at', 'user', "email")
+    search_fields = ('updated_at', 'user', "email")
+    ordering = ["-updated_at"]
+
+admin.site.register(EmailChange, EmailChangeAdmin)

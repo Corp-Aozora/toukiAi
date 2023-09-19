@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from toukiApp.company_data import Service
 from django.utils import timezone
 from .models import *
-from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm, ChangePasswordForm
+from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm, ChangePasswordForm, AddEmailForm
 
 CustomUser = get_user_model()
 
@@ -123,3 +123,20 @@ class CustomChangePasswordForm(ChangePasswordForm):
         })
         
         self.fields["password2"].label = "再入力"
+
+# メールアドレスの変更
+class ChangeEmailForm(forms.ModelForm):
+    
+    class Meta:
+        model = EmailChange
+        fields = model.fields
+        labels = {"email":"メールアドレス"}
+
+    def __init__(self, *args, **kwargs):
+        self.base_fields['email'].widget.attrs.update({
+            "tabindex" : "1",
+            "class": "form-control rounded-end",
+            "placeholder": "新しいメールアドレス",
+        })
+                
+        super().__init__(*args, **kwargs)

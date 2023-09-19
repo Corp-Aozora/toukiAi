@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf import settings
+from accounts import views as accounts_view
 
 def has_permission(request):
     return request.user.is_staff
@@ -18,6 +19,7 @@ urlpatterns = [
     path("", RedirectView.as_view(url="/toukiApp/")),
     path("account/", include("allauth.urls")),
     path('account/', include('accounts.urls')),
+    path('403/', accounts_view.error_403, name="error_403")
 ]
 
 if settings.DEBUG:

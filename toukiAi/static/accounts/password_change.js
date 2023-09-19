@@ -33,12 +33,12 @@ function validationList(index){
  */
 function verificatePassword(val){
     const url = 'is_oldpassword';
-    const addEl = `<span id="id_oldpassword_verifyingEl" class="verifying emPosition">
+    const verifyingEl = `<span id="id_oldpassword_verifyingEl" class="verifying emPosition">
                     照合中
                     <div class="spinner-border text-white spinner-border-sm" role="status">
                     </div>
                     </span>`;
-    oldpassword.insertAdjacentHTML('afterend', addEl);
+    oldpassword.insertAdjacentHTML('afterend', verifyingEl);
 
     fetch(url, {
         method: 'POST',

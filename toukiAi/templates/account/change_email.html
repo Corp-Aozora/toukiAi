@@ -1,0 +1,86 @@
+{% extends "account/base.html" %}
+{% block title %} {{title}} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/change_email.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3">
+    <div class="card shadow px-3">
+        <div class="card-body">
+            <h4 class="card-title border-bottom text-center">
+                メールアドレスの変更
+            </h4>
+            <p class="mt-4 text-center">
+                現在登録されているメールアドレス
+            </p>
+            <p class="fw-bold text-center fs-5 bg-warning-subtle rounded-3">
+                {{email}}
+            </p>
+            <form method="POST" action="{% url 'accounts:change_email' %}" novalidate>
+                {% csrf_token %}
+                {% for field in forms %}
+                    {% if field.html_name == "email" %}
+                        <div class="input-group mt-4">
+                            <label class="input-group-text label" for="{{ field.auto_id }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
+                            </span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <p class="mt-4">
+                    ※変更ボタンが押された後、新しいメールアドレス宛に変更を確定させるためのリンクをメールしますのでご確認をお願いします。
+                </p>
+                <div class="mt-4 text-center">
+                    <input id="submitBtn" class="btn btn-primary" type="submit" value="変更" tabindex="2">
+                </div>
+            </form>
+            {% if forms.errors %}
+                <div class="fw-bold bg-danger-subtle text-danger border rounded-3 px-3 pt-3 mt-4">
+                    {% for field, errors in forms.errors.items %}
+                        <div>
+                            {% if field == "__all__" %}
+                                <div>アカウントデータに関するエラー</div>
+                            {% elif field == "email" %}
+                                <div>メールアドレスのエラー</div>
+                            {% endif %}
+                            <ul>
+                                {% for error in errors %}
+                                <li style="list-style-type: none;">{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    <p class="text-center text-success bg-success-subtle fw-bold rounded-3 mt-4 p-1">
+                        {{message}}
+                    </p>
+                {% elif message.tags == "warning" or message.tags == "error" %}
+                    <p class="text-center text-danger bg-danger-subtle fw-bold rounded-3 mt-4 p-1">
+                        {{message}}
+                    </p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'accounts/change_email.js' %}"></script>
+{% endblock %}

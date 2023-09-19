@@ -4,6 +4,9 @@
     <link rel="stylesheet" href="{% static 'toukiApp/step_common.css' %}">
 {% endblock %}
 
+{% for message in messages %}
+{% endfor %}
+
 <header id="header" class="navbar navbar-expand-sm navbar-light bg-light p-3 sticky-top shadow-sm">
     <nav class="container">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#headerMenus" aria-controls="headerMenus" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,9 +32,16 @@
                     </a>
                 </li>
                 <li class="nav-item mx-3">
-                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'account_email' %}">
+                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'accounts:change_email' %}">
                         <button class="btn btn-outline-primary p-2 fw-bold">
                             メールアドレスを変更
+                        </button>
+                    </a>
+                </li>
+                <li class="nav-item mx-3">
+                    <a class="fw-bold text-decoration-none text-dark" href="#">
+                        <button class="btn btn-outline-primary p-2 fw-bold">
+                            アカウントを削除
                         </button>
                     </a>
                 </li>

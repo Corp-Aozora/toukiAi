@@ -104,3 +104,26 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)    
+
+# メールアドレス変更申請
+# 親：ユーザー
+class EmailChange(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="ユーザー",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="EmailChange",
+    )
+    
+    email = models.EmailField(verbose_name="変更後のメールアドレス", unique=True)
+    token = models.CharField(verbose_name="トークン", max_length=100, unique=True)
+    created_at = models.DateTimeField(verbose_name="作成日", auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name="最終更新日", auto_now=True)
+    
+    fields =["email", "user", "token"]
+    
+    class Meta:
+        verbose_name = _("メールアドレス変更申請")
+        verbose_name_plural = _("メールアドレス変更申請")

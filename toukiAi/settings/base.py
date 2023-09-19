@@ -204,3 +204,5 @@ ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 0
 # AXES_LOCKOUT_TEMPLATE = "toukiapp/signin.html"
 # AXES_COOKIE_NAME = "axes-cookies"
 # AXES_LOCKOUT_URL = "/toukiapp/signin"
+
+# HANDLER_403 = 'accounts.views.error_403'

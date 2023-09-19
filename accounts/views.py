@@ -25,7 +25,21 @@ from toukiApp.company_data import *
 import secrets
 from datetime import datetime, timedelta
 
-#重複メールアドレスチェック
+#djangoのメール形式チェック
+def is_valid_email_pattern(request):
+    input_email = request.POST.get("email")
+   
+    try:
+        validate_email(input_email)
+        context = {"message": ""}
+
+    except ValidationError:
+        context = {"message" : "有効なメールアドレスを入力してください",}
+        
+    return JsonResponse(context)
+
+
+#djangoのメール形式チェックと重複メールアドレスチェック
 def is_new_email(request):
     input_email = request.POST.get("email")
     is_duplicate = User.objects.filter(email = input_email).exists()
@@ -177,6 +191,7 @@ def change_email(request):
     
     return render(request, "account/change_email.html", context)
 
+#メールアドレス変更の認証リンクがクリックされたとき
 def confirm_email(request, token):
     try:
         data = EmailChange.objects.filter(token = token).first()
@@ -210,5 +225,6 @@ def confirm_email(request, token):
     
     return redirect("/403/")
 
+#403が発生したとき
 def error_403(request):
     return render(request, "403.html", status=403)

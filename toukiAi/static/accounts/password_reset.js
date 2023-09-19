@@ -37,11 +37,11 @@ function accountResetPassword(input){
             }).catch(error => {
                 console.log(error);
             });
-        }else{
-            location.href = "done/"
         }
     }).catch(error => {
         console.log(error);
+    }).finally(()=>{
+        location.href = "done/"
     });
 }
 
@@ -126,12 +126,12 @@ window.addEventListener("load", ()=>{
 //フォーム
 form.addEventListener("submit", (e)=>{
 
+    e.preventDefault();
     emailCheck();
     
     //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
     if(invalidElArr.length > 0){
         invalidElArr[0].focus();
-        e.preventDefault();
         return;
     } 
 

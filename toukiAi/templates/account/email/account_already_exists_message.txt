@@ -1,0 +1,17 @@
+{% extends "account/email/base_message.txt" %}
+{% load i18n %}
+
+{% block content %}
+{% autoescape off %}
+{% blocktrans %}
+下記のメールアドレスを利用した新規登録の申請があったため、お知らせいたしました。
+{{ email }}
+
+この登録申請に覚えがない場合は、他者がお客様のアカウントを利用しようとしている可能性が
+ありますので、下記リンクからパスワードの変更を推奨します。
+
+{{ password_reset_url }}
+
+{% endblocktrans %}
+{% endautoescape %}
+{% endblock %}

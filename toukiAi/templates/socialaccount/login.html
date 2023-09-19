@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-lg-6 mx-auto">
+    <div class="col-lg-6 mx-auto my-5">
         {% if process == "connect" %}
             <h3 class="text-center">
                 {% blocktrans with provider.name as provider %}
@@ -22,14 +22,12 @@
                     </span>
                 </div>
             </div>
-        
         {% else %}
-        <h3 class="text-center">
-            {% blocktrans with provider.name as provider %}
-                {{ provider }}アカウントを使用しますか？
-            {% endblocktrans %}
-        </h3>
-
+            <h3 class="text-center">
+                {% blocktrans with provider.name as provider %}
+                    {{ provider }}アカウントを使用しますか？
+                {% endblocktrans %}
+            </h3>
         {% endif %}
 
         <form method="post" class="text-center mt-4">

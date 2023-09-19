@@ -1,0 +1,14 @@
+{% autoescape off %}
+{% blocktrans with site_name=current_site.name %}
+    こんにちは、{{ site_name }}です。
+{% endblocktrans %}
+
+{% block content %}
+{% endblock %}
+
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+    {{ site_name }}をご利用いただきありがとうございます!
+    {{ site_domain }}
+{% endblocktrans %}
+
+{% endautoescape %}

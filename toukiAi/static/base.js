@@ -153,7 +153,7 @@ function slideToggle(el){
 function scrollToTarget(el, duration = 250) {
     let rect = el.getBoundingClientRect();
     const header = document.getElementById("header");
-    let gap = header.clientHeight;
+    let gap = header.clientHeight + 40;
     let targetPosition = rect.top + window.scrollY - gap;
 
     setTimeout(() => {

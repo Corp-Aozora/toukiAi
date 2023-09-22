@@ -3,6 +3,9 @@
 /**
     変数
 */
+//この章の入力状況欄
+const guideBtns = [document.getElementsByClassName("guideBtn")[0]];
+
 //被相続人欄
 const decendantName = document.getElementById("id_name");
 const deathYear = document.getElementById("id_death_year");
@@ -274,12 +277,19 @@ window.addEventListener("load", ()=>{
             }
         })
     }
+
+    requiredInputArr[0].focus();
 })
 
 //画面のサイズが変更されたとき
 window.addEventListener('resize', () => {
     setSidebarHeight();
 });
+
+//この章の入力状況欄
+guideBtns[0].addEventListener("click",(e)=>{
+    scrollToTarget(decendantFieldset, 0);
+})
 
 //氏名
 decendantName.addEventListener("keypress",(e)=>{

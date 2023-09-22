@@ -1,9 +1,9 @@
 form fieldset:first-of-type label{
-    width: 90px;
+    width: 90px!important;
 }
 
 form fieldset:first-of-type > div{
-    min-width: 335px;
+    width: 335px!important;
 }
 
 .single-word-label{
@@ -26,3 +26,27 @@ form fieldset:first-of-type > div{
     text-align: center;
 }
 
+section.container{
+    width: 500px;
+}
+
+section.card{
+    width: 400px!important;
+    height: 400px!important;
+    position: sticky!important;
+    top: var(--top)!important;
+}
+
+section.card li{
+    padding-left: 0.5rem!important;
+    border-left: 0.125rem solid transparent;
+}
+
+.active{
+    border-left-color: var(--bs-primary)!important;
+}
+
+.active button{
+    color: var(--bs-primary)!important;
+    font-weight: bold;
+}

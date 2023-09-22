@@ -1,5 +1,8 @@
 "use strict";
 
+/**
+ * 全テンプレートで共通の変数
+ */
 const display = "block";
 const hidden = "none";
 const smWidth = 575;
@@ -17,6 +20,10 @@ let messageElArr = [];
 let messageArr = [];
 let invalidElArr = [];
 let isValid;
+
+const submitBtn = document.getElementById("submitBtn");
+const form = document.querySelector("form");
+const errorlist = document.querySelector(".errorlist");
 
 /**
  * テキストを強調する
@@ -280,10 +287,13 @@ function isEmail(email) {
 
 /**
  * スペース削除する
+ * @param {string} val 
+ * @param {element} el
  */
-function trimSpace(value, el){
-    el.value = value.replace(/ |　/g, "");
-    return value;
+function trimAllSpace(val, el){
+    const trimedVal = val.replace(/ |　/g, "");
+    el.value = trimedVal;
+    return trimedVal;
 }
 
 /**
@@ -294,8 +304,7 @@ function trimSpace(value, el){
  */
 function isBlank(value, el){
     const str = value.trim();
-    if(str.length === 0) el.value = "";
-    return str.length === 0 ? false: str;
+    return str.length === 0 ? "入力が必須です": false;
 }
 
 /**
@@ -304,7 +313,7 @@ function isBlank(value, el){
  * @param {element} el 
  * @returns 要素に改行コードを空文字に変換した文字列を入力する
  */
-function isMultiLine(value, el){
+function toSingleLine(value, el){
     el.value = value.replace(/\n|\r/g, "");
 }
 
@@ -325,20 +334,21 @@ function isSymbolIncluded(value, el){
 }
 
 /**
- * テキストボックス形式チェック
- * @param {string} value チェック対象の値 
+ * 全角入力チェック
+ * @param {string} val チェック対象の値 
  * @param {element} el チェック対象の要素
- * @returns 条件に一致しないときはfalse、一致するときは、校正した文字列を返す
+ * @returns 条件に一致しないときはエラーメッセージ、一致するときは、校正した文字列を返す
  */
-function checkTextInput(value, el){
-    const str = isBlank(value, el);
-    if(str === false) return false;
+function isOnlyZenkaku(val, el){
+    //スペースを削除
+    let str = trimAllSpace(val,el)
+    if(str.length == 0) return "入力が必須です";
 
-    isMultiLine(str, el);
+    //改行チェック
+    toSingleLine(str, el);
 
-    const result = isSymbolIncluded(str, el);
-
-    return result;
+    //英数記号チェックの結果を返す
+    return isAlphaNumSymbolIncluded(str);
 }
 
 /**
@@ -382,13 +392,12 @@ const csrftoken = getCookie('csrftoken');
 /**
  * アルファベット、数字、記号が含まているかチェック
  * @param {string} val 
- * @param {element} el 
 */
-function isAlphaNumSymbolIncluded(val, el){
+function isAlphaNumSymbolIncluded(val){
     if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・]+$/.test(val)){
-        return false;
-    }else{
         return true;
+    }else{
+        return "英数記号は使用できません";
     };
 }
 
@@ -399,7 +408,7 @@ function isAlphaNumSymbolIncluded(val, el){
  * @param {string} message エラーメッセージ
  */
 function toggleErrorMessage(isValid, el, message=""){
-    //入力値が適切でないとき
+    //入力値が適切なとき
     if(isValid){
         //エラーメッセージを隠す
         el.style.display = hidden;

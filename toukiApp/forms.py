@@ -7,7 +7,7 @@ from .models import *
 
 CustomUser = get_user_model()
 
-# 一般お問い合わせ
+# 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容
 class OpenInquiryForm(forms.ModelForm):
     class Meta:
@@ -34,7 +34,7 @@ class OpenInquiryForm(forms.ModelForm):
                 
         super().__init__(*args, **kwargs)
 
-# STEP1の被相続人情報
+# STEP1の被相続人フォーム
 class StepOneDecendantForm(forms.ModelForm):
     class Meta:
         model = Decendant
@@ -45,24 +45,25 @@ class StepOneDecendantForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        for field in self.base_fields.values():
+        for i,field in enumerate(self.base_fields.values()):
             if field.label == "ユーザー":
                 field.required = False
             
             else:
+                field.widget.attrs.update({"tabindex": str(i)})
                 if field.label == "氏名":
-                    field.widget.attrs.update({"class": "form-control col-lg-6"})
+                    field.widget.attrs.update({"class": "form-control rounded-end"})
                     field.widget.attrs.update({"placeholder": "姓名間にスペースなし"})
                     field.widget.attrs.update({"maxlength": "30"})
                 else:
-                    field.widget.attrs.update({"class": "form-select text-center cursor-pointer"})
+                    field.widget.attrs.update({"class": "form-select text-center cursor-pointer rounded-end"})
                     
                     if field.label in ["本籍地の市区町村", "住所の市区町村"]:
                         field.disabled = True
                 
         super().__init__(*args, **kwargs)
     
-# STEP1の親族情報  
+# STEP1の配偶者フォーム
 class StepOneRelationForm(forms.ModelForm):
     class Meta:
         model = Relation

@@ -1,7 +1,7 @@
 class Sections:
     STEP1 = "基本データ入力"
-    STEP1_1 = "被相続人（お亡くなりになった方）について"
-    STEP1_2 = "被相続人の相続関係図"
+    STEP1_1 = "お亡くなりになった方について"
+    STEP1_2 = "相続人の判定"
     STEP1_CONTENT = [
         STEP1_1, 
         STEP1_2,

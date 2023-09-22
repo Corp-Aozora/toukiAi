@@ -10,8 +10,6 @@ const password2 = document.getElementById("id_password2");
 const passDisplayToggle = document.getElementById("passDisplayToggle");
 const eye = document.getElementById("eye");
 const eyeSlash = document.getElementById("eyeSlash");
-const submitBtn = document.getElementById("submitBtn");
-const form = document.querySelector("form");
 
 let emailMessageEl = document.getElementById("id_email_messageEl");
 const oldpasswordMessageEl = document.getElementById("id_oldpassword_messageEl");
@@ -31,7 +29,6 @@ const passwordIndex = 1;
 const password1Index = 1;
 const password2Index = 2;
 
-const errorlist = document.querySelector(".errorlist");
 
 /**
  * パスワード2の入力制御

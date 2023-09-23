@@ -38,7 +38,7 @@ section.card{
 }
 
 section.card li{
-    padding-left: 0.5rem!important;
+    padding-left: 0.75rem!important;
     border-left: 0.125rem solid transparent;
 }
 
@@ -49,4 +49,19 @@ section.card li{
 .active button{
     color: var(--bs-primary)!important;
     font-weight: bold;
+}
+
+#guideList{
+    counter-reset: section 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;;
+}
+
+#guideList li > button:before{
+    counter-increment: section 1;
+    content: counter(section);
+    font: bold;
+    font-size: 1rem;
+    padding-right: 0.5rem;
 }

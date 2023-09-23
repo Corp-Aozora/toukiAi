@@ -1,11 +1,31 @@
 class Sections:
     STEP1 = "基本データ入力"
     STEP1_1 = "お亡くなりになった方について"
-    STEP1_2 = "相続人の判定"
+    STEP1_2 = "配偶者について"
+    STEP1_3 = "子全員について"
+    STEP1_4 = "子について"
+    STEP1_5 = "父について"
+    STEP1_6 = "母について"
+    STEP1_7 = "父方の祖父について"
+    STEP1_8 = "父方の祖母について"
+    STEP1_9 = "母方の祖父について"
+    STEP1_10 = "母方の祖母について"
+    STEP1_11 = "兄弟姉妹全員について"
+    STEP1_12 = "兄弟姉妹について"
     STEP1_CONTENT = [
         STEP1_1, 
         STEP1_2,
-        ]
+        STEP1_3,
+        STEP1_4,
+        STEP1_5,
+        STEP1_6,
+        STEP1_7,
+        STEP1_8,
+        STEP1_9,
+        STEP1_10,
+        STEP1_11,
+        STEP1_12,
+    ]
 
     STEP2 = "必要書類一覧"
     STEP2_1 = "登記対象の不動産の登記情報又は全部事項証明書"
@@ -23,7 +43,7 @@ class Sections:
         STEP2_5,
         STEP2_6,
         STEP2_7,
-        ]
+    ]
 
     STEP3 = "詳細データ入力"
     STEP3_1 = "被相続人情報"
@@ -43,7 +63,7 @@ class Sections:
         STEP3_6,
         STEP3_7,
         STEP3_8,
-        ]
+    ]
 
     STEP4 = "書類の印刷"
     STEP4_1 = "遺産分割協議証明書"
@@ -53,7 +73,7 @@ class Sections:
         STEP4_1,
         STEP4_2,
         STEP4_3,
-        ]
+    ]
 
     STEP5 = "法務局に申請"
     STEP5_1 = "下記書類を各通コピーしてください"
@@ -69,7 +89,7 @@ class Sections:
         STEP5_4,
         STEP5_5,
         STEP5_6,
-        ]
+    ]
 
     STEP6 = "申請後について"
     STEP6_1 = "提出した書類に不備があった場合"
@@ -79,7 +99,7 @@ class Sections:
         STEP6_1,
         STEP6_2,
         STEP6_3,
-        ]
+    ]
 
     SERVICE_CONTENT = [
         STEP1,

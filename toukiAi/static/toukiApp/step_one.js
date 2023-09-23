@@ -5,6 +5,10 @@
 */
 //この章の入力状況欄
 const guideBtns = [document.getElementsByClassName("guideBtn")[0]];
+const progressListArr = [document.getElementsByClassName("progressList")[0]];
+const caretIconsArr = [document.getElementsByClassName("guideCaret")[0]];
+const checkIconsArr = [];
+let inProgressIndex = 0;
 
 //被相続人欄
 const decendantName = document.getElementById("id_name");
@@ -47,13 +51,15 @@ let collateralColumnPBIdx;
 let collateralColumnsPBIdxArr = [];
 
 //各入力欄のインデックス
-const decendantNameIdx = 0;
-const deathYearIdx = 1;
-const deathMonthIdx = 2;
-const prefectureIdx = 3;
-const cityIdx = 4;
-const domicilePrefectureIdx = 5;
-const domicileCityIdx = 6;
+class DecendantColumnInputIndex{
+    static decendantNameIdx = 0;
+    static deathYearIdx = 1;
+    static deathMonthIdx = 2;
+    static prefectureIdx = 3;
+    static cityIdx = 4;
+    static domicilePrefectureIdx = 5;
+    static domicileCityIdx = 6;
+}
 
 //input以外の要素を取得する（各欄でセットし直す）
 const decendantFieldset = document.querySelector("fieldset");
@@ -146,6 +152,7 @@ function getCityData(val, el){
  * @param {num} i 押されたボタンのインデックス
  */
 function enableNextColumn(i){
+
     //表示対象のフィールドセット
     const targetField = document.getElementsByTagName("fieldset")[i + 1];
     //必須欄に追加する
@@ -159,9 +166,37 @@ function enableNextColumn(i){
     targetField.before(hr);
     scrollToTarget(targetField);
     
-    
-    // //前の項目を無効化する
+    //前の項目を無効化する
     requiredFieldsetsArr[i].disabled = true;
+
+    //前の項目を通常表示にする
+    checkIconsArr.push(document.getElementsByClassName("guideCheck")[inProgressIndex]);
+
+    progressListArr[inProgressIndex].classList.remove("active");
+    caretIconsArr[inProgressIndex].style.display = "none";
+    checkIconsArr[inProgressIndex].style.display = "inline-block";
+
+    
+    //入力状況を次の項目が選択状態にする
+    inProgressIndex += 1;
+    progressListArr.push(document.getElementsByClassName("progressList")[inProgressIndex]);
+    guideBtns.push(document.getElementsByClassName("guideBtn")[inProgressIndex]);
+    caretIconsArr.push(document.getElementsByClassName("guideCaret")[inProgressIndex]);
+
+    progressListArr[inProgressIndex].classList.add("active");
+    guideBtns[guideBtns.length - 1].disabled = false;
+    caretIconsArr[inProgressIndex].style.display = "inline-block";
+
+    //次の項目のガイドボタンにイベントを追加
+    guideBtns[inProgressIndex].addEventListener("click", enableNextGuidBtn);
+}
+
+/**
+ * 次のガイドボタンにイベントを設定する
+ * @param {event} e 
+ */
+function enableNextGuidBtn(e){
+
 }
 
 /**
@@ -186,6 +221,28 @@ function enablePreviousColumn(i){
     //直前の項目を有効化してスクロール
     enableField.disabled = false;
     scrollToTarget(enableField);
+
+
+        // 一つ先の項目を無効化する
+        // progressListArr[inProgressIndex].classList.remove("active");
+        // progressListArr = progressListArr.pop();
+    
+        // guideBtns[inProgressIndex].removeEventListener("click", enableNextGuidBtn);
+        // guideBtns[inProgressIndex].disabled = true;
+        // guideBtns = guideBtns.pop();
+    
+        // caretIconsArr[inProgressIndex].style.display = "none";
+        // caretIconsArr = caretIconsArr.pop();
+    
+    
+        // //このボタンが選択されている状態にする
+        // inProgressIndex -= 1;
+        // checkIconsArr[inProgressIndex].style.display = "none";
+        // checkIconsArr = checkIconsArr.pop();
+    
+        // progressListArr[inProgressIndex].classList.add("active");
+    
+        // caretIconsArr[inProgressIndex].style.display = "inline-block";
 }
 
 /**
@@ -287,7 +344,10 @@ window.addEventListener('resize', () => {
 });
 
 //この章の入力状況欄
+//１．お亡くなりになった方についてボタン
 guideBtns[0].addEventListener("click",(e)=>{
+    
+    //対象の入力欄にスクロール
     scrollToTarget(decendantFieldset, 0);
 })
 

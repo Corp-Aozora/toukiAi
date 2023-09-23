@@ -121,6 +121,8 @@ class Relation(CommonModel):
     )
     exist = models.CharField(max_length=10, choices=exist_list)
     is_live = models.BooleanField(verbose_name="今も健在", default=True)
+    is_step_child = models.BooleanField(verbose_name="連れ子", default=False)
+    is_half_parent = models.BooleanField(verbose_name="異父母", default=False)
     is_japan = models.BooleanField(verbose_name="日本在住", default=True)
     is_adult = models.BooleanField(verbose_name="成人", default=True)
     prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, default="")
@@ -150,6 +152,7 @@ class Relation(CommonModel):
         related_name = "relation_update_by"
     )
     
+    step_one_spouse_fields = ["decendant", "relation", "name", "exist", "is_live", "is_stepChild", "is_japan"]
     step_one_fields = ["decendant", "relation", "name", "exist", "is_live", "is_japan", "is_adult"]
     
     class Meta:

@@ -4,76 +4,109 @@
     変数
 */
 //この章の入力状況欄
-const guideBtns = [document.getElementsByClassName("guideBtn")[0]];
-const progressListArr = [document.getElementsByClassName("progressList")[0]];
-const caretIconsArr = [document.getElementsByClassName("guideCaret")[0]];
-const checkIconsArr = [];
-let inProgressIndex = 0;
+class GuideField{
+    constructor(){
+        this.btnsArr = [document.querySelector(".guideBtn")];
+        this.progressListArr = [document.querySelector(".progressList")];
+        this.caretIconsArr = [document.querySelector(".guideCaret")];
+        this.checkIconsArr = [];
+        this.inProgressIndex = 0;
+    }
+}
+const guideField = new GuideField();
 
 //被相続人欄
-const decendantName = document.getElementById("id_name");
-const deathYear = document.getElementById("id_death_year");
-const deathMonth = document.getElementById("id_death_month");
-const prefecture = document.getElementById("id_prefecture");
-const city = document.getElementById("id_city");
-const domicilePrefecture = document.getElementById("id_domicile_prefecture");
-const domicileCity = document.getElementById("id_domicile_city");
+class DecendantInput{
+    static name = document.getElementById("id_name");
+    static deathYear = document.getElementById("id_death_year");
+    static deathMonth = document.getElementById("id_death_month");
+    static prefecture = document.getElementById("id_prefecture");
+    static city = document.getElementById("id_city");
+    static domicilePrefecture = document.getElementById("id_domicile_prefecture");
+    static domicileCity = document.getElementById("id_domicile_city");
+}
 
-//必須項目とエラー項目（各欄に移動したときにセットし直す）
-requiredInputArr = [decendantName, deathYear, deathMonth, prefecture, city, domicilePrefecture, domicileCity];
-invalidElArr = [decendantName, deathMonth, prefecture, city, domicilePrefecture, domicileCity];
-
-//次へボタン又は各欄のインデックス（相続人が確定したときにインデックスを設定する）
-const decendantColumnNBIdx = 0;
-const spouseColumnNBIdx = 1;
-const childColumnNBIdx = 2;
-let childColumnsNBIdxArr = [];
-let fatherColumnNBIdx;
-let motherColumnNBIdx;
-let fatherGfatherColumnNBIdx;
-let fatherGmotherColumnNBIdx;
-let motherGfatherColumnNBIdx;
-let motherGmotherColumnNBIdx;
-let collateralColumnNBIdx;
-let collateralColumnsNBIdxArr = [];
-
-//戻るボタンのインデックス（相続人が確定したときにインデックスを設定する）
-const spouseColumnPBIdx = 0;
-const childColumnPBIdx = 1;
-let childColumnsPBIdxArr = [];
-let fatherColumnPBIdx;
-let motherColumnPBIdx;
-let fatherGfatherColumnPBIdx;
-let fatherGmotherColumnPBIdx;
-let motherGfatherColumnPBIdx;
-let motherGmotherColumnPBIdx;
-let collateralColumnPBIdx;
-let collateralColumnsPBIdxArr = [];
+//配偶者欄
+class SpouseInput{
+    static name = document.getElementById("id_spouse_name");
+    static exist = document.getElementsByName("spouse_exist");
+    static isLive = document.getElementsByName("spouse_is_live");
+    static isStepChild = document.getElementsByName("spouse_is_step_child");
+    static isJapan = document.getElementsByName("spouse_is_japan");
+}
 
 //各入力欄のインデックス
 class DecendantColumnInputIndex{
-    static decendantNameIdx = 0;
-    static deathYearIdx = 1;
-    static deathMonthIdx = 2;
-    static prefectureIdx = 3;
-    static cityIdx = 4;
-    static domicilePrefectureIdx = 5;
-    static domicileCityIdx = 6;
+    static name = 0;
+    static deathYear = 1;
+    static deathMonth = 2;
+    static prefecture = 3;
+    static city = 4;
+    static domicilePrefecture = 5;
+    static domicileCity = 6;
 }
 
-//input以外の要素を取得する（各欄でセットし直す）
-const decendantFieldset = document.querySelector("fieldset");
-const spouseFieldset = document.getElementsByTagName("fieldset")[1];
-let requiredFieldsetsArr = [decendantFieldset];
-let nextBtnsArr = decendantFieldset.getElementsByClassName("nextBtn");
-let previousBtnsArr = spouseFieldset.getElementsByClassName("previousBtn");
-let errorMessagesElArr = decendantFieldset.getElementsByClassName("errorMessage");
+//次へボタン又は各欄のインデックス（相続人が確定したときにインデックスを設定する）
+class NextBtnsIndex{
+    constructor(){
+        this.decendant = 0;
+        this.spouse = 1;
+        this.children = 2;
+        this.childrenArr = [];
+        this.father;
+        this.mother;
+        this.fatherGfather;
+        this.fatherGmother;
+        this.motherGfather;
+        this.motherGmother;
+        this.collateral;
+        this.collateralsArr = [];
+    }
+}
+const columnsIndex = new NextBtnsIndex();
+
+//戻るボタンのインデックス（相続人が確定したときにインデックスを設定する）
+class PreviousBtnsIndex{
+    constructor(){
+        this.spouse = 0;
+        this.children = 1;
+        this.childrenArr = [];
+        this.father;
+        this.mother;
+        this.fatherGfather;
+        this.fatherGmother;
+        this.motherGfather;
+        this.motherGmother;
+        this.collateral;
+        this.collateralsArr = [];
+    }
+}
+const previousBtnsIndex = new PreviousBtnsIndex();
+
+//入力欄のフィールド
+class InputsField{
+    
+    static decendantFieldset = document.querySelector("fieldset");
+    static spouseFieldset = document.getElementsByTagName("fieldset")[columnsIndex.spouse];
+    static childrenFieldset = document.getElementsByTagName("fieldset")[columnsIndex.children];
+
+    constructor(){
+        this.requiredFieldsetsArr = [document.querySelector("fieldset")];
+        this.nextBtnsArr = InputsField.decendantFieldset.getElementsByClassName("nextBtn");
+        this.previousBtnsArr = [];
+        this.errorMessagesElArr = InputsField.decendantFieldset.getElementsByClassName("errorMessage");
+    }
+}
+const inputsField = new InputsField();
 
 /**
  * 初期化
  */
 function initialize(){
     updateSideBar();
+    requiredInputArr = Object.values(DecendantInput);
+    invalidElArr = Object.values(DecendantInput);
+    invalidElArr.splice(DecendantColumnInputIndex.deathYear, 1);
 }
 
 /**
@@ -96,11 +129,14 @@ function getCityData(val, el){
     
     const url = 'get_city';
 
+    //エラー要素から削除する
     invalidElArr = invalidElArr.filter(x => x !== el);
 
+    //市区町村欄を有効化してフォーカスを移動する
     el.disabled = false;
     el.focus();
 
+    //データ取得中ツールチップを表示する
     const verifyingEl = `<span id="${el.id}_verifyingEl" class="verifying emPosition">
                         市区町村データ取得中
                         <div class="spinner-border text-white spinner-border-sm" role="status">
@@ -108,6 +144,7 @@ function getCityData(val, el){
                         </span>`;
     el.insertAdjacentHTML('afterend', verifyingEl);
   
+    //非同期処理
     fetch(url, {
         method: 'POST',
         body: JSON.stringify({"prefecture" : val}),
@@ -126,6 +163,7 @@ function getCityData(val, el){
 
             let option = "";
             
+            //東京都以外の区は表示しない
             for(let i = 0; i < response.city.length; i++){
                 if(response.city[i]["id"].slice(0, 2) !== "13" && response.city[i]["name"].slice(-1) === "区") continue;
                 option += `<option value="${response.city[i]["name"]}">${response.city[i]["name"]}</option>`;
@@ -143,20 +181,21 @@ function getCityData(val, el){
     .catch(error => {
         console.log(error);
     }).finally(()=>{
+        //データ取得中ツールチップを削除する
         document.getElementById(`${el.id}_verifyingEl`).remove();
     });
 }
 
 /**
- * 次の項目を表示又は非表示にする
- * @param {num} i 押されたボタンのインデックス
+ * 次の項目を有効化して前の項目を無効化する
+ * @param {number} i 押された次へボタンのインデックス
  */
 function enableNextColumn(i){
 
-    //表示対象のフィールドセット
+    //次の項目のフィールドセットを取得
     const targetField = document.getElementsByTagName("fieldset")[i + 1];
-    //必須欄に追加する
-    requiredFieldsetsArr.push(targetField);
+    inputsField.requiredFieldsetsArr.push(targetField);
+
     //hrタグを生成
     const hr = document.createElement("hr");
     hr.className = "my-5";
@@ -167,28 +206,12 @@ function enableNextColumn(i){
     scrollToTarget(targetField);
     
     //前の項目を無効化する
-    requiredFieldsetsArr[i].disabled = true;
+    inputsField.requiredFieldsetsArr[i].disabled = true;
 
-    //前の項目を通常表示にする
-    checkIconsArr.push(document.getElementsByClassName("guideCheck")[inProgressIndex]);
-
-    progressListArr[inProgressIndex].classList.remove("active");
-    caretIconsArr[inProgressIndex].style.display = "none";
-    checkIconsArr[inProgressIndex].style.display = "inline-block";
-
-    
-    //入力状況を次の項目が選択状態にする
-    inProgressIndex += 1;
-    progressListArr.push(document.getElementsByClassName("progressList")[inProgressIndex]);
-    guideBtns.push(document.getElementsByClassName("guideBtn")[inProgressIndex]);
-    caretIconsArr.push(document.getElementsByClassName("guideCaret")[inProgressIndex]);
-
-    progressListArr[inProgressIndex].classList.add("active");
-    guideBtns[guideBtns.length - 1].disabled = false;
-    caretIconsArr[inProgressIndex].style.display = "inline-block";
-
-    //次の項目のガイドボタンにイベントを追加
-    guideBtns[inProgressIndex].addEventListener("click", enableNextGuidBtn);
+    //入力必須欄を変更する
+    checkedRequiredInputArr = requiredInputArr.map(x => x.cloneNode(true));
+    requiredInputArr.length = 0;
+    requiredInputArr = []
 }
 
 /**
@@ -196,54 +219,101 @@ function enableNextColumn(i){
  * @param {event} e 
  */
 function enableNextGuidBtn(e){
+    const index = guideField.btnsArr.indexOf(e.target);
+    scrollToTarget(inputsField.requiredFieldsetsArr[index], 0);
+}
 
+/**
+ * ガイドを更新する
+ */
+function updateGuideField(){
+    //ガイドの前の項目を通常表示にする
+    guideField.checkIconsArr.push(document.getElementsByClassName("guideCheck")[guideField.inProgressIndex]);
+
+    guideField.progressListArr[guideField.inProgressIndex].classList.remove("active");
+    guideField.caretIconsArr[guideField.inProgressIndex].style.display = "none";
+    guideField.checkIconsArr[guideField.inProgressIndex].style.display = "inline-block";
+
+    //ガイドの次の項目が選択状態にする
+    guideField.inProgressIndex += 1;
+    guideField.progressListArr.push(document.getElementsByClassName("progressList")[guideField.inProgressIndex]);
+    guideField.btnsArr.push(document.getElementsByClassName("guideBtn")[guideField.inProgressIndex]);
+    guideField.caretIconsArr.push(document.getElementsByClassName("guideCaret")[guideField.inProgressIndex]);
+
+    guideField.progressListArr[guideField.inProgressIndex].classList.add("active");
+    guideField.btnsArr[guideField.inProgressIndex].disabled = false;
+    guideField.caretIconsArr[guideField.inProgressIndex].style.display = "inline-block";
+
+    //次の項目のガイドボタンにイベントを追加
+    guideField.btnsArr[guideField.inProgressIndex].addEventListener("click", enableNextGuidBtn);
 }
 
 /**
  * 前の項目を有効化にする
- * @param {num} i 押されたボタンのインデックス
+ * @param {num} i 押された戻るボタンのインデックス
  */
 function enablePreviousColumn(i){
-    //削除対象のフィールドセット
-    const removeField = requiredFieldsetsArr[i + 1];
-    //有効化対象のフィールドセット
-    const enableField = requiredFieldsetsArr[i];
-    //削除対象のhrタグ
-    const removeHr = removeField.previousElementSibling;
-
-    //削除対象を非表示にしてから削除。必須欄から削除対象を削除。
-    slideUp(removeField);
-    slideUp(removeHr);
-    requiredFieldsetsArr = requiredFieldsetsArr.filter(x => x !== removeField);
-    // removeField.remove();
-    removeHr.remove();
+    return function(e){
+        //削除対象のフィールドセット
+        const removeField = inputsField.requiredFieldsetsArr[i + 1];
+        //有効化対象のフィールドセット
+        const enableField = inputsField.requiredFieldsetsArr[i];
+        //削除対象のhrタグ
+        const removeHr = removeField.previousElementSibling;
     
-    //直前の項目を有効化してスクロール
-    enableField.disabled = false;
-    scrollToTarget(enableField);
-
-
-        // 一つ先の項目を無効化する
-        // progressListArr[inProgressIndex].classList.remove("active");
-        // progressListArr = progressListArr.pop();
-    
-        // guideBtns[inProgressIndex].removeEventListener("click", enableNextGuidBtn);
-        // guideBtns[inProgressIndex].disabled = true;
-        // guideBtns = guideBtns.pop();
-    
-        // caretIconsArr[inProgressIndex].style.display = "none";
-        // caretIconsArr = caretIconsArr.pop();
+        //削除対象を非表示にしてから削除。必須欄から削除対象を削除。
+        slideUp(removeField);
+        slideUp(removeHr);
+        inputsField.requiredFieldsetsArr = inputsField.requiredFieldsetsArr.filter(x => x !== removeField);
+        // removeField.remove();
+        removeHr.remove();
+        
+        //直前の項目を有効化してスクロール
+        enableField.disabled = false;
+        scrollToTarget(enableField);
     
     
-        // //このボタンが選択されている状態にする
-        // inProgressIndex -= 1;
-        // checkIconsArr[inProgressIndex].style.display = "none";
-        // checkIconsArr = checkIconsArr.pop();
-    
-        // progressListArr[inProgressIndex].classList.add("active");
-    
-        // caretIconsArr[inProgressIndex].style.display = "inline-block";
+            // 一つ先の項目を無効化する
+            // guideField.progressListArr[guideField.inProgressIndex].classList.remove("active");
+            // guideField.progressListArr = guideField.progressListArr.pop();
+        
+            // guideField.btnsArr[guideField.inProgressIndex].removeEventListener("click", enableNextGuidBtn);
+            // guideField.btnsArr[guideField.inProgressIndex].disabled = true;
+            // guideField.btnsArr = guideField.btnsArr.pop();
+        
+            // guideField.caretIconsArr[guideField.inProgressIndex].style.display = "none";
+            // guideField.caretIconsArr = guideField.caretIconsArr.pop();
+        
+        
+            // //このボタンが選択されている状態にする
+            // guideField.inProgressIndex -= 1;
+            // guideField.checkIconsArr[guideField.inProgressIndex].style.display = "none";
+            // guideField.checkIconsArr = guideField.checkIconsArr.pop();
+        
+            // guideField.progressListArr[guideField.inProgressIndex].classList.add("active");
+        
+            // guideField.caretIconsArr[guideField.inProgressIndex].style.display = "inline-block";
+    }
 }
+
+/**
+ * 次の項目とガイドの次の項目を有効化して前の項目を無効化する
+ * @param {number} i 押された次へボタンのインデックス
+ */
+function enableNextColumnAndGuide(i){
+    
+    //次の項目を有効化
+    enableNextColumn(i);
+
+    //ガイドを更新する
+    updateGuideField();
+    
+    //戻るボタンを設定
+    inputsField.previousBtnsArr.push(document.getElementsByClassName("previousBtn")[i]);
+    const handler = enablePreviousColumn(i);
+    inputsField.previousBtnsArr[i].addEventListener("click", handler);
+}
+
 
 /**
  * チェック結果に応じて処理を分岐する
@@ -270,29 +340,9 @@ function decendantFormValidationList(val, el){
 
     invalidElArr = invalidElArr.filter(x => x !== el);
 
-    return el === decendantName ? isOnlyZenkaku(val, el): isBlank(val,el);
+    return el === DecendantInput.name ? isOnlyZenkaku(val, el): isBlank(val,el);
 }
 
-/**
- * 被相続人欄の一括チェック
- */
-function validateDecendantForm(){
-
-    //各入力欄をチェック
-    for(let i = 0; i < requiredInputArr.length; i++){
-
-        //氏名は全角入力チェック
-        if(requiredInputArr[i] === decendantName){
-            isValid = isOnlyZenkaku(decendantName.value, decendantName);
-        }else{
-            //氏名以外は空欄チェック
-            isValid = isBlank(requiredInputArr[i].value, requiredInputArr[i]);
-        }
-
-        //結果に応じた分岐
-        sort(isValid, errorMessagesElArr[i], isValid, requiredInputArr[i], nextBtnsArr[decendantColumnNBIdx])
-    }
-}
 /**
  * イベント
  */
@@ -324,10 +374,10 @@ window.addEventListener("load", ()=>{
             isValid = decendantFormValidationList(val, el);
     
             //結果に応じて分岐
-            sort(isValid, errorMessagesElArr[i], isValid, requiredInputArr[i], nextBtnsArr[decendantColumnNBIdx]);
+            sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.decendant]);
 
             //住所の都道府県
-            if(requiredInputArr[i] === prefecture || requiredInputArr[i] === domicilePrefecture){
+            if(requiredInputArr[i] === DecendantInput.prefecture || requiredInputArr[i] === DecendantInput.domicilePrefecture){
 
                 //市区町村データ取得
                 getCityData(val, requiredInputArr[i + 1]);
@@ -335,7 +385,7 @@ window.addEventListener("load", ()=>{
         })
     }
 
-    requiredInputArr[0].focus();
+    requiredInputArr[DecendantColumnInputIndex.name].focus();
 })
 
 //画面のサイズが変更されたとき
@@ -345,31 +395,24 @@ window.addEventListener('resize', () => {
 
 //この章の入力状況欄
 //１．お亡くなりになった方についてボタン
-guideBtns[0].addEventListener("click",(e)=>{
-    
-    //対象の入力欄にスクロール
-    scrollToTarget(decendantFieldset, 0);
-})
+guideField.btnsArr[0].addEventListener("click", enableNextGuidBtn)
 
 //氏名
-decendantName.addEventListener("keypress",(e)=>{
+DecendantInput.name.addEventListener("keypress",(e)=>{
     if(e.code === "Enter" || e.code === "NumpadEnter"){
         e.preventDefault();
-        deathYear.focus();
+        DecendantInput.deathYear.focus();
     }
 })
 
 //被相続人欄の次へボタン
-nextBtnsArr[decendantColumnNBIdx].addEventListener("click",(e)=>{
-
-    //エラーがあるときは、処理を中止
-    if(invalidElArr.length > 0){
-        e.preventDefault();
-        invalidElArr[0].focus();
-    }
+inputsField.nextBtnsArr[columnsIndex.decendant].addEventListener("click",(e)=>{
 
     //被相続人欄の入力値を全てチェックする
-    validateDecendantForm();
+    for(let i = 0; i < requiredInputArr.length; i++){
+        isValid = decendantFormValidationList(requiredInputArr[i].value, requiredInputArr[i])
+        sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.decendant])
+    }
 
     //エラーがあるときは、処理を中止
     if(invalidElArr.length > 0){
@@ -378,10 +421,6 @@ nextBtnsArr[decendantColumnNBIdx].addEventListener("click",(e)=>{
     }
     
     //チェックを通ったときは、次へ入力欄を有効化する
-    enableNextColumn(decendantColumnNBIdx);
+    enableNextColumnAndGuide(columnsIndex.decendant);
 })
 
-//配偶者欄の戻るボタン
-previousBtnsArr[spouseColumnPBIdx].addEventListener("click",(e)=>{
-    enablePreviousColumn(spouseColumnPBIdx);
-})

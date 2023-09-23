@@ -10,7 +10,7 @@ $db_password = "saga2497"
 
 # SQLコマンド（1日以上経過したメールアドレス変更申請を削除）
 $sql_command = @"
-DELETE FROM EmailChange WHERE created_at < NOW() - INTERVAL '1 day';
+DELETE FROM accounts_emailchange WHERE created_at < NOW() - INTERVAL '1 day';
 "@
 
 # PGPASSWORD環境変数を設定

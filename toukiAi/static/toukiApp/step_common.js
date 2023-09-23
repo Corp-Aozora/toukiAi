@@ -17,7 +17,6 @@ const steps = {
 };
 const stepNumbers = ["One", "Two", "Three", "Four", "Five", "Six"];
 const username = document.getElementById("linkToAccount").innerHTML;
-let checkedRequiredInputArr = [];
 
 /**
  * サイドバーを更新する

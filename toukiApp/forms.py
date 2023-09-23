@@ -6,6 +6,7 @@ from django.utils import timezone
 from .models import *
 
 CustomUser = get_user_model()
+decendant_max_index = 7
 
 # 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容
@@ -45,7 +46,7 @@ class StepOneDecendantForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        for i,field in enumerate(self.base_fields.values()):
+        for i, field in enumerate(self.base_fields.values()):
             if field.label == "ユーザー":
                 field.required = False
             
@@ -64,13 +65,28 @@ class StepOneDecendantForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
     
 # STEP1の配偶者フォーム
-class StepOneRelationForm(forms.ModelForm):
+class StepOneSpouseForm(forms.ModelForm):
     class Meta:
         model = Relation
+        #decendant, relation, name, exist, is_live, is_japan, is_adult
         fields = model.step_one_fields
+        widgets = {
+            "exist": forms.RadioSelect(),
+            "is_live": forms.RadioSelect(),
+            "is_japan": forms.RadioSelect(),
+        }
+        
+        ##idとnameを変更する必要あり！
 
     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["relation"].initial = "配偶者"
+        self.fields["is_adult"].initial = True
+        self.fields["exist"].choices = [
+            (0, "いる"),
+            (1, "いない"),
+        ]
+        
         for field in self.base_fields.values():
             field.required = False
                 
-        super().__init__(*args, **kwargs)

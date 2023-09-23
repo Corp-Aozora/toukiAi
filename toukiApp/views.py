@@ -120,7 +120,7 @@ def step_one(request):
     
     if request.method == "POST":
         decendant_form = StepOneDecendantForm(request.POST)
-        # relation_form = StepOneRelationForm(request.POST)
+        spouse_form = StepOneSpouseForm(request.POST)
 
         # トランザクションが必要
         # 被相続人情報の保存
@@ -130,9 +130,8 @@ def step_one(request):
         # 親族情報の保存
             return redirect(to='/toukiApp/step_Two')
     else:
-        pass
         decendant_form = StepOneDecendantForm()
-        # relation_form = StepOneRelationForm()
+        spouse_form = StepOneSpouseForm()
     
     prefectures = []
     for p in PREFECTURES:
@@ -143,6 +142,7 @@ def step_one(request):
         "prefectures" : prefectures,
         "user" : user,
         "decendant_form": decendant_form,
+        "spouse_form": spouse_form,
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
     }

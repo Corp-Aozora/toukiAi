@@ -21,11 +21,11 @@
         <form action="{% url 'toukiApp:step_one' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
             <section class="container ms-0">
-                <fieldset id="decendantFieldset">
+                <fieldset id="decedentFieldset">
                     <h5 class="form-label">
                         １．{{sections.0}}
                     </h5>
-                    {% for field in decendant_form %}
+                    {% for field in decedent_form %}
                         {% if field.html_name == "user" %}
                         {% elif field.html_name == "name" %}
                             <div class="input-group mt-4 position-relative">
@@ -124,9 +124,7 @@
                                     </label>
                                     {{ field }}
                                     <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                        市区町村データの取得に失敗しました。<br>
-                                        ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
-                                        恐れ入りますが、弊社までお問い合わせをお願いします。
+                                        
                                     </span>
                                 </div>
                             </div>
@@ -138,13 +136,14 @@
                 </fieldset>
                 <fieldset id="spouseFieldset" style="display: none;">
                     <div class="pb-3">
-                        <h5 class="form-label">２．{{sections.1}}</h5>
+                        <h5 class="form-label">
+                            <span class="bg-danger-subtle p-1 rounded-3">
+                                ２．{{sections.1}}
+                            </span>
+                        </h5>
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <div class="card-title text-center fw-bold border-bottom bg-danger-subtle">
-                                配偶者について
-                            </div>
                             <div class="card-text">
                                 <div class="input-group spouseQ">
                                     <label class="input-group-text fw-bold" for="id_spouseQ1">

@@ -16,7 +16,7 @@ class GuideField{
 const guideField = new GuideField();
 
 //被相続人欄
-class DecendantInput{
+class DecedentInput{
     static name = document.getElementById("id_name");
     static deathYear = document.getElementById("id_death_year");
     static deathMonth = document.getElementById("id_death_month");
@@ -36,7 +36,7 @@ class SpouseInput{
 }
 
 //各入力欄のインデックス
-class DecendantColumnInputIndex{
+class DecedentColumnInputIndex{
     static name = 0;
     static deathYear = 1;
     static deathMonth = 2;
@@ -47,9 +47,9 @@ class DecendantColumnInputIndex{
 }
 
 //次へボタン又は各欄のインデックス（相続人が確定したときにインデックスを設定する）
-class NextBtnsIndex{
+class ColumnsIndex{
     constructor(){
-        this.decendant = 0;
+        this.decedent = 0;
         this.spouse = 1;
         this.children = 2;
         this.childrenArr = [];
@@ -63,7 +63,7 @@ class NextBtnsIndex{
         this.collateralsArr = [];
     }
 }
-const columnsIndex = new NextBtnsIndex();
+const columnsIndex = new ColumnsIndex();
 
 //戻るボタンのインデックス（相続人が確定したときにインデックスを設定する）
 class PreviousBtnsIndex{
@@ -86,15 +86,15 @@ const previousBtnsIndex = new PreviousBtnsIndex();
 //入力欄のフィールド
 class InputsField{
     
-    static decendantFieldset = document.querySelector("fieldset");
+    static decedentFieldset = document.querySelector("fieldset");
     static spouseFieldset = document.getElementsByTagName("fieldset")[columnsIndex.spouse];
     static childrenFieldset = document.getElementsByTagName("fieldset")[columnsIndex.children];
 
     constructor(){
         this.requiredFieldsetsArr = [document.querySelector("fieldset")];
-        this.nextBtnsArr = InputsField.decendantFieldset.getElementsByClassName("nextBtn");
+        this.nextBtnsArr = InputsField.decedentFieldset.getElementsByClassName("nextBtn");
         this.previousBtnsArr = [];
-        this.errorMessagesElArr = InputsField.decendantFieldset.getElementsByClassName("errorMessage");
+        this.errorMessagesElArr = InputsField.decedentFieldset.getElementsByClassName("errorMessage");
     }
 }
 const inputsField = new InputsField();
@@ -104,9 +104,9 @@ const inputsField = new InputsField();
  */
 function initialize(){
     updateSideBar();
-    requiredInputArr = Object.values(DecendantInput);
-    invalidElArr = Object.values(DecendantInput);
-    invalidElArr.splice(DecendantColumnInputIndex.deathYear, 1);
+    requiredInputArr = Object.values(DecedentInput);
+    invalidElArr = Object.values(DecedentInput);
+    invalidElArr.splice(DecedentColumnInputIndex.deathYear, 1);
 }
 
 /**
@@ -171,6 +171,7 @@ function getCityData(val, el){
 
             el.innerHTML = option;
             errorMessageEl.style.display = hidden;
+            inputsField.nextBtnsArr[columnsIndex.decedent].disabled = false;
 
         }else{
 
@@ -183,6 +184,7 @@ function getCityData(val, el){
     }).finally(()=>{
         //データ取得中ツールチップを削除する
         document.getElementById(`${el.id}_verifyingEl`).remove();
+        const index = requiredInputArr.indexOf(el);
     });
 }
 
@@ -336,11 +338,11 @@ function sort(isValid, errorMessagesEl, message, el, nextBtn){
  * @param {string} val 入力値
  * @param {elemet} el 対象の要素
  */
-function decendantFormValidationList(val, el){
+function decedentFormValidationList(val, el){
 
     invalidElArr = invalidElArr.filter(x => x !== el);
 
-    return el === DecendantInput.name ? isOnlyZenkaku(val, el): isBlank(val,el);
+    return el === DecedentInput.name ? isOnlyZenkaku(val, el): isBlank(val,el);
 }
 
 /**
@@ -371,13 +373,13 @@ window.addEventListener("load", ()=>{
             const el = e.target;
 
             //入力値のチェック結果を取得
-            isValid = decendantFormValidationList(val, el);
+            isValid = decedentFormValidationList(val, el);
     
             //結果に応じて分岐
-            sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.decendant]);
+            sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.decedent]);
 
             //住所の都道府県
-            if(requiredInputArr[i] === DecendantInput.prefecture || requiredInputArr[i] === DecendantInput.domicilePrefecture){
+            if(requiredInputArr[i] === DecedentInput.prefecture || requiredInputArr[i] === DecedentInput.domicilePrefecture){
 
                 //市区町村データ取得
                 getCityData(val, requiredInputArr[i + 1]);
@@ -385,7 +387,7 @@ window.addEventListener("load", ()=>{
         })
     }
 
-    requiredInputArr[DecendantColumnInputIndex.name].focus();
+    requiredInputArr[DecedentColumnInputIndex.name].focus();
 })
 
 //画面のサイズが変更されたとき
@@ -398,20 +400,20 @@ window.addEventListener('resize', () => {
 guideField.btnsArr[0].addEventListener("click", enableNextGuidBtn)
 
 //氏名
-DecendantInput.name.addEventListener("keypress",(e)=>{
+DecedentInput.name.addEventListener("keypress",(e)=>{
     if(e.code === "Enter" || e.code === "NumpadEnter"){
         e.preventDefault();
-        DecendantInput.deathYear.focus();
+        DecedentInput.deathYear.focus();
     }
 })
 
 //被相続人欄の次へボタン
-inputsField.nextBtnsArr[columnsIndex.decendant].addEventListener("click",(e)=>{
+inputsField.nextBtnsArr[columnsIndex.decedent].addEventListener("click",(e)=>{
 
     //被相続人欄の入力値を全てチェックする
     for(let i = 0; i < requiredInputArr.length; i++){
-        isValid = decendantFormValidationList(requiredInputArr[i].value, requiredInputArr[i])
-        sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.decendant])
+        isValid = decedentFormValidationList(requiredInputArr[i].value, requiredInputArr[i])
+        sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.decedent])
     }
 
     //エラーがあるときは、処理を中止
@@ -421,6 +423,6 @@ inputsField.nextBtnsArr[columnsIndex.decendant].addEventListener("click",(e)=>{
     }
     
     //チェックを通ったときは、次へ入力欄を有効化する
-    enableNextColumnAndGuide(columnsIndex.decendant);
+    enableNextColumnAndGuide(columnsIndex.decedent);
 })
 

@@ -15,6 +15,8 @@ from .customDate import *
 from .prefectures import *
 from .common_model import *
 from accounts.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 # お問い合わせ内容
 # 質問者のメールアドレス/件名/質問内容/回答内容/回答者/質問日/回答日
@@ -48,17 +50,15 @@ class OpenInquiry(CommonModel):
 # 被相続人
 # 親：ユーザー
 # 子：親族、不動産
-class Decendant(CommonModel):
-    
+class Decedent(CommonModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="ユーザー",
         on_delete=models.CASCADE,
         null = False,
         blank = False,
-        related_name="decendant",
+        related_name="decedant",
     )
-    
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     domicile_prefecture = models.CharField(verbose_name="本籍地の都道府県" ,max_length=20, choices=PREFECTURES)
     domicile_city = models.CharField(verbose_name="本籍地の市区町村", max_length=100, default="")
@@ -83,7 +83,7 @@ class Decendant(CommonModel):
         on_delete = models.CASCADE,
         null = False,
         blank = False,
-        related_name = "decendant_created_by",
+        related_name = "decedent_created_by",
     )
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -91,7 +91,7 @@ class Decendant(CommonModel):
         on_delete = models.CASCADE,
         null = False,
         blank = False,
-        related_name = "decendant_update_by",
+        related_name = "decedent_update_by",
     )
     
     step_one_fields =["user", "name", "death_year", "death_month", "prefecture", "city", "domicile_prefecture", "domicile_city"]
@@ -100,29 +100,86 @@ class Decendant(CommonModel):
         verbose_name = _("被相続人")
         verbose_name_plural = _("被相続人")
 
-# 親族
-# 親：被相続人
-# 子：相続人
-class Relation(CommonModel):
-    decendant = models.ForeignKey(
-        Decendant,
+# 配偶者
+# 外部キー：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとid
+class Spouse(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
         verbose_name="被相続人",
         on_delete=models.CASCADE,
         null = False,
         blank = False,
-        related_name="relation",
+        related_name="spouse",
     )
-    relation = models.CharField(verbose_name="続柄", max_length=30)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    is_heir = models.BooleanField(verbose_name="相続人", default=False)
+    is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
+    is_exist = models.BooleanField(verbose_name="死亡時存在", default=False)
+    is_live = models.BooleanField(verbose_name="手続時存在", default=False)
+    is_japan = models.BooleanField(verbose_name="日本在住", default=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, default="")
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default="")
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default="")
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default="")
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default="")
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default="")
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "spouse_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "spouse_update_by"
+    )
+    
+    step_one_fields = ["decedent", "content_type", "object_id", "name", "is_heir", "is_refuse", "is_exist", "is_live", "is_japan"]
+    
+    class Meta:
+        verbose_name = _("配偶者")
+        verbose_name_plural = _("配偶者")
+        
+# 卑属
+# 外部キー２つ：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとidが２つ
+class Descendant(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="descendant",
+    )
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant1")
+    object_id1 = models.PositiveIntegerField()
+    content_object1 = GenericForeignKey('content_type1', 'object_id1')
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant2")
+    object_id2 = models.PositiveIntegerField()
+    content_object2 = GenericForeignKey('content_type2', 'object_id2')
+    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    is_heir = models.BooleanField(verbose_name="相続人", default=False)
+    is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
     exist_list = (
         (0, "いる"),
         (1, "いない"),
         (2, "逝去"),
     )
-    exist = models.CharField(max_length=10, choices=exist_list)
-    is_live = models.BooleanField(verbose_name="今も健在", default=True)
-    is_step_child = models.BooleanField(verbose_name="連れ子", default=False)
-    is_half_parent = models.BooleanField(verbose_name="異父母", default=False)
+    exist = models.CharField(verbose_name="死亡時存在", max_length=10, choices=exist_list)
+    is_live = models.BooleanField(verbose_name="手続時存在", default=False)
     is_japan = models.BooleanField(verbose_name="日本在住", default=True)
     is_adult = models.BooleanField(verbose_name="成人", default=True)
     prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, default="")
@@ -141,7 +198,7 @@ class Relation(CommonModel):
         on_delete = models.CASCADE,
         null = False,
         blank = False,
-        related_name = "relation_created_by",
+        related_name = "descendant_created_by",
     )
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -149,15 +206,129 @@ class Relation(CommonModel):
         on_delete = models.CASCADE,
         null = False,
         blank = False,
-        related_name = "relation_update_by"
+        related_name = "descendant_update_by"
     )
     
-    step_one_spouse_fields = ["decendant", "relation", "name", "exist", "is_live", "is_stepChild", "is_japan"]
-    step_one_fields = ["decendant", "relation", "name", "exist", "is_live", "is_japan", "is_adult"]
+    step_one_fields = []
     
     class Meta:
-        verbose_name = _("親族")
-        verbose_name_plural = _("親族")
+        verbose_name = _("卑属")
+        verbose_name_plural = _("卑属")
+
+# 尊属
+# 外部キー２つ：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとidが２つ
+class Ascendant(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="ascendant",
+    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    is_heir = models.BooleanField(verbose_name="相続人", default=False)
+    is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
+    exist = models.BooleanField(verbose_name="死亡時存在",  default=False)
+    is_live = models.BooleanField(verbose_name="手続時存在", default=False)
+    is_japan = models.BooleanField(verbose_name="日本在住", default=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, default="")
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default="")
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default="")
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default="")
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default="")
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default="")
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "ascendant_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "ascendant_update_by"
+    )
+    
+    step_one_fields = []
+    
+    class Meta:
+        verbose_name = _("尊属")
+        verbose_name_plural = _("尊属")
+
+# 傍系
+# 外部キー２つ：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとidが２つ
+class Collateral(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="collateral",
+    )
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1")
+    object_id1 = models.PositiveIntegerField()
+    content_object1 = GenericForeignKey('content_type1', 'object_id1')
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral2")
+    object_id2 = models.PositiveIntegerField()
+    content_object2 = GenericForeignKey('content_type2', 'object_id2')
+    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    is_heir = models.BooleanField(verbose_name="相続人", default=False)
+    is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
+    exist_list = (
+        (0, "いる"),
+        (1, "いない"),
+        (2, "逝去"),
+    )
+    exist = models.CharField(verbose_name="死亡時存在", max_length=10, choices=exist_list)
+    is_live = models.BooleanField(verbose_name="手続時存在", default=False)
+    is_japan = models.BooleanField(verbose_name="日本在住", default=True)
+    is_adult = models.BooleanField(verbose_name="成人", default=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, default="")
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default="")
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default="")
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default="")
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default="")
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default="")
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "collateral_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "collateral_update_by"
+    )
+    
+    step_one_fields = []
+    
+    class Meta:
+        verbose_name = _("傍系")
+        verbose_name_plural = _("傍系")
 
 # 更新情報
 class UpdateArticle(CommonModel):

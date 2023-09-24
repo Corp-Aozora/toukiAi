@@ -6,7 +6,7 @@ from django.utils import timezone
 from .models import *
 
 CustomUser = get_user_model()
-decendant_max_index = 7
+decedent_max_index = 7
 
 # 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容
@@ -36,9 +36,9 @@ class OpenInquiryForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 # STEP1の被相続人フォーム
-class StepOneDecendantForm(forms.ModelForm):
+class StepOneDecedentForm(forms.ModelForm):
     class Meta:
-        model = Decendant
+        model = Decedent
         fields = model.step_one_fields
         widgets = {
             "city": forms.Select(),
@@ -67,8 +67,8 @@ class StepOneDecendantForm(forms.ModelForm):
 # STEP1の配偶者フォーム
 class StepOneSpouseForm(forms.ModelForm):
     class Meta:
-        model = Relation
-        #decendant, relation, name, exist, is_live, is_japan, is_adult
+        model = Spouse
+        #decedent, relation, name, exist, is_live, is_japan, is_adult
         fields = model.step_one_fields
         widgets = {
             "exist": forms.RadioSelect(),

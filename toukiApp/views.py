@@ -112,6 +112,8 @@ def index(request):
     
     return render(request, "toukiApp/index.html", context)
 
+# ステップ１
+# 被相続人情報と相続人情報の入力
 def step_one(request):
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
@@ -132,6 +134,7 @@ def step_one(request):
     else:
         decedent_form = StepOneDecedentForm()
         spouse_form = StepOneSpouseForm()
+        spouse_form_internal_data_name = ["spouse_decedent", "spouse_content_type", "spouse_object_id", "spouse_is_heir"]
     
     prefectures = []
     for p in PREFECTURES:
@@ -143,6 +146,7 @@ def step_one(request):
         "user" : user,
         "decedent_form": decedent_form,
         "spouse_form": spouse_form,
+        "spouse_form_internal_data_name": spouse_form_internal_data_name,
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
     }

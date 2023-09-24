@@ -65,3 +65,12 @@ section.card li{
     font-size: 1rem;
     padding-right: 0.5rem;
 }
+
+.spouseQ span, .spouseQ .form-control{
+    border-radius: initial;
+}
+
+.spouseQ:last-child .form-control{
+    border-bottom-right-radius: var(--bs-border-radius)!important;
+    border-bottom-left-radius: var(--bs-border-radius)!important;
+}

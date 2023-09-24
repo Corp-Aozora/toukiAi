@@ -111,8 +111,8 @@ class Spouse(CommonModel):
         blank = False,
         related_name="spouse",
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, verbose_name="配偶者", on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(verbose_name="配偶者id")
     content_object = GenericForeignKey('content_type', 'object_id')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)
@@ -147,7 +147,7 @@ class Spouse(CommonModel):
         related_name = "spouse_update_by"
     )
     
-    step_one_fields = ["decedent", "content_type", "object_id", "name", "is_heir", "is_refuse", "is_exist", "is_live", "is_japan"]
+    step_one_fields = ["decedent", "content_type", "object_id", "name", "is_exist", "is_live", "is_heir", "is_refuse", "is_japan"]
     
     class Meta:
         verbose_name = _("配偶者")
@@ -164,11 +164,11 @@ class Descendant(CommonModel):
         blank = False,
         related_name="descendant",
     )
-    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant1")
-    object_id1 = models.PositiveIntegerField()
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant1", verbose_name="親1")
+    object_id1 = models.PositiveIntegerField(verbose_name="親1id")
     content_object1 = GenericForeignKey('content_type1', 'object_id1')
-    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant2")
-    object_id2 = models.PositiveIntegerField()
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant2", verbose_name="親2")
+    object_id2 = models.PositiveIntegerField(verbose_name="親2id")
     content_object2 = GenericForeignKey('content_type2', 'object_id2')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)
@@ -226,8 +226,8 @@ class Ascendant(CommonModel):
         blank = False,
         related_name="ascendant",
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="子")
+    object_id = models.PositiveIntegerField(verbose_name="子id")
     content_object = GenericForeignKey('content_type', 'object_id')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)
@@ -279,11 +279,11 @@ class Collateral(CommonModel):
         blank = False,
         related_name="collateral",
     )
-    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1")
-    object_id1 = models.PositiveIntegerField()
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1", verbose_name="親1")
+    object_id1 = models.PositiveIntegerField(verbose_name="親1id")
     content_object1 = GenericForeignKey('content_type1', 'object_id1')
-    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral2")
-    object_id2 = models.PositiveIntegerField()
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral2", verbose_name="親2")
+    object_id2 = models.PositiveIntegerField(verbose_name="親2id")
     content_object2 = GenericForeignKey('content_type2', 'object_id2')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)

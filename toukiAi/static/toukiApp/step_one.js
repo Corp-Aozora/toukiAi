@@ -26,16 +26,7 @@ class DecedentInput{
     static domicileCity = document.getElementById("id_domicile_city");
 }
 
-//配偶者欄
-class SpouseInput{
-    static name = document.getElementById("id_spouse_name");
-    static exist = document.getElementsByName("spouse_exist");
-    static isLive = document.getElementsByName("spouse_is_live");
-    static isStepChild = document.getElementsByName("spouse_is_step_child");
-    static isJapan = document.getElementsByName("spouse_is_japan");
-}
-
-//各入力欄のインデックス
+//被相続人欄のインデックス
 class DecedentColumnInputIndex{
     static name = 0;
     static deathYear = 1;
@@ -44,6 +35,26 @@ class DecedentColumnInputIndex{
     static city = 4;
     static domicilePrefecture = 5;
     static domicileCity = 6;
+}
+
+//配偶者欄
+class SpouseInput{
+    static name = document.getElementById("id_spouse_name");
+    static exist = document.getElementsByName("spouse_is_exist");
+    static isLive = document.getElementsByName("spouse_is_live");
+    static isStepChild = document.getElementsByName("spouse_is_step_child");
+    static isRefuse = document.getElementsByName("spouse_is_refuse");
+    static isJapan = document.getElementsByName("spouse_is_japan");
+}
+
+//配偶者欄のインデックス
+class SpouseColumnInputIndex{
+    static name = 0
+    static isExist = 1
+    static isLive = 2
+    static isStepChild = 3
+    static isRefuse = 4
+    static isJapan = 5
 }
 
 //次へボタン又は各欄のインデックス（相続人が確定したときにインデックスを設定する）
@@ -87,8 +98,6 @@ const previousBtnsIndex = new PreviousBtnsIndex();
 class InputsField{
     
     static decedentFieldset = document.querySelector("fieldset");
-    static spouseFieldset = document.getElementsByTagName("fieldset")[columnsIndex.spouse];
-    static childrenFieldset = document.getElementsByTagName("fieldset")[columnsIndex.children];
 
     constructor(){
         this.requiredFieldsetsArr = [document.querySelector("fieldset")];
@@ -191,8 +200,9 @@ function getCityData(val, el){
 /**
  * 次の項目を有効化して前の項目を無効化する
  * @param {number} i 押された次へボタンのインデックス
+ * @param {boolean} isIndivisual 個人入力欄フラグ
  */
-function enableNextColumn(i){
+function enableNextColumn(i, isIndivisual){
 
     //次の項目のフィールドセットを取得
     const targetField = document.getElementsByTagName("fieldset")[i + 1];
@@ -213,7 +223,20 @@ function enableNextColumn(i){
     //入力必須欄を変更する
     checkedRequiredInputArr = requiredInputArr.map(x => x.cloneNode(true));
     requiredInputArr.length = 0;
-    requiredInputArr = []
+    invalidElArr.length = 0;
+    if(isIndivisual){
+        
+        requiredInputArr = [Object.values(SpouseInput)];
+        requiredInputArr.splice(SpouseColumnInputIndex.isStepChild);
+        invalidElArr = [Object.values(SpouseInput)];
+        invalidElArr.splice(SpouseColumnInputIndex.isStepChild);
+
+    }else{
+
+    }
+
+    //最初の入力欄にフォーカスする
+    requiredInputArr[0].focus();
 }
 
 /**
@@ -302,10 +325,10 @@ function enablePreviousColumn(i){
  * 次の項目とガイドの次の項目を有効化して前の項目を無効化する
  * @param {number} i 押された次へボタンのインデックス
  */
-function enableNextColumnAndGuide(i){
+function enableNextColumnAndGuide(i, isIndivisual){
     
     //次の項目を有効化
-    enableNextColumn(i);
+    enableNextColumn(i, isIndivisual);
 
     //ガイドを更新する
     updateGuideField();
@@ -314,6 +337,8 @@ function enableNextColumnAndGuide(i){
     inputsField.previousBtnsArr.push(document.getElementsByClassName("previousBtn")[i]);
     const handler = enablePreviousColumn(i);
     inputsField.previousBtnsArr[i].addEventListener("click", handler);
+
+    
 }
 
 
@@ -423,6 +448,6 @@ inputsField.nextBtnsArr[columnsIndex.decedent].addEventListener("click",(e)=>{
     }
     
     //チェックを通ったときは、次へ入力欄を有効化する
-    enableNextColumnAndGuide(columnsIndex.decedent);
+    enableNextColumnAndGuide(columnsIndex.decedent, false);
 })
 

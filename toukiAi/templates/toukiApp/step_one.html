@@ -247,29 +247,31 @@
                                 ※被相続人の死亡時にお亡くなりになっている方や養子も含みます
                             </div>
                             <div class="card-text">
-                                <div class="childQ">
+                                <div class="childrenQ">
                                     <div>
-                                        <span class="input-group-text fw-bold">
+                                        <span class="input-group-text fw-bold rounded-top">
                                             何人いますか？(いないときは0)
                                         </span>
                                     </div>
                                     <div class="input-group">
-                                        <button type="button" class="btn btn-outline-secondary childDecreaseBtn">
-                                            -
+                                        <button type="button" class="btn btn-outline-secondary childDecreaseBtn rounded-0">
+                                            －
                                         </button>
                                         <input type="text" id="id_childQ1" class="form-control" name="childQ1">
                                         <button type="button" class="btn btn-outline-secondary childIncreaseBtn">
-                                            +
+                                            ＋
                                         </button>
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="childQ">
+                                <div class="childrenQ">
                                     <div>
                                         <span class="input-group-text fw-bold">
                                             全員配偶者との子ですか？
                                         </span>
                                     </div>
-                                    <div class="form-control d-flex">
+                                    <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
                                                 <input class="form-check-input" type="radio" name="childQ2Rbs">
@@ -282,15 +284,17 @@
                                                 前配偶者との子がいる
                                             </label>
                                         </div>
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="childQ">
+                                <div class="childrenQ">
                                     <div>
                                         <span class="input-group-text fw-bold">
                                             全員現在もご健在ですか？
                                         </span>
                                     </div>
-                                    <div class="form-control d-flex">
+                                    <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
                                                 <input class="form-check-input" type="radio" name="childQ3Rbs">
@@ -303,15 +307,17 @@
                                                 亡くなっている子がいる
                                             </label>
                                         </div>
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="childQ">
+                                <div class="childrenQ">
                                     <div>
                                         <span class="input-group-text fw-bold">
                                             現在もご健在の方は全員成人してますか？
                                         </span>
                                     </div>
-                                    <div class="form-control d-flex">
+                                    <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
                                                 <input class="form-check-input" type="radio" name="childQ4Rbs">
@@ -324,15 +330,17 @@
                                                 未成年の子がいる
                                             </label>
                                         </div>
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="childQ">
+                                <div class="childrenQ">
                                     <div>
                                         <span class="input-group-text fw-bold">
                                             現在もご健在の方は全員日本に住民票がありますか？
                                         </span>
                                     </div>
-                                    <div class="form-control d-flex">
+                                    <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
                                                 <input class="form-check-input" type="radio" name="childQ5Rbs">
@@ -345,6 +353,8 @@
                                                 海外に移住している方がいる
                                             </label>
                                         </div>
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -362,7 +372,7 @@
                                 子１について
                             </div>
                             <div class="card-text">
-                                <div class="input-group childQ">
+                                <div class="input-group child1Q">
                                     <label class="input-group-text fw-bold" for="id_child1Q1">
                                         氏名
                                     </label>

@@ -17,6 +17,11 @@ form fieldset:first-of-type > div{
     left: 150px;
 }
 
+.rbEmPosition{
+    top: -93px;
+    left: 30px;
+}
+
 .cityEmPosition{
     top: -93px;
     left: 150px;

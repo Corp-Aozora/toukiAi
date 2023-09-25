@@ -173,7 +173,6 @@ function getCityData(val, el){
     }).finally(()=>{
         //データ取得中ツールチップを削除する
         document.getElementById(`${el.id}_verifyingEl`).remove();
-        const index = requiredInputArr.indexOf(el);
     });
 }
 
@@ -184,23 +183,18 @@ function getCityData(val, el){
  */
 function enableNextColumn(i, isIndivisual){
 
-    //次の項目のフィールドセットを取得
+    //次の項目を表示、hrを挿入、次の項目にスクロール
     const targetField = document.getElementsByTagName("fieldset")[i + 1];
-    inputsField.requiredFieldsetsArr.push(targetField);
-
-    //hrタグを生成
     const hr = document.createElement("hr");
-    hr.className = "my-5";
 
-    //次の項目を表示、区切り線を挿入、次の項目にスクロール
+    inputsField.requiredFieldsetsArr.push(targetField);
     slideDown(targetField);
+    hr.className = "my-5";
     targetField.before(hr);
     scrollToTarget(targetField);
     
-    //前の項目を無効化する
+    //前の項目を無効化、次の項目のデータ準備
     inputsField.requiredFieldsetsArr[i].disabled = true;
-
-    //入力済配列に保存する
     checkedRequiredInputArr = [requiredInputArr.map(x => x.cloneNode(true))];
     requiredInputArr.length = 0;
     invalidElArr.length = 0;
@@ -209,17 +203,17 @@ function enableNextColumn(i, isIndivisual){
     inputsField.nextBtnsArr.push(targetField.getElementsByClassName("nextBtn")[0]);
     inputsField.previousBtnsArr.push(targetField.getElementsByClassName("previousBtn")[0]);
     
-    //個人入力欄のとき
+    //個人入力欄（子全員、兄弟姉妹全員以外の欄）のとき
     if(isIndivisual){
+        //入力必須欄とエラー要素欄を取得する
         requiredInputArr = Array.from(targetField.getElementsByTagName("input"));
-        //エラー要素は氏名欄のみ取得する
-        invalidElArr = [targetField.getElementsByTagName("input")[0]];  
+        invalidElArr = Array.from(targetField.getElementsByTagName("input"));
     }else{
         //子全員又は兄弟姉妹全員欄のとき
 
     }
 
-    //最初の入力欄にフォーカスする
+    //次の項目の最初の入力欄にフォーカスする
     requiredInputArr[0].focus();
 }
 
@@ -262,12 +256,10 @@ function enableNextGuide(){
  * @param {number} i 押された戻るボタンのインデックス
  */
 function enablePreviouseColumn(i){
-    //無効化対象のフィールドセット
-    const disableField = inputsField.requiredFieldsetsArr[i + 1];
-    //有効化対象のフィールドセット
-    const enableField = inputsField.requiredFieldsetsArr[i];
-    //削除対象のhrタグ
-    const removeHr = disableField.previousElementSibling;
+    
+    const disableField = inputsField.requiredFieldsetsArr[i + 1]; //無効化対象のフィールドセット
+    const enableField = inputsField.requiredFieldsetsArr[i]; //有効化対象のフィールドセット
+    const removeHr = disableField.previousElementSibling; //削除対象のhrタグ
 
     //削除対象を非表示にしてから削除。必須欄から削除対象を削除。
     slideUp(disableField);
@@ -291,6 +283,7 @@ function enablePreviouseColumn(i){
 
     //被相続人欄を有効化するとき
     if(i === 0){
+        //全て入力済みのためエラー要素配列は設定不要
         requiredInputArr = Object.values(DecedentInput);
     }
 }
@@ -327,10 +320,8 @@ function putBackGuide(){
  */
 function oneStepBack(i){
     return function(e){
-        //前の項目を有効化
+        //前の項目を有効化とガイドの巻き戻し
         enablePreviouseColumn(i);
-        
-        //ガイドの巻き戻し
         putBackGuide();
     }
 }
@@ -343,20 +334,18 @@ function oneStepBack(i){
  */
 function displayNextInput(btnIdx, isIndivisual){
     const fieldset = inputsField.requiredFieldsetsArr[guideField.inProgressIndex];
+
     //配偶者項目のとき
     if(fieldset.classList.contains("spouseFieldset")){
         const spouseQsArr = Array.from(fieldset.getElementsByClassName("spouseQ"));
+        const yes = 0;
+        const no = 1;
         const nameInputIdx = 0;
-        const isExistTrueIdx = 1;
-        const isExistFalseIdx = 2;
-        const isLiveTrueIdx = 3;
-        const isLiveFalseIdx = 4;
-        const isStepChildTrueIdx = 5;
-        const isStepChildFalseIdx = 6;
-        const isRefuseTrueIdx = 7;
-        const isRefuseFalseIdx = 8;
-        const isJapanTrueIdx = 9;
-        const isJapanFalseIdx = 10;
+        const isExistBtnIdx = [1, 2];
+        const isLiveBtnIdx = [3, 4];
+        const isStepChildBtnIdx = [5, 6];
+        const isRefuseBtnIdx = [7, 8];
+        const isJapanBtnIdx = [9, 10];
 
         const isExistInputIdx = 1;
         const isLiveInputIdx = 2;
@@ -367,82 +356,121 @@ function displayNextInput(btnIdx, isIndivisual){
         inputsField.errorMessagesElArr[isStepChildInputIdx].innerHTML = "";
         inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = true;
 
-        //死亡時存在true
-        if(btnIdx === isExistTrueIdx){
-            //次の入力欄を表示する
-            slideDown(spouseQsArr[isLiveInputIdx]);
+        //死亡時存在
+        if(isExistBtnIdx.includes(btnIdx)){
             
-        }else if(btnIdx === isExistFalseIdx){
-            //死亡時存在false
+            //true
+            if(btnIdx === isExistBtnIdx[yes]){
+                
+                //ラジオボタンの入力が未了であることを維持するために適当なラジオボタンの要素を追加しておく
+                if(invalidElArr.indexOf(requiredInputArr[isExistBtnIdx[yes]]) === -1) 
+                    invalidElArr.push(requiredInputArr[isExistBtnIdx[yes]]);
 
-            //次へボタンを有効化
-            if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
+                //次の入力欄を表示する
+                slideDown(spouseQsArr[isLiveInputIdx]);
 
-            //他のボタンを全て初期化
-            for(let i = isLiveTrueIdx; i < requiredInputArr.length; i++){
-                requiredInputArr[i].checked = false;
+            }else{
+                //false
+
+                //氏名欄以外を削除する
+                invalidElArr = invalidElArr.filter(x => x === requiredInputArr.indexOf(nameInputIdx));
+                //氏名欄が入力されているとき、次へボタンを有効化
+                if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
+    
+                //3問目以降のボタンを全て初期化
+                for(let i = isLiveBtnIdx[yes]; i < requiredInputArr.length; i++){
+                    requiredInputArr[i].checked = false;
+                }
+                //3問目以降を全て非表示にする
+                for(let i = isLiveInputIdx; i < spouseQsArr.length; i++){
+                    slideUp(spouseQsArr[i]);
+                }
             }
-            //3問目以降を全て非表示にする
-            for(let i = isLiveInputIdx; i < spouseQsArr.length; i++){
-                slideUp(spouseQsArr[i]);
+        }else if(isLiveBtnIdx.includes(btnIdx)){
+            //手続時存在
+
+            //true
+            if(btnIdx === isLiveBtnIdx[yes]){
+
+                if(invalidElArr.indexOf(requiredInputArr[isExistBtnIdx[yes]]) === -1) 
+                    invalidElArr.push(requiredInputArr[isExistBtnIdx[yes]]);
+
+                //相続放棄欄を表示する
+                slideDown(spouseQsArr[isRefuseInputIdx]);
+
+                //連れ子欄を非表示かつボタンを初期化
+                requiredInputArr[isStepChildBtnIdx[yes]].checked = false;
+                requiredInputArr[isStepChildBtnIdx[no]].checked = false;
+                slideUp(spouseQsArr[isStepChildInputIdx])
+
+            }else{
+                //false
+
+                if(invalidElArr.indexOf(requiredInputArr[isExistBtnIdx[yes]]) === -1) 
+                    invalidElArr.push(requiredInputArr[isExistBtnIdx[yes]]);
+
+                //連れ子欄を表示
+                slideDown(spouseQsArr[isStepChildInputIdx]);
+
+                //相続放棄欄以降を非表示にしてボタンを初期化
+                for(let i = isRefuseInputIdx; i < spouseQsArr.length; i++){
+                    slideUp(spouseQsArr[i]);
+                }
+                requiredInputArr[isRefuseBtnIdx[yes]].checked = false;
+                requiredInputArr[isRefuseBtnIdx[no]].checked = false;
+                requiredInputArr[isJapanBtnIdx[yes]].checked = false;
+                requiredInputArr[isJapanBtnIdx[yes]].checked = false;
+            }    
+
+        }else if(isStepChildBtnIdx.includes(btnIdx)){
+            //連れ子
+
+            //true
+            if(btnIdx === isStepChildBtnIdx[yes]){
+   
+               //システム対応外であることを表示する
+               if(invalidElArr.indexOf(requiredInputArr[isExistBtnIdx[yes]]) === -1) 
+                    invalidElArr.push(requiredInputArr[isExistBtnIdx[yes]]);
+
+               inputsField.errorMessagesElArr[isStepChildInputIdx].style.display = display;
+               inputsField.errorMessagesElArr[isStepChildInputIdx].innerHTML = "本システムでは対応できません";
+               inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
+
+            }else{
+                //false
+        
+                //名前が入力されているときは次へボタンを有効化する
+                invalidElArr = invalidElArr.filter(x => x === requiredInputArr[nameInputIdx]);
+                if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
             }
+        }else if(isRefuseBtnIdx.includes(btnIdx)){
+            //相続放棄
 
-        }else if(btnIdx === isLiveTrueIdx){
-            //手続時存在true
+            //true
+            if(btnIdx === isRefuseBtnIdx[yes]){
+                
+                //名前が入力されているときは次へボタンを有効化する
+                invalidElArr = invalidElArr.filter(x => x === requiredInputArr[nameInputIdx]);
+                if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
 
-            //連れ子欄を非表示かつボタンを初期化、相続放棄欄を表示する
-            slideDown(spouseQsArr[isRefuseInputIdx]);
-            slideUp(spouseQsArr[isStepChildInputIdx])
-            requiredInputArr[isStepChildTrueIdx].checked = false;
-            requiredInputArr[isStepChildFalseIdx].checked = false;
+                slideUp(spouseQsArr[isJapanInputIdx]);
+                requiredInputArr[isJapanBtnIdx[yes]].checked = false;
+                requiredInputArr[isJapanBtnIdx[no]].checked = false;
 
-        }else if(btnIdx === isLiveFalseIdx){
-            //手続時存在false
+            }else{
+                //false
 
-            //連れ子欄を表示
-            slideDown(spouseQsArr[isStepChildInputIdx]);
-            for(let i = isRefuseInputIdx; i < spouseQsArr.length; i++){
-                slideUp(spouseQsArr[i]);
+                if(invalidElArr.indexOf(requiredInputArr[isExistBtnIdx[yes]]) === -1) 
+                    invalidElArr.push(requiredInputArr[isExistBtnIdx[yes]]);
+
+                //次の入力欄を表示する
+                slideDown(spouseQsArr[isJapanInputIdx]);
             }
-
-            //相続放棄以降のボタンを初期化
-            requiredInputArr[isRefuseTrueIdx].checked = false;
-            requiredInputArr[isRefuseTrueIdx].checked = false;
-            requiredInputArr[isJapanTrueIdx].checked = false;
-            requiredInputArr[isJapanFalseIdx].checked = false;
-
-        }else if(btnIdx === isStepChildTrueIdx){
-            //連れ子true
-
-            //システム対応外であることを表示する
-            inputsField.errorMessagesElArr[isStepChildInputIdx].style.display = display;
-            inputsField.errorMessagesElArr[isStepChildInputIdx].innerHTML = "本システムでは対応できません";
-            inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
-
-        }else if(btnIdx === isStepChildFalseIdx){
-            //連れ子false
-
-            //名前が入力されているときは次へボタンを有効化する
-            if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
-
-        }else if(btnIdx === isRefuseTrueIdx){
-            //相続放棄true
-
-            //名前が入力されているときは次へボタンを有効化する
-            if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
-            slideUp(spouseQsArr[isJapanInputIdx]);
-            requiredInputArr[isJapanTrueIdx].checked = false;
-            requiredInputArr[isJapanFalseIdx].checked = false;
-
-        }else if(btnIdx === isRefuseFalseIdx){
-            //相続放棄false
-
-            //次の入力欄を表示する
-            slideDown(spouseQsArr[isJapanInputIdx]);
         }else{
-            //日本在住true又はfalse
+            //日本在住(true、false同じ処理)
 
             //名前が入力されているときは次へボタンを有効化する
+            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[nameInputIdx]);
             if(invalidElArr.length === 0) inputsField.nextBtnsArr[guideField.inProgressIndex].disabled = false;
         }
 
@@ -463,10 +491,8 @@ function displayNextInput(btnIdx, isIndivisual){
  */
 function oneStepFoward(idx, isIndivisual){
     
-    //次の項目を有効化
+    //次の項目を有効化とガイドを更新
     enableNextColumn(idx, isIndivisual);
-
-    //ガイドを更新する
     enableNextGuide();
 
     //各入力欄にイベントを設定
@@ -484,10 +510,8 @@ function oneStepFoward(idx, isIndivisual){
                     const val = e.target.value;
                     const el = e.target;
         
-                    //入力値のチェック結果を取得
+                    //入力値のチェック結果を取得して結果に応じた処理をする
                     isValid = isOnlyZenkaku(val, el);
-            
-                    //結果に応じて分岐
                     sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[columnsIndex.spouse]);
         
                 })
@@ -514,10 +538,16 @@ function oneStepFoward(idx, isIndivisual){
     inputsField.previousBtnsArr[idx].addEventListener("click", handler);
 
     //次へボタンにイベントを設定
-    // const handler2 = oneStepFoward(idx);
-    // inputsField.previousBtnsArr[idx].addEventListener("click", oneStepFoward);
-    // const indices = [1, 2];
-    // invalidElArr = invalidElArr.filter(x => !indices.includes(requiredInputArr.indexOf(x)));
+    let handler2;
+
+    //個人入力欄のとき
+    if(!inputsField.requiredFieldsetsArr[guideField.inProgressIndex].classList.contains("childrenFieldset") || !inputsField.requiredFieldsetsArr[guideField.inProgressIndex].classList.contains("collateralsFieldset")){
+        handler2 = function () {oneStepFoward(idx + 1, true)};
+    }else{
+        //子全員又は兄弟姉妹全員入力欄のとき
+        handler2 = function () {oneStepFoward(idx + 1, false)};
+    }
+    inputsField.nextBtnsArr[idx + 1].addEventListener("click", handler2);
 }
 
 

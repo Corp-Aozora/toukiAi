@@ -134,7 +134,7 @@
                         <button type="button" class="btn btn-primary nextBtn" tabindex="8" disabled="true">次へ</button>
                     </div>
                 </fieldset>
-                <fieldset id="spouseFieldset" class="spouseFieldset">
+                <fieldset id="spouseFieldset" class="spouseFieldset" style="display: none;">
                     <div class="pb-3">
                         <h5 class="form-label">
                             <span class="bg-danger-subtle p-1 rounded-3">
@@ -237,20 +237,20 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset id="childrenFieldset" style="display: none;">
+                <fieldset id="childrenFieldset" class="childrenFieldset">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title text-center fw-bold border-bottom bg-primary-subtle">
                                 子全員について
                             </div>
-                            <div class="form-text">
-                                ※お亡くなりになっている方、養子も含みます
+                            <div class="form-text text-danger">
+                                ※被相続人の死亡時にお亡くなりになっている方や養子も含みます
                             </div>
                             <div class="card-text">
                                 <div class="childQ">
                                     <div>
                                         <span class="input-group-text fw-bold">
-                                            何人いますか？
+                                            何人いますか？(いないときは0)
                                         </span>
                                     </div>
                                     <div class="input-group">
@@ -985,7 +985,7 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset id="collateralsFieldset" style="display: none;">
+                <fieldset id="collateralsFieldset" class="collateralsFieldset" style="display: none;">
                     <div class="card">
                         <div class="card-body">
                             <div class="card-title text-center fw-bold border-bottom bg-warning-subtle">

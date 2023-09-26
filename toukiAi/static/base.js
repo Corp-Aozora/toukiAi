@@ -180,25 +180,25 @@ function removeElement(targetId, count){
 
 /**
  * 整数チェック
- * @param {input} value 
+ * @param {input} val 
  * @param {element} el 対象の要素（数字以外があるときは、空文字を入力する。全角数字があるときは半角数字に変換する）
  * @returns {boolean} 整数のときはtrue、違うときはfalse
  */
-function isNumber(value, el){
+function isNumber(val, el){
     //入力値がないときは、何もしない
-    if(value === ""){
+    if(val === ""){
         return false;
     } 
 
     //全角を半角にする
     const reg = new RegExp(/^[0-9０-９]*$/);
-    const result = reg.test(value);
+    const result = reg.test(val);
     if(result === false){
-        el.value = "";
+        el.val = "";
         return false;
     } 
 
-    el.value = ZenkakuToHankaku(value)
+    el.val = ZenkakuToHankaku(val)
     return true;
 }
 

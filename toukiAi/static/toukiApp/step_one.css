@@ -71,11 +71,11 @@ section.card li{
     padding-right: 0.5rem;
 }
 
-.spouseQ span, .spouseQ .form-control, .childrenQ span, .childrenQ .form-control{
+.Q span, .Q .form-control{
     border-radius: initial;
 }
 
-.spouseQ:last-child .form-control, .childrenQ:last-child .form-control{
+.Q:last-child .form-control{
     border-bottom-right-radius: var(--bs-border-radius)!important;
     border-bottom-left-radius: var(--bs-border-radius)!important;
 }

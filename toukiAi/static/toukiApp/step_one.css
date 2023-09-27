@@ -27,6 +27,11 @@ form fieldset:first-of-type > div{
     left: 150px;
 }
 
+.nbEmPosition{
+    top: -54px;
+    left: 200px;
+}
+
 ::placeholder{
     text-align: center;
 }

@@ -116,8 +116,7 @@ function getCityData(val, el){
         mode: "same-origin"
     }).then(response => {
         return response.json();
-    })
-    .then(response => {
+    }).then(response => {
         const errorMessageEl = document.getElementById(`${el.id}_message`);
 
         if(response.city !== ""){
@@ -138,8 +137,7 @@ function getCityData(val, el){
             errorMessageEl.style.display = display;
             invalidElArr.push(el);
         }
-    })
-    .catch(error => {
+    }).catch(error => {
         console.log(error);
     }).finally(()=>{
         //データ取得中ツールチップを削除する
@@ -763,11 +761,10 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
     inputsField.previousBtnsArr[fromNextBtnIdx].addEventListener("click", oneStepBackHandler);
 
     //次へボタンにイベントを設定
-    //個人入力欄のとき
+    //配偶者欄又は母方の祖父母欄のとき
     if(["spouseFieldset", "motherGmotherFieldset"].includes(fieldset.id)){
         oneStepFowardHandler = function () {oneStepFoward(fromNextBtnIdx + 1, false)};
     }else{
-        //子全員又は兄弟姉妹全員入力欄のとき
         oneStepFowardHandler = function () {oneStepFoward(fromNextBtnIdx + 1, true)};
     }
     nextBtn.addEventListener("click", oneStepFowardHandler);

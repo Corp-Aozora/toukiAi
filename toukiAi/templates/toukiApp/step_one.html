@@ -389,148 +389,118 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset id="child1Fieldset" class="childFieldset" style="display: none;">
-                    <div class="pb-3">
-                        <h5 class="form-label">
-                            <span class="bg-primary-subtle p-1 rounded-3">
-                                ４．{{sections.3}}
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="card-text">
-                                <div class="input-group Q">
-                                    <label class="input-group-text fw-bold" for="id_child1Q1">
-                                        氏名
-                                    </label>
-                                    <input type="text" id="id_child1Q1" class="form-control" name="child1Q1">
-                                    <span class="errorMessage emPosition" style="display: none;">
-                                    </span>
-                                </div>
-                                <div class="Q mt-3">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            配偶者との子ですか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="child1Q2Rbs">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="child1Q2Rbs">
-                                                いいえ
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在もご健在ですか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="child1Q3Rbs">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="child1Q3Rbs">
-                                                亡くなっている
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            被相続人の死亡時点でご健在でしたか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="child1Q3Rbs">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="child1Q3Rbs">
-                                                亡くなっていた
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            成人してますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="child1Q4Rbs">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="child1Q4Rbs">
-                                                未成年
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            住民票は日本にありますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="child1Q5Rbs">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="child1Q5Rbs">
-                                                海外に移住している
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
+                {{ formset.management_form }}
+                {% for form in child_form_set %}
+                    <fieldset class="childFieldset">
+                        <div class="pb-3">
+                            <h5 class="form-label">
+                                <span class="bg-primary-subtle p-1 rounded-3">
+                                    ４．{{sections.3}}
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-text">
+                                    {% for field in form %}
+                                        {% if field.html_name in child_form_internal_data_name %}
+                                        {% elif field.html_name == "child_name" %}
+                                            <div class="input-group Q">
+                                                <label class="input-group-text fw-bold" for="id_form_0_child_name">
+                                                    氏名
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition" style="display: none;">
+                                                </span>
+                                            </div>
+                                        {% elif field.html_name == "child_decedent" %}
+                                            <div class="Q mt-3">
+                                                <div>
+                                                    <span class="input-group-text fw-bold rounded-top">
+                                                        配偶者との子ですか？
+                                                    </span>
+                                                </div>
+                                                <div class="form-control input-group">
+                                                    <div class="form-check col">
+                                                        <label class="form-check-label ms-5">
+                                                            <input class="form-check-input" type="radio" name="child{{ form.prefix }}_is_live_0">
+                                                            はい
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check col">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio" name="child{{ form.prefix }}_is_live_1">
+                                                            いいえ
+                                                        </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            {% if field.html_name == "child_is_live" %}
+                                                <div class="Q">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            現在もご健在ですか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "child_exist" %}
+                                                <div class="Q">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            被相続人の死亡時点ではご健在でしたか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "child_is_refuse" %}
+                                                <div class="Q">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            相続放棄してますか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "child_is_adult" %}
+                                                <div class="Q">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            成人してますか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "child_is_japan" %}
+                                                <div class="Q">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            住民票は日本にありますか？
+                                                        </span>
+                                                    </div>
+                                            {% endif %}
+                                                    <div class="form-control input-group">
+                                                        {% for choice in field %}
+                                                            <div class="form-check col">
+                                                                {% if forloop.counter == 1 %}
+                                                                    <label class="form-check-label ms-5">
+                                                                {% else %}
+                                                                    <label class="form-check-label">
+                                                                {% endif %}
+                                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                                    </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
                             </div>
+                            <div class="d-flex justify-content-between px-3 pb-3">
+                                <button type="button" class="btn btn-secondary previousBtn">戻る</button>
+                                <button type="button" class="btn btn-primary nextBtn">次へ</button>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between px-3 pb-3">
-                            <button type="button" class="btn btn-secondary previousBtn">戻る</button>
-                            <button type="button" class="btn btn-primary nextBtn">次へ</button>
-                        </div>
-                    </div>
-                </fieldset>
+                    </fieldset>
+                {% endfor %}
                 <fieldset id="fatherFieldset" style="display: none;">
                     <div class="card">
                         <div class="card-body">

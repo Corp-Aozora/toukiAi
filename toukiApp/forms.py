@@ -126,7 +126,7 @@ class StepOneDecendantForm(forms.ModelForm):
         fields = model.step_one_fields
         widgets = {
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
-            "is_exist": forms.RadioSelect(),
+            "exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
             "is_refuse": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
             "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
             "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
@@ -150,7 +150,7 @@ class StepOneDecendantForm(forms.ModelForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "id": "id_spouse_name",
+                    "id": "id_child_name",
                     "placeholder": "姓名間にスペースなし",
                     "maxlength": "30",
                 })

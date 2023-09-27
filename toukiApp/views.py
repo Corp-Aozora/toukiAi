@@ -5,6 +5,7 @@ from .customDate import *
 from .sections import *
 from .company_data import *
 from .forms import *
+from django.forms import formset_factory
 from .models import *
 from accounts.models import User
 from django.http import JsonResponse
@@ -25,6 +26,7 @@ from django.http import HttpResponse
 from django.db import transaction
 from smtplib import SMTPException
 import socket
+from django.views.decorators.csrf import csrf_exempt
 
 def index(request):
     is_inquiry = False
@@ -119,10 +121,12 @@ def step_one(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
+    child_form_set = formset_factory(form=StepOneDecendantForm,extra=1, max_num=15)
     
     if request.method == "POST":
         decedent_form = StepOneDecedentForm(request.POST)
         spouse_form = StepOneSpouseForm(request.POST)
+        childs_form = child_form_set(request.POST)
 
         # トランザクションが必要
         # 被相続人情報の保存
@@ -135,6 +139,8 @@ def step_one(request):
         decedent_form = StepOneDecedentForm()
         spouse_form = StepOneSpouseForm()
         spouse_form_internal_data_name = ["spouse_decedent", "spouse_content_type", "spouse_object_id", "spouse_is_heir"]
+        child_form_internal_data_name = ["child_content_type1", "child_object_id1", "child_content_type2", "child_object_id2", "child_is_heir"]
+        
     
     prefectures = []
     for p in PREFECTURES:
@@ -149,6 +155,8 @@ def step_one(request):
         "spouse_form_internal_data_name": spouse_form_internal_data_name,
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
+        "child_form_set" : child_form_set,
+        "child_form_internal_data_name" :child_form_internal_data_name,
     }
     return render(request, "toukiApp/step_one.html", context)
 

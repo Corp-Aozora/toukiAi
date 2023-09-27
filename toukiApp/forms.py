@@ -8,6 +8,7 @@ from .models import *
 CustomUser = get_user_model()
 decedent_max_index = 7
 spouse_max_index = 18
+children_max_index = 28
 
 # 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容
@@ -93,11 +94,55 @@ class StepOneSpouseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         tabindex = decedent_max_index
         
-        for i, field in enumerate(self.base_fields.values()):
+        for field in self.base_fields.values():
             field.required = False
 
             tabindex += 1
             if field.label in ["被相続人", "配偶者", "配偶者id", "相続人"]:
+                continue
+            
+            field.widget.attrs.update({"tabindex": str(tabindex)})
+            
+            if field.label == "氏名":
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                    "id": "id_spouse_name",
+                    "placeholder": "姓名間にスペースなし",
+                    "maxlength": "30",
+                })
+            
+            else:
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            
+        super().__init__(*args, **kwargs)
+                
+# STEP1の子フォーム
+class StepOneDecendantForm(forms.ModelForm):
+    class Meta:
+        model = Descendant
+        # decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, exist, is_refuse, is_adult, is_japan, is_heir
+        fields = model.step_one_fields
+        widgets = {
+            "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
+            "is_exist": forms.RadioSelect(),
+            "is_refuse": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
+            "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
+            "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
+        }
+
+    def add_prefix(self, field_name):
+        return "child_" + field_name
+                
+    def __init__(self, *args, **kwargs):
+        tabindex = children_max_index
+        
+        for field in self.base_fields.values():
+            field.required = False
+
+            tabindex += 1
+            if field.label in ["被相続人", "親1", "親1id", "親2", "親2id", "相続人"]:
                 continue
             
             field.widget.attrs.update({"tabindex": str(tabindex)})

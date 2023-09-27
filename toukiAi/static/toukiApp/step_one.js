@@ -53,7 +53,7 @@ class InputsField{
 const inputsField = new InputsField();
 
 //被相続人項目のインデックス
-const decendantColumnIdx = 0;
+const decedentColumnIdx = 0;
 const spouseColumnIdx = 1;
 //次へボタンのイベントハンドラー
 let oneStepFowardHandler;
@@ -145,7 +145,7 @@ function getCityData(val, el){
         //データ取得中ツールチップを削除する
         document.getElementById(`${el.id}_verifyingEl`).remove();
         //次へボタンの表示判別
-        inputsField.nextBtnsArr[decendantColumnIdx].disabled = invalidElArr.length === 0 ? false: true;
+        inputsField.nextBtnsArr[decedentColumnIdx].disabled = invalidElArr.length === 0 ? false: true;
     });
 }
 
@@ -841,7 +841,7 @@ window.addEventListener("load", ()=>{
             isValid = decedentFormValidationList(val, el);
     
             //結果に応じて分岐
-            sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[decendantColumnIdx]);
+            sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[decedentColumnIdx]);
 
             //住所の都道府県
             if(requiredInputArr[i] === DecedentInput.prefecture || requiredInputArr[i] === DecedentInput.domicilePrefecture){
@@ -873,12 +873,12 @@ DecedentInput.name.addEventListener("keydown",(e)=>{
 })
 
 //被相続人欄の次へボタン
-inputsField.nextBtnsArr[decendantColumnIdx].addEventListener("click",(e)=>{
+inputsField.nextBtnsArr[decedentColumnIdx].addEventListener("click",(e)=>{
 
     //被相続人欄の入力値を全てチェックする
     for(let i = 0; i < requiredInputArr.length; i++){
         isValid = decedentFormValidationList(requiredInputArr[i].value, requiredInputArr[i])
-        sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[decendantColumnIdx])
+        sort(isValid, inputsField.errorMessagesElArr[i], isValid, requiredInputArr[i], inputsField.nextBtnsArr[decedentColumnIdx])
     }
 
     //エラーがあるときは、処理を中止
@@ -888,6 +888,6 @@ inputsField.nextBtnsArr[decendantColumnIdx].addEventListener("click",(e)=>{
     }
     
     //チェックを通ったときは、次へ入力欄を有効化する
-    oneStepFoward(decendantColumnIdx, true);
+    oneStepFoward(decedentColumnIdx, true);
 })
 

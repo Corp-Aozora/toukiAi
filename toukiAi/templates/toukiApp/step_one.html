@@ -238,11 +238,15 @@
                     </div>
                 </fieldset>
                 <fieldset id="childrenFieldset" class="childrenFieldset" style="display: none;">
+                    <div class="pb-3">
+                        <h5 class="form-label">
+                            <span class="bg-primary-subtle p-1 rounded-3">
+                                ３．{{sections.2}}
+                            </span>
+                        </h5>
+                    </div>
                     <div class="card">
                         <div class="card-body">
-                            <div class="card-title text-center fw-bold border-bottom bg-primary-subtle">
-                                子供について
-                            </div>
                             <div class="card-text">
                                 <div class="Q">
                                     <div>
@@ -253,13 +257,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_child" value="true">
+                                                <input class="form-check-input" type="radio" name="children_is_child" value="true" tabindex="19">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_child" value="false">
+                                                <input class="form-check-input" type="radio" name="children_is_child" value="false" tabindex="19">
                                                 いいえ
                                             </label>
                                         </div>
@@ -270,15 +274,15 @@
                                 <div class="Q" style="display: none;">
                                     <div>
                                         <span class="input-group-text fw-bold">
-                                            何人いますか？（上限は１５人までです）
+                                            何人ですか？（お亡くなりになった子や養子も含みます）
                                         </span>
                                     </div>
                                     <div class="input-group">
-                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true">
+                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true"  tabindex="20">
                                             －
                                         </button>
-                                        <input type="number" class="form-control text-center no-spin" name="children_count" value="0">
-                                        <button type="button" class="btn btn-outline-secondary increaseBtn">
+                                        <input type="number" class="form-control text-center no-spin" name="children_count" value="0"  tabindex="21">
+                                        <button type="button" class="btn btn-outline-secondary increaseBtn" tabindex="22">
                                             ＋
                                         </button>
                                         <span class="errorMessage rbEmPosition" style="display: none;">
@@ -294,13 +298,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_spouse" value="true">
+                                                <input class="form-check-input" type="radio" name="children_is_spouse" value="true" tabindex="23">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_spouse" value="false">
+                                                <input class="form-check-input" type="radio" name="children_is_spouse" value="false" tabindex="23">
                                                 前配偶者との子がいる
                                             </label>
                                         </div>
@@ -317,13 +321,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_live" value="true">
+                                                <input class="form-check-input" type="radio" name="children_is_live" value="true" tabindex="24">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_live" value="false">
+                                                <input class="form-check-input" type="radio" name="children_is_live" value="false"  tabindex="24">
                                                 亡くなっている子がいる
                                             </label>
                                         </div>
@@ -340,13 +344,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_adult" value="true">
+                                                <input class="form-check-input" type="radio" name="children_is_adult" value="true" tabindex="25">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_adult" value="false">
+                                                <input class="form-check-input" type="radio" name="children_is_adult" value="false" tabindex="25">
                                                 未成年の子がいる
                                             </label>
                                         </div>
@@ -363,13 +367,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_japan" value="true">
+                                                <input class="form-check-input" type="radio" name="children_is_japan" value="true" tabindex="26">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_japan" value="false">
+                                                <input class="form-check-input" type="radio" name="children_is_japan" value="false" tabindex="26">
                                                 海外に移住している方がいる
                                             </label>
                                         </div>
@@ -380,8 +384,8 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">
-                            <button type="button" class="btn btn-secondary previousBtn">戻る</button>
-                            <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                            <button type="button" class="btn btn-secondary previousBtn" tabindex="27">戻る</button>
+                            <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="28">次へ</button>
                         </div>
                     </div>
                 </fieldset>

@@ -209,7 +209,7 @@ class Descendant(CommonModel):
         related_name = "descendant_update_by"
     )
     
-    step_one_fields = [decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, exist, is_refuse, is_adult, is_japan, is_heir,]
+    step_one_fields = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "name", "is_live", "exist", "is_refuse", "is_adult", "is_japan", "is_heir",]
     
     class Meta:
         verbose_name = _("卑属")

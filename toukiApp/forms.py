@@ -142,7 +142,7 @@ class StepOneDecendantForm(forms.ModelForm):
             field.required = False
 
             tabindex += 1
-            if field.label in ["被相続人", "親1", "親1id", "親2", "親2id", "相続人"]:
+            if field.label in ["被相続人", "親1", "親1id", "親2", "親2id", "相続人",]:
                 continue
             
             field.widget.attrs.update({"tabindex": str(tabindex)})

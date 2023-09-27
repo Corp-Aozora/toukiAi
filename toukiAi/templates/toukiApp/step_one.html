@@ -7,7 +7,7 @@
 {% block header %}
     {% include "toukiApp/step_header.html" %}
 {% endblock %}
-
+{% load custom_filters %}
 {% block content %}
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
@@ -146,7 +146,7 @@
                         <div class="card-body">
                             <div class="card-text">
                                 {% for field in spouse_form %}
-                                    {% if field.html_name in spouse_form_internal_data_name %}
+                                    {% if field.html_name in spouse_form_internal_field_name %}
                                     {% elif field.html_name == "spouse_name" %}
                                         <div class="input-group Q">
                                             <label class="input-group-text fw-bold" for="id_spouse_name">
@@ -391,11 +391,11 @@
                 </fieldset>
                 {{ formset.management_form }}
                 {% for form in child_form_set %}
-                    <fieldset class="childFieldset">
+                    <fieldset class="childFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-primary-subtle p-1 rounded-3">
-                                    ４．{{sections.3}}
+                                    {{forloop.counter|add:3|to_full_width }}．{{sections.3}}
                                 </span>
                             </h5>
                         </div>
@@ -403,17 +403,17 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in form %}
-                                        {% if field.html_name in child_form_internal_data_name %}
-                                        {% elif field.html_name == "child_name" %}
+                                        {% if field.name in child_form_internal_field_name %}
+                                        {% elif field.name == "name" %}
                                             <div class="input-group Q">
-                                                <label class="input-group-text fw-bold" for="id_form_0_child_name">
+                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-child_name">
                                                     氏名
                                                 </label>
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
                                                 </span>
                                             </div>
-                                        {% elif field.html_name == "child_decedent" %}
+                                        {% elif field.name == "decedent" %}
                                             <div class="Q mt-3">
                                                 <div>
                                                     <span class="input-group-text fw-bold rounded-top">
@@ -423,13 +423,13 @@
                                                 <div class="form-control input-group">
                                                     <div class="form-check col">
                                                         <label class="form-check-label ms-5">
-                                                            <input class="form-check-input" type="radio" name="child{{ form.prefix }}_is_live_0">
+                                                            <input class="form-check-input" type="radio" name="{{form.prefix}}-child_is_same_spouse" tabindex="34">
                                                             はい
                                                         </label>
                                                     </div>
                                                     <div class="form-check col">
                                                         <label class="form-check-label">
-                                                            <input class="form-check-input" type="radio" name="child{{ form.prefix }}_is_live_1">
+                                                            <input class="form-check-input" type="radio" name="{{form.prefix}}-child_is_same_spouse" tabindex="34">
                                                             いいえ
                                                         </label>
                                                     </div>
@@ -438,36 +438,36 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            {% if field.html_name == "child_is_live" %}
-                                                <div class="Q">
+                                            {% if field.name == "is_live" %}
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             現在もご健在ですか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "child_exist" %}
-                                                <div class="Q">
+                                            {% elif field.name == "is_exist" %}
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             被相続人の死亡時点ではご健在でしたか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "child_is_refuse" %}
-                                                <div class="Q">
+                                            {% elif field.name == "is_refuse" %}
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             相続放棄してますか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "child_is_adult" %}
-                                                <div class="Q">
+                                            {% elif field.name == "is_adult" %}
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             成人してますか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "child_is_japan" %}
-                                                <div class="Q">
+                                            {% elif field.name == "is_japan" %}
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             住民票は日本にありますか？

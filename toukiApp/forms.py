@@ -122,18 +122,18 @@ class StepOneSpouseForm(forms.ModelForm):
 class StepOneDecendantForm(forms.ModelForm):
     class Meta:
         model = Descendant
-        # decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, exist, is_refuse, is_adult, is_japan, is_heir
+        # decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, is_exist, is_refuse, is_adult, is_japan, is_heir
         fields = model.step_one_fields
         widgets = {
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
-            "exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
+            "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
             "is_refuse": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
             "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
             "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
         }
 
     def add_prefix(self, field_name):
-        return "child_" + field_name
+        return '%s-%s' % (self.prefix, "child_" + field_name)
                 
     def __init__(self, *args, **kwargs):
         tabindex = children_max_index
@@ -150,7 +150,6 @@ class StepOneDecendantForm(forms.ModelForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "id": "id_child_name",
                     "placeholder": "姓名間にスペースなし",
                     "maxlength": "30",
                 })

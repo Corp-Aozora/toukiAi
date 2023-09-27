@@ -173,7 +173,7 @@ class Descendant(CommonModel):
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)
     is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
-    exist = models.BooleanField(verbose_name="死亡時存在", default=False)
+    is_exist = models.BooleanField(verbose_name="死亡時存在", default=False)
     is_live = models.BooleanField(verbose_name="手続時存在", default=False)
     is_japan = models.BooleanField(verbose_name="日本在住", default=True)
     is_adult = models.BooleanField(verbose_name="成人", default=True)
@@ -202,9 +202,10 @@ class Descendant(CommonModel):
         null = False,
         blank = False,
         related_name = "descendant_update_by"
+        
     )
     
-    step_one_fields = ["content_type1", "object_id1", "content_type2", "object_id2", "name", "decedent", "is_live", "exist", "is_refuse", "is_adult", "is_japan", "is_heir",]
+    step_one_fields = ["content_type1", "object_id1", "content_type2", "object_id2", "name", "decedent", "is_live", "is_exist", "is_refuse", "is_adult", "is_japan", "is_heir",]
     
     class Meta:
         verbose_name = _("卑属")

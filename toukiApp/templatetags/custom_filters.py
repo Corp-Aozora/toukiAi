@@ -17,4 +17,12 @@ def after(value, arg):
         return value[index+len(arg):]
     except ValueError:
         return value
-    
+
+@register.filter
+def addstr(arg1, arg2):
+    """concatenate arg1 & arg2"""
+    return str(arg1) + str(arg2)
+
+@register.filter
+def to_full_width(value):
+    return str(value).translate(str.maketrans('0123456789', '０１２３４５６７８９'))

@@ -253,13 +253,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_child">
+                                                <input class="form-check-input" type="radio" name="children_is_child" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_child">
+                                                <input class="form-check-input" type="radio" name="children_is_child" value="false">
                                                 いいえ
                                             </label>
                                         </div>
@@ -294,13 +294,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_spouse">
+                                                <input class="form-check-input" type="radio" name="children_is_spouse" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_spouse">
+                                                <input class="form-check-input" type="radio" name="children_is_spouse" value="false">
                                                 前配偶者との子がいる
                                             </label>
                                         </div>
@@ -317,13 +317,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_live">
+                                                <input class="form-check-input" type="radio" name="children_is_live" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_live">
+                                                <input class="form-check-input" type="radio" name="children_is_live" value="false">
                                                 亡くなっている子がいる
                                             </label>
                                         </div>
@@ -340,13 +340,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_adult">
+                                                <input class="form-check-input" type="radio" name="children_is_adult" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_adult">
+                                                <input class="form-check-input" type="radio" name="children_is_adult" value="false">
                                                 未成年の子がいる
                                             </label>
                                         </div>
@@ -363,13 +363,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_japan">
+                                                <input class="form-check-input" type="radio" name="children_is_japan" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_japan">
+                                                <input class="form-check-input" type="radio" name="children_is_japan" value="false">
                                                 海外に移住している方がいる
                                             </label>
                                         </div>
@@ -1271,13 +1271,20 @@
             </section>
             <section class="card">
                 <div class="card-header bg-success-subtle text-center">
-                    <h5 class="mb-0">
-                        この章の入力状況
-                    </h5>
+                    <div>
+                        <h5 class="mb-0">
+                            この章の入力状況
+                        </h5>
+                    </div>
+                    <div class="text-center">
+                        <span class="form-text text-success">
+                            ※以下の項目をクリックすると該当の項目にスクロールします
+                        </span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <ol id="guideList" class="ps-1">
-                        <li class="card-title active progressList">
+                        <li class="card-title active guide">
                             <button type="button" class="border-0 bg-white p-0 guideBtn">
                                 {{sections.0}}
                             </button>
@@ -1288,7 +1295,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList">
+                        <li class="card-title guide">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 {{sections.1}}
                             </button>
@@ -1299,7 +1306,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList">
+                        <li class="card-title guide">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 {{sections.2}}
                             </button>
@@ -1310,7 +1317,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 子１について
                             </button>
@@ -1321,7 +1328,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 父について
                             </button>
@@ -1332,7 +1339,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 母について
                             </button>
@@ -1343,7 +1350,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 父方の祖父について
                             </button>
@@ -1354,7 +1361,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 父方の祖母について
                             </button>
@@ -1365,7 +1372,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 母方の祖父について
                             </button>
@@ -1376,7 +1383,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 母方の祖母について
                             </button>
@@ -1387,7 +1394,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 兄弟姉妹全員について
                             </button>
@@ -1398,7 +1405,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title progressList" style="display: none;">
+                        <li class="card-title guide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 兄弟姉妹１について
                             </button>

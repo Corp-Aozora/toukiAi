@@ -261,6 +261,17 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
     }
 }
 
+/**
+ * ボタン要素のチェックを全てfalseにする
+ * @param {element array} 配列に格納されたボタン要素
+ */
+function uncheckAllElements(elArr){
+    elArr.forEach((el)=>{
+        el.checked = false;
+    });
+}
+
+
 /*
     イベント
 */

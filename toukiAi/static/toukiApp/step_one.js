@@ -59,6 +59,7 @@ const spouseColumnIdx = 1;
 let oneStepFowardHandler;
 //子供なしフラグ
 let isNoChild = false;
+let isNoCollateral = false;
 
 /**
  * 初期化
@@ -148,39 +149,113 @@ function getCityData(val, el){
 }
 
 /**
+ * フォームを生成する
+ * @param {boolean} isChild 
+ */
+function createForm(isChild) {
+    let relation;
+    let zokugara;
+    if(isChild){
+        relation = "child";
+        zokugara = "子";
+    }else{
+        relation = "collateral";
+        zokugara = "兄弟姉妹";
+    }
+
+    const totalForms = document.getElementById(`id_${relation}-TOTAL_FORMS`);
+    const nowCount = parseInt(totalForms.value);
+    const afterCount = nowCount + 1;
+    totalForms.value = afterCount;
+
+    // 直前のfieldsetをコピー
+    const x = document.getElementsByClassName(`${relation}Fieldset`);
+    const lastEl = x[x.length - 1];
+    const clone = lastEl.cloneNode(true);
+    clone.id = `id_${relation}-${afterCount}-fieldset`;
+
+    //タイトルを変更
+    const fieldsetTitle = clone.querySelector(".fieldsetTitle");
+    const originalColTitle = fieldsetTitle.textContent;
+    const a = originalColTitle.replace(/\n/g, "").replace(/\s/g, "");
+    const b = a.slice(0,1);
+    const fixColNum = parseInt(ZenkakuToHankaku(b)) + 1;
+    const fixTitle = `${hankakuToZenkaku(String(fixColNum))}．${zokugara}${hankakuToZenkaku(String(afterCount))}について`;
+    fieldsetTitle.textContent = fixTitle;
+
+    //ラベルのforを変更
+    const nameLabel = clone.querySelector("label");
+    nameLabel.setAttribute("for", `id_${relation}-${nowCount}-name`);
+
+    //inputのname、id、tabindexを変更
+    const inputsArr = clone.getElementsByTagName("input");
+    const addIdx = 9;
+    for(let i = 0; i < inputsArr.length; i++){
+        const originalNameAtt = inputsArr[i].getAttribute("name");
+        const fixNameAtt = originalNameAtt.replace(/\d+/g, nowCount);
+        inputsArr[i].setAttribute("name", fixNameAtt);
+
+        const originalIdAtt = inputsArr[i].getAttribute("id");
+        const fixIdAtt = originalIdAtt.replace(/\d+/, nowCount);
+        inputsArr[i].setAttribute("id", fixIdAtt);
+
+        const originalTabindexAtt = inputsArr[i].getAttribute("tabindex");
+        const fixTabindexAtt = parseInt(originalTabindexAtt) + addIdx;
+        inputsArr[i].setAttribute("tabindex", String(fixTabindexAtt));
+    }
+
+    //buttonのtabindexを変更
+    const btnsArr = clone.getElementsByTagName("button");
+    for(let i = 0; i < btnsArr.length; i++){
+        const originalTabindexAtt = btnsArr[i].getAttribute("tabindex");
+        const fixTabindexAtt = parseInt(originalTabindexAtt) + addIdx;
+        btnsArr[i].setAttribute("tabindex", String(fixTabindexAtt));
+    }
+
+    // 新しいfieldset要素をFormsetに追加します
+    lastEl.after(clone);
+}
+
+/**
  * 次の項目を有効化して前の項目を無効化する
  * @param {number} i 押された次へボタンのインデックス
  */
 function enableNextColumn(i){
 
-    //子がいないときは、項目を１つ飛ばす
-    let targetField;
+    //次の項目を取得（子がいないときは、項目を１つ飛ばす）
+    let nextFieldset;
     if(isNoChild)
-        targetField = document.getElementsByTagName("fieldset")[i + 2];
+        nextFieldset = document.getElementsByTagName("fieldset")[i + 2];
     else
-        targetField = document.getElementsByTagName("fieldset")[i + 1];
+        nextFieldset = document.getElementsByTagName("fieldset")[i + 1];
 
     //次の項目を表示、hrを挿入、次の項目にスクロール
-    inputsField.requiredFieldsetsArr.push(targetField);
-    slideDown(targetField);
+    inputsField.requiredFieldsetsArr.push(nextFieldset);
+    slideDown(nextFieldset);
     const hr = document.createElement("hr");
     hr.className = "my-5";
-    targetField.before(hr);
-    scrollToTarget(targetField);
+    nextFieldset.before(hr);
+    scrollToTarget(nextFieldset);
     
-    //前の項目を無効化、次の項目の要素を取得
+    //前の項目を無効化
     inputsField.requiredFieldsetsArr[i].disabled = true;
+
+    //次の項目の要素を取得
     requiredInputArr.length = 0;
-    requiredInputArr = Array.from(targetField.getElementsByTagName("input"));
+    requiredInputArr = Array.from(nextFieldset.getElementsByTagName("input"));
+
     invalidElArr.length = 0;
     if(preserveInvalidElArr.length > 0)
         invalidElArr = preserveInvalidElArr.pop();
     else
-        invalidElArr = Array.from(targetField.getElementsByTagName("input"));
+        invalidElArr = Array.from(nextFieldset.getElementsByTagName("input"));
+
     inputsField.errorMessagesElArr.length = 0;
-    inputsField.errorMessagesElArr = Array.from(targetField.getElementsByClassName("errorMessage"));
-    inputsField.nextBtnsArr.push(targetField.getElementsByClassName("nextBtn")[0]);
-    inputsField.previousBtnsArr.push(targetField.getElementsByClassName("previousBtn")[0]);
+    inputsField.errorMessagesElArr = Array.from(nextFieldset.getElementsByClassName("errorMessage"));
+
+    inputsField.nextBtnsArr.push(nextFieldset.getElementsByClassName("nextBtn")[0]);
+
+    inputsField.previousBtnsArr.push(nextFieldset.getElementsByClassName("previousBtn")[0]);
 
     //次の項目の最初の入力欄にフォーカスする
     requiredInputArr[0].focus();
@@ -188,9 +263,10 @@ function enableNextColumn(i){
 
 /**
  * 次のガイドボタンにイベントを設定する
- * @param {event} e 
+ * @param {event} e クリックイベント
  */
 function enableNextGuideBtn(e){
+    //次の項目にスクロールする
     const idx = guideField.btnsArr.indexOf(e.target);
     scrollToTarget(inputsField.requiredFieldsetsArr[idx], 0);
 }
@@ -240,25 +316,14 @@ function enablePreviouseColumn(i){
     const enableField = inputsField.requiredFieldsetsArr[i]; //有効化対象のフィールドセット
     const removeHr = disableField.previousElementSibling; //削除対象のhrタグ
 
-    //無効化するフィールドにあるイベントが設定されている要素を入れ替えてイベントを削除する
-    let inputs = disableField.getElementsByTagName('input');
-    for (let i = 0; i < inputs.length; i++) {
-        let oldInput = inputs[i];
-        let newInput = oldInput.cloneNode(true);
-        oldInput.parentNode.replaceChild(newInput, oldInput);
-    }
-    let buttons = disableField.getElementsByTagName('button');
-    for (let i = 0; i < buttons.length; i++) {
-        let oldButton = buttons[i];
-        let newButton = oldButton.cloneNode(true);
-        oldButton.parentNode.replaceChild(newButton, oldButton);
-    }
+    //無効化するフィールドにあるイベントが設定されている要素を初期化してイベントを削除する
+    replaceElements(disableField, "input");
+    replaceElements(disableField, "button");
 
     //削除対象を非表示にしてから削除。必須欄から削除対象を削除。
     slideUp(disableField);
     slideUp(removeHr);
     inputsField.requiredFieldsetsArr.pop();
-    // disableField.remove();
     removeHr.remove();
     
     //直前の項目を有効化してスクロール
@@ -402,8 +467,7 @@ function setSpouseRbEvent(btnIdx, Qs, nextBtn){
         slideDown(Qs[isRefuseIdx]);
 
         //連れ子欄を非表示かつボタンを初期化
-        requiredInputArr[inputIdxsArr[isStepChildIdx][yes]].checked = false;
-        requiredInputArr[inputIdxsArr[isStepChildIdx][no]].checked = false;
+        uncheckTargetElements(requiredInputArr, inputIdxsArr[isStepChildIdx]);
         slideUp(Qs[isStepChildIdx])
 
     }else if(btnIdx === inputIdxsArr[isLiveIdx][no]){
@@ -419,10 +483,7 @@ function setSpouseRbEvent(btnIdx, Qs, nextBtn){
             for(let i = isRefuseIdx; i < Qs.length; i++){
                 slideUp(Qs[i]);
             }
-            requiredInputArr[inputIdxsArr[isRefuseIdx][yes]].checked = false;
-            requiredInputArr[inputIdxsArr[isRefuseIdx][no]].checked = false;
-            requiredInputArr[inputIdxsArr[isJapanIdx][yes]].checked = false;
-            requiredInputArr[inputIdxsArr[isJapanIdx][no]].checked = false;
+            uncheckTargetElements(requiredInputArr, inputIdxsArr[isRefuseIdx].concat(inputIdxsArr[isJapanIdx]));
 
     }else if(btnIdx === inputIdxsArr[isStepChildIdx][yes]){
         //連れ子true
@@ -450,8 +511,7 @@ function setSpouseRbEvent(btnIdx, Qs, nextBtn){
         if(invalidElArr.length === 0) nextBtn.disabled = false;
 
         slideUp(Qs[isJapanIdx]);
-        requiredInputArr[inputIdxsArr[isJapanIdx][yes]].checked = false;
-        requiredInputArr[inputIdxsArr[isJapanIdx][no]].checked = false;
+        uncheckTargetElements(requiredInputArr, inputIdxsArr[isJapanIdx]);
 
     }else if(btnIdx === inputIdxsArr[isRefuseIdx][no]){
         //false
@@ -545,9 +605,8 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
     if(i === inputIdxsArr[isExistIdx][yes]){
 
         requiredInputArr[i].addEventListener("change", (e)=>{
-            //エラー要素に適当なボタン要素を追加する
-            if(invalidElArr.indexOf(requiredInputArr[inputIdxsArr[countIdx]]) === -1)
-                invalidElArr.push(requiredInputArr[inputIdxsArr[countIdx]]);
+            //エラー要素を初期化する
+            
 
             //人数入力欄を表示する
             requiredInputArr[inputIdxsArr[countIdx]].value = "1";
@@ -721,7 +780,7 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
     }else{
         //日本在住true又はfalse
         requiredInputArr[i].addEventListener("change", (e)=>{
-            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[countIdx]);
+            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[inputIdxsArr[isJapanIdx]]);
             if(invalidElArr.length === 0) nextBtn.disabled = false;
         })
     }
@@ -732,6 +791,19 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
  * @param {number} fromNextBtnIdx 押された次へボタンのインデックス
  */
 function oneStepFoward(fromNextBtnIdx, isIndivisual){
+    
+    //子供欄の次へボタンが押されたとき
+    if(inputsField.requiredFieldsetsArr[inputsField.requiredFieldsetsArr.length - 1].id === "childrenFieldset"){
+        //子が２人以上いるとき、子フォームを追加する
+        const childCountInputIdx = 2;
+        const addFormNum = parseInt(requiredInputArr[childCountInputIdx].value) - 1;
+        if(isNoChild === false && addFormNum > 0){
+            const isChild = true;
+            for(let i = 0; i < addFormNum; i ++){
+                createForm(isChild);
+            }
+        }
+    }
 
     //次の項目を有効化とガイドを更新
     enableNextColumn(fromNextBtnIdx);

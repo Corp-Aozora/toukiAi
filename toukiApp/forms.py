@@ -132,9 +132,6 @@ class StepOneDecendantForm(forms.ModelForm):
             "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
         }
 
-    def add_prefix(self, field_name):
-        return '%s-%s' % (self.prefix, "child_" + field_name)
-                
     def __init__(self, *args, **kwargs):
         tabindex = children_max_index
         

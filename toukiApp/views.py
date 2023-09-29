@@ -121,12 +121,12 @@ def step_one(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
-    child_form_set = formset_factory(form=StepOneDecendantForm,extra=1, max_num=15)
+    child_form_set = formset_factory(form=StepOneDecendantForm, extra=1, max_num=15)
     
     if request.method == "POST":
         decedent_form = StepOneDecedentForm(request.POST)
         spouse_form = StepOneSpouseForm(request.POST)
-        childs_form = child_form_set(request.POST)
+        childs_form = child_form_set(request.POST, prefix="child")
 
         # トランザクションが必要
         # 被相続人情報の保存
@@ -154,7 +154,7 @@ def step_one(request):
         "spouse_form_internal_field_name": spouse_form_internal_field_name,
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
-        "child_form_set" : child_form_set,
+        "child_form_set" : child_form_set(prefix="child"),
         "child_form_internal_field_name" : child_form_internal_field_name,
     }
     return render(request, "toukiApp/step_one.html", context)

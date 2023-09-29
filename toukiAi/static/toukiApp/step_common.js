@@ -263,12 +263,27 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
 
 /**
  * ボタン要素のチェックを全てfalseにする
- * @param {element array} 配列に格納されたボタン要素
+ * @param {element array} elArr 配列に格納されたボタン要素
+ * @param {num} idxArr
  */
-function uncheckAllElements(elArr){
-    elArr.forEach((el)=>{
-        el.checked = false;
+function uncheckTargetElements(elArr, idxArr){
+    idxArr.forEach(idx => {
+        elArr[idx].checked = false;
     });
+}
+
+/**
+ * 要素を入れ替える（イベントをまとめて削除したいときに使用）
+ * @param {element} field 対象の要素の親要素
+ * @param {string} tagName 対象の要素
+ */
+function replaceElements(field, tagName){
+    let els = field.getElementsByTagName(tagName);
+    for (let i = 0; i < els.length; i++) {
+        let oldEl = els[i];
+        let newEl = oldEl.cloneNode(true);
+        oldEl.parentNode.replaceChild(newEl, oldEl);
+    }
 }
 
 

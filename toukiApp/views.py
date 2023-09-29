@@ -139,7 +139,7 @@ def step_one(request):
         decedent_form = StepOneDecedentForm()
         spouse_form = StepOneSpouseForm()
         spouse_form_internal_field_name = ["spouse_decedent", "spouse_content_type", "spouse_object_id", "spouse_is_heir"]
-        child_form_internal_field_name = ["content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
+        child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
     
     prefectures = []
     for p in PREFECTURES:

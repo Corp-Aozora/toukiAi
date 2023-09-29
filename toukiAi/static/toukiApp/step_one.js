@@ -532,6 +532,139 @@ function setSpouseRbEvent(btnIdx, Qs, nextBtn){
 }
 
 /**
+ * 子項目を表示する
+ * @param {number} btnIdx 押された次へボタンのインデックス
+ * @param {element array} Qs 対象の項目の質問欄
+ * @param {element} nextBtn 次へボタン
+ */
+function setChildRbEvent(btnIdx, Qs, nextBtn){
+    const yes = 0;
+    const no = 1;
+    const inputsArr = {
+        name:{ formIdx: 0, inputIdx: 0},
+        isSameSpouse:{formIdx: 1, inputIdx: [1, 2]},
+        isLive:{formIdx: 2, inputIdx: [3, 4]},
+        isExist:{formIdx: 3, inputIdx: [5, 6]},
+        isRefuse:{formIdx: 4, inputIdx: [7, 8]},
+        isAdult:{formIdx: 5, inputIdx: [9, 10]},
+        isJapan:{formIdx: 6, inputIdx: [11, 12]},
+    }
+    nextBtn.disabled = true;
+
+    //同じ配偶者、true又はfalseのとき
+    if(inputsArr.isSameSpouse.inputIdx.includes(btnIdx)){
+        //次の入力欄を表示する
+        slideDown(Qs[inputsArr.isLive.formIdx]);
+
+    }else if(btnIdx === inputsArr.isLive.inputIdx[yes]){
+        //手続時存在true
+
+        //エラーが削除されているときは、適当なエラー要素を追加して次へボタンを無効化する
+        if(invalidElArr.indexOf(requiredInputArr[inputsArr.isJapan.inputIdx[yes]]) === -1){
+            invalidElArr.push(requiredInputArr[inputsArr.isJapan.inputIdx[yes]]);
+            nextBtn.disabled = true;
+        }       
+
+        //相続放棄欄を表示する
+        slideDown(Qs[inputsArr.isRefuse.formIdx]);
+
+        //相続時存在欄を非表示かつ相続時存在欄と相続放棄欄のボタンを初期化
+        uncheckTargetElements(requiredInputArr, inputsArr.isExist.inputIdx.concat(inputsArr.isRefuse.inputIdx));
+        if(Qs[inputsArr.isExist.formIdx].style.display !== "none")
+            slideUp(Qs[inputsArr.isExist.formIdx]);
+
+    }else if(btnIdx === inputsArr.isLive.inputIdx[no]){
+        //手続時存在false
+
+        if(invalidElArr.indexOf(requiredInputArr[inputsArr.isExist.inputIdx[yes]]) === -1) 
+            invalidElArr.push(requiredInputArr[inputsArr.isExist.inputIdx[yes]]);
+
+        //相続時存在欄を表示する
+        slideDown(Qs[inputsArr.isExist.formIdx]);
+
+        //相続放棄欄、成人欄、日本在住欄を非表示かつボタンを初期化
+        uncheckTargetElements(requiredInputArr, inputsArr.isRefuse.inputIdx.concat(inputsArr.isAdult.inputIdx).concat(inputsArr.isJapan.inputIdx));
+        if(Qs[inputsArr.isRefuse.formIdx].style.display !== "none")
+            slideUp(Qs[inputsArr.isRefuse.formIdx])
+        if(Qs[inputsArr.isAdult.formIdx].style.display !== "none")
+            slideUp(Qs[inputsArr.isAdult.formIdx])
+        if(Qs[inputsArr.isJapan.formIdx].style.display !== "none")
+            slideUp(Qs[inputsArr.isJapan.formIdx])
+
+    }else if(btnIdx === inputsArr.isExist.inputIdx[yes]){
+        //相続時存在true
+
+        //エラー要素として相続放棄ボタンを追加して次へボタンを無効化する
+        if(invalidElArr.indexOf(requiredInputArr[inputsArr.isRefuse,inputIdx[yes]]) === -1) {
+            invalidElArr.push(requiredInputArr[inputsArr.isRefuse,inputIdx[yes]]);
+            nextBtn.disabled = true;
+        }
+
+        //相続放棄欄を表示
+        slideDown(Qs[inputsArr.isRefuse.formIdx]);
+
+    }else if(btnIdx === inputsArr.isExist.inputIdx[no]){
+        //相続時存在false
+
+        if(invalidElArr.indexOf(requiredInputArr[inputIdxsArr[isExistIdx][yes]]) === -1) 
+            invalidElArr.push(requiredInputArr[inputIdxsArr[isExistIdx][yes]]);
+
+        //連れ子欄を表示
+        slideDown(Qs[isStepChildIdx]);
+
+        //相続放棄欄以降を非表示にしてボタンを初期化
+        for(let i = isRefuseIdx; i < Qs.length; i++){
+            slideUp(Qs[i]);
+        }
+        uncheckTargetElements(requiredInputArr, inputIdxsArr[isRefuseIdx].concat(inputIdxsArr[isJapanIdx]));
+
+    }else if(btnIdx === inputIdxsArr[isStepChildIdx][yes]){
+        //連れ子true
+
+        //システム対応外であることを表示する
+        if(invalidElArr.indexOf(requiredInputArr[inputIdxsArr[isExistIdx][yes]]) === -1) 
+            invalidElArr.push(requiredInputArr[inputIdxsArr[isExistIdx][yes]]);
+
+        inputsField.errorMessagesElArr[isStepChildIdx].style.display = display;
+        inputsField.errorMessagesElArr[isStepChildIdx].innerHTML = "本システムでは対応できません";
+        nextBtn.disabled = false;
+
+    }else if(btnIdx === inputIdxsArr[isStepChildIdx][no]){
+        //false
+
+        //名前が入力されているときは次へボタンを有効化する
+        invalidElArr = invalidElArr.filter(x => x === requiredInputArr[nameIdx]);
+        if(invalidElArr.length === 0) nextBtn.disabled = false;
+
+    }else if(btnIdx === inputIdxsArr[isRefuseIdx][yes]){
+        //相続放棄true
+
+        //名前が入力されているときは次へボタンを有効化する
+        invalidElArr = invalidElArr.filter(x => x === requiredInputArr[nameIdx]);
+        if(invalidElArr.length === 0) nextBtn.disabled = false;
+
+        slideUp(Qs[isJapanIdx]);
+        uncheckTargetElements(requiredInputArr, inputIdxsArr[isJapanIdx]);
+
+    }else if(btnIdx === inputIdxsArr[isRefuseIdx][no]){
+        //false
+
+        if(invalidElArr.indexOf(requiredInputArr[inputIdxsArr[isExistIdx][yes]]) === -1) 
+            invalidElArr.push(requiredInputArr[inputIdxsArr[isExistIdx][yes]]);
+
+        //次の入力欄を表示する
+        slideDown(Qs[isJapanIdx]);
+
+    }else{
+        //日本在住(true、false同じ処理)
+
+        //名前が入力されているときは次へボタンを有効化する
+        invalidElArr = invalidElArr.filter(x => x === requiredInputArr[nameIdx]);
+        if(invalidElArr.length === 0) nextBtn.disabled = false;
+    }
+}
+
+/**
  * 次の入力欄を表示する
  * @param {number} i ループ変数
  * @param {element} fieldset 対象の項目
@@ -539,8 +672,9 @@ function setSpouseRbEvent(btnIdx, Qs, nextBtn){
  * @param {element} nextBtn 次へボタン
  */
 function setIndivisualFieldsetEvent(i, fieldset, Qs, nextBtn){
+    const nameInputIdx = 0;
     //氏名
-    if(i === 0){
+    if(i === nameInputIdx){
         requiredInputArr[i].addEventListener("change",(e)=>{
             //エラー要素から削除
             invalidElArr = invalidElArr.filter(x => x !== e.target);
@@ -569,8 +703,10 @@ function setIndivisualFieldsetEvent(i, fieldset, Qs, nextBtn){
             requiredInputArr[i].addEventListener("change",(e)=>{
                 setSpouseRbEvent(i, Qs, nextBtn);
             })
-        }else{
-
+        }else if(fieldset.classList.contains("childFieldset")){
+            requiredInputArr[i].addEventListener("change",(e)=>{
+                setChildRbEvent(i, Qs, nextBtn);
+            })
         }
     }
 }

@@ -490,10 +490,10 @@
                                                     </div>
                                                 </div>
                                             {% if field.name == "is_refuse" %}
-                                                <div class="Q">
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            子には死亡時に配偶者がいましたか？
+                                                            死亡時に配偶者がいましたか？
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -513,10 +513,10 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div class="Q">
+                                                <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            子には子がいましたか？（お亡くなりになった子や養子も含みます）
+                                                            子はいましたか？（お亡くなりになった子や養子も含みます）
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -546,7 +546,7 @@
                                                         <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true"  tabindex="40">
                                                             －
                                                         </button>
-                                                        <input type="number" class="form-control text-center no-spin" name="{{form.prefix}}-child_count" value="0"  tabindex="41">
+                                                        <input id="id_{{form.prefix}}-child_count" type="number" class="form-control text-center no-spin" name="{{form.prefix}}-child_count" value="0"  tabindex="41">
                                                         <button type="button" class="btn btn-outline-secondary increaseBtn" tabindex="42">
                                                             ＋
                                                         </button>
@@ -561,7 +561,7 @@
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
                                 <button type="button" class="btn btn-secondary previousBtn" tabindex="43">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" tabindex="44">次へ</button>
+                                <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="44">次へ</button>
                             </div>
                         </div>
                     </fieldset>

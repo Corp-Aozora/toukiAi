@@ -180,7 +180,7 @@ function removeElement(targetId, count){
 
 /**
  * 整数チェック
- * @param {input} val 
+ * @param {string} val 
  * @param {element} el 対象の要素（数字以外があるときは、空文字を入力する。全角数字があるときは半角数字に変換する）
  * @returns {boolean} 整数のときはtrue、違うときはfalse
  */

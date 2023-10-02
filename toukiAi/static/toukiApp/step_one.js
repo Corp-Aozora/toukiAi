@@ -149,71 +149,96 @@ function getCityData(val, el){
 }
 
 /**
+ * 属性のプレフィックスを変更する
+ * @param {string} attribute 属性
+ * @param {element} el 要素
+ * @param {number} num 変更後のプレフィックス番号
+ */
+function updateIdOrName(attribute, el, num){
+    const oldAttribute = el.getAttribute(attribute);
+    const newAttribute = oldAttribute.replace(/\d+/g, num);
+    el.setAttribute(attribute, newAttribute);
+}
+
+/**
+ * タブインデックスを変更する
+ * @param {element} el 要素
+ * @param {number} addNum 加算する数
+ */
+function updateTabindex(el, addNum){
+    const oldTabindex = el.getAttribute("tabindex");
+    const newTabindex = parseInt(oldTabindex) + addNum;
+    el.setAttribute("tabindex", String(newTabindex));
+}
+
+/**
  * フォームを生成する
  * @param {boolean} isChild 
+ * @param {array} childrenData 
+ * @param {array} childrenInputIdxArr 
  */
-function createForm(isChild) {
-    let relation;
-    let zokugara;
-    if(isChild){
-        relation = "child";
-        zokugara = "子";
-    }else{
-        relation = "collateral";
-        zokugara = "兄弟姉妹";
-    }
+function createForm(isChild, childrenData, childrenInputIdxArr) {
 
+    //生成するフォームを判別
+    let relation = isChild ? "child": "collateral";
+    let zokugara = isChild ? "子": "兄弟姉妹";
+
+    //formsetの数を１加算する
     const totalForms = document.getElementById(`id_${relation}-TOTAL_FORMS`);
-    const nowCount = parseInt(totalForms.value);
-    const afterCount = nowCount + 1;
-    totalForms.value = afterCount;
+    const oldCount = parseInt(totalForms.value);
+    const newCount = oldCount + 1
+    totalForms.value = newCount;
 
-    // 直前のfieldsetをコピー
-    const x = document.getElementsByClassName(`${relation}Fieldset`);
-    const lastEl = x[x.length - 1];
-    const clone = lastEl.cloneNode(true);
-    clone.id = `id_${relation}-${afterCount}-fieldset`;
+    //直前のfieldsetをコピーしてidを変更
+    const fromFieldsets = document.getElementsByClassName(`${relation}Fieldset`);
+    const fromFieldset = fromFieldsets[fromFieldsets.length - 1];
+    const newFieldset = fromFieldset.cloneNode(true);
+    newFieldset.id = `id_${relation}-${oldCount}-fieldset`;
 
     //タイトルを変更
-    const fieldsetTitle = clone.querySelector(".fieldsetTitle");
-    const originalColTitle = fieldsetTitle.textContent;
-    const a = originalColTitle.replace(/\n/g, "").replace(/\s/g, "");
-    const b = a.slice(0,1);
-    const fixColNum = parseInt(ZenkakuToHankaku(b)) + 1;
-    const fixTitle = `${hankakuToZenkaku(String(fixColNum))}．${zokugara}${hankakuToZenkaku(String(afterCount))}について`;
-    fieldsetTitle.textContent = fixTitle;
+    const fieldsetTitle = newFieldset.querySelector(".fieldsetTitle");
+    const originalTitle = fieldsetTitle.textContent;
+    const removedSpace = originalTitle.replace(/\n/g, "").replace(/\s/g, "");
+    const oldnumbering = removedSpace.split("．")[0];
+    const idx = oldnumbering.lastIndexOf("－");
+    const newNumbering = oldnumbering.slice(0, idx + 1) + hankakuToZenkaku(String(newCount));
+    const newTitle = `${newNumbering}．${zokugara}${hankakuToZenkaku(String(newCount))}について`;
+    fieldsetTitle.textContent = newTitle;
 
-    //ラベルのforを変更
-    const nameLabel = clone.querySelector("label");
-    nameLabel.setAttribute("for", `id_${relation}-${nowCount}-name`);
+    //氏名のlabelのforを変更
+    const nameLabel = newFieldset.querySelector("label");
+    nameLabel.setAttribute("for", `id_${relation}-${oldCount}-name`);
 
-    //inputのname、id、tabindexを変更
-    const inputsArr = clone.getElementsByTagName("input");
-    const addIdx = 12;
+    //inputのname、id、tabindexを変更して子供データを入力する
+    const inputsArr = newFieldset.getElementsByTagName("input");
+    const isSameSpouseTrueIdx = 1; //初期値を入力するinputのインデックス
+    const isLiveTrueIdx = 3; //初期値を入力するinputのインデックス
+    const isAdultTrueIdx = 14; //初期値を入力するinputのインデックス
+    const isJapanTrueIdx = 16; //初期値を入力するinputのインデックス
+    const addTabIdx = 12; //元のタブインデックスに加算する数字
     for(let i = 0; i < inputsArr.length; i++){
-        const originalNameAtt = inputsArr[i].getAttribute("name");
-        const fixNameAtt = originalNameAtt.replace(/\d+/g, nowCount);
-        inputsArr[i].setAttribute("name", fixNameAtt);
+        updateIdOrName("name", inputsArr[i], oldCount);
+        updateIdOrName("id", inputsArr[i], oldCount);
+        updateTabindex(inputsArr[i], addTabIdx);
 
-        const originalIdAtt = inputsArr[i].getAttribute("id");
-        const fixIdAtt = originalIdAtt.replace(/\d+/, nowCount);
-        inputsArr[i].setAttribute("id", fixIdAtt);
-
-        const originalTabindexAtt = inputsArr[i].getAttribute("tabindex");
-        const fixTabindexAtt = parseInt(originalTabindexAtt) + addIdx;
-        inputsArr[i].setAttribute("tabindex", String(fixTabindexAtt));
+        if(i === isSameSpouseTrueIdx && childrenData[childrenInputIdxArr.isSameSpouse[yes]].checked)
+            inputsArr[isSameSpouseTrueIdx].checked = true;
+        else if(i === isLiveTrueIdx && childrenData[childrenInputIdxArr.isLive[yes]].checked)
+            inputsArr[isLiveTrueIdx].checked = true;
+        else if(i === isAdultTrueIdx && childrenData[childrenInputIdxArr.isAdult[yes].checked])
+            inputsArr[isAdultTrueIdx].checked = true;
+        else if(i === isJapanTrueIdx && childrenData[childrenInputIdxArr.isJapan[yes].checked])
+            inputsArr[isJapanTrueIdx].checked = true;
     }
 
     //buttonのtabindexを変更
-    const btnsArr = clone.getElementsByTagName("button");
+    const btnsArr = newFieldset.getElementsByTagName("button");
     for(let i = 0; i < btnsArr.length; i++){
-        const originalTabindexAtt = btnsArr[i].getAttribute("tabindex");
-        const fixTabindexAtt = parseInt(originalTabindexAtt) + addIdx;
-        btnsArr[i].setAttribute("tabindex", String(fixTabindexAtt));
+        updateTabindex(btnsArr[i], addTabIdx)
     }
 
     // 新しいfieldset要素をFormsetに追加します
-    lastEl.after(clone);
+    fromFieldset.after(newFieldset);
 }
 
 /**
@@ -487,8 +512,6 @@ function slideDownAfterSlideUp(el, time = null){
  * @param {element} nextBtn 次へボタン
  */
 function setSpouseRbsEvent(btnIdx, Qs, nextBtn){
-    const yes = 0;
-    const no = 1;
     const inputsArr = {
         name:{ formIdx: 0, inputIdx: 0},
         isExist:{formIdx: 1, inputIdx: [1, 2]},
@@ -591,8 +614,6 @@ function setSpouseRbsEvent(btnIdx, Qs, nextBtn){
  * @param {element} nextBtn 次へボタン
  */
 function setChildRbsEvent(idx, Qs, nextBtn){
-    const yes = 0;
-    const no = 1;
     const inputsArr = {
         name:{ formIdx: 0, inputIdx: 0},
         isSameSpouse:{formIdx: 1, inputIdx: [1, 2]},
@@ -912,8 +933,6 @@ function setIndivisualFieldsetEvent(i, fieldset, Qs, nextBtn){
  */
 function setGroupEvent(i, fieldset, Qs, nextBtn){
     
-    const yes = 0;
-    const no = 1;
     const inputsArr = {
         isExist:{ formIdx: 0, inputIdx: [0, 1] },
         count:{ formIdx: 1, inputIdx: 2 },
@@ -1019,14 +1038,27 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
     
     //子供欄の次へボタンが押されたとき
     if(inputsField.requiredFieldsetsArr[inputsField.requiredFieldsetsArr.length - 1].id === "childrenFieldset"){
-        //子が２人以上いるとき、子フォームを追加する
+        //子が２人以上いるとき、子フォームを追加して子供欄で入力された値を全ての子の欄に反映させる
         const childCountInputIdx = 2;
         const addFormNum = parseInt(requiredInputArr[childCountInputIdx].value) - 1;
         if(isNoChild === false && addFormNum > 0){
             const isChild = true;
-            for(let i = 0; i < addFormNum; i ++){
-                createForm(isChild);
+            const childrenFieldsetIndex = 2;
+            const childrenFieldset = inputsField.requiredFieldsetsArr[childrenFieldsetIndex];
+            const childrenData = childrenFieldset.getElementsByTagName("input");
+            const childrenInputIdxArr = {
+                isChild: [0, 1],
+                count: 2,
+                isSameSpouse: [3, 4],
+                isLive: [5, 6],
+                isAdult: [7, 8],
+                isJapan: [9, 10]
             }
+
+            for(let i = 0; i < addFormNum; i ++){
+                createForm(isChild, childrenData, childrenInputIdxArr);
+            }
+
         }
     }
 

@@ -26,6 +26,10 @@ const submitBtn = document.getElementById("submitBtn");
 const form = document.querySelector("form");
 const errorlist = document.querySelector(".errorlist");
 
+//定数
+const yes = 0;
+const no = 1;
+
 /**
  * テキストを強調する
  * @param {element} el 

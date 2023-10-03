@@ -8,7 +8,7 @@ from .models import *
 CustomUser = get_user_model()
 decedent_max_index = 7
 spouse_max_index = 18
-children_max_index = 28
+children_max_index = 29
 
 # 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容

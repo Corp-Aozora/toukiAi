@@ -338,19 +338,42 @@
                                 <div class="Q" style="display: none;">
                                     <div>
                                         <span class="input-group-text fw-bold">
+                                            家庭裁判所で相続放棄をした方はいますか？
+                                        </span>
+                                    </div>
+                                    <div class="form-control input-group">
+                                        <div class="form-check col">
+                                            <label class="form-check-label ms-5">
+                                                <input class="form-check-input" type="radio" name="children_is_refuse" value="true" tabindex="25">
+                                                いる
+                                            </label>
+                                        </div>
+                                        <div class="form-check col">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="radio" name="children_is_refuse" value="false"  tabindex="25">
+                                                いない
+                                            </label>
+                                        </div>
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="Q" style="display: none;">
+                                    <div>
+                                        <span class="input-group-text fw-bold">
                                             現在もご健在の方は全員成人してますか？
                                         </span>
                                     </div>
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_adult" value="true" tabindex="25">
+                                                <input class="form-check-input" type="radio" name="children_is_adult" value="true" tabindex="26">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_adult" value="false" tabindex="25">
+                                                <input class="form-check-input" type="radio" name="children_is_adult" value="false" tabindex="26">
                                                 未成年の子がいる
                                             </label>
                                         </div>
@@ -367,13 +390,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input class="form-check-input" type="radio" name="children_is_japan" value="true" tabindex="26">
+                                                <input class="form-check-input" type="radio" name="children_is_japan" value="true" tabindex="27">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input class="form-check-input" type="radio" name="children_is_japan" value="false" tabindex="26">
+                                                <input class="form-check-input" type="radio" name="children_is_japan" value="false" tabindex="27">
                                                 海外に移住している方がいる
                                             </label>
                                         </div>
@@ -384,8 +407,8 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">
-                            <button type="button" class="btn btn-secondary previousBtn" tabindex="27">戻る</button>
-                            <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="28">次へ</button>
+                            <button type="button" class="btn btn-secondary previousBtn" tabindex="28">戻る</button>
+                            <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="29">次へ</button>
                         </div>
                     </div>
                 </fieldset>
@@ -422,13 +445,13 @@
                                                 <div class="form-control input-group">
                                                     <div class="form-check col">
                                                         <label class="form-check-label ms-5">
-                                                            <input id="id_{{form.prefix}}-is_same_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_spouse" tabindex="34">
+                                                            <input id="id_{{form.prefix}}-is_same_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_spouse" tabindex="35">
                                                             はい
                                                         </label>
                                                     </div>
                                                     <div class="form-check col">
                                                         <label class="form-check-label">
-                                                            <input id="id_{{form.prefix}}-is_same_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_spouse" tabindex="34">
+                                                            <input id="id_{{form.prefix}}-is_same_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_spouse" tabindex="35">
                                                             いいえ
                                                         </label>
                                                     </div>
@@ -499,13 +522,13 @@
                                                     <div class="form-control input-group">
                                                         <div class="form-check col">
                                                             <label class="form-check-label ms-5">
-                                                                <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" tabindex="38">
+                                                                <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" tabindex="39">
                                                                 はい
                                                             </label>
                                                         </div>
                                                         <div class="form-check col">
                                                             <label class="form-check-label">
-                                                                <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" tabindex="38">
+                                                                <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" tabindex="39">
                                                                 いいえ
                                                             </label>
                                                         </div>
@@ -522,13 +545,13 @@
                                                     <div class="form-control input-group">
                                                         <div class="form-check col">
                                                             <label class="form-check-label ms-5">
-                                                                <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" tabindex="39">
+                                                                <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" tabindex="40">
                                                                 はい
                                                             </label>
                                                         </div>
                                                         <div class="form-check col">
                                                             <label class="form-check-label">
-                                                                <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" tabindex="39">
+                                                                <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" tabindex="40">
                                                                 いいえ
                                                             </label>
                                                         </div>
@@ -543,11 +566,11 @@
                                                         </span>
                                                     </div>
                                                     <div class="input-group">
-                                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true"  tabindex="40">
+                                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true"  tabindex="41">
                                                             －
                                                         </button>
-                                                        <input id="id_{{form.prefix}}-child_count" type="number" class="form-control text-center no-spin" name="{{form.prefix}}-child_count" value="0"  tabindex="41">
-                                                        <button type="button" class="btn btn-outline-secondary increaseBtn" tabindex="42">
+                                                        <input id="id_{{form.prefix}}-child_count" type="number" class="form-control text-center no-spin" name="{{form.prefix}}-child_count" value="0"  tabindex="42">
+                                                        <button type="button" class="btn btn-outline-secondary increaseBtn" tabindex="43">
                                                             ＋
                                                         </button>
                                                         <span class="errorMessage rbEmPosition" style="display: none;">
@@ -560,8 +583,8 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
-                                <button type="button" class="btn btn-secondary previousBtn" tabindex="43">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="44">次へ</button>
+                                <button type="button" class="btn btn-secondary previousBtn" tabindex="44">戻る</button>
+                                <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="45">次へ</button>
                             </div>
                         </div>
                     </fieldset>

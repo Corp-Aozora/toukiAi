@@ -174,10 +174,8 @@ function updateTabindex(el, addNum){
 /**
  * フォームを生成する
  * @param {boolean} isChild 
- * @param {array} childrenData 
- * @param {array} childrenInputIdxArr 
  */
-function createForm(isChild, childrenData, childrenInputIdxArr) {
+function createForm(isChild) {
 
     //生成するフォームを判別
     let relation = isChild ? "child": "collateral";
@@ -211,24 +209,11 @@ function createForm(isChild, childrenData, childrenInputIdxArr) {
 
     //inputのname、id、tabindexを変更して子供データを入力する
     const inputsArr = newFieldset.getElementsByTagName("input");
-    const isSameSpouseTrueIdx = 1; //初期値を入力するinputのインデックス
-    const isLiveTrueIdx = 3; //初期値を入力するinputのインデックス
-    const isAdultTrueIdx = 14; //初期値を入力するinputのインデックス
-    const isJapanTrueIdx = 16; //初期値を入力するinputのインデックス
     const addTabIdx = 12; //元のタブインデックスに加算する数字
     for(let i = 0; i < inputsArr.length; i++){
         updateIdOrName("name", inputsArr[i], oldCount);
         updateIdOrName("id", inputsArr[i], oldCount);
         updateTabindex(inputsArr[i], addTabIdx);
-
-        if(i === isSameSpouseTrueIdx && childrenData[childrenInputIdxArr.isSameSpouse[yes]].checked)
-            inputsArr[isSameSpouseTrueIdx].checked = true;
-        else if(i === isLiveTrueIdx && childrenData[childrenInputIdxArr.isLive[yes]].checked)
-            inputsArr[isLiveTrueIdx].checked = true;
-        else if(i === isAdultTrueIdx && childrenData[childrenInputIdxArr.isAdult[yes].checked])
-            inputsArr[isAdultTrueIdx].checked = true;
-        else if(i === isJapanTrueIdx && childrenData[childrenInputIdxArr.isJapan[yes].checked])
-            inputsArr[isJapanTrueIdx].checked = true;
     }
 
     //buttonのtabindexを変更
@@ -839,8 +824,8 @@ function handleNumInputKeyDown(e, nextEl){
  * @param {element} nextBtn 次へボタン
  */
 function setIndivisualFieldsetEvent(i, fieldset, Qs, nextBtn){
-    const nameInputIdx = 0;
     //氏名
+    const nameInputIdx = 0;
     if(i === nameInputIdx){
 
         requiredInputArr[i].addEventListener("change",(e)=>{
@@ -938,8 +923,9 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
         count:{ formIdx: 1, inputIdx: 2 },
         isSameParents:{ formIdx: 2, inputIdx: [3, 4] },
         isLive:{ formIdx: 3, inputIdx: [5, 6] },
-        isAdult:{ formIdx: 4, inputIdx: [7, 8] },
-        isJapan:{ formIdx: 5, inputIdx: [9, 10] },
+        isRefuse:{ formIdx: 4, inputIdx: [7, 8] },
+        isAdult:{ formIdx: 5, inputIdx: [9, 10] },
+        isJapan:{ formIdx: 6, inputIdx: [11, 12] },
     }
 
     //子供存在true
@@ -947,6 +933,7 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
 
         requiredInputArr[i].addEventListener("change", (e)=>{
             //エラー要素を初期化する
+            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[inputsArr.isJapan.inputIdx[yes]])
             pushInvalidEl(requiredInputArr[inputsArr.isJapan.inputIdx[yes]], nextBtn);
 
             //人数入力欄を表示する
@@ -963,7 +950,7 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
 
         requiredInputArr[i].addEventListener("change", (e)=>{
             invalidElArr.length = 0
-            const rbIdxArr = inputsArr.isSameParents.inputIdx.concat(inputsArr.isLive.inputIdx).concat(inputsArr.isAdult.inputIdx).concat(inputsArr.isJapan.inputIdx);
+            const rbIdxArr = inputsArr.isSameParents.inputIdx.concat(inputsArr.isLive.inputIdx).concat(inputsArr.isRefuse.inputIdx).concat(inputsArr.isAdult.inputIdx).concat(inputsArr.isJapan.inputIdx);
             initializeQs(Qs, inputsArr.count.formIdx, inputsArr.isJapan.formIdx, rbIdxArr, requiredInputArr[i]);
 
             //次へボタンを有効化して子供なしフラグをtrueにする
@@ -1011,9 +998,34 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
         requiredInputArr[i].addEventListener("change", (e)=>{
             slideDownElementIfHidden(Qs[inputsArr.isLive.formIdx]);
         })
-    }else if(inputsArr.isLive.inputIdx.includes(i)){
-        //手続時生存のtrue又はfalseのとき次の質問を表示する
+    }else if(i === inputsArr.isLive.inputIdx[yes]){
+        //手続時生存のtrueのとき、エラー要素を追加して次の質問を表示する
         requiredInputArr[i].addEventListener("change", (e)=>{
+            pushInvalidEl(requiredInputArr[inputsArr.isJapan.inputIdx[yes]], nextBtn);
+            slideDownElementIfHidden(Qs[inputsArr.isRefuse.formIdx]);
+        })
+    }else if(i === inputsArr.isLive.inputIdx[no]){
+        //手続時生存falseのとき、人数欄をチェックしてエラーが無ければ次へボタンを有効化する
+        requiredInputArr[i].addEventListener("change", (e)=>{
+            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[inputsArr.count.inputIdx]);
+            const rbIdxArr = inputsArr.isRefuse.inputIdx.concat(inputsArr.isAdult.inputIdx).concat(inputsArr.isJapan.inputIdx);
+            initializeQs(Qs, inputsArr.isRefuse.formIdx, inputsArr.isJapan.formIdx, rbIdxArr);
+            if(invalidElArr.length === 0)
+                nextBtn.disabled = false;
+        })
+    }else if(i === inputsArr.isRefuse.inputIdx[yes]){
+        //相続放棄trueのとき、人数欄をチェックしてエラーが無ければ次へボタンを有効化する
+        requiredInputArr[i].addEventListener("change", (e)=>{
+            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[inputsArr.count.inputIdx]);
+            const rbIdxArr = inputsArr.isAdult.inputIdx.concat(inputsArr.isJapan.inputIdx);
+            initializeQs(Qs, inputsArr.isAdult.formIdx, inputsArr.isJapan.formIdx, rbIdxArr);
+            if(invalidElArr.length === 0)
+                nextBtn.disabled = false;
+        })
+    }else if(i === inputsArr.isRefuse.inputIdx[no]){
+        //手続時生存のfalseのとき、エラー要素を追加して次の質問を表示する
+        requiredInputArr[i].addEventListener("change", (e)=>{
+            pushInvalidEl(requiredInputArr[inputsArr.isJapan.inputIdx[yes]], nextBtn);
             slideDownElementIfHidden(Qs[inputsArr.isAdult.formIdx]);
         })
     }else if(inputsArr.isAdult.inputIdx.includes(i)){
@@ -1024,10 +1036,88 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
     }else{
         //日本在住true又はfalse
         requiredInputArr[i].addEventListener("change", (e)=>{
+            invalidElArr = invalidElArr.filter(x => x === requiredInputArr[inputsArr.count.inputIdx]);
             invalidElArr.length = 0
             nextBtn.disabled = false;
         })
     }
+}
+
+/**
+ * 各フォームから初期値を入力するinput要素を取得する
+ * @param {string} relation 
+ * @returns 取得した各フォームのinput要素（true,false両方のラジオボタン）
+ */
+function getForms(relation){
+
+    const fieldsets = document.getElementsByClassName(`${relation}Fieldset`);
+    const forms = [];
+    const isSameSpouseIdx = 1;
+    const isLiveIdx = 2;
+    const isRefuseIdx = 4;
+    const isAdultIdx = 8;
+    const isJapanIdx = 9;
+    const reqiredIdx = [isSameSpouseIdx, isLiveIdx, isRefuseIdx, isAdultIdx, isJapanIdx];
+    for(let i = 0; i < fieldsets.length; i++){
+        const form = [];
+        const Qs = Array.from(fieldsets[i].getElementsByClassName("Q"));
+        for(let j = 0; j < Qs.length; j++){
+            if(reqiredIdx.includes(j)) form.push(Qs[j]);
+        }
+        forms.push(form);
+    }
+
+    return forms;
+}
+
+/**
+ * データの反映と無効化
+ * @param {array} forms 子又は兄弟姉妹の欄
+ * @param {number} formIdx 子又は兄弟姉妹の欄のインデックス
+ * @param {number} inputIdx ラジオボタンのインデックス
+ */
+function checkAndDisableRbs(forms, formIdx, inputIdx){
+    const isRefuseIdx = 2;
+    const targetInputs = Array.from(forms[formIdx][inputIdx].getElementsByClassName("form-check-input"));
+    targetInputs[(inputIdx === isRefuseIdx) ? no : yes].checked = true;
+    targetInputs.forEach((x)=>{
+        x.disabled = true;
+    })
+}
+
+/**
+ * 子供又は兄弟姉妹欄で入力された値を各個別フォームに初期値として反映させて初期表示を変更する
+ * @param {number} idx 押された次へボタンのインデックス
+ * @param {string} relation "children"又は"collaterals"
+ * @param {array} forms 反映させるinputがあるQ（child又はcollateralの）
+ */
+function reflectData(idx, relation, forms){
+
+    const fieldset = inputsField.requiredFieldsetsArr[idx];
+    const isSameSpouseTrue = fieldset.querySelector(`[name="${relation}_is_spouse"]`);
+    const isLiveTrue = fieldset.querySelector(`[name="${relation}_is_live"]`);
+    const isRefuse = fieldset.querySelectorAll(`[name="${relation}_is_refuse"]`);
+    const isAdultTrue = fieldset.querySelector(`[name="${relation}_is_adult"]`);
+    const isJapanTrue = fieldset.querySelector(`[name="${relation}_is_japan"]`);
+    const fromData = {
+        isSameSpouseTrue: { idx: 0, checked: isSameSpouseTrue.checked ? true: false },
+        isLiveTrue: { idx: 1, checked: isLiveTrue.checked ? true: false },
+        isRefuseFalse: { idx: 2, checked: isRefuse[no].checked ? true: false },
+        isAdultTrue: { idx: 3, checked: isAdultTrue.checked ? true: false },
+        isJapanTrue: { idx: 4, checked: isJapanTrue.checked ? true: false }
+    }
+
+    for(let i = 0; i < forms.length; i++){
+        for(let key in fromData){
+            if(fromData[key].checked){
+                checkAndDisableRbs(forms, i, fromData[key].idx);
+                if(fromData[key].idx > 0 && fromData[Object.keys(fromData)[fromData[key].idx - 1]].checked)
+                    forms[i][fromData[key].idx].style.display = display;
+            }
+        }
+    }
+
+    return fromData;
 }
 
 /**
@@ -1037,29 +1127,22 @@ function setGroupEvent(i, fieldset, Qs, nextBtn){
 function oneStepFoward(fromNextBtnIdx, isIndivisual){
     
     //子供欄の次へボタンが押されたとき
-    if(inputsField.requiredFieldsetsArr[inputsField.requiredFieldsetsArr.length - 1].id === "childrenFieldset"){
-        //子が２人以上いるとき、子フォームを追加して子供欄で入力された値を全ての子の欄に反映させる
+    const childrenFieldsetNextBtnIdx = 2;
+    let childrenData
+    if(fromNextBtnIdx === childrenFieldsetNextBtnIdx){
+        //子が２人以上いるとき、フォームを複製する
         const childCountInputIdx = 2;
         const addFormNum = parseInt(requiredInputArr[childCountInputIdx].value) - 1;
         if(isNoChild === false && addFormNum > 0){
             const isChild = true;
-            const childrenFieldsetIndex = 2;
-            const childrenFieldset = inputsField.requiredFieldsetsArr[childrenFieldsetIndex];
-            const childrenData = childrenFieldset.getElementsByTagName("input");
-            const childrenInputIdxArr = {
-                isChild: [0, 1],
-                count: 2,
-                isSameSpouse: [3, 4],
-                isLive: [5, 6],
-                isAdult: [7, 8],
-                isJapan: [9, 10]
-            }
-
             for(let i = 0; i < addFormNum; i ++){
-                createForm(isChild, childrenData, childrenInputIdxArr);
+                createForm(isChild);
             }
-
         }
+        
+        //子供欄の入力値を全ての子の欄に反映させる
+        const forms = getForms("child");
+        reflectData(fromNextBtnIdx, "children", forms);
     }
 
     //次の項目を有効化とガイドを更新
@@ -1074,7 +1157,9 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
 
     //個人入力欄のとき
     if(isIndivisual){
-        for(let i = 0; i < requiredInputArr.length; i++){
+        //初期値に応じて初期表示を変更する
+
+        for(let i = 0; i < requiredInputArr.length; i++){          
             //イベントを設定
             setIndivisualFieldsetEvent(i, fieldset, Qs, nextBtn);
         }

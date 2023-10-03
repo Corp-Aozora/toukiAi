@@ -1,9 +1,3 @@
-{% block stylesheet %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiApp/step_common.css' %}">
-{% endblock %}
-
 {% for message in messages %}
 {% endfor %}
 
@@ -55,8 +49,3 @@
         </div>
     </nav>
 </header>
-{% block js %}
-    {% load static %}
-    <script src="{% static 'toukiApp/step_header.js' %}"></script>
-    <script src="{% static 'toukiApp/step_common.js' %}"></script>
-{% endblock %}

@@ -1,9 +1,8 @@
-{% extends "base.html" %}
+{% extends "toukiApp/base.html" %}
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiAi/step_user.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiAi/step_common.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -60,5 +59,4 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiAi/step_user.js' %}"></script>
-    <script src="{% static 'toukiAi/step-common.js' %}"></script>
 {% endblock %}

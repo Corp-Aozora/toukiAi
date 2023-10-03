@@ -1123,25 +1123,35 @@ function reflectData(idx, relation, forms){
 /**
  * 次の項目とガイドの次の項目を有効化して前の項目を無効化する
  * @param {number} fromNextBtnIdx 押された次へボタンのインデックス
+ * @param {boolean} isIndivisual 次の欄が個人用欄か
  */
 function oneStepFoward(fromNextBtnIdx, isIndivisual){
     
     //子供欄の次へボタンが押されたとき
     const childrenFieldsetNextBtnIdx = 2;
-    let childrenData
     if(fromNextBtnIdx === childrenFieldsetNextBtnIdx){
         //子が２人以上いるとき、フォームを複製する
         const childCountInputIdx = 2;
-        const addFormNum = parseInt(requiredInputArr[childCountInputIdx].value) - 1;
-        if(isNoChild === false && addFormNum > 0){
+        const oldTotalForms = document.getElementById(`id_child-TOTAL_FORMS`);
+        const oldFormCount = parseInt(oldTotalForms.value);
+        const newFormCount = parseInt(requiredInputArr[childCountInputIdx].value);
+        const fieldsets = Array.from(document.getElementsByClassName("childFieldset"));
+
+        //増えたとき
+        if(isNoChild === false && newFormCount > oldFormCount){
             const isChild = true;
-            for(let i = 0; i < addFormNum; i ++){
+            for(let i = oldFormCount; i < newFormCount; i ++){
                 createForm(isChild);
             }
+        }else if(newFormCount < oldFormCount){
+            //減ったとき
+            oldTotalForms.value = newFormCount;
+            fieldsets.slice(newFormCount).forEach(el => el.parentNode.removeChild(el));
         }
-        
-        //子供欄の入力値を全ての子の欄に反映させる
+
+        //子供欄の入力値を全ての子の欄に反映させて初期表示も変更する
         const forms = getForms("child");
+        ///////初期化処理
         reflectData(fromNextBtnIdx, "children", forms);
     }
 

@@ -178,7 +178,7 @@ function updateTabindex(el, addNum){
  * @param {string} zokugara 続柄（日本語）、子又は兄弟姉妹
  * @param {number} newNum 新しい番号
  */
-function updateTitle(el, zokugara, newNum){
+function updateBranchNum(el, zokugara, newNum){
     const oldTitle = el.textContent;
     const removedSpace = oldTitle.replace(/\n/g, "").replace(/\s/g, "");
     const oldNum = removedSpace.split("．")[0];
@@ -212,7 +212,7 @@ function createForm(isChild) {
 
     //タイトルを変更
     const fieldsetTitle = newFieldset.querySelector(".fieldsetTitle");
-    updateTitle(fieldsetTitle, zokugara, newCount);
+    updateBranchNum(fieldsetTitle, zokugara, newCount);
 
     //氏名のlabelのforを変更
     const nameLabel = newFieldset.querySelector("label");
@@ -241,8 +241,8 @@ function createForm(isChild) {
  * 次の項目を有効化して前の項目を無効化する
  * @param {number} i 押された次へボタンのインデックス
  */
-function enableNextColumn(i){
 
+function enableNextFieldset(i){
     //次の項目を取得（子がいないときは、項目を１つ飛ばす）
     let nextFieldset = isNoChild ? document.getElementsByTagName("fieldset")[i + 2]: document.getElementsByTagName("fieldset")[i + 1];
 
@@ -324,7 +324,7 @@ function enableNextGuide(){
                     const clone = copyFrom.cloneNode(true);
                     //タイトルのナンバリングを変える
                     const btn = clone.querySelector("button");
-                    updateTitle(btn, "子", (i + 1));
+                    updateBranchNum(btn, "子", (i + 1));
                     clone.style.display = display;
                     //最後の要素の次に挿入する
                     copyFrom.after(clone)
@@ -1230,15 +1230,34 @@ function reflectData(idx, relation, forms){
 }
 
 /**
- * 次の項目とガイドの次の項目を有効化して前の項目を無効化する
- * @param {number} fromNextBtnIdx 押された次へボタンのインデックス
- * @param {boolean} isIndivisual 次の欄が個人用欄か
+ * 尊属のタイトルを更新する
+ * @param {element} fieldsets 全尊属のフィールドセット
+ * @param {element} preFieldset 一つ前のフィールドセット
  */
-function oneStepFoward(fromNextBtnIdx, isIndivisual){
-    
-    //子供欄の次へボタンが押されたとき
-    const childrenFieldsetNextBtnIdx = 2;
-    if(fromNextBtnIdx === childrenFieldsetNextBtnIdx){
+function updateAscendantTitle(fieldsets, preFieldset){
+    const ascendants = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"];
+
+    if(isNoChild === false){
+        const preFieldsetTitle = preFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
+        const removedSpace = preFieldsetTitle.replace(/\n/g, "").replace(/\s/g, "");
+        const preFieldsetNum = parseInt(ZenkakuToHankaku(removedSpace.slice(0, 1)));
+
+        for(let i = 0; i < fieldsets.length; i++){
+            //タイトルを変更する
+            const newTitleEl =  fieldsets[i].getElementsByClassName("fieldsetTitle")[0];
+            const newNum = hankakuToZenkaku(String(preFieldsetNum + 1));
+            const newTitle = `${newNum}－${hankakuToZenkaku(String(i + 1))}．${ascendants[i]}について`;
+            newTitleEl.textContent = newTitle;
+        }
+    }
+}
+
+/**
+ * 必要なフィールドセットを生成などする
+ * @param {element} fieldset 押された次へボタンがあるフィールドセット
+ */
+function adjustFieldset(fieldset){
+    if(fieldset.id === "childrenFielset"){
         //子が２人以上いるとき、フォームを複製する
         const childCountInputIdx = 2;
         const oldTotalForms = document.getElementById(`id_child-TOTAL_FORMS`);
@@ -1261,10 +1280,27 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
         //子供欄の入力値を全ての子の欄に反映させて初期表示も変更する
         const forms = getForms("child");
         childrenData = reflectData(fromNextBtnIdx, "children", forms);
+
+    }else if(fieldset.id === "id_ascendant-0-fieldset"){
+        //父欄のとき、タイトルを変更する
+        const ascendantFieldsets = document.getElementsByClassName("ascendantField");
+        updateAscendantTitle(ascendantFieldsets, fieldset)
     }
+}
+
+/**
+ * 次の項目とガイドの次の項目を有効化して前の項目を無効化する
+ * @param {number} fromNextBtnIdx 押された次へボタンのインデックス
+ * @param {boolean} isIndivisual 次の欄が個人用欄か
+ */
+function oneStepFoward(fromNextBtnIdx, isIndivisual){
+    
+    //次のフォームを生成、タイトル変更、属性変更など有効化前の処理
+    const fromFieldset = inputsField.requiredFieldsetsArr[inputsField.requiredFieldsetsArr - 1];
+    if(fromFieldset) adjustFieldset(fromFieldset);
 
     //次の項目を有効化とガイドを更新
-    enableNextColumn(fromNextBtnIdx);
+    enableNextFieldset(fromNextBtnIdx);
     enableNextGuide();
 
     //各入力欄に処理

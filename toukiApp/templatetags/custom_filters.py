@@ -26,3 +26,7 @@ def addstr(arg1, arg2):
 @register.filter
 def to_full_width(value):
     return str(value).translate(str.maketrans('0123456789', '０１２３４５６７８９'))
+
+@register.filter
+def get_item(list, index):
+    return list[index]

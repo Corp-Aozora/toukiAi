@@ -23,7 +23,9 @@
             <section class="container ms-0">
                 <fieldset id="decedentFieldset">
                     <h5 class="form-label">
-                        １．{{sections.0}}
+                        <span class="bg-secondary-subtle p-1 rounded-3 fieldsetTitle">
+                            １．{{sections.0}}
+                        </span>
                     </h5>
                     {% for field in decedent_form %}
                         {% if field.html_name == "user" %}
@@ -594,8 +596,8 @@
                     <fieldset id="id_{{form.prefix}}-fieldset" class="ascendantFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
-                                <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
-                                    ４－１．について
+                                <span class="bg-success-subtle p-1 rounded-3 fieldsetTitle">
+                                    ４－{{ forloop.counter|to_full_width }}．{{ ascendants_relation|get_item:forloop.counter0 }}について
                                 </span>
                             </h5>
                         </div>
@@ -615,7 +617,7 @@
                                             </div>
                                         {% else %}
                                             {% if field.name == "is_live" %}
-                                                <div class="Q" style="display: none;">
+                                                <div class="Q mt-3">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             現在もご健在ですか？

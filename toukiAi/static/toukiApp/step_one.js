@@ -59,6 +59,8 @@ let oneStepFowardHandler;
 //子供なしフラグ
 let isNoChild = false;
 let isNoCollateral = false;
+//子供データ
+let childrenData;
 
 /**
  * 初期化
@@ -308,14 +310,12 @@ function enableNextGuide(){
         const childGuideIdx = 3;
         if(guideField.elIdx === childGuideIdx){
             //子の数を取得する
+            const guideList = document.getElementById("guideList");
             const childrenFieldsetIdx = 2;
             const childrenFieldset = inputsField.requiredFieldsetsArr[childrenFieldsetIdx];
             const childCountInputIdx = 2;
-            const oldCount = parseInt(guideList.getElementsByClassName("childGuide"));
+            const oldCount = guideList.getElementsByClassName("childGuide").length;
             const newCount = parseInt(childrenFieldset.getElementsByTagName("input")[childCountInputIdx].value);
-            //２人以上のとき、子のガイドを複製する
-            const guideList = document.getElementById("guideList");
-
             //増えたとき
             if(newCount > oldCount){
                 for(let i = oldCount; i < newCount; i ++){
@@ -324,7 +324,7 @@ function enableNextGuide(){
                     const clone = copyFrom.cloneNode(true);
                     //タイトルのナンバリングを変える
                     const btn = clone.querySelector("button");
-                    updateTitle(btn, "子", (i + 2));
+                    updateTitle(btn, "子", (i + 1));
                     clone.style.display = display;
                     //最後の要素の次に挿入する
                     copyFrom.after(clone)
@@ -401,9 +401,20 @@ function putBackGuide(i){
     const currentIdx = inputsField.requiredFieldsetsArr.length - 1;
     const childrenPreBtnIdx = 1;
     
-    //子供欄より先の欄の戻るボタンが押されたとき
-    if(i > childrenPreBtnIdx)
-        guideField.guidesArr[currentIdx].style.display = "none";
+    //子１の欄のとき
+    const child1PreBtnIdx = 2;
+    if(i === child1PreBtnIdx){
+        const childGuides = document.getElementsByClassName("childGuide");
+        for (let i = 0; i < childGuides.length; i++) {
+            childGuides[i].style.display = 'none';
+        }
+    }else if(i > childrenPreBtnIdx){
+        //子供欄より先の欄の戻るボタンが押されたとき
+
+        //子のガイドではないとき
+        if(!guideField.guidesArr[currentIdx].classList.contains("childGuide"))
+            guideField.guidesArr[currentIdx].style.display = "none";
+    }
 
     //無効化された項目のガイドを無効化する
     guideField.guidesArr[currentIdx].classList.remove("active");
@@ -416,10 +427,8 @@ function putBackGuide(i){
     guideField.caretIconsArr[currentIdx].style.display = "none";
     guideField.caretIconsArr.pop();
 
-    //子供項目から戻るとき
-    const fatherPreBtnIdx = 2;
-
     //押されたボタンに応じて要素番号を変更する
+    const fatherPreBtnIdx = 2;
     if(isNoChild && i === fatherPreBtnIdx)
         guideField.elIdx -= 2;
     else if(i === childrenPreBtnIdx){
@@ -1229,7 +1238,6 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
     
     //子供欄の次へボタンが押されたとき
     const childrenFieldsetNextBtnIdx = 2;
-    let childrenData = null;
     if(fromNextBtnIdx === childrenFieldsetNextBtnIdx){
         //子が２人以上いるとき、フォームを複製する
         const childCountInputIdx = 2;

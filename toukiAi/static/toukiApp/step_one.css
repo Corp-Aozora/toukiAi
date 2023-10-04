@@ -44,7 +44,8 @@ section.card{
     width: 400px!important;
     height: 400px!important;
     position: sticky!important;
-    top: var(--top)!important;
+    /* top: var(--top)!important; */
+    top: calc(50% - 250px);
 }
 
 section.card li{

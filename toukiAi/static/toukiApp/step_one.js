@@ -171,6 +171,22 @@ function updateTabindex(el, addNum){
 }
 
 /**
+ * 子又は兄弟姉妹欄のタイトルのナンバリングを更新する
+ * @param {element} el 対象の要素 
+ * @param {string} zokugara 続柄（日本語）、子又は兄弟姉妹
+ * @param {number} newNum 新しい番号
+ */
+function updateTitle(el, zokugara, newNum){
+    const oldTitle = el.textContent;
+    const removedSpace = oldTitle.replace(/\n/g, "").replace(/\s/g, "");
+    const oldNum = removedSpace.split("．")[0];
+    const idx = oldNum.lastIndexOf("－");
+    const newNumbering = oldNum.slice(0, idx + 1) + hankakuToZenkaku(String(newNum));
+    const newTitle = `${newNumbering}．${zokugara}${hankakuToZenkaku(String(newNum))}について`;
+    el.textContent = newTitle;
+}
+
+/**
  * フォームを生成する
  * @param {boolean} isChild 子フォームの生成か兄弟姉妹フォームの生成か判別する用
  */
@@ -194,13 +210,7 @@ function createForm(isChild) {
 
     //タイトルを変更
     const fieldsetTitle = newFieldset.querySelector(".fieldsetTitle");
-    const originalTitle = fieldsetTitle.textContent;
-    const removedSpace = originalTitle.replace(/\n/g, "").replace(/\s/g, "");
-    const oldnumbering = removedSpace.split("．")[0];
-    const idx = oldnumbering.lastIndexOf("－");
-    const newNumbering = oldnumbering.slice(0, idx + 1) + hankakuToZenkaku(String(newCount));
-    const newTitle = `${newNumbering}．${zokugara}${hankakuToZenkaku(String(newCount))}について`;
-    fieldsetTitle.textContent = newTitle;
+    updateTitle(fieldsetTitle, zokugara, newCount);
 
     //氏名のlabelのforを変更
     const nameLabel = newFieldset.querySelector("label");
@@ -289,10 +299,35 @@ function enableNextGuide(){
     guideField.checkIconsArr[nextIdx - 1].style.display = "inline-block";
 
     //ガイドの次の項目が選択状態にする
-    if(isNoChild)
+    if(isNoChild){
         guideField.elIdx += 2;
-    else
+    }else{
         guideField.elIdx += 1;
+        
+        //子のガイドを表示するとき、子の人数に応じてガイドの数を増やす
+        const childGuideIdx = 3;
+        if(guideField.elIdx === childGuideIdx){
+            //子の数を取得する
+            const childrenFieldsetIdx = 2;
+            const childrenFieldset = inputsField.requiredFieldsetsArr[childrenFieldsetIdx];
+            const childCountInputIdx = 2;
+            const childCount = parseInt(childrenFieldset.getElementsByTagName("input")[childCountInputIdx].value);
+            //２人以上のとき、子のガイドを複製する
+            const guideList = document.getElementById("guideList");
+            if(childCount > 1){
+                for(let i = 0; i < childCount - 1; i++){
+                    const childGuides = guideList.getElementsByClassName("childGuide");
+                    const copyFrom = childGuides[childGuides.length - 1];
+                    const clone = copyFrom.cloneNode(true);
+                    //タイトルのナンバリングを変える
+                    const btn = clone.querySelector("button");
+                    updateTitle(btn, "子", (i + 2));
+                    //最後の要素の次に挿入する
+                    copyFrom.after(clone)
+                }
+            }
+        }
+    }
 
     guideField.guidesArr.push(list.getElementsByClassName("guide")[guideField.elIdx]);
     guideField.btnsArr.push(list.getElementsByClassName("guideBtn")[guideField.elIdx]);

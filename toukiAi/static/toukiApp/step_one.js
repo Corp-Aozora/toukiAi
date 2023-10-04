@@ -311,20 +311,28 @@ function enableNextGuide(){
             const childrenFieldsetIdx = 2;
             const childrenFieldset = inputsField.requiredFieldsetsArr[childrenFieldsetIdx];
             const childCountInputIdx = 2;
-            const childCount = parseInt(childrenFieldset.getElementsByTagName("input")[childCountInputIdx].value);
+            const oldCount = parseInt(guideList.getElementsByClassName("childGuide"));
+            const newCount = parseInt(childrenFieldset.getElementsByTagName("input")[childCountInputIdx].value);
             //２人以上のとき、子のガイドを複製する
             const guideList = document.getElementById("guideList");
-            if(childCount > 1){
-                for(let i = 0; i < childCount - 1; i++){
+
+            //増えたとき
+            if(newCount > oldCount){
+                for(let i = oldCount; i < newCount; i ++){
                     const childGuides = guideList.getElementsByClassName("childGuide");
                     const copyFrom = childGuides[childGuides.length - 1];
                     const clone = copyFrom.cloneNode(true);
                     //タイトルのナンバリングを変える
                     const btn = clone.querySelector("button");
                     updateTitle(btn, "子", (i + 2));
+                    clone.style.display = display;
                     //最後の要素の次に挿入する
                     copyFrom.after(clone)
                 }
+            }else if(newCount < oldCount){
+                //減ったとき
+                const childGuides = guideList.getElementsByClassName("childGuide");
+                childGuides.slice(newCount).forEach(el => el.parentNode.removeChild(el));
             }
         }
     }

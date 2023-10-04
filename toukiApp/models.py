@@ -228,7 +228,7 @@ class Ascendant(CommonModel):
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)
     is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
-    exist = models.BooleanField(verbose_name="死亡時存在",  default=False)
+    is_exist = models.BooleanField(verbose_name="死亡時存在",  default=False)
     is_live = models.BooleanField(verbose_name="手続時存在", default=False)
     is_japan = models.BooleanField(verbose_name="日本在住", default=True)
     prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, default="")
@@ -258,7 +258,7 @@ class Ascendant(CommonModel):
         related_name = "ascendant_update_by"
     )
     
-    step_one_fields = []
+    step_one_fields = ["content_type", "object_id", "name", "decedent", "is_live", "is_exist", "is_refuse", "is_japan", "is_heir",]
     
     class Meta:
         verbose_name = _("尊属")

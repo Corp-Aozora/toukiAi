@@ -121,12 +121,14 @@ def step_one(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
-    child_form_set = formset_factory(form=StepOneDecendantForm, extra=1, max_num=15)
+    child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
+    ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
     
     if request.method == "POST":
         decedent_form = StepOneDecedentForm(request.POST)
         spouse_form = StepOneSpouseForm(request.POST)
         childs_form = child_form_set(request.POST, prefix="child")
+        ascendant_form = ascendant_form_set(request.POST, prefix="ascendant")
 
         # トランザクションが必要
         # 被相続人情報の保存
@@ -140,6 +142,7 @@ def step_one(request):
         spouse_form = StepOneSpouseForm()
         spouse_form_internal_field_name = ["spouse_decedent", "spouse_content_type", "spouse_object_id", "spouse_is_heir"]
         child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
+        ascendant_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
     
     prefectures = []
     for p in PREFECTURES:
@@ -155,7 +158,9 @@ def step_one(request):
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
         "child_form_set" : child_form_set(prefix="child"),
+        "ascendant_form_set" : ascendant_form_set(prefix="ascendant"),
         "child_form_internal_field_name" : child_form_internal_field_name,
+        "ascendant_form_internal_field_name":ascendant_form_internal_field_name,
     }
     return render(request, "toukiApp/step_one.html", context)
 

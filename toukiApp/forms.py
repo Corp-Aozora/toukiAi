@@ -74,7 +74,6 @@ class StepOneDecedentForm(forms.ModelForm):
             
         super().__init__(*args, **kwargs)
                 
-    
 # STEP1の配偶者フォーム
 class StepOneSpouseForm(forms.ModelForm):
     class Meta:
@@ -119,7 +118,7 @@ class StepOneSpouseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
                 
 # STEP1の子フォーム
-class StepOneDecendantForm(forms.ModelForm):
+class StepOneDescendantForm(forms.ModelForm):
     class Meta:
         model = Descendant
         # decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, is_exist, is_refuse, is_adult, is_japan, is_heir
@@ -158,3 +157,41 @@ class StepOneDecendantForm(forms.ModelForm):
             
         super().__init__(*args, **kwargs)
                 
+# STEP1の親フォーム
+class StepOneAscendantForm(forms.ModelForm):
+    class Meta:
+        model = Ascendant
+        # content_type1, object_id1, name, decedent, is_live, is_exist, is_refuse, is_japan, is_heir
+        fields = model.step_one_fields
+        widgets = {
+            "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
+            "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
+            "is_refuse": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
+            "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        tabindex = children_max_index
+        
+        for field in self.base_fields.values():
+            field.required = False
+
+            tabindex += 1
+            if field.label in ["被相続人", "子", "子id", "相続人"]:
+                continue
+            
+            field.widget.attrs.update({"tabindex": str(tabindex)})
+            
+            if field.label == "氏名":
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                    "placeholder": "姓名間にスペースなし",
+                    "maxlength": "30",
+                })
+            
+            else:
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            
+        super().__init__(*args, **kwargs)

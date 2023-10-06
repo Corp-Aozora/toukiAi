@@ -208,8 +208,8 @@ function toggleNextBtn(isValid, el, index){
     if(isValid){
 
         //配列に取得
-        if(invalidElArr.indexOf(el) !== -1)
-            invalidElArr.push(el);
+        if(invalidEls.indexOf(el) !== -1)
+            invalidEls.push(el);
     
         //次へのボタンを無効化
         nextBtns[index].disabled = true;
@@ -217,10 +217,10 @@ function toggleNextBtn(isValid, el, index){
     }else{
 
         //配列から削除
-        invalidElArr = invalidElArr.filter(x => x !== el);
+        invalidEls = invalidEls.filter(x => x !== el);
 
         //次へボタンを有効化判別
-        if(invalidElArr.length === 0)
+        if(invalidEls.length === 0)
             nextBtns[index].disabled = false;
     }
 }
@@ -242,7 +242,7 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
         messageEl.style.display = hidden;
 
         //次へボタンを有効化判別
-        if(invalidElArr.length === 0)
+        if(invalidEls.length === 0)
             nextBtn.disabled = false;        
         
     }else{
@@ -252,7 +252,7 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
         messageEl.style.display = display;
         
         //配列に取得
-        invalidElArr.push(el);
+        invalidEls.push(el);
     
         //次へのボタンを無効化
         nextBtn.disabled = true;

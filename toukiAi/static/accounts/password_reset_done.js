@@ -1,8 +1,8 @@
 "use strict";
 
-requiredInputArr = [email];
-messageElArr = [emailMessageEl];
-messageArr = [emailMessage];
+reqInputs = [email];
+msgEls = [emailMessageEl];
+msgs = [emailMessage];
 
 const resentMessage = document.getElementById("resentMessage");
 
@@ -66,10 +66,10 @@ function isValidEmailPattern(input){
         return response.json();
     }).then(response => {
         if(response.message === ""){
-            toggleErrorMessage(true, messageElArr[emailIndex], response.message);
+            toggleErrorMessage(true, msgEls[emailIndex], response.message);
         }else{
-            toggleErrorMessage(false, messageElArr[emailIndex], response.message);
-            invalidElArr.push(requiredInputArr[emailIndex])
+            toggleErrorMessage(false, msgEls[emailIndex], response.message);
+            invalidEls.push(reqInputs[emailIndex])
         }
     }).catch(error => {
         console.log(error);
@@ -81,18 +81,18 @@ function isValidEmailPattern(input){
  */
 function emailCheck(){
     //エラー欄の配列を初期化
-    invalidElArr.length = 0;
+    invalidEls.length = 0;
 
     //カスタムメールアドレスバリデーション
-    isValid = isEmail(requiredInputArr[emailIndex].value);
+    isValid = isEmail(reqInputs[emailIndex].value);
 
     //メールアドレスの形式が適切なとき
     if(isValid[0]){
         //djangoのメールアドレスバリデーション
-        isValidEmailPattern(requiredInputArr[emailIndex].value);
+        isValidEmailPattern(reqInputs[emailIndex].value);
     }else{
-        toggleErrorMessage(isValid[0], messageElArr[emailIndex], isValid[1]);
-        invalidElArr.push(requiredInputArr[emailIndex]);
+        toggleErrorMessage(isValid[0], msgEls[emailIndex], isValid[1]);
+        invalidEls.push(reqInputs[emailIndex]);
     }
 }
 
@@ -101,9 +101,9 @@ function emailCheck(){
  */
 window.addEventListener("load", ()=>{
 
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         //フォーカス移動イベント
-        requiredInputArr[i].addEventListener("keypress", (e)=>{
+        reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
                 submitBtn.focus();
@@ -111,13 +111,13 @@ window.addEventListener("load", ()=>{
         })
 
         //各入力欄にバリデーションを設定
-        requiredInputArr[i].addEventListener("change",()=>{
+        reqInputs[i].addEventListener("change",()=>{
             emailCheck();
         })
 
         //入力中はエラー表示を消す
-        requiredInputArr[i].addEventListener("input", ()=>{
-            messageElArr[i].style.display = "none";
+        reqInputs[i].addEventListener("input", ()=>{
+            msgEls[i].style.display = "none";
         })
 
         //モデルのバリデーションでエラーが出たとき用
@@ -132,11 +132,11 @@ form.addEventListener("submit", (e)=>{
     emailCheck();
     
     //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidElArr.length > 0){
-        invalidElArr[0].focus();
+    if(invalidEls.length > 0){
+        invalidEls[0].focus();
         return;
     } 
 
     //メール送信するかどうか判別して次のページへ遷移する
-    accountResetPassword(requiredInputArr[emailIndex].value);
+    accountResetPassword(reqInputs[emailIndex].value);
 })

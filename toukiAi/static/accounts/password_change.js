@@ -1,30 +1,30 @@
-requiredInputArr = [oldpassword, password1, password2];
-messageElArr = [oldpasswordMessageEl, password1MessageEl, password2MessageEl];
-messageArr = [oldpasswordMessage, password1Message, password2Message];
+reqInputs = [oldpassword, password1, password2];
+msgEls = [oldpasswordMessageEl, password1MessageEl, password2MessageEl];
+msgs = [oldpasswordMessage, password1Message, password2Message];
 
 /**
  * バリデーションリスト
  * @param {number} index 
  */
 function validationList(index){
-    invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+    invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
 
     //各欄のバリデーション
     if(index === oldpasswordIndex){
-        verificatePassword(requiredInputArr[index].value, requiredInputArr[index]);
+        verificatePassword(reqInputs[index].value, reqInputs[index]);
         return;
     }
     else if(index === password1Index){
-        isValid = checkPassword(requiredInputArr[index].value, requiredInputArr[index]);
+        isValid = checkPassword(reqInputs[index].value, reqInputs[index]);
     }else if(index === password2Index){
         isValid = password1.value === password2.value ? true: false;
     } 
 
     //エラーメッセージトグル
-    toggleErrorMessage(isValid, messageElArr[index], messageArr[index]);
+    toggleErrorMessage(isValid, msgEls[index], msgs[index]);
     
     //エラーが有るときは、その要素を取得し、適切なときは削除する
-    if(isValid === false) invalidElArr.push(requiredInputArr[index]);
+    if(isValid === false) invalidEls.push(reqInputs[index]);
 }
 
 /**
@@ -52,10 +52,10 @@ function verificatePassword(val){
         return response.json();
     }).then(response => {
         if(response.is_valid){
-            toggleErrorMessage(true, messageElArr[oldpasswordIndex]);
+            toggleErrorMessage(true, msgEls[oldpasswordIndex]);
         }else{
-            toggleErrorMessage(false, messageElArr[oldpasswordIndex], oldpasswordMessage);
-            invalidElArr.push(requiredInputArr[oldpasswordIndex]);
+            toggleErrorMessage(false, msgEls[oldpasswordIndex], oldpasswordMessage);
+            invalidEls.push(reqInputs[oldpasswordIndex]);
         }
     }).catch(error => {
         console.log(error);
@@ -69,24 +69,24 @@ function verificatePassword(val){
  */
 window.addEventListener("load", ()=>{
 
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         //フォーカス移動イベント
-        requiredInputArr[i].addEventListener("keypress", (e)=>{
+        reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
-                e.target === password2 ? submitBtn.focus(): requiredInputArr[i + 1].focus();
+                e.target === password2 ? submitBtn.focus(): reqInputs[i + 1].focus();
             }
         })
 
         //各入力欄にバリデーションを設定
-        requiredInputArr[i].addEventListener("change",(e)=>{
+        reqInputs[i].addEventListener("change",(e)=>{
             validationList(i);
-            if(requiredInputArr[i] === password1) togglePassword2();
+            if(reqInputs[i] === password1) togglePassword2();
         })
 
         //入力中はエラー表示を消す
-        requiredInputArr[i].addEventListener("input", ()=>{
-            messageElArr[i].style.display = "none";
+        reqInputs[i].addEventListener("input", ()=>{
+            msgEls[i].style.display = "none";
         })
 
         //モデルのバリデーションでエラーが出たとき用
@@ -96,7 +96,7 @@ window.addEventListener("load", ()=>{
     //パスワード1が空欄又はエラーメッセージが出ているとき
     if(errorlist !== null){
         togglePassword2();
-        if(invalidElArr.length > 0) invalidElArr[0].focus();
+        if(invalidEls.length > 0) invalidEls[0].focus();
     }
 })
 
@@ -104,13 +104,13 @@ window.addEventListener("load", ()=>{
 form.addEventListener("submit", (e)=>{
 
     // 送信前に各入力欄をチェックする
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         validationList(i);
     }
 
     //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidElArr.length > 0){
-        invalidElArr[0].focus();
+    if(invalidEls.length > 0){
+        invalidEls[0].focus();
         e.preventDefault();
     } 
 })

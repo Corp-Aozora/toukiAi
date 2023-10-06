@@ -1,8 +1,8 @@
 "use strict";
 
-requiredInputArr = [email];
-messageElArr = [emailMessageEl];
-messageArr = [emailMessage];
+reqInputs = [email];
+msgEls = [emailMessageEl];
+msgs = [emailMessage];
 
 const resentMessage = document.getElementById("resentMessage");
 /**
@@ -33,7 +33,7 @@ window.addEventListener("load", ()=>{
 
 //メールアドレス
 email.addEventListener("change", (e)=>{
-    isEmail(e.target.value)[0] ? toggleErrorMessage(true, messageElArr[emailIndex], messageArr[emailIndex]): toggleErrorMessage(false, messageElArr[emailIndex], messageArr[emailIndex]);
+    isEmail(e.target.value)[0] ? toggleErrorMessage(true, msgEls[emailIndex], msgs[emailIndex]): toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);
 })
 
 //メールアドレス欄
@@ -48,14 +48,14 @@ email.addEventListener("keypress", (e)=>{
 //メールを再発行するボタン
 submitBtn.addEventListener("click", ()=>{
     //メールアドレスの形式チェック
-    if(isEmail(requiredInputArr[emailIndex].value)[0]){
+    if(isEmail(reqInputs[emailIndex].value)[0]){
         slideDown(resentMessage);
 
-        toggleErrorMessage(true, messageElArr[emailIndex], messageArr[emailIndex]);
+        toggleErrorMessage(true, msgEls[emailIndex], msgs[emailIndex]);
         
         //登録されたユーザーか確認して、登録されたユーザーのときはメールを再送する
         resendConfimation(email.value);
     }else{
-        toggleErrorMessage(false, messageElArr[emailIndex], messageArr[emailIndex]);
+        toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);
     }
 })

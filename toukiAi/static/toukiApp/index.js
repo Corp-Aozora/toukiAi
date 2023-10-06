@@ -19,7 +19,7 @@ const subject = document.getElementById("id_subject");
 const opts = subject.options;
 const subjectList = Array.from(opts).map(option => option.value);
 const content = document.getElementById("id_content");
-requiredInputArr = [createdBy, subject, content];
+reqInputs = [createdBy, subject, content];
 const createdByIndex = 0;
 const subjectIndex = 1;
 const contentIndex = 2;
@@ -27,12 +27,12 @@ const contentIndex = 2;
 const createdByMessageEl = document.getElementById("id_created_by_messageEl");
 const subjectMessageEl = document.getElementById("id_subject_messageEl");
 const contentMessageEl = document.getElementById("id_content_messageEl");
-messageElArr = [createdByMessageEl, subjectMessageEl, contentMessageEl];
+msgEls = [createdByMessageEl, subjectMessageEl, contentMessageEl];
 
 const createdByMessage = "メールアドレスの規格に一致しません"
 const subjectMessage = "どれか１つ選択してください"
 const contentMessage = "お問い合わせ内容をご入力ください"
-messageArr = [createdByMessage, subjectMessage, contentMessage];
+msgs = [createdByMessage, subjectMessage, contentMessage];
 
 const beforeSubmitBtn = document.getElementById("beforeSubmitBtn");
 const submitBtn = document.getElementById("submitBtn");
@@ -71,10 +71,10 @@ function isDjangoEmail(email){
         return response.json();
     }).then(response => {
         if(response.message !== ""){
-            toggleErrorMessage(false, messageElArr[createdByIndex], response.message);
-            invalidElArr.push(requiredInputArr[createdByIndex]);
+            toggleErrorMessage(false, msgEls[createdByIndex], response.message);
+            invalidEls.push(reqInputs[createdByIndex]);
         }else{
-            toggleErrorMessage(true, messageElArr[createdByIndex], response.message);
+            toggleErrorMessage(true, msgEls[createdByIndex], response.message);
         }
     }).catch(error => {
         console.log(error);
@@ -90,27 +90,27 @@ function validationList(index){
     //メールアドレス欄
     if(index === createdByIndex){
         //カスタムメールアドレスバリデーション
-        isValid = isEmail(requiredInputArr[index].value);
+        isValid = isEmail(reqInputs[index].value);
         if(isValid[0] === false){
-            toggleErrorMessage(isValid[0], messageElArr[index], isValid[1]);
-            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
+            toggleErrorMessage(isValid[0], msgEls[index], isValid[1]);
+            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
         }else{
-            invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
             //djangoのメールアドレスバリデーション
-            isDjangoEmail(requiredInputArr[index].value);
+            isDjangoEmail(reqInputs[index].value);
         }
     }else{
         //件名
-        if(index === subjectIndex) isValid = requiredInputArr[index].value !== "" && subjectList.indexOf(requiredInputArr[index].value) !== -1 ? true: false;
-        else if(index === contentIndex) isValid = requiredInputArr[index].value !== "";
+        if(index === subjectIndex) isValid = reqInputs[index].value !== "" && subjectList.indexOf(reqInputs[index].value) !== -1 ? true: false;
+        else if(index === contentIndex) isValid = reqInputs[index].value !== "";
 
         //各バリデーションでエラーがあるとき
-        toggleErrorMessage(isValid, messageElArr[index], messageArr[index]);
+        toggleErrorMessage(isValid, msgEls[index], msgs[index]);
         
         if(isValid === false){
-            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
+            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
         }else{
-            invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
         }
     }
 }
@@ -166,12 +166,12 @@ window.addEventListener("load", ()=>{
     //セッション情報を初期化
     sessionStorage.clear();
 
-    for(let i = 0; i < requiredInputArr.length - 1 ; i++){
+    for(let i = 0; i < reqInputs.length - 1 ; i++){
         //フォーカス移動イベント
-        requiredInputArr[i].addEventListener("keypress", (e)=>{
+        reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
-                requiredInputArr[i + 1].focus();
+                reqInputs[i + 1].focus();
             }
         })
     }
@@ -197,12 +197,12 @@ content.addEventListener("change", ()=>{
 
 //送信ボタン（本送信前）
 beforeSubmitBtn.addEventListener("click", (e)=>{
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         validationList(i);
     }
 
-    if(invalidElArr.length > 0){
-        invalidElArr[0].focus();
+    if(invalidEls.length > 0){
+        invalidEls[0].focus();
         e.preventDefault();
     }else{
         const submitModal = new bootstrap.Modal(document.getElementById("submitModal"));
@@ -217,13 +217,13 @@ beforeSubmitBtn.addEventListener("click", (e)=>{
 
 //送信ボタン（本送信）
 beforeSubmitBtn.addEventListener("click", (e)=>{
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         validationList(i);
     }
 
-    if(invalidElArr.length > 0){
+    if(invalidEls.length > 0){
         submitModal.hide();
-        invalidElArr[0].focus();
+        invalidEls[0].focus();
         e.preventDefault();
     }
 })

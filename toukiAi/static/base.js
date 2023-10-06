@@ -15,11 +15,11 @@ const xxlWidth = 1399;
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-let requiredInputArr = [];
-let messageElArr = [];
-let messageArr = [];
-let invalidElArr = [];
-let preserveInvalidElArr = [];
+let reqInputs = [];
+let msgEls = [];
+let msgs = [];
+let invalidEls = [];
+let preserveInvalidEls = [];
 let isValid;
 
 const submitBtn = document.getElementById("submitBtn");
@@ -32,7 +32,7 @@ const no = 1;
 
 /**
  * テキストを強調する
- * @param {element} el 
+ * @param {HTMLElement} el 
  */
 function emphasizeText(el){
     el.classList.add("text-primary", "border-bottom", "border-primary");
@@ -40,7 +40,7 @@ function emphasizeText(el){
 
 /**
  * テキストの強調を削除する
- * @param {element} el 
+ * @param {HTMLElement} el 
  */
 function removeEmphasizeText(el){
     el.classList.remove("text-primary", "border-bottom", "border-primary");
@@ -71,7 +71,7 @@ function hankakuToZenkaku(str) {
 
 /**
  * スライド非表示する
- * @param {element} el 
+ * @param {HTMLElement} el 
  * @param {number} duration 
  */
 const slideUp = (el, duration = 250) => {
@@ -102,7 +102,7 @@ const slideUp = (el, duration = 250) => {
 
 /**
  * スライド表示する
- * @param {element} el 
+ * @param {HTMLElement} el 
  * @param {number} duration 
  */
 const slideDown = (el, duration = 250) => {
@@ -139,7 +139,7 @@ const slideDown = (el, duration = 250) => {
 
 /**
  * 要素のスライドトグル
- * @param {element} el 
+ * @param {HTMLElement} el 
  */
 function slideToggle(el){
     if(el.style.display === "flex" || el.style.display === "block"){
@@ -152,7 +152,7 @@ function slideToggle(el){
 
 /**
  * 要素がページ先頭に来るようにスクロールする
- * @param {element} el 表示対象の要素
+ * @param {HTMLElement} el 表示対象の要素
  * @param {number} duration スクロールまでの待ち時間
  */
 function scrollToTarget(el, duration = 250) {
@@ -185,7 +185,7 @@ function removeElement(targetId, count){
 /**
  * 整数チェック
  * @param {string} val 
- * @param {element} el 対象の要素（数字以外があるときは、空文字を入力する。全角数字があるときは半角数字に変換する）
+ * @param {HTMLElement} el 対象の要素（数字以外があるときは、空文字を入力する。全角数字があるときは半角数字に変換する）
  * @returns {boolean} 整数のときはtrue、違うときはfalse
  */
 function isNumber(val, el){
@@ -232,7 +232,7 @@ function isDigit(value, type){
 /**
  * 電話番号形式チェック
  * @param {string} value 
- * @param {element} el 
+ * @param {HTMLElement} el 
  * @returns {boolean} 形式に合致するときはtrue、合致しないときはfalse
  */
 function checkPhoneNumber(value, el){
@@ -293,7 +293,7 @@ function isEmail(email) {
 /**
  * スペース削除する
  * @param {string} val 
- * @param {element} el
+ * @param {HTMLElement} el
  */
 function trimAllSpace(val, el){
     const trimedVal = val.replace(/ |　/g, "");
@@ -304,7 +304,7 @@ function trimAllSpace(val, el){
 /**
  * 空文字チェック
  * @param {string} value チェック対象の値
- * @param {element} el チェック対象の要素
+ * @param {HTMLElement} el チェック対象の要素
  * @return 空文字でないときは先頭と末尾の空白を削除した入力値を返す、空文字のときは、falseを返す
  */
 function isBlank(value, el){
@@ -315,7 +315,7 @@ function isBlank(value, el){
 /**
  * 改行チェック
  * @param {string} value 
- * @param {element} el 
+ * @param {HTMLElement} el 
  * @returns 要素に改行コードを空文字に変換した文字列を入力する
  */
 function toSingleLine(value, el){
@@ -325,7 +325,7 @@ function toSingleLine(value, el){
 /**
  * 記号が含まれてないかチェック
  * @param {string} value チェック対象の文字列
- * @param {element} el チェック対象の要素
+ * @param {HTMLElement} el チェック対象の要素
  * @returns 記号が含まれてないときはtrue、含まれているときはfalse
  */
 function isSymbolIncluded(value, el){
@@ -341,7 +341,7 @@ function isSymbolIncluded(value, el){
 /**
  * 全角入力チェック
  * @param {string} val チェック対象の値 
- * @param {element} el チェック対象の要素
+ * @param {HTMLElement} el チェック対象の要素
  * @returns 条件に一致しないときはエラーメッセージ、一致するときは、校正した文字列を返す
  */
 function isOnlyZenkaku(val, el){
@@ -409,7 +409,7 @@ function isAlphaNumSymbolIncluded(val){
 /**
  * エラーメッセージ表示のトグル
  * @param {boolean} isValid 
- * @param {element} el エラーメッセージを表示する要素
+ * @param {HTMLElement} el エラーメッセージを表示する要素
  * @param {string} message エラーメッセージ
  */
 function toggleErrorMessage(isValid, el, message=""){

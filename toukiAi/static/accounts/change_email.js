@@ -1,8 +1,8 @@
 "use strict";
 
-requiredInputArr = [email];
-messageElArr = [emailMessageEl];
-messageArr = [emailMessage];
+reqInputs = [email];
+msgEls = [emailMessageEl];
+msgs = [emailMessage];
 
 /**
  * 重複メールアドレスとdjangoによるメールアドレス形式チェック
@@ -30,10 +30,10 @@ function isNewEmail(val){
         return response.json();
     }).then(response => {
         if(response.message !== ""){
-            toggleErrorMessage(false, messageElArr[emailIndex], response.message);
-            invalidElArr.push(requiredInputArr[emailIndex]);
+            toggleErrorMessage(false, msgEls[emailIndex], response.message);
+            invalidEls.push(reqInputs[emailIndex]);
         }else{
-            toggleErrorMessage(true, messageElArr[emailIndex], response.message);
+            toggleErrorMessage(true, msgEls[emailIndex], response.message);
         }
     }).catch(error => {
         console.log(error);
@@ -49,13 +49,13 @@ function isNewEmail(val){
  * @param {string} val メールアドレス
  */
 function emailCheck(val){
-    invalidElArr.filter(x => x !== requiredInputArr[emailIndex]);
+    invalidEls.filter(x => x !== reqInputs[emailIndex]);
 
     if(isEmail(val)[0]){
         isNewEmail(val)
     }else{
-        toggleErrorMessage(false, messageElArr[emailIndex], messageArr[emailIndex]);
-        invalidElArr.push(requiredInputArr[emailIndex]);
+        toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);
+        invalidEls.push(reqInputs[emailIndex]);
     }
 }
 
@@ -64,7 +64,7 @@ window.addEventListener("load", ()=>{
     //モデルのバリデーションでエラーが出たとき用
     if(errorlist !== null){
         emailCheck(email.value);
-        if(invalidElArr.length > 0) invalidElArr[0].focus();
+        if(invalidEls.length > 0) invalidEls[0].focus();
     }
 })
 
@@ -74,7 +74,7 @@ email.addEventListener("change", (e)=>{
 })
 
 email.addEventListener("input", (e)=>{
-    messageElArr[emailIndex].style.display = "none";
+    msgEls[emailIndex].style.display = "none";
 })
 
 email.addEventListener("keypress", (e)=>{
@@ -91,8 +91,8 @@ form.addEventListener("submit", ()=>{
     emailCheck(email.value);
 
     //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidElArr.length > 0){
-        invalidElArr[0].focus();
+    if(invalidEls.length > 0){
+        invalidEls[0].focus();
         e.preventDefault();
     } 
 })

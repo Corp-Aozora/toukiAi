@@ -4,13 +4,13 @@
  * 変数
  */
 //入力欄
-requiredInputArr = [email, password1, password2];
+reqInputs = [email, password1, password2];
 
 //各欄のエラーメッセージを表示する要素のid
-messageElArr = [emailMessageEl, password1MessageEl, password2MessageEl];
+msgEls = [emailMessageEl, password1MessageEl, password2MessageEl];
 
 //エラーメッセージ
-messageArr = [emailMessage, password1Message, password2Message];
+msgs = [emailMessage, password1Message, password2Message];
 
 /**
  * 重複メールアドレスとdjangoによるメールアドレス形式チェック
@@ -31,10 +31,10 @@ function isNewEmail(target){
         return response.json();
     }).then(response => {
         if(response.message !== ""){
-            toggleErrorMessage(false, messageElArr[emailIndex], response.message);
-            invalidElArr.push(requiredInputArr[emailIndex]);
+            toggleErrorMessage(false, msgEls[emailIndex], response.message);
+            invalidEls.push(reqInputs[emailIndex]);
         }else{
-            toggleErrorMessage(true, messageElArr[emailIndex], response.message);
+            toggleErrorMessage(true, msgEls[emailIndex], response.message);
         }
     }).catch(error => {
         console.log(error);
@@ -49,27 +49,27 @@ function validationList(index){
     //メールアドレス欄
     if(index === emailIndex){
         //カスタムメールアドレスバリデーション
-        isValid = isEmail(requiredInputArr[index].value);
+        isValid = isEmail(reqInputs[index].value);
         if(isValid[0] === false){
-            toggleErrorMessage(isValid[0], messageElArr[index], isValid[1]);
-            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
+            toggleErrorMessage(isValid[0], msgEls[index], isValid[1]);
+            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
         }else{
-            invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
             //重複チェックとdjangoのメールアドレスバリデーション
-            isNewEmail(requiredInputArr[index].value);
+            isNewEmail(reqInputs[index].value);
         }
     }else{
         //メールアドレス欄以外
-        if(index === password1Index) isValid = checkPassword(requiredInputArr[index].value, requiredInputArr[index]);
+        if(index === password1Index) isValid = checkPassword(reqInputs[index].value, reqInputs[index]);
         else if(index === password2Index) isValid = password1.value === password2.value ? true: false;
 
         //各バリデーションでエラーがあるとき
-        toggleErrorMessage(isValid, messageElArr[index], messageArr[index]);
+        toggleErrorMessage(isValid, msgEls[index], msgs[index]);
         
         if(isValid === false){
-            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
+            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
         }else{
-            invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
         }
     }
 }
@@ -79,15 +79,15 @@ function validationList(index){
  */
 window.addEventListener("load", ()=>{
 
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         //フォーカス移動イベント
-        requiredInputArr[i].addEventListener("keypress", (e)=>{
+        reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
                 if(e.target === password2){
                     submitBtn.focus();
                 }else{
-                    requiredInputArr[i + 1].focus();}
+                    reqInputs[i + 1].focus();}
             }
         })
 
@@ -98,7 +98,7 @@ window.addEventListener("load", ()=>{
     //パスワード1が空欄又はエラーメッセージが出ているとき
     if(errorlist !== null){
         togglePassword2();
-        if(invalidElArr.length > 0) invalidElArr[0].focus();
+        if(invalidEls.length > 0) invalidEls[0].focus();
     }
 })
 
@@ -136,13 +136,13 @@ password2.addEventListener("change", (e)=>{
 form.addEventListener("submit", (e)=>{
 
     // 送信前に各入力欄をチェックする
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         validationList(i);
     }
 
     //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidElArr.length > 0){
-        invalidElArr[0].focus();
+    if(invalidEls.length > 0){
+        invalidEls[0].focus();
         e.preventDefault();
     } 
 })

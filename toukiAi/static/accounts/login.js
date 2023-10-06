@@ -1,9 +1,9 @@
 email = document.getElementById("id_login")
 emailMessageEl = document.getElementById("id_login_messageEl")
 
-requiredInputArr = [email, password];
-messageElArr = [emailMessageEl, passwordMessageEl];
-messageArr = [emailMessage, passwordMessage];
+reqInputs = [email, password];
+msgEls = [emailMessageEl, passwordMessageEl];
+msgs = [emailMessage, passwordMessage];
 
 /**
  * バリデーションリスト
@@ -13,24 +13,24 @@ function validationList(index){
     //メールアドレス欄
     if(index === emailIndex){
         //カスタムメールアドレスバリデーション
-        isValid = isEmail(requiredInputArr[index].value);
+        isValid = isEmail(reqInputs[index].value);
         if(isValid[0] === false){
-            toggleErrorMessage(isValid[0], messageElArr[index], isValid[1]);
-            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
+            toggleErrorMessage(isValid[0], msgEls[index], isValid[1]);
+            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
         }else{
-            invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
         }
     }else{
         //パスワード欄
-        isValid = checkPassword(requiredInputArr[index].value, requiredInputArr[index]);
+        isValid = checkPassword(reqInputs[index].value, reqInputs[index]);
 
         //各バリデーションでエラーがあるとき
-        toggleErrorMessage(isValid, messageElArr[index], messageArr[index]);
+        toggleErrorMessage(isValid, msgEls[index], msgs[index]);
         
         if(isValid === false){
-            if(invalidElArr.indexOf(requiredInputArr[index]) === -1) invalidElArr.push(requiredInputArr[index]);
+            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
         }else{
-            invalidElArr = invalidElArr.filter(x => x !== requiredInputArr[index]);
+            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
         }
     }
 }
@@ -40,15 +40,15 @@ function validationList(index){
  */
 window.addEventListener("load", ()=>{
 
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         //フォーカス移動イベント
-        requiredInputArr[i].addEventListener("keypress", (e)=>{
+        reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
                 if(e.target === password){
                     submitBtn.focus();
                 }else{
-                    requiredInputArr[i + 1].focus();}
+                    reqInputs[i + 1].focus();}
             }
         })
 
@@ -59,7 +59,7 @@ window.addEventListener("load", ()=>{
     //パスワード1が空欄又はエラーメッセージが出ているとき
     if(errorlist !== null){
         togglePassword2();
-        if(invalidElArr.length > 0) invalidElArr[0].focus();
+        if(invalidEls.length > 0) invalidEls[0].focus();
     }
 })
 
@@ -91,13 +91,13 @@ passDisplayToggle.addEventListener("click", ()=>{
 form.addEventListener("submit", (e)=>{
 
     // 送信前に各入力欄をチェックする
-    for(let i = 0; i < requiredInputArr.length; i++){
+    for(let i = 0; i < reqInputs.length; i++){
         validationList(i);
     }
 
     //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidElArr.length > 0){
-        invalidElArr[0].focus();
+    if(invalidEls.length > 0){
+        invalidEls[0].focus();
         e.preventDefault();
     } 
 })

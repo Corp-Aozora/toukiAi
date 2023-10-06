@@ -279,11 +279,14 @@ function getFieldsetEl(isForward, fieldset){
 
 /**
  * 次の項目を有効化して前の項目を無効化する
+ * @param {HTMLElement} fromFieldset 押された次へボタンが属するフィールドセット
  * @param {number} i 押された次へボタンのインデックス
  */
-function displayNextFieldset(i){
+function displayNextFieldset(fromFieldset, i){
     //次の項目を取得（子がいないときは、項目を１つ飛ばす）
-    let nextFieldset = isNoChild ? document.getElementsByTagName("fieldset")[i + 2]: document.getElementsByTagName("fieldset")[i + 1];
+    let nextFieldset = (isNoChild && fromFieldset.id === "childrenFieldset") ? 
+        document.getElementsByTagName("fieldset")[i + 2]:
+        document.getElementsByTagName("fieldset")[i + 1];
 
     //次の項目を表示、hrを挿入、次の項目にスクロール
     inputsField.reqFieldsets.push(nextFieldset);
@@ -1430,7 +1433,7 @@ function reflectData(idx, relation, forms){
  * @param {HTMLElement} preFieldset 一つ前のフィールドセット
  */
 function updateAscendantTitle(fieldsets, preFieldset){
-    const ascendants = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"];
+    const ascendants = ["父", "父方の祖父", "父方の祖母", "母", "母方の祖父", "母方の祖母"];
 
     if(isNoChild === false){
         const preFieldsetTitle = preFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
@@ -1523,7 +1526,7 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
     if(fromFieldset) adjustFieldset(fromFieldset);
 
     //次の項目を有効化とガイドを更新
-    displayNextFieldset(fromNextBtnIdx);
+    displayNextFieldset(fromFieldset, fromNextBtnIdx);
     enableNextGuide();
 
     //各入力欄に処理

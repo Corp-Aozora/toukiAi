@@ -378,22 +378,27 @@ function adjustGuide(guideList, oldCount, newCount){
 
 /**
  * ガイドを更新する
+ * @param {HTMLElement[]} fromFieldset 押された次へボタンが属するフィールドセット
  */
-function enableNextGuide(){
+function updateGuide(fromFieldset){
     const guideList = document.getElementById("guideList");
     const nextIdx = inputsField.reqFieldsets.length - 1;
 
     //一つ前のガイドを通常表示にする
     removeGuideActive(guideList, nextIdx);
 
-    //ガイドの次の項目が選択状態にする
-    if(isNoChild){
+    //子供欄から父の欄を表示するとき
+    if(isNoChild && fromFieldset.id === "childrenFieldset"){
+        //子のガイドをスキップするために2加算する
         guideField.elIdx += 2;
+
+        //母のガイドも無効化した状態で表示する
+        guideList.getElementsByClassName("ascendantGuide")[1].style.display = display;
     }else{
         guideField.elIdx += 1;
         
         //子のガイドを表示するとき、子の人数に応じてガイドの数を増やす
-        if(guideField.guides[guideField.guides.length - 1].id === "id_children-guide"){
+        if(fromFieldset.id === "childrenFieldset"){
             //子の数を取得する
             const oldCount = guideList.getElementsByClassName("childGuide").length;
             const newCount = document.getElementsByClassName("childFieldset").length;
@@ -1433,7 +1438,7 @@ function reflectData(idx, relation, forms){
  * @param {HTMLElement} preFieldset 一つ前のフィールドセット
  */
 function updateAscendantTitle(fieldsets, preFieldset){
-    const ascendants = ["父", "父方の祖父", "父方の祖母", "母", "母方の祖父", "母方の祖母"];
+    const ascendants = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"];
 
     if(isNoChild === false){
         const preFieldsetTitle = preFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
@@ -1527,7 +1532,7 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
 
     //次の項目を有効化とガイドを更新
     displayNextFieldset(fromFieldset, fromNextBtnIdx);
-    enableNextGuide();
+    updateGuide(fromFieldset);
 
     //各入力欄に処理
     const currentIdx = inputsField.reqFieldsets.length - 1;

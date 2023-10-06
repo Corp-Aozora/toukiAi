@@ -143,7 +143,7 @@ def step_one(request):
         spouse_form_internal_field_name = ["spouse_decedent", "spouse_content_type", "spouse_object_id", "spouse_is_heir"]
         child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
         ascendant_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
-        ascendants_relation = ["父", "父方の祖父", "父方の祖母", "母", "母方の祖父", "母方の祖母"]
+        ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
     
     prefectures = []
     for p in PREFECTURES:

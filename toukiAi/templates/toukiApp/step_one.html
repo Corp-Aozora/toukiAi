@@ -695,7 +695,7 @@
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            死亡時に配偶者がいましたか？
+                                                            死亡時に配偶者はいましたか？
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -708,6 +708,29 @@
                                                         <div class="form-check col">
                                                             <label class="form-check-label">
                                                                 <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                                いいえ・逝去していた
+                                                            </label>
+                                                        </div>
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            配偶者は被相続人の母ですか？
+                                                        </span>
+                                                    </div>
+                                                    <div class="form-control input-group">
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label ms-5">
+                                                                <input id="id_{{form.prefix}}-is_remarriage_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_remarriage">
+                                                                はい
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label">
+                                                                <input id="id_{{form.prefix}}-is_remarriage_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_remarriage">
                                                                 いいえ
                                                             </label>
                                                         </div>
@@ -745,11 +768,11 @@
                                                         </span>
                                                     </div>
                                                     <div class="input-group">
-                                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true"  tabindex="41">
+                                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true">
                                                             －
                                                         </button>
                                                         <input id="id_{{form.prefix}}-child_count" type="number" class="form-control text-center no-spin" name="{{form.prefix}}-child_count" value="0">
-                                                        <button type="button" class="btn btn-outline-secondary increaseBtn" tabindex="43">
+                                                        <button type="button" class="btn btn-outline-secondary increaseBtn">
                                                             ＋
                                                         </button>
                                                         <span class="errorMessage rbEmPosition" style="display: none;">

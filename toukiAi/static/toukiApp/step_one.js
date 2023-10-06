@@ -637,9 +637,10 @@ class SpouseRbHandler extends CommonRbHandler{
         name:{form: 0, input: 0},
         isExist:{form: 1, input: [1, 2]},
         isLive:{form: 2, input: [3, 4]},
-        isStepChild:{form: 3, input: [5, 6]},
-        isRefuse:{form: 4, input: [7, 8]},
-        isJapan:{form: 5, input: [9, 10]},
+        isSpouse:{form: 3, input: [5, 6]},
+        isStepChild:{form: 4, input: [7, 8]},
+        isRefuse:{form: 5, input: [9, 10]},
+        isJapan:{form: 6, input: [11, 12]},
     }
 
     static handleYesNo(rbIdx, yesIdx, yesAction, noAction){
@@ -666,7 +667,7 @@ class SpouseRbHandler extends CommonRbHandler{
                 reqInputs[this.idxs.name.input].value = "";
                 reqInputs[this.idxs.name.input].disabled = true;
                 //3問目以降の質問を全て非表示にして値を初期化する
-                const rbIdxArr = this.idxs.isLive.input.concat(this.idxs.isStepChild.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isJapan.input);
+                const rbIdxArr = this.idxs.isLive.input.concat(this.idxs.isSpouse.input).concat(this.idxs.isStepChild.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isJapan.input);
                 initializeQs(Qs, this.idxs.isLive.form, this.idxs.isJapan.form, rbIdxArr);
             }
         )
@@ -676,33 +677,58 @@ class SpouseRbHandler extends CommonRbHandler{
     static isLive(rbIdx, Qs, nextBtn){
         this.handleYesNo(rbIdx, this.idxs.isLive.input[yes],
             ()=>{
-                //エラー要素に日本在住trueを追加して次へボタンを無効化/連れ子欄の非表示と値の初期化/相続放棄欄を表示
+                //エラー要素に日本在住trueを追加して次へボタンを無効化/被相続人以外の子欄の非表示と値の初期化/相続放棄欄を表示
+                const rbIdx = this.idxs.isSpouse.input.concat(this.idxs.isStepChild.input)
                 changeCourse(
                     reqInputs[this.idxs.isJapan.input[yes]], nextBtn,
-                    Qs, this.idxs.isStepChild.form, this.idxs.isStepChild.form, this.idxs.isStepChild.input, null,
+                    Qs, this.idxs.isSpouse.form, this.idxs.isStepChild.form, rbIdx, null,
                     Qs[this.idxs.isRefuse.form], null
                 )
             },
             ()=>{
-                //連れご覧のエラーメッセージを非表示
-                inputsField.errMsgEls[this.idxs.isStepChild.form].style.display = hidden;
-                inputsField.errMsgEls[this.idxs.isStepChild.form].innerHTML = "";
+                //被相続人以外の子のエラーメッセージを非表示
+                inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = hidden;
+                inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "";
                 const rbIdxArr = this.idxs.isRefuse.input.concat(this.idxs.isJapan.input);
-                //エラー要素に連れ子falseを追加して次へボタンを無効化/相続放棄欄以降の非表示と値の初期化/連れ子欄を表示
+                //エラー要素に被相続人以外の子falseを追加して次へボタンを無効化/相続放棄欄以降の非表示と値の初期化/被相続人以外の子欄を表示
                 changeCourse(
                     reqInputs[this.idxs.isStepChild.input[no]], nextBtn,
                     Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxArr, null,
-                    Qs[this.idxs.isStepChild.form], null
+                    Qs[this.idxs.isSpouse.form], null
                 )
             }
         )
     }
 
-    //連れ子
+    //配偶者存在
+    static isSpouse(rbIdx, Qs, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isSpouse.input[yes],
+            ()=>{
+                //エラー要素に被相続人以外の子falseを追加して次へボタンを無効化
+                pushInvalidEl(reqInputs[this.idxs.isStepChild.input[no]], nextBtn);
+                initializeQs(Qs, this.idxs.isStepChild.form, this.idxs.isStepChild.form, this.idxs.isStepChild.input);
+                //システム対応外であることを表示する
+                inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = display;
+                inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "本システムでは対応できません";
+
+            },
+            ()=>{
+                //エラーを非表示にする
+                inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = hidden;
+                inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "";
+                inputsField.errMsgEls[this.idxs.isStepChild.form].style.display = hidden;
+                inputsField.errMsgEls[this.idxs.isStepChild.form].innerHTML = "";
+                //被相続人以外の子を表示する
+                slideDownElIfHidden(Qs[this.idxs.isStepChild.form], nextBtn);
+            }
+        )
+    }
+
+    //被相続人以外の子を表示する
     static isStepChild(rbIdx, nextBtn){
         this.handleYesNo(rbIdx, this.idxs.isStepChild.input[yes],
             ()=>{
-                //エラー要素に連れ子falseを追加して次へボタンを無効化
+                //エラー要素に被相続人以外の子をfalseを追加して次へボタンを無効化
                 pushInvalidEl(reqInputs[this.idxs.isStepChild.input[no]], nextBtn);
                 //システム対応外であることを表示する
                 inputsField.errMsgEls[this.idxs.isStepChild.form].style.display = display;
@@ -713,7 +739,7 @@ class SpouseRbHandler extends CommonRbHandler{
                 inputsField.errMsgEls[this.idxs.isStepChild.form].style.display = hidden;
                 inputsField.errMsgEls[this.idxs.isStepChild.form].innerHTML = "";
                 //名前が入力されているときは次へボタンを有効化する
-                validateBeforeEnableNextBtn(reqInputs[this.idxs.name.input], nextBtn)
+                validateBeforeEnableNextBtn(reqInputs[this.idxs.name.input], nextBtn);
             }
         )
     }
@@ -745,15 +771,18 @@ function setSpouseRbsEvent(rbIdx, Qs, nextBtn){
     const nameIdx = 0;
     const isExistIdx = [1, 2];
     const isLiveIdx = [3, 4];
-    const isStepChildIdx = [5, 6];
-    const isRefuseIdx = [7, 8];
-    const isJapanIdx = [9, 10];
+    const isSpouseIdx = [5, 6];
+    const isStepChildIdx = [7, 8];
+    const isRefuseIdx = [9, 10];
+    const isJapanIdx = [11, 12];
 
     //相続時存在
     if(isExistIdx.includes(rbIdx)) SpouseRbHandler.isExist(rbIdx, Qs, nextBtn);
     //手続時存在
     else if(isLiveIdx.includes(rbIdx)) SpouseRbHandler.isLive(rbIdx, Qs, nextBtn);
-    //連れ子
+    //配偶者存在
+    else if(isSpouseIdx.includes(rbIdx)) SpouseRbHandler.isSpouse(rbIdx, Qs, nextBtn);
+    //被相続人以外の子存在
     else if(isStepChildIdx.includes(rbIdx)) SpouseRbHandler.isStepChild(rbIdx, nextBtn);
     //相続放棄
     else if(isRefuseIdx.includes(rbIdx)) SpouseRbHandler.isRefuse(rbIdx, Qs, nextBtn);

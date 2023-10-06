@@ -171,16 +171,12 @@ class StepOneAscendantForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        tabindex = children_max_index
         
         for field in self.base_fields.values():
             field.required = False
 
-            tabindex += 1
             if field.label in ["被相続人", "子", "子id", "相続人"]:
                 continue
-            
-            field.widget.attrs.update({"tabindex": str(tabindex)})
             
             if field.label == "氏名":
                 field.widget.attrs.update({

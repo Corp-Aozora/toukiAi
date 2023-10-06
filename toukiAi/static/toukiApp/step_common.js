@@ -203,25 +203,17 @@ function buttonToElement(btn, target){
  * @param {number} index ボタン要素のインデックス
  */
 function toggleNextBtn(isValid, el, index){
-    
     //入力値が適切なとき
     if(isValid){
-
         //配列に取得
-        if(invalidEls.indexOf(el) !== -1)
-            invalidEls.push(el);
-    
+        if(invalidEls.indexOf(el) !== -1) invalidEls.push(el);
         //次へのボタンを無効化
         nextBtns[index].disabled = true;
-        
     }else{
-
         //配列から削除
         invalidEls = invalidEls.filter(x => x !== el);
-
         //次へボタンを有効化判別
-        if(invalidEls.length === 0)
-            nextBtns[index].disabled = false;
+        if(invalidEls.length === 0) nextBtns[index].disabled = false;
     }
 }
 
@@ -234,41 +226,32 @@ function toggleNextBtn(isValid, el, index){
  * @param {element} nextBtn 次へボタン
  */
 function afterValidation(isValid, messageEl, message, el, nextBtn){
-
     //入力値が適切なとき
     if(isValid){
-
         //エラーメッセージを隠す
         messageEl.style.display = hidden;
-
         //次へボタンを有効化判別
-        if(invalidEls.length === 0)
-            nextBtn.disabled = false;        
-        
+        if(invalidEls.length === 0) nextBtn.disabled = false;        
     }else{
-        
         //エラーメッセージを表示する
         messageEl.innerHTML = message;
         messageEl.style.display = display;
-        
         //配列に取得
         invalidEls.push(el);
-    
         //次へのボタンを無効化
         nextBtn.disabled = true;
-
         el.value = "";
     }
 }
 
 /**
  * ボタン要素のチェックを全てfalseにする
- * @param {element array} elArr 配列に格納されたボタン要素
- * @param {num} idxArr
+ * @param {element array} els 配列に格納されたボタン要素
+ * @param {num} idxs
  */
-function uncheckTargetElements(elArr, idxArr){
-    idxArr.forEach(idx => {
-        elArr[idx].checked = false;
+function uncheckTargetElements(els, idxs){
+    idxs.forEach(idx => {
+        els[idx].checked = false;
     });
 }
 

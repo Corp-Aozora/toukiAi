@@ -168,7 +168,7 @@ function updateCloneIdOrName(attribute, el, num){
 function updateCloneTabindex(el, addNum){
     const oldTabindex = el.getAttribute("tabindex");
     const newTabindex = parseInt(oldTabindex) + addNum;
-    el.setAttribute("tabindex", String(newTabindex));
+    el.setAttribute("tabindex", newTabindex);
 }
 
 /**
@@ -517,8 +517,7 @@ function oneStepBack(i){
  */
 function slideUpDisuseEls(elsArr, startIdx, endIdx){
     for(let i = startIdx; i < endIdx + 1; i++){
-        if(elsArr[i].style.display !== hidden)
-            slideUp(elsArr[i]);    
+        if(elsArr[i].style.display !== hidden) slideUp(elsArr[i]);    
     }
 }
 
@@ -527,8 +526,7 @@ function slideUpDisuseEls(elsArr, startIdx, endIdx){
  * @param {HTMLElement} el 対象の要素
  */
 function slideUpDisuseEl(el){
-    if(el.style.display !== hidden)
-        slideUp(el);    
+    if(el.style.display !== hidden) slideUp(el);    
 }
 
 /**
@@ -1097,7 +1095,7 @@ function setEnterKeyFocusNext(e, el){
  * @param {number} maxCount 設定の最大値
  */
 function handleCountBtn(isIncrease, idx, minCount, el, nextBtn, plusBtn, minusBtn, val, maxCount){
-    adjustChildCount(isIncrease, idx, minCount);
+    adjustChildCount(isIncrease, idx, (isIncrease ? maxCount:minCount));
     countCheck(el, idx, nextBtn);
     toggleCountBtn(plusBtn, minusBtn, val, minCount, maxCount);
 }
@@ -1119,7 +1117,7 @@ function setEventToCountInputAndButtons(el, idx, nextBtn, minCount, maxCount){
         toggleCountBtn(plusBtn, minusBtn, parseInt(e.target.value), minCount, maxCount);
     })
     reqInputs[idx].addEventListener("keydown",(e)=>{
-        handleNumInputKeyDown(e, nextBtn);
+        handleNumInputKeyDown(e, (idx === 2 ? reqInputs[idx + 1] : nextBtn));
     })
     reqInputs[idx].addEventListener("input", (e)=>{
         //３文字以上入力不可
@@ -1220,24 +1218,24 @@ class ChildrenRbHandler extends CommonRbHandler{
 
     //子供存在
     static isExist(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, idxs.isExist.input[yes],
+        this.handleYesNo(rbIdx, this.idxs.isExist.input[yes],
             //yesAction
             ()=>{
                 //エラー要素を初期化する
-                invalidEls = invalidEls.filter(x => x === reqInputs[idxs.isJapan.input[yes]])
-                pushInvalidEl(reqInputs[idxs.isJapan.input[yes]], nextBtn);
+                invalidEls = invalidEls.filter(x => x === reqInputs[this.idxs.isJapan.input[yes]])
+                pushInvalidEl(reqInputs[this.idxs.isJapan.input[yes]], nextBtn);
                 //人数入力欄を表示する
-                reqInputs[idxs.count.input].value = "1";
-                slideDown(Qs[idxs.count.form]);
-                slideDown(Qs[idxs.isSameParents.form]);
+                reqInputs[this.idxs.count.input].value = "1";
+                slideDown(Qs[this.idxs.count.form]);
+                slideDown(Qs[this.idxs.isSameParents.form]);
                 //子供いないフラグをfalseにする
                 isNoChild = false;
             },
             //noAction
             ()=>{
-                invalidEls.length = 0
-                const rbIdxArr = idxs.isSameParents.input.concat(idxs.isLive.input).concat(idxs.isRefuse.input).concat(idxs.isAdult.input).concat(idxs.isJapan.input);
-                initializeQs(Qs, idxs.count.form, idxs.isJapan.form, rbIdxArr, reqInputs[i]);
+                invalidEls.length = 0;
+                const rbIdxArr = this.idxs.isSameParents.input.concat(this.idxs.isLive.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
+                initializeQs(Qs, this.idxs.count.form, this.idxs.isJapan.form, rbIdxArr, reqInputs[rbIdx]);
                 //次へボタンを有効化して子供なしフラグをtrueにする
                 nextBtn.disabled = false;
                 isNoChild = true;
@@ -1252,30 +1250,30 @@ class ChildrenRbHandler extends CommonRbHandler{
 
     //手続時存在
     static isLive(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, idxs.isLive.input[yes],
+        this.handleYesNo(rbIdx, this.idxs.isLive.input[yes],
             ()=>{
                 //エラー要素を追加して次の質問を表示する
-                pushInvalidElAndSDIfHidden(reqInputs[idxs.isJapan.input[yes]], nextBtn, Qs[idxs.isRefuse.form]);
+                pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isJapan.input[yes]], nextBtn, Qs[this.idxs.isRefuse.form]);
             },
             ()=>{
                 //人数欄をチェックしてエラーが無ければ次へボタンを有効化する
-                const rbIdxArr = idxs.isRefuse.input.concat(idxs.isAdult.input).concat(idxs.isJapan.input);
-                breakQ(reqInputs[idxs.count.input], Qs, idxs.isRefuse.form, idxs.isJapan.form, rbIdxArr, nextBtn);
+                const rbIdxArr = this.idxs.isRefuse.input.concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
+                breakQ(reqInputs[this.idxs.count.input], Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxArr, nextBtn);
             }
         )
     }
 
     //相続放棄
     static isRefuse(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, idxs.isRefuse.input[yes], 
+        this.handleYesNo(rbIdx, this.idxs.isRefuse.input[yes], 
             ()=>{
                 //人数欄をチェックしてエラーが無ければ次へボタンを有効化する
-                const rbIdxArr = idxs.isAdult.input.concat(idxs.isJapan.input);
-                breakQ(reqInputs[idxs.count.input], Qs, idxs.isAdult.form, idxs.isJapan.form, rbIdxArr, nextBtn);
+                const rbIdxArr = this.idxs.isAdult.input.concat(this.idxs.isJapan.input);
+                breakQ(reqInputs[this.idxs.count.input], Qs, this.idxs.isAdult.form, this.idxs.isJapan.form, rbIdxArr, nextBtn);
             },
             ()=>{
                 //エラー要素を追加して次の質問を表示する
-                pushInvalidElAndSDIfHidden(reqInputs[idxs.isJapan.input[yes]], nextBtn, Qs[idxs.isAdult.form]);
+                pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isJapan.input[yes]], nextBtn, Qs[this.idxs.isAdult.form]);
             }
         )
     }
@@ -1286,7 +1284,12 @@ class ChildrenRbHandler extends CommonRbHandler{
     }
 }
 
-
+/**
+ * 子供欄のラジオボタンのイベントを設定する
+ * @param {number} rbIdx ラジオボタンのインデックス
+ * @param {HTMLElement[]} Qs 全質問欄
+ * @param {HTMLElement} nextBtn 次へボタン
+ */
 function setChildrenRbsEvent(rbIdx, Qs, nextBtn){
     const idxs = {
         isExist:{ form: 0, input: [0, 1] },
@@ -1321,9 +1324,10 @@ function setChildrenRbsEvent(rbIdx, Qs, nextBtn){
  */
 function setEventToGroupFieldset(i, fieldset, Qs, nextBtn){
 
-    const countFormIdx = 1;
     //人数欄
-    if(i === countFormIdx){
+    const countInputIdx = 2;
+    if(i === countInputIdx){
+        const countFormIdx = 1;
         const countForm = Qs[countFormIdx]; 
         setEventToCountInputAndButtons(countForm, i, nextBtn, 1, 15);
 
@@ -1444,12 +1448,36 @@ function updateAscendantTitle(fieldsets, preFieldset){
 }
 
 /**
+ * 引数で渡すフィールドセット内にあるinputとbutton要素にタブインデックスを設定する
+ * @param {HTMLElement[]} fieldsets タブインデックスを設定する要素があるフィールドセット
+ */
+function updateTabindex(fieldsets){
+    const lastNextBtn = inputsField.nextBtns[inputsField.nextBtns.length - 1];
+    const newTabindex = parseInt(lastNextBtn.getAttribute("tabindex")) + 1;
+    //ループ処理をしてタブインデックスを設定する
+    for(let i = 0; i < fieldsets.length; i++){
+        const inputs = Array.from(fieldsets[i].getElementsByTagName("input"));
+        const buttons = Array.from(fieldsets[i].getElementsByTagName("button"));
+        const beforeCountInputIdx = 13;
+        const afterCountInputIdx = 15;
+        
+        inputs.splice(beforeCountInputIdx, 0, buttons.shift());
+        inputs.splice(afterCountInputIdx, 0, buttons.shift());
+
+        const els = inputs.concat(buttons);
+        for(let j = 0; j < els.length; j++){
+            els[j].setAttribute("tabindex", (newTabindex + j));
+        }
+    }
+}
+
+/**
  * 必要なフィールドセットを生成などする
  * @param {HTMLElement} fieldset 押された次へボタンがあるフィールドセット
  */
 function adjustFieldset(fieldset){
-    if(fieldset.id === "childrenFielset"){
-        //子が２人以上いるとき、フォームを複製する
+    //子の欄の調整
+    if(fieldset.id === "childrenFieldset" && !isNoChild){
         const childCountInputIdx = 2;
         const oldTotalForms = document.getElementById(`id_child-TOTAL_FORMS`);
         const oldFormCount = parseInt(oldTotalForms.value);
@@ -1472,10 +1500,14 @@ function adjustFieldset(fieldset){
         const forms = getForms("child");
         childrenData = reflectData(fromNextBtnIdx, "children", forms);
 
-    }else if(fieldset.id === "id_ascendant-0-fieldset"){
-        //父欄のとき、タイトルを変更する
-        const ascendantFieldsets = document.getElementsByClassName("ascendantField");
+    }else if(fieldset.id === "childrenFieldset" && isNoChild){
+        //父欄のとき
+        //尊属欄のタイトルを設定
+        const ascendantFieldsets = document.getElementsByClassName("ascendantFieldset");
         updateAscendantTitle(ascendantFieldsets, fieldset)
+        //父母欄のタブインデックスを設定
+        const parentsFieldsets = [ascendantFieldsets[0], ascendantFieldsets[1]];
+        updateTabindex(parentsFieldsets);
     }
 }
 
@@ -1487,7 +1519,7 @@ function adjustFieldset(fieldset){
 function oneStepFoward(fromNextBtnIdx, isIndivisual){
     
     //次のフォームを生成、タイトル変更、属性変更など有効化前の処理
-    const fromFieldset = inputsField.reqFieldsets[inputsField.reqFieldsets - 1];
+    const fromFieldset = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1];
     if(fromFieldset) adjustFieldset(fromFieldset);
 
     //次の項目を有効化とガイドを更新

@@ -58,6 +58,8 @@ let oneStepFowardHandler;
 //子供なしフラグ
 let isNoChild = false;
 let isNoCollateral = false;
+//両親の数次相続フラグ
+let isParentsInheritance = false;
 //子供データ
 let childrenData;
 
@@ -550,31 +552,6 @@ function pushInvalidEl(el, btn = null){
 }
 
 /**
- * 複数の質問欄を非表示にして値を初期化する
- * @param {HTMLElement} QsArr 連続する質問欄
- * @param {number} startIdx 非表示を開始する質問欄のインデックス
- * @param {number} endIdx 非表示を終了する質問欄のインデックス
- * @param {number} rbIdxArr 初期化するラジオボタンの配列
- * @param {HTMLElement} textInput 人数テキストボックスの初期化
- */
-function initializeQs(QsArr, startIdx, endIdx, rbIdxArr, textInput = null){
-    uncheckTargetElements(reqInputs, rbIdxArr);
-    if(textInput !== null)
-        textInput.value = "0";
-    slideUpDisuseEls(QsArr, startIdx, endIdx);
-}
-
-/**
- * 入力事項をチェックして次へボタンを有効化するか判別する
- * @param {HTMLElement} el チェック対象の要素
- * @param {HTMLElement} btn 有効化するボタン
- */
-function validateBeforeEnableNextBtn(el, btn){
-    invalidEls = invalidEls.filter(x => x === el);
-    if(invalidEls.length === 0) btn.disabled = false;
-}
-
-/**
  * 非表示のとき対象の要素を表示する
  * @param {HTMLElement} el 表示する要素
  */
@@ -626,12 +603,58 @@ function changeCourse(...args){
 }
 
 /**
+ * 連番の数字を配列に入れて返す
+ * @param {number} startIdx 配列に格納する最初の数字
+ * @param {number} endIdx 配列に格納する最後の数字
+ */
+function getSequentialNumArr(startIdx, endIdx){
+    return Array.from({length: endIdx - startIdx + 1}, (_, i) => startIdx + i);
+}
+
+/**
+ * 複数の質問欄を非表示にして値を初期化する
+ * @param {HTMLElement} QsArr 連続する質問欄
+ * @param {number} startIdx 非表示を開始する質問欄のインデックス
+ * @param {number} endIdx 非表示を終了する質問欄のインデックス
+ * @param {number} rbIdxs 初期化するラジオボタンの配列
+ * @param {HTMLElement} textInput 人数テキストボックスの初期化
+ */
+function initializeQs(QsArr, startIdx, endIdx, rbIdxs, textInput = null){
+    uncheckTargetElements(reqInputs, rbIdxs);
+    if(textInput !== null)
+        textInput.value = "0";
+    slideUpDisuseEls(QsArr, startIdx, endIdx);
+}
+
+/**
+ * 質問を途中で終了して次へボタンの有効化判別をする
+ * @param {HTMLElement} checkEl 次へボタン有効化前にチェックするエラー要素
+ * @param {HTMLElement} nextBtn 次へボタン
+ * @param {HTMLElement[]} Qs 全質問要素
+ * @param {number} iniStartIdx 初期化を開始する質問のインデックス
+ * @param {number} iniEndIdx 初期化を終了する質問のインデックス
+ * @param {number[]} iniRbIdxs 初期化するラジオボタンのインデックス
+ * @param {HTMLElement} textInput テキスト要素（必要なときだけ）
+ */
+function breakQ(checkEl, nextBtn, Qs = null, iniStartIdx = null, iniEndIdx = null, iniRbIdxs = null, textInput = null){
+    invalidEls = invalidEls.filter(x => x === checkEl);
+    if(invalidEls.length === 0) nextBtn.disabled = false;
+    if(Qs) initializeQs(Qs, iniStartIdx, iniEndIdx, iniRbIdxs, textInput);
+}
+
+/**
  * 共通のラジオボタンイベントハンドラー
  */
 class CommonRbHandler{
+    //true又はfalseに応じた処理を行う
+    static handleYesNo(rbIdx, yesIdx, yesAction, noAction){
+        if(rbIdx === yesIdx) yesAction();
+        else noAction();
+    }
+
     //日本在住
     static isJapan(idx, btn){
-        validateBeforeEnableNextBtn(reqInputs[idx], btn);
+        breakQ(reqInputs[idx], btn);
     }
 }
 
@@ -647,11 +670,6 @@ class SpouseRbHandler extends CommonRbHandler{
         isStepChild:{form: 4, input: [7, 8]},
         isRefuse:{form: 5, input: [9, 10]},
         isJapan:{form: 6, input: [11, 12]},
-    }
-
-    static handleYesNo(rbIdx, yesIdx, yesAction, noAction){
-        if(rbIdx === yesIdx) yesAction();
-        else noAction();
     }
 
     //相続時存在
@@ -673,8 +691,8 @@ class SpouseRbHandler extends CommonRbHandler{
                 reqInputs[this.idxs.name.input].value = "";
                 reqInputs[this.idxs.name.input].disabled = true;
                 //3問目以降の質問を全て非表示にして値を初期化する
-                const rbIdxArr = this.idxs.isLive.input.concat(this.idxs.isSpouse.input).concat(this.idxs.isStepChild.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isJapan.input);
-                initializeQs(Qs, this.idxs.isLive.form, this.idxs.isJapan.form, rbIdxArr);
+                const rbIdxs = getSequentialNumArr(this.idxs.isLive.input[yes], this.idxs.isJapan.input[no])
+                initializeQs(Qs, this.idxs.isLive.form, this.idxs.isJapan.form, rbIdxs);
             }
         )
     }
@@ -684,7 +702,7 @@ class SpouseRbHandler extends CommonRbHandler{
         this.handleYesNo(rbIdx, this.idxs.isLive.input[yes],
             ()=>{
                 //エラー要素に日本在住trueを追加して次へボタンを無効化/被相続人以外の子欄の非表示と値の初期化/相続放棄欄を表示
-                const rbIdx = this.idxs.isSpouse.input.concat(this.idxs.isStepChild.input)
+                const rbIdx = getSequentialNumArr(this.idxs.isSpouse.input[yes], this.idxs.isStepChild[no]);
                 changeCourse(
                     reqInputs[this.idxs.isJapan.input[yes]], nextBtn,
                     Qs, this.idxs.isSpouse.form, this.idxs.isStepChild.form, rbIdx, null,
@@ -695,11 +713,11 @@ class SpouseRbHandler extends CommonRbHandler{
                 //被相続人以外の子のエラーメッセージを非表示
                 inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = hidden;
                 inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "";
-                const rbIdxArr = this.idxs.isRefuse.input.concat(this.idxs.isJapan.input);
+                const rbIdxs = getSequentialNumArr(this.idxs.isRefuse.input[yes], this.idxs.isJapan.input[no]);
                 //エラー要素に被相続人以外の子falseを追加して次へボタンを無効化/相続放棄欄以降の非表示と値の初期化/被相続人以外の子欄を表示
                 changeCourse(
                     reqInputs[this.idxs.isStepChild.input[no]], nextBtn,
-                    Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxArr, null,
+                    Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxs, null,
                     Qs[this.idxs.isSpouse.form], null
                 )
             }
@@ -745,7 +763,7 @@ class SpouseRbHandler extends CommonRbHandler{
                 inputsField.errMsgEls[this.idxs.isStepChild.form].style.display = hidden;
                 inputsField.errMsgEls[this.idxs.isStepChild.form].innerHTML = "";
                 //名前が入力されているときは次へボタンを有効化する
-                validateBeforeEnableNextBtn(reqInputs[this.idxs.name.input], nextBtn);
+                breakQ(reqInputs[this.idxs.name.input], nextBtn);
             }
         )
     }
@@ -754,10 +772,8 @@ class SpouseRbHandler extends CommonRbHandler{
     static isRefuse(rbIdx, Qs, nextBtn){
         this.handleYesNo(rbIdx, this.idxs.isRefuse.input[yes],
             ()=>{
-                //氏名が入力されているときは次へボタンを有効化する
-                validateBeforeEnableNextBtn(reqInputs[this.idxs.name.input], nextBtn);
-                //日本在住を非表示にして値を初期化
-                initializeQs(Qs, this.idxs.isJapan.form, this.idxs.isJapan.form, this.idxs.isJapan.input);
+                //氏名が入力されているときは次へボタンを有効化する、日本在住を非表示にして値を初期化
+                breakQ(reqInputs[this.idxs.name.input], nextBtn, Qs, this.idxs.isJapan.form, this.idxs.isJapan.form, this.idxs.isJapan.input);
             },
             ()=>{
                 //日本在住trueをエラー要素を追加して次へボタンを無効化、日本在住欄を表示する
@@ -813,11 +829,6 @@ class ChildRbHandler extends CommonRbHandler{
         isJapan:{form: 9, input: [16, 17]},
     }
 
-    static handleYesNo(rbIdx, yesIdx, yesAction, noAction){
-        if(rbIdx === yesIdx) yesAction();
-        else noAction();
-    }
-
     //同じ配偶者
     static isSameSpouse(Qs){
         //手続時存在欄が表示されてないとき表示する
@@ -842,8 +853,8 @@ class ChildRbHandler extends CommonRbHandler{
 
     //手続時存在
     static isLive(rbIdx, Qs, nextBtn){
-        const rbIdxArr = rbIdx === this.idxs.isLive.input[yes] ? 
-            this.idxs.isExist.input.concat(this.idxs.isRefuse.input).concat(this.idxs.isSpouse.input).concat(this.idxs.isChild.input):
+        const rbIdxs = rbIdx === this.idxs.isLive.input[yes] ? 
+            getSequentialNumArr(this.idxs.isExist.input[yes], this.idxs.isChild.input[no]):
             this.idxs.isRefuse.input.concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
         this.handleYesNo(rbIdx, this.idxs.isLive.input[yes],
             ()=>{
@@ -851,7 +862,7 @@ class ChildRbHandler extends CommonRbHandler{
                 //エラーが削除されているとき、日本在住trueボタンをエラー要素を追加して次へボタンを無効化する/falseのときに表示する欄を非表示にして入力値とボタンを初期化/相続放棄欄を表示する
                 changeCourse(
                     reqInputs[this.idxs.isJapan.input[yes]], nextBtn,
-                    Qs, this.idxs.isExist.form, this.idxs.childCount.form, rbIdxArr, Qs[this.idxs.childCount.form],
+                    Qs, this.idxs.isExist.form, this.idxs.childCount.form, rbIdxs, Qs[this.idxs.childCount.form],
                     Qs[this.idxs.isRefuse.form], null
                 )
             },
@@ -861,7 +872,7 @@ class ChildRbHandler extends CommonRbHandler{
                 //相続放棄欄、成人欄、日本在住欄を非表示かつボタンを初期化/相続時存在欄を表示する
                 changeCourse(
                     reqInputs[this.idxs.childCount.input], nextBtn,
-                    Qs, this.idxs.isAdult.form, this.idxs.isJapan.form, rbIdxArr, null,
+                    Qs, this.idxs.isAdult.form, this.idxs.isJapan.form, rbIdxs, null,
                     Qs[this.idxs.isExist.form], null
                 )
             }
@@ -883,10 +894,10 @@ class ChildRbHandler extends CommonRbHandler{
             },
             ()=>{
                 //trueのときに表示する欄を非表示にして値とボタンを初期化/子の存在確認欄を表示
-                const rbIdxArr = this.idxs.isRefuse.input.concat(this.idxs.isSpouse.input).concat(this.idxs.isChild.input);
+                const rbIdxs = getSequentialNumArr(this.idxs.isRefuse.input[yes], this.idxs.isChild.input[no]);
                 changeCourse(
                     null, null,
-                    Qs, this.idxs.isRefuse.form, this.idxs.childCount.form, rbIdxArr, reqInputs[this.idxs.childCount.input],
+                    Qs, this.idxs.isRefuse.form, this.idxs.childCount.form, rbIdxs, reqInputs[this.idxs.childCount.input],
                     Qs[this.idxs.isChild.form], null
                 )
             }
@@ -897,11 +908,9 @@ class ChildRbHandler extends CommonRbHandler{
     static isRefuse(rbIdx, Qs, nextBtn){
         this.handleYesNo(rbIdx, this.idxs.isRefuse.input[yes],
             ()=>{
-                //氏名欄にエラーがないときは次へボタンを有効化する
-                validateBeforeEnableNextBtn(reqInputs[this.idxs.name.input], nextBtn);
-                //falseのときに表示する欄を非表示にして値とボタンを初期化
-                const rbIdxArr = this.idxs.isSpouse.input.concat(this.idxs.isChild.input).concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
-                initializeQs(Qs, this.idxs.isSpouse.form, this.idxs.isJapan.form, rbIdxArr, reqInputs[this.idxs.childCount.input])
+                //氏名欄にエラーがないときは次へボタンを有効化する、falseのときに表示する欄を非表示にして値とボタンを初期化
+                const rbIdxs = this.idxs.isSpouse.input.concat(this.idxs.isChild.input).concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
+                breakQ(reqInputs[this.idxs.name.input], nextBtn, Qs, this.idxs.isSpouse.form, this.idxs.isJapan.form, rbIdxs, reqInputs[this.idxs.childCount.input]);
             },
             ()=>{
                 //手続時存在trueのとき
@@ -936,7 +945,7 @@ class ChildRbHandler extends CommonRbHandler{
             }
         )
         //子供の人数欄をエラー要素に追加して次へボタンを無効化、子の人数欄を表示
-        validateBeforeEnableNextBtn(reqInputs[this.idxs.name.input], nextBtn);
+        breakQ(reqInputs[this.idxs.name.input], nextBtn);
         slideUp(Qs[this.idxs.childCount.form]);
     }
 
@@ -988,6 +997,192 @@ function setChildRbsEvent(rbIdx, Qs, nextBtn){
     else if(idxs.isAdult.input.includes(rbIdx)) ChildRbHandler.isAdult(Qs[idxs.isJapan.form]);
     //日本在住欄
     else if(idxs.isJapan.input.includes(rbIdx)) ChildRbHandler.isJapan(idxs.name.input, nextBtn);
+}
+
+/**
+ * 尊属のラジオボタンのイベントハンドラー
+ */
+class AscendantRbHandler extends CommonRbHandler{
+    static idxs = {
+        name:{form: 0, input: 0},
+        isLive:{form: 1, input: [1, 2]},
+        isExist:{form: 2, input: [3, 4]},
+        isRefuse:{form: 3, input: [5, 6]},
+        isSpouse:{form: 4, input: [7, 8]},
+        isRemarriage:{form: 5, input: [9, 10]},
+        isChild:{form: 6, input: [11, 12]},
+        isJapan:{form: 7, input: [13, 14]},
+    }
+
+    //手続時存在
+    static isLive(rbIdx, Qs, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isLive.input[yes],
+            ()=>{
+                //yesAction
+                //エラー要素に日本在住trueを追加して次へボタンを無効化/falseのときに表示した質問と値の初期化/相続放棄欄を表示
+                const rbIdx = getSequentialNumArr(this.idxs.isExist.input[yes], this.idxs.isChild.input[no]);
+                changeCourse(
+                    reqInputs[this.idxs.isJapan.input[yes]], nextBtn,
+                    Qs, this.idxs.isExist.form, this.idxs.isChild.form, rbIdx, null,
+                    Qs[this.idxs.isRefuse.form], null
+                )
+                isParentsInheritance = false;
+            },
+            ()=>{
+                //noAction
+                //エラー要素に被相続人以外の子を追加して次へボタンを無効化/相続放棄欄以降の非表示と値の初期化/配偶者存在欄を表示
+                const rbIdxs = this.idxs.isRefuse.input.concat(this.idxs.isJapan.input);
+                changeCourse(
+                    reqInputs[this.idxs.isChild.input[yes]], nextBtn,
+                    Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxs, null,
+                    Qs[this.idxs.isExist.form], null
+                )
+            }
+        )
+    }
+
+    //相続時存在
+    static isExist(rbIdx, Qs, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isExist.input[yes],
+            ()=>{
+                //エラー要素に被相続人以外の子欄を追加して次へボタンを無効にする、相続放棄を表示する
+                pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isChild.input[yes]], nextBtn, Qs[this.idxs.isRefuse.form]);
+            }
+            ,()=>{
+                //氏名以外のエラー要素を全て削除して氏名が入力されているときは次へボタンを有効にする、trueで表示した質問を全て非表示にして値を初期化する
+                const rbIdxs = getSequentialNumArr(this.idxs.isRefuse.input[yes], this.idxs.isChild.input[no]);
+                breakQ(reqInputs[this.idxs.name.input], nextBtn, Qs, this.idxs.isRefuse.form, this.idxs.isChild.form, rbIdxs);
+                isParentsInheritance = false;
+            }
+        )
+    }
+
+    //相続放棄
+    static isRefuse(rbIdx, Qs, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isRefuse.input[yes],
+            ()=>{
+                //氏名が入力されているときは次へボタンを有効化する、falseで表示する質問を全て非表示にして値を初期化
+                const rbIdxs = getSequentialNumArr(this.idxs.isSpouse.input[yes], this.idxs.isJapan.input[no]);
+                breakQ(reqInputs[this.idxs.name.input], nextBtn, Qs, this.idxs.isSpouse.form, this.idxs.isJapan.form, rbIdxs);
+                isParentsInheritance = false;
+            },
+            ()=>{
+                //手続時生存trueのとき
+                if(reqInputs[this.idxs.isLive.input[yes]].checked){
+                    pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isJapan.input[yes]], nextBtn, Qs[this.idxs.isJapan.form]);
+                }else if(reqInputs[this.idxs.isExist.input[yes]].checked){
+                    //相続時生存trueのとき
+                    //日本在住trueをエラー要素を追加して次へボタンを無効化、日本在住欄を表示する
+                    pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isChild.input[yes]], nextBtn, Qs[this.idxs.isSpouse.form]);
+                    inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = hidden;
+                    inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "";           
+                }
+            }
+        )
+    }
+    
+    //配偶者存在
+    static isSpouse(rbIdx, Qs, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isSpouse.input[yes],
+            ()=>{
+                //エラー要素に子の存在trueを追加して次へボタンを無効化、falseで表示した質問を初期化、配偶者は母か確認欄を表示する
+                changeCourse(
+                    reqInputs[this.idxs.isChild.input[yes]], nextBtn,
+                    Qs, this.idxs.isChild.form, this.idxs.isChild.form, this.idxs.isChild.input, null,
+                    Qs[this.idxs.isRemarriage.form], null
+                )
+                //配偶者は母か確認欄のエラーメッセージを初期化する
+                inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = hidden;
+                inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "";
+            },
+            ()=>{
+                //エラー要素に子の存在trueを追加して次へボタンを無効化、trueで表示した質問を初期化、被相続人以外の子の欄を表示する
+                const rbIdxs = getSequentialNumArr(this.idxs.isRemarriage.input[yes], this.idxs.isChild.input[no]);
+                changeCourse(
+                    reqInputs[this.idxs.isChild.input[yes]], nextBtn,
+                    Qs, this.idxs.isRemarriage.form, this.idxs.isChild.form, rbIdxs, null,
+                    Qs[this.idxs.isChild.form], null
+                )
+                //エラーを非表示にする
+                inputsField.errMsgEls[this.idxs.isChild.form].style.display = hidden;
+                inputsField.errMsgEls[this.idxs.isChild.form].innerHTML = "";
+            }
+        )
+    }
+
+    //配偶者と母が同じを表示する
+    static isRemarriage(rbIdx, Qs, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isRemarriage.input[yes],
+            ()=>{
+                //エラー要素に被相続人以外の子をfalseを追加して次へボタンを無効化
+                slideDown(Qs[this.idxs.isChild.form]);
+                //エラーを非表示にする
+                inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = hidden;
+                inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "";
+            },
+            ()=>{
+                //システム対応外であることを表示する
+                inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = display;
+                inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "本システムでは対応できません";
+                //エラー要素として被相続人以外の子trueを追加してボタンを無効化する、被相続人以外の子を初期化する
+                pushInvalidEl(reqInputs[this.idxs.isChild.input[yes]], nextBtn);
+                initializeQs(Qs, this.idxs.isChild.form, this.idxs.isChild.form, this.idxs.isChild.input);
+            }
+        )
+    }
+
+    //被相続人以外の子を表示する
+    static isChild(rbIdx, nextBtn){
+        this.handleYesNo(rbIdx, this.idxs.isChild.input[yes],
+            ()=>{
+                //氏名が適切に入力されているかチェックして次へボタンを有効化判別
+                breakQ(reqInputs[this.idxs.name.input], nextBtn);
+                //エラーメッセージを非表示にする
+                inputsField.errMsgEls[this.idxs.isChild.form].innerHTML = "";
+                inputsField.errMsgEls[this.idxs.isChild.form].style.display = hidden;
+                isParentsInheritance = true;
+            },
+            ()=>{
+                //エラーを表示する
+                inputsField.errMsgEls[this.idxs.isChild.form].innerHTML = "本システムでは対応できません";
+                inputsField.errMsgEls[this.idxs.isChild.form].style.display = display;
+                //trueをエラー要素に追加して次へボタンを無効化する
+                pushInvalidEl(reqInputs[this.idxs.isChild.input[yes]], nextBtn);
+            }
+        )
+    }
+}
+
+/**
+ * 配偶者項目を表示する
+ * @param {number} rbIdx 押された次へボタンのインデックス
+ * @param {HTMLElement[]} Qs 対象の項目の質問欄
+ * @param {HTMLElement} nextBtn 次へボタン
+ */
+function setAscendantRbsEvent(rbIdx, Qs, nextBtn){
+    const nameIdx = 0;
+    const isLiveIdx = [1, 2];
+    const isExistIdx = [3, 4];
+    const isRefuseIdx = [5, 6];
+    const isSpouseIdx = [7, 8];
+    const isRemarriageIdx = [9, 10];
+    const isChildIdx = [11, 12];
+    const isJapanIdx = [13, 14];
+
+    //手続時存在
+    if(isLiveIdx.includes(rbIdx)) AscendantRbHandler.isLive(rbIdx, Qs, nextBtn);
+    //相続時存在
+    else if(isExistIdx.includes(rbIdx)) AscendantRbHandler.isExist(rbIdx, Qs, nextBtn);
+    //相続放棄
+    else if(isRefuseIdx.includes(rbIdx)) AscendantRbHandler.isRefuse(rbIdx, Qs, nextBtn);
+    //配偶者存在
+    else if(isSpouseIdx.includes(rbIdx)) AscendantRbHandler.isSpouse(rbIdx, Qs, nextBtn);
+    //配偶者と母は同じ
+    else if(isRemarriageIdx.includes(rbIdx)) AscendantRbHandler.isRemarriage(rbIdx, Qs, nextBtn);
+    //被相続人以外の子
+    else if(isChildIdx.includes(rbIdx)) AscendantRbHandler.isChild(rbIdx, nextBtn);
+    //日本在住
+    else AscendantRbHandler.isJapan(nameIdx, nextBtn);
 }
 
 /**
@@ -1181,28 +1376,18 @@ function setEventToIndivisualFieldset(i, fieldset, Qs, nextBtn){
 
                 //値変更
                 reqInputs[i].addEventListener("change",(e)=>{
-                    //子のラジオボタンイベントを設定
+                    //子専用のラジオボタンイベントを設定
                     setChildRbsEvent(i, Qs, nextBtn);
                 })
             }
+        }else if(fieldset.classList.contains("ascendantFieldset")){
+            //尊属の欄
+            reqInputs[i].addEventListener("change",(e)=>{
+                //ラジオボタンイベントを設定
+                setAscendantRbsEvent(i, Qs, nextBtn);
+            })
         }
     }
-}
-
-/**
- * 質問を途中で終了する場合
- * @param {HTMLElement} checkEl エラー要素
- * @param {HTMLElement[]} Qs 全質問要素
- * @param {number} iniStartIdx 初期化を開始する質問のインデックス
- * @param {number} iniEndIdx 初期化を終了する質問のインデックス
- * @param {number[]} iniRbIdxs 初期化するラジオボタンのインデックス
- * @param {HTMLElement} nextBtn 次へボタン
- * @param {HTMLElement} textInput テキスト要素（必要なときだけ）
- */
-function breakQ(checkEl, Qs, iniStartIdx, iniEndIdx, iniRbIdxs, nextBtn, textInput = null){
-    invalidEls = invalidEls.filter(x => x === checkEl);
-    initializeQs(Qs, iniStartIdx, iniEndIdx, iniRbIdxs, textInput);
-    if(invalidEls.length === 0) nextBtn.disabled = false;
 }
 
 /**
@@ -1217,11 +1402,6 @@ class ChildrenRbHandler extends CommonRbHandler{
         isRefuse:{ form: 4, input: [7, 8] },
         isAdult:{ form: 5, input: [9, 10] },
         isJapan:{ form: 6, input: [11, 12] },
-    }
-
-    static handleYesNo(rbIdx, yesIdx, yesAction, noAction){
-        if(rbIdx === yesIdx) yesAction();
-        else noAction();
     }
 
     //子供存在
@@ -1242,8 +1422,8 @@ class ChildrenRbHandler extends CommonRbHandler{
             //noAction
             ()=>{
                 invalidEls.length = 0;
-                const rbIdxArr = this.idxs.isSameParents.input.concat(this.idxs.isLive.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
-                initializeQs(Qs, this.idxs.count.form, this.idxs.isJapan.form, rbIdxArr, reqInputs[rbIdx]);
+                const rbIdxs = this.idxs.isSameParents.input.concat(this.idxs.isLive.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
+                initializeQs(Qs, this.idxs.count.form, this.idxs.isJapan.form, rbIdxs, reqInputs[rbIdx]);
                 //次へボタンを有効化して子供なしフラグをtrueにする
                 nextBtn.disabled = false;
                 isNoChild = true;
@@ -1265,8 +1445,8 @@ class ChildrenRbHandler extends CommonRbHandler{
             },
             ()=>{
                 //人数欄をチェックしてエラーが無ければ次へボタンを有効化する
-                const rbIdxArr = this.idxs.isRefuse.input.concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
-                breakQ(reqInputs[this.idxs.count.input], Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxArr, nextBtn);
+                const rbIdxs = this.idxs.isRefuse.input.concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
+                breakQ(reqInputs[this.idxs.count.input], nextBtn, Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxs);
             }
         )
     }
@@ -1276,8 +1456,8 @@ class ChildrenRbHandler extends CommonRbHandler{
         this.handleYesNo(rbIdx, this.idxs.isRefuse.input[yes], 
             ()=>{
                 //人数欄をチェックしてエラーが無ければ次へボタンを有効化する
-                const rbIdxArr = this.idxs.isAdult.input.concat(this.idxs.isJapan.input);
-                breakQ(reqInputs[this.idxs.count.input], Qs, this.idxs.isAdult.form, this.idxs.isJapan.form, rbIdxArr, nextBtn);
+                const rbIdxs = this.idxs.isAdult.input.concat(this.idxs.isJapan.input);
+                breakQ(reqInputs[this.idxs.count.input], nextBtn, Qs, this.idxs.isAdult.form, this.idxs.isJapan.form, rbIdxs);
             },
             ()=>{
                 //エラー要素を追加して次の質問を表示する
@@ -1548,9 +1728,9 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
             setEventToIndivisualFieldset(i, fieldset, Qs, nextBtn);
         }
         
-        //子の欄のとき
+        //子の欄のとき、初期値に合わせたイベントを発生させておく
         if(fieldset.classList.contains("childFieldset")){
-            //インデックスを子の欄のものに修正する
+            //インデックスを子の欄のものに合わせる
             childrenData.isSameSpouseTrue.idx = 1;
             childrenData.isLiveTrue.idx = 3;
             childrenData.isRefuseFalse.idx = 8;

@@ -6,7 +6,6 @@ let isChargeButton = "isChargeButton";
 let isCompareButton = "isCompareButton";
 let isQAButton = "isQAButton";
 let isInquiryButton = "isInquiryButton";
-let yes = "yes"
 const toIntroContentBtn = document.getElementById("toIntroContentBtn");
 const toSupportContentBtn = document.getElementById("toSupportContentBtn");
 const toChargeContentBtn = document.getElementById("toChargeContentBtn");
@@ -27,17 +26,17 @@ function moveToIndex(pathname, e){
 
         //押したボタンをセッションに取得させる
         if(e.target.classList.contains("toIntroContent")){
-            sessionStorage.setItem(isIntroButton, yes);
+            sessionStorage.setItem(isIntroButton, "yes");
         }else if(e.target.classList.contains("toSupportContent")){
-            sessionStorage.setItem(isSupportButton, yes);
+            sessionStorage.setItem(isSupportButton, "yes");
         }else if(e.target.classList.contains("toChargeContent")){
-            sessionStorage.setItem(isChargeButton, yes);
+            sessionStorage.setItem(isChargeButton, "yes");
         }else if(e.target.classList.contains("toQAContent")){
-            sessionStorage.setItem(isQAButton, yes);
+            sessionStorage.setItem(isQAButton, "yes");
         }else if(e.target.classList.contains("toCompareContent")){
-            sessionStorage.setItem(isCompareButton, yes);
+            sessionStorage.setItem(isCompareButton, "yes");
         }else if(e.target.classList.contains("toInquiryContent")){
-            sessionStorage.setItem(isInquiryButton, yes);
+            sessionStorage.setItem(isInquiryButton, "yes");
         }
         
         //indexに移動する

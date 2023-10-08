@@ -24,7 +24,7 @@ class OpenInquiryForm(forms.ModelForm):
         self.base_fields['created_by'].widget.attrs.update({
             'class': 'form-control rounded-end',
             'autocomplete': 'on',
-            "placeholder": "弊社からの回答が届くメールアドレス",
+            "placeholder": "弊社からの回答を受け取るメールアドレス",
         })
         
         self.base_fields["subject"].widget.attrs.update({
@@ -33,7 +33,7 @@ class OpenInquiryForm(forms.ModelForm):
         
         self.base_fields['content'].widget.attrs.update({
             'class': 'form-control rounded-end',
-            "placeholder": "問い合わせは何回しても対応してくれるの？\nホームページのデザイン質素すぎじゃない？\n(※300文字まで)",
+            "placeholder": "問い合わせは何回しても対応してくれるの？\n(※300文字まで)\n\n※何回でも対応します。",
             "style":"resize:none;"
         })
         

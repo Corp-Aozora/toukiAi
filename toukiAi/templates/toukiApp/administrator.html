@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-9 mx-auto">
-    <div class="card shadow-sm bg-light">
+<div class="col-lg-7 col-md-9 col-sm-10 mx-auto mt-3">
+    <div class="card shadow bg-light">
         <div class="card-body">
             <h4 class="card-title border-bottom">
                 <span class="border-start border-5 border-primary ps-3">相続登記について</span>
@@ -24,17 +24,54 @@
                     される法律が施行されます。
                 </p>
                 <p>
-                    これは相続登記の放置により所有者不明の不動産が増加して、公共事業や民間による地域開発などに支障が出て
-                    いることを解消するためのもので、義務化後は、相続発生後3年以内に相続登記を怠ると原則10万円以下の過料が発生します。
+                    これは相続登記の放置により所有者不明の不動産が増加して、公共事業や民間による都市開発などに支障が出ていることを解消するためのもので、
+                    <span class="fw-bold border-bottom border-dark">
+                        義務化後は、相続発生から3年以内に相続登記をしないと
+                        <span class="text-danger">
+                            10万円以下の過料
+                        </span>
+                        を課される可能性があります。
+                    </span>
                 </p>
                 <p>
-                    ただ、現実的な問題として欲しい不動産でもないのに面倒でお金もかかる手続をするのは気が進まないかと思いますので、
-                    少しでも皆様の相続登記の負担軽減と推進の一助になればと考えて、有志で協力して制作しました。
+                    このシステムは、義務化により気が進まないながらも費用を節約するために自分でやれないかな？と奮い立った方々の一助になればと考えて、有志で協力して制作しました。
+                </p>
+                <p>
+                    元司法書士の経験からすると受任した相続登記の大半は、法的な知識は浅くてもいいけど、手間と時間はかかるというものばかりでしたので、
+                    <span class="fw-bold text-success border-bottom border-dark">
+                        皆様もやる気を出して弊社のシステムを使用して一緒に相続登記を完了させましょう！
+                    </span>
                 </p>
             </div>
         </div>
     </div>
-    <div class="col-sm-9 mx-auto mt-3">
+    <div class="card shadow bg-light mt-5">
+        <div class="card-body">
+            <h4 class="card-title border-bottom">
+                <span class="border-start border-5 border-primary ps-3">今後の活動予定</span>
+            </h4>
+            <div id="updateScheduleList" class="card-text mt-3">
+                <p class="text-center">
+                    <span class="fw-bold">
+                        登記手続きをより身近な手続にするために<br>
+                        相続登記以外の登記に関するシステムも制作中です！
+                    </span>
+                </p>
+                <ul>
+                    <li>
+                        対応可能な相続登記の範囲を広げる（親や兄弟姉妹の数次相続など）
+                    </li>
+                    <li>
+                        抵当権抹消登記のシステム開発
+                    </li>
+                    <li>
+                        贈与による所有権移転登記のシステム開発
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="mx-auto mt-5">
         <h5 class="text-center my-3">
             運営者・お問い合わせ先
         </h5>
@@ -45,6 +82,7 @@
                     運営者
                 </div>
                 <div class="col-sm-8">
+                    {{CompanyData.SUB_NAME}}<br>
                     {{CompanyData.NAME}}
                 </div>
             </div>
@@ -72,7 +110,8 @@
                     電話番号
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.PHONE_NUMBER}}
+                    {{CompanyData.PHONE_NUMBER}}<br>
+                    ※お問い合わせはメールのみで受け付けてます
                 </div>
             </div>
             <hr>
@@ -81,9 +120,7 @@
                     メールアドレス
                 </div>
                 <div class="col-sm-8">
-                    <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
-                        {{CompanyData.MAIL_ADDRESS}}
-                    </a>
+                    {{CompanyData.MAIL_ADDRESS}}
                 </div>
             </div>
             <hr>
@@ -120,7 +157,8 @@
                 </div>
                 <div class="col-sm-8">
                     {{CompanyData.SUPERVISER}}<br>
-                    {{CompanyData.SUPERVISER_BELONG}}
+                    {{CompanyData.SUPERVISER_BELONG_1}}<br>
+                    {{CompanyData.SUPERVISER_BELONG_2}}
                 </div>
             </div>
             <hr>

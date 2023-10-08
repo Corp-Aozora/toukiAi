@@ -245,9 +245,23 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
 }
 
 /**
+ * 引数に渡された要素の子要素として存在するinput要素を全て初期化する
+ * @param {HTMLElement} el 初期化したいinput要素が属する親要素
+ */
+function iniAllInputs(el){
+    for (let i = 0; i < el.length; i++) {
+        const inputs = el[i].getElementsByTagName('input');
+        for (let j = 0; j < inputs.length; j++) {
+            if (inputs[j].type === 'text') inputs[j].value = '';
+            else if (inputs[j].type === 'radio') inputs[j].checked = false;
+        }
+    }
+}
+
+/**
  * ボタン要素のチェックを全てfalseにする
  * @param {element array} els 配列に格納されたボタン要素
- * @param {num} idxs
+ * @param {num} idxs 初期化するボタン要素のインデックス
  */
 function uncheckTargetElements(els, idxs){
     idxs.forEach(idx => {

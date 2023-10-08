@@ -60,8 +60,6 @@ let isNoChild = false;
 let isNoCollateral = false;
 //両親の数次相続フラグ
 let isParentsInheritance = false;
-//子供データ
-let childrenData;
 
 /**
  * 初期化
@@ -221,9 +219,7 @@ function updateCloneAttribute(fieldset, relation, oldCount){
  * @param {string} relation 続柄（child又はcollateral）
  * @returns idのプレフィックスを更新した複製したフィールドセット
  */
-function copyPreFieldset(relation, oldCount){
-    const fieldsets = document.getElementsByClassName(`${relation}Fieldset`);
-    const preFieldset = fieldsets[fieldsets.length - 1];
+function copyPreFieldset(preFieldset, relation, oldCount){
     const newFieldset = preFieldset.cloneNode(true);
     newFieldset.id = `id_${relation}-${oldCount}-fieldset`;
     return newFieldset;
@@ -233,22 +229,26 @@ function copyPreFieldset(relation, oldCount){
  * フォームを生成する
  * @param {boolean} isChild 子フォームの生成か兄弟姉妹フォームの生成か判別する用
  */
-function createForm(isChild) {
+function createForm(isChild){
     //生成するフォームを判別
     let relation = isChild ? "child": "collateral";
     let zokugara = isChild ? "子": "兄弟姉妹";
     //formsetの数を１加算する
     const totalForms = document.getElementById(`id_${relation}-TOTAL_FORMS`);
-    totalForms.value = parseInt(totalForms.value) + 1;
+    const oldCount = parseInt(totalForms.value);
+    const newCount = oldCount + 1;
+    totalForms.value = newCount;
     //直前のfieldsetをコピーしてidを変更
-    const newFieldset = copyPreFieldset(relation, oldCount);
+    const fieldsets = document.getElementsByClassName(`${relation}Fieldset`);
+    const preFieldset = fieldsets[fieldsets.length - 1];
+    const newFieldset = copyPreFieldset(preFieldset, relation, oldCount);
     //タイトルを変更
     const titleEl = newFieldset.querySelector(".fieldsetTitle");
     updateTitleBranchNum(titleEl, zokugara, newCount);
     //属性を変更
     updateCloneAttribute(newFieldset, relation, oldCount);
     // 新しいfieldset要素をFormsetに追加します
-    fromFieldset.after(newFieldset);
+    preFieldset.after(newFieldset);
 }
 
 /**
@@ -275,7 +275,7 @@ function getFieldsetEl(isForward, fieldset){
         inputsField.preBtnsArr.pop();
 
         //被相続人欄を有効化するとき
-        reqInputs = fieldset.id === "decedentFieldset" ? Object.values(DecedentInput): Array.from(enableField.getElementsByTagName("input"));
+        reqInputs = fieldset.id === "decedentFieldset" ? Object.values(DecedentInput): Array.from(fieldset.getElementsByTagName("input"));
     }
 }
 
@@ -419,10 +419,13 @@ function updateGuide(fromFieldset){
  * 前の項目を有効化する
  * @param {number} i 押された戻るボタンのインデックス
  */
-function enablePreFieldset(i){
+function putBackFieldset(i){
     const disableField = inputsField.reqFieldsets[i + 1]; //無効化対象のフィールドセット
     const enableField = inputsField.reqFieldsets[i]; //有効化対象のフィールドセット
     const removeHr = disableField.previousElementSibling; //削除対象のhrタグ
+
+    //無効化対象のフィールドセットが子供欄のとき子供不存在フラグをfalseに戻す
+    if(disableField.id === "childrenFieldset") isNoChild = false;
 
     //無効化するフィールドにあるイベントが設定されている要素を初期化してイベントを削除する
     replaceElements(disableField, "input");
@@ -440,6 +443,9 @@ function enablePreFieldset(i){
     
     //一つ前のフィールドの要素を取得する
     getFieldsetEl(false, enableField);
+
+    //子の欄から戻るときは、途中の入力データを保存しない
+    if(disableField.id === "id_child-0-fieldset") preserveInvalidEls.length = 0;
 }
 
 /**
@@ -515,7 +521,7 @@ function oneStepBack(i){
     return function(e){
         //前の項目を有効化とガイドの巻き戻し
         putBackGuide(i);
-        enablePreFieldset(i);
+        putBackFieldset(i);
     }
 }
 
@@ -583,7 +589,7 @@ function pushInvalidElAndSDIfHidden(errEl, btn, displayEl){
 }
 
 /**
- * pushInvalidEl, initializeQs, slideDownAfterSlideUpをまとめた関数
+ * pushInvalidEl, iniQs, slideDownAfterSlideUpをまとめた関数
  * @param {...(HTMLElement|number)} args 
  * [0] {HTMLElement} el
  * [1] {HTMLElement} btn
@@ -598,7 +604,7 @@ function pushInvalidElAndSDIfHidden(errEl, btn, displayEl){
 function changeCourse(...args){
     if(args[0])
         pushInvalidEl(args[0], args[1]);
-    initializeQs(args[2], args[3], args[4], args[5], args[6]);
+    iniQs(args[2], args[3], args[4], args[5], args[6]);
     slideDownAfterSlideUp(args[7], args[8]);
 }
 
@@ -619,10 +625,10 @@ function getSequentialNumArr(startIdx, endIdx){
  * @param {number} rbIdxs 初期化するラジオボタンの配列
  * @param {HTMLElement} textInput 人数テキストボックスの初期化
  */
-function initializeQs(QsArr, startIdx, endIdx, rbIdxs, textInput = null){
+function iniQs(QsArr, startIdx, endIdx, rbIdxs, textInput = null){
     uncheckTargetElements(reqInputs, rbIdxs);
     if(textInput !== null)
-        textInput.value = "0";
+        textInput.value = textInput.type === "number" ? "0": "";
     slideUpDisuseEls(QsArr, startIdx, endIdx);
 }
 
@@ -639,7 +645,7 @@ function initializeQs(QsArr, startIdx, endIdx, rbIdxs, textInput = null){
 function breakQ(checkEl, nextBtn, Qs = null, iniStartIdx = null, iniEndIdx = null, iniRbIdxs = null, textInput = null){
     invalidEls = invalidEls.filter(x => x === checkEl);
     if(invalidEls.length === 0) nextBtn.disabled = false;
-    if(Qs) initializeQs(Qs, iniStartIdx, iniEndIdx, iniRbIdxs, textInput);
+    if(Qs) iniQs(Qs, iniStartIdx, iniEndIdx, iniRbIdxs, textInput);
 }
 
 /**
@@ -692,7 +698,7 @@ class SpouseRbHandler extends CommonRbHandler{
                 reqInputs[this.idxs.name.input].disabled = true;
                 //3問目以降の質問を全て非表示にして値を初期化する
                 const rbIdxs = getSequentialNumArr(this.idxs.isLive.input[yes], this.idxs.isJapan.input[no])
-                initializeQs(Qs, this.idxs.isLive.form, this.idxs.isJapan.form, rbIdxs);
+                iniQs(Qs, this.idxs.isLive.form, this.idxs.isJapan.form, rbIdxs);
             }
         )
     }
@@ -730,7 +736,7 @@ class SpouseRbHandler extends CommonRbHandler{
             ()=>{
                 //エラー要素に被相続人以外の子falseを追加して次へボタンを無効化
                 pushInvalidEl(reqInputs[this.idxs.isStepChild.input[no]], nextBtn);
-                initializeQs(Qs, this.idxs.isStepChild.form, this.idxs.isStepChild.form, this.idxs.isStepChild.input);
+                iniQs(Qs, this.idxs.isStepChild.form, this.idxs.isStepChild.form, this.idxs.isStepChild.input);
                 //システム対応外であることを表示する
                 inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = display;
                 inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "本システムでは対応できません";
@@ -1126,7 +1132,7 @@ class AscendantRbHandler extends CommonRbHandler{
                 inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "本システムでは対応できません";
                 //エラー要素として被相続人以外の子trueを追加してボタンを無効化する、被相続人以外の子を初期化する
                 pushInvalidEl(reqInputs[this.idxs.isChild.input[yes]], nextBtn);
-                initializeQs(Qs, this.idxs.isChild.form, this.idxs.isChild.form, this.idxs.isChild.input);
+                iniQs(Qs, this.idxs.isChild.form, this.idxs.isChild.form, this.idxs.isChild.input);
             }
         )
     }
@@ -1423,7 +1429,7 @@ class ChildrenRbHandler extends CommonRbHandler{
             ()=>{
                 invalidEls.length = 0;
                 const rbIdxs = this.idxs.isSameParents.input.concat(this.idxs.isLive.input).concat(this.idxs.isRefuse.input).concat(this.idxs.isAdult.input).concat(this.idxs.isJapan.input);
-                initializeQs(Qs, this.idxs.count.form, this.idxs.isJapan.form, rbIdxs, reqInputs[rbIdx]);
+                iniQs(Qs, this.idxs.count.form, this.idxs.isJapan.form, rbIdxs, reqInputs[rbIdx]);
                 //次へボタンを有効化して子供なしフラグをtrueにする
                 nextBtn.disabled = false;
                 isNoChild = true;
@@ -1528,7 +1534,7 @@ function setEventToGroupFieldset(i, fieldset, Qs, nextBtn){
 }
 
 /**
- * 各フォームから初期値を入力するinput要素を取得する
+ * 各フォームから初期値を入力するinput要素を取得する。取得したinputは初期化される。
  * @param {string} relation 
  * @returns 取得した各フォームのinput要素（true,false両方のラジオボタン）
  */
@@ -1580,14 +1586,12 @@ function checkAndDisableRbs(forms, formIdx, inputIdx){
 
 /**
  * 子供又は兄弟姉妹欄で入力された値を各個別フォームに初期値として反映させて初期表示を変更する
- * @param {number} idx 押された次へボタンのインデックス
+ * @param {number} fieldset 押された次へボタンが属するフィールドセット
  * @param {string} relation "children"又は"collaterals"
  * @param {HTMLElement[]} forms 反映させるinputがあるQ（child又はcollateralの）
  * @returns 子供欄の入力値
  */
-function reflectData(idx, relation, forms){
-
-    const fieldset = inputsField.reqFieldsets[idx];
+function reflectData(fieldset, relation, forms){
     const isSameSpouseTrue = fieldset.querySelector(`[name="${relation}_is_spouse"]`);
     const isLiveTrue = fieldset.querySelector(`[name="${relation}_is_live"]`);
     const isRefuse = fieldset.querySelectorAll(`[name="${relation}_is_refuse"]`);
@@ -1660,10 +1664,27 @@ function updateTabindex(fieldsets){
 }
 
 /**
- * 必要なフィールドセットを生成などする
+ * 個人入力欄のフィールドセットを初期化する
+ * @param {HTMLElement[]} fieldsets 初期化対象のフィールドセット
+ */
+function iniIndivisualFieldsets(fieldsets){
+    //値の初期化
+    iniAllInputs(fieldsets);
+    //質問の初期表示を初期化
+    fieldsets.forEach((fieldset, i) => {
+        const Qs = fieldset.getElementsByClassName("Q");
+        const startFormIdx = 2;
+        Array.from(Qs).slice(startFormIdx).forEach(Q => {
+            Q.style.display = hidden;
+        });
+    });
+}
+
+/**
+ * 必要なフィールドセットを生成や使用しない欄の初期化など対象の続柄のフィールドセットを一括で調整をする
  * @param {HTMLElement} fieldset 押された次へボタンがあるフィールドセット
  */
-function adjustFieldset(fieldset){
+function adjustFieldsets(fieldset){
     //子の欄の調整
     if(fieldset.id === "childrenFieldset" && !isNoChild){
         const childCountInputIdx = 2;
@@ -1673,7 +1694,7 @@ function adjustFieldset(fieldset){
         const fieldsets = Array.from(document.getElementsByClassName("childFieldset"));
 
         //増えたとき
-        if(isNoChild === false && newFormCount > oldFormCount){
+        if(newFormCount > oldFormCount){
             const isChild = true;
             for(let i = oldFormCount; i < newFormCount; i ++){
                 createForm(isChild);
@@ -1684,9 +1705,12 @@ function adjustFieldset(fieldset){
             fieldsets.slice(newFormCount).forEach(el => el.parentNode.removeChild(el));
         }
 
-        //子供欄の入力値を全ての子の欄に反映させて初期表示も変更する
-        const forms = getForms("child");
-        childrenData = reflectData(fromNextBtnIdx, "children", forms);
+        //父、母の欄を初期化する
+        const ascendantFieldsets = document.getElementsByClassName("ascendantFieldset");
+        const parentsFieldsets = Array.from(ascendantFieldsets).slice(0, 2);
+        iniIndivisualFieldsets(parentsFieldsets);
+        const childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
+        iniIndivisualFieldsets(childFieldsets);
 
     }else if(fieldset.id === "childrenFieldset" && isNoChild){
         //父欄のとき
@@ -1696,6 +1720,54 @@ function adjustFieldset(fieldset){
         //父母欄のタブインデックスを設定
         const parentsFieldsets = [ascendantFieldsets[0], ascendantFieldsets[1]];
         updateTabindex(parentsFieldsets);
+
+        //子の欄を初期化する
+        const childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
+        for (let i = childFieldsets.length - 1; i > 0; i--) {
+            childFieldsets[i].parentNode.removeChild(childFieldsets[i]);
+        }
+        iniIndivisualFieldsets([childFieldsets[0]]);
+        const totalForms = document.getElementById(`id_child-TOTAL_FORMS`);
+        totalForms.value = 1;
+    }
+}
+
+/**
+ * フィールドセットに初期値を反映させる
+ * @param fieldset 反映させるフィールドセット
+ */
+function setIniData(fieldset){
+    //子供欄のとき
+    if(fieldset.id === "childrenFieldset"){
+        const isChildFalseIdx = 1;
+        //子がいないとき、子がいないボタンが押されたときのイベントを発生させる
+        if(reqInputs[isChildFalseIdx].checked){
+            const event = new Event("change");
+            reqInputs[isChildFalseIdx].dispatchEvent(event);
+        }
+    }else if(fieldset.id === "id_child-0-fieldset"){
+        //子１の欄のとき
+        const childForms = getForms("child");
+        const childrenFieldsetIdx = inputsField.reqFieldsets.length - 2;
+        const childrenFieldset = inputsField.reqFieldsets[childrenFieldsetIdx];
+        let childrenData = reflectData(childrenFieldset, "children", childForms);
+        //インデックスを子の欄のものに合わせる
+        childrenData.isSameSpouseTrue.idx = 1;
+        childrenData.isLiveTrue.idx = 3;
+        childrenData.isRefuseFalse.idx = 8;
+        childrenData.isAdultTrue.idx = 14;
+        childrenData.isJapanTrue.idx = 16;
+
+        //初期値があるときは、そのイベントを発生させる。チェックが連続しているときだけループを続ける
+        const event = new Event("change");
+        for(let key in childrenData){
+            if(childrenData[key].checked){
+                reqInputs[childrenData[key].idx].checked = true;
+                reqInputs[childrenData[key].idx].dispatchEvent(event);
+            }else{
+                break;
+            }
+        }
     }
 }
 
@@ -1706,53 +1778,41 @@ function adjustFieldset(fieldset){
  */
 function oneStepFoward(fromNextBtnIdx, isIndivisual){
     
-    //次のフォームを生成、タイトル変更、属性変更など有効化前の処理
+    //有効化対象の続柄の全fieldsetの下準備
     const fromFieldset = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1];
-    if(fromFieldset) adjustFieldset(fromFieldset);
+    if(fromFieldset) adjustFieldsets(fromFieldset);
 
-    //次の項目を有効化とガイドを更新
+    //次のフィールドセットを表示
     displayNextFieldset(fromFieldset, fromNextBtnIdx);
+    //ガイドを更新
     updateGuide(fromFieldset);
 
-    //各入力欄に処理
+    //表示対象のフィールドセットのデータを取得する
     const currentIdx = inputsField.reqFieldsets.length - 1;
     const fieldset = inputsField.reqFieldsets[currentIdx];
     const Qs = inputsField.reqFieldsets[currentIdx].getElementsByClassName("Q");
     const nextBtn = inputsField.nextBtns[currentIdx];
 
-    //個人入力欄のとき
+    //表示対象のフィールドセットが個人入力欄のとき
     if(isIndivisual){
-        
         //イベントを設定
         for(let i = 0; i < reqInputs.length; i++){          
             setEventToIndivisualFieldset(i, fieldset, Qs, nextBtn);
-        }
-        
-        //子の欄のとき、初期値に合わせたイベントを発生させておく
-        if(fieldset.classList.contains("childFieldset")){
-            //インデックスを子の欄のものに合わせる
-            childrenData.isSameSpouseTrue.idx = 1;
-            childrenData.isLiveTrue.idx = 3;
-            childrenData.isRefuseFalse.idx = 8;
-            childrenData.isAdultTrue.idx = 14;
-            childrenData.isJapanTrue.idx = 16;
-
-            //初期値があるときは、そのイベントを発生させる
-            const event = new Event("change");
-            for(let key in childrenData){
-                if(childrenData[key].checked){
-                    reqInputs[childrenData[key].idx].checked = true;
-                    reqInputs[childrenData[key].idx].dispatchEvent(event);
-                }else{
-                    break;
-                }
-            }
         }
     }else{
         //子供全員又は兄弟姉妹全員入力欄のとき
         for(let i = 0; i < reqInputs.length; i++){
             setEventToGroupFieldset(i, fieldset, Qs, nextBtn);
         }
+    }
+
+    //有効化対象のフィールドセット全てに初期値をセットする
+    //子供欄のとき
+    if(fieldset.id === "childrenFieldset"){
+        setIniData(fieldset);
+    }else if(fieldset.classList.contains("childFieldset")){
+        //子の欄のとき
+        setIniData(fieldset);
     }
 
     //戻るボタンにイベントを設定
@@ -1767,14 +1827,6 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
         oneStepFowardHandler = function () {oneStepFoward(fromNextBtnIdx + 1, true)};
     }
     nextBtn.addEventListener("click", oneStepFowardHandler);
-
-    //配偶者欄の次へボタンが押されたときかつ子供がいないボタンが押されているとき
-    if(fieldset.id === "childrenFieldset"){
-        if(reqInputs[1].checked){
-            nextBtn.disabled = false;
-            isNoChild = true;
-        }
-    }
 }
 
 /**

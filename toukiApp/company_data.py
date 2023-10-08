@@ -15,10 +15,10 @@ class CompanyData:
     SUPERVISER_BELONG_2 = "簡裁代理認定番号 第1301120号"
     URL = "https://django-render-6agw.onrender.com"
     CHARGE = "サイト上部の料金からご確認いただけます。"
-    PAYMENT = "銀行振込／クレジットカード決済"
-    PAYMENT_TERMS = "アカウント登録時。オプションは都度。"
+    PAYMENT = "クレジットカード決済"
+    PAYMENT_TERMS = "オプションを申し込んだとき。"
     START_TIME = "お支払い後直ちに。"
-    ABOUT_CANCEL = "サービスに不備があった場合のみキャンセル可。"
+    ABOUT_CANCEL = "作業未着手の場合のみ可。"
     
 class Service:
     BASIC_PRICE = "0円"

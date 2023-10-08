@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-8 mx-auto">
+<div class="col-lg-7 col-md-9 col-sm-11 mx-auto">
     <h5 class="text-center my-3">
         特定商取引法に基づく表記
     </h5>
@@ -58,9 +58,7 @@
                 メールアドレス
             </div>
             <div class="col-sm-8">
-                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
-                    {{CompanyData.MAIL_ADDRESS}}
-                </a>
+                {{CompanyData.MAIL_ADDRESS}}
             </div>
         </div>
         <hr>
@@ -78,7 +76,9 @@
                 サイトURL
             </div>
             <div class="col-sm-8">
-                {{CompanyData.URL}}
+                <a class="text-decoration-none" href="/">
+                    {{CompanyData.URL}}
+                </a>
             </div>
         </div>
         <hr>

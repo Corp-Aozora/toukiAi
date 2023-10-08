@@ -285,8 +285,8 @@ function getFieldsetEl(isForward, fieldset){
  * @param {number} i 押された次へボタンのインデックス
  */
 function displayNextFieldset(fromFieldset, i){
-    //次の項目を取得（子がいないときは、項目を１つ飛ばす）
-    let nextFieldset = (isNoChild && fromFieldset.id === "childrenFieldset") ? 
+    //次の項目を取得（子がいないときは、子の欄をスキップするために２加算する）
+    let nextFieldset = (isNoChild) ? 
         document.getElementsByTagName("fieldset")[i + 2]:
         document.getElementsByTagName("fieldset")[i + 1];
 

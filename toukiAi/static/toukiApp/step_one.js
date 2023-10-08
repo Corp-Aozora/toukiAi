@@ -391,6 +391,10 @@ function updateGuide(fromFieldset){
 
     //子供欄から父の欄を表示するとき
     if(isNoChild && fromFieldset.id === "childrenFieldset"){
+        //子のガイドが複製されているとき、子１以外は削除する
+        const childGuides = guideList.getElementsByClassName("childGuide");
+        removeAllExceptFirst(childGuides);
+
         //子のガイドをスキップするために2加算する
         guideField.elIdx += 2;
 
@@ -1723,9 +1727,7 @@ function adjustFieldsets(fieldset){
 
         //子の欄を初期化する
         const childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
-        for (let i = childFieldsets.length - 1; i > 0; i--) {
-            childFieldsets[i].parentNode.removeChild(childFieldsets[i]);
-        }
+        removeAllExceptFirst(childFieldsets);
         iniIndivisualFieldsets([childFieldsets[0]]);
         const totalForms = document.getElementById(`id_child-TOTAL_FORMS`);
         totalForms.value = 1;

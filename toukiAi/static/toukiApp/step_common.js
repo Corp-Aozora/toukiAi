@@ -259,6 +259,16 @@ function iniAllInputs(el){
 }
 
 /**
+ * 最初の要素以外全て削除する
+ * @param {HTMLElement[]} els 
+ */
+function removeAllExceptFirst(els){
+    for (let i = els.length - 1; i > 0; i--) {
+        els[i].parentNode.removeChild(els[i]);
+    }
+}
+
+/**
  * ボタン要素のチェックを全てfalseにする
  * @param {element array} els 配列に格納されたボタン要素
  * @param {num} idxs 初期化するボタン要素のインデックス

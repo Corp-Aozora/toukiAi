@@ -1,31 +1,27 @@
 /**
- * 変数
+ * アカウント関連共通で使用する変数
  */
-let email = document.getElementById("id_email");
-const password = document.getElementById("id_password");
+const email = document.getElementById("id_email") || document.getElementById("id_login");
 const oldpassword = document.getElementById("id_oldpassword");
-const password1 = document.getElementById("id_password1");
+const password1 = document.getElementById("id_password1") || document.getElementById("id_password");
 const password2 = document.getElementById("id_password2");
 
 const passDisplayToggle = document.getElementById("passDisplayToggle");
 const eye = document.getElementById("eye");
 const eyeSlash = document.getElementById("eyeSlash");
 
-let emailMessageEl = document.getElementById("id_email_messageEl");
+const emailMessageEl = document.getElementById("id_email_messageEl") || document.getElementById("id_login_messageEl");
 const oldpasswordMessageEl = document.getElementById("id_oldpassword_messageEl");
-const passwordMessageEl = document.getElementById("id_password_messageEl");
-const password1MessageEl = document.getElementById("id_password1_messageEl");
+const password1MessageEl = document.getElementById("id_password1_messageEl") || document.getElementById("id_password_messageEl") ;
 const password2MessageEl = document.getElementById("id_password2_messageEl");
 
 const emailMessage = "メールアドレスの規格と一致しません";
 const oldpasswordMessage = "登録されているパスワードと一致しません";
-const passwordMessage = "半角で英数記号を含む8文字以上を入力してください";
 const password1Message = "半角で英数記号を含む8文字以上を入力してください";
 const password2Message = "上のパスワードと一致しません";
 
 const emailIndex = 0;
 const oldpasswordIndex = 0;
-const passwordIndex = 1;
 const password1Index = 1;
 const password2Index = 2;
 
@@ -49,7 +45,7 @@ window.addEventListener("load", ()=>{
     if(passDisplayToggle !== null){
         passDisplayToggle.addEventListener("click", ()=>{
             const isHidden = eye.style.display === hidden;
-            password1.type = isHidden ? "password" : "text" ;
+            password1.type = isHidden ? "password" : "text";
             eye.style.display = isHidden ? display : hidden;
             eyeSlash.style.display = isHidden ? hidden : display;
         })

@@ -1,9 +1,6 @@
-email = document.getElementById("id_login")
-emailMessageEl = document.getElementById("id_login_messageEl")
-
-reqInputs = [email, password];
-msgEls = [emailMessageEl, passwordMessageEl];
-msgs = [emailMessage, passwordMessage];
+reqInputs = [email, password1];
+msgEls = [emailMessageEl, password1MessageEl];
+msgs = [emailMessage, password1Message];
 
 /**
  * バリデーションリスト
@@ -45,7 +42,7 @@ window.addEventListener("load", ()=>{
         reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.code === "Enter" || e.code === "NumpadEnter"){
                 e.preventDefault();
-                if(e.target === password){
+                if(e.target === password1){
                     submitBtn.focus();
                 }else{
                     reqInputs[i + 1].focus();}
@@ -69,8 +66,8 @@ email.addEventListener("change", (e)=>{
 })
 
 //パスワード
-password.addEventListener("change", (e)=>{
-    validationList(passwordIndex);
+password1.addEventListener("change", (e)=>{
+    validationList(password1Index);
 })
 
 //フォーム

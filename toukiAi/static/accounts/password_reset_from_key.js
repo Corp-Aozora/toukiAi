@@ -2,7 +2,6 @@ const password1 = document.getElementById("id_password1");
 const password2 = document.getElementById("id_password2");
 reqInputs = [password1, password2];
 
-const submitBtn = document.getElementById("submitBtn");
 const form = document.querySelector("form");
 
 const passDisplayToggle = document.getElementById("passDisplayToggle");
@@ -82,20 +81,6 @@ window.addEventListener("load", ()=>{
 password1.addEventListener("change", (e)=>{
     validationList(password1Index);
     togglePassword2();
-})
-
-//パスワード表示ボタン
-passDisplayToggle.addEventListener("click", ()=>{
-
-    if(eye.style.display === hidden){
-        password1.type = "password";
-        eye.style.display = display;
-        eyeSlash.style.display = hidden;
-    }else if(eye.style.display !== hidden) {
-        password1.type = "text";
-        eye.style.display = hidden;
-        eyeSlash.style.display = display;
-    }
 })
 
 //パスワード2

@@ -1,4 +1,4 @@
-.toIntroContent:hover, .toSupportContent:hover, .toChargeConten:hover{
+.toInquiryContent:hover, .toSupportContent:hover, .toChargeContent:hover{
     cursor: pointer;
     cursor: hand;
 }

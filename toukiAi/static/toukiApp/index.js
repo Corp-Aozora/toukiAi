@@ -35,7 +35,6 @@ const contentMessage = "お問い合わせ内容をご入力ください"
 msgs = [createdByMessage, subjectMessage, contentMessage];
 
 const beforeSubmitBtn = document.getElementById("beforeSubmitBtn");
-const submitBtn = document.getElementById("submitBtn");
 
 
 /**
@@ -128,20 +127,20 @@ window.addEventListener("load", ()=>{
     addScrollEvent(toInquiryContent, inquiryContent);
 
     //他のページでヘッダーのボタンが押された場合でも対象の項目へスクロールさせる
-    if(sessionStorage.getItem(isIntroButton) === yes){
+    if(sessionStorage.getItem(isIntroButton) === "yes"){
         scrollToTarget(introContent, 0);
     }
-    else if(sessionStorage.getItem(isSupportButton) === yes){
+    else if(sessionStorage.getItem(isSupportButton) === "yes"){
         scrollToTarget(supportContent, 0);
     }
-    else if(sessionStorage.getItem(isChargeButton) === yes){
+    else if(sessionStorage.getItem(isChargeButton) === "yes"){
         scrollToTarget(chargeContent, 0);
     }
-    else if(sessionStorage.getItem(isQAButton) === yes){
+    else if(sessionStorage.getItem(isQAButton) === "yes"){
         scrollToTarget(qaContent, 0);
-    }else if(sessionStorage.getItem(isCompareButton) === yes){
+    }else if(sessionStorage.getItem(isCompareButton) === "yes"){
         scrollToTarget(compareContent, 0);
-    }else if(sessionStorage.getItem(isInquiryButton) === yes){
+    }else if(sessionStorage.getItem(isInquiryButton) === "yes"){
         scrollToTarget(inquiryContent, 0);
     }
 

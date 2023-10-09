@@ -113,20 +113,6 @@ password1.addEventListener("change", (e)=>{
     togglePassword2();
 })
 
-//パスワード表示ボタン
-passDisplayToggle.addEventListener("click", ()=>{
-
-    if(eye.style.display === hidden){
-        password1.type = "password";
-        eye.style.display = display;
-        eyeSlash.style.display = hidden;
-    }else if(eye.style.display !== hidden) {
-        password1.type = "text";
-        eye.style.display = hidden;
-        eyeSlash.style.display = display;
-    }
-})
-
 //パスワード2
 password2.addEventListener("change", (e)=>{
     validationList(password2Index);

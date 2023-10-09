@@ -73,20 +73,6 @@ password.addEventListener("change", (e)=>{
     validationList(passwordIndex);
 })
 
-//パスワード表示ボタン
-passDisplayToggle.addEventListener("click", ()=>{
-
-    if(eye.style.display === hidden){
-        password1.type = "password";
-        eye.style.display = display;
-        eyeSlash.style.display = hidden;
-    }else if(eye.style.display !== hidden) {
-        password1.type = "text";
-        eye.style.display = hidden;
-        eyeSlash.style.display = display;
-    }
-})
-
 //フォーム
 form.addEventListener("submit", (e)=>{
 

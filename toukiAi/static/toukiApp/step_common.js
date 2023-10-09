@@ -56,7 +56,7 @@ function setSidebarHeight(){
     }
 
     resizeFlg = setTimeout(function(){
-    let headerHeight = document.getElementById("header").clientHeight;
+    let headerHeight = header.clientHeight;
     let pageHeight = document.documentElement.clientHeight;
     // let mainHeight = document.getElementById("main").clientHeight;
     // let gap = mainHeight - pageHeight;
@@ -71,7 +71,7 @@ function setSidebarHeight(){
 */
 function setSideBarTop(){
     let gap = 16
-    let top = document.getElementById("header").clientHeight + gap;
+    let top = header.clientHeight + gap;
     document.documentElement.style.setProperty('--top', `${top}px`);
 }
 

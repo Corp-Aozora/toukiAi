@@ -1,19 +1,24 @@
 "use strict";
 
-const introContent = document.getElementById('introContent');
-const supportContent = document.getElementById('supportContent');
-const chargeContent = document.getElementById('chargeContent');
-const compareContent = document.getElementById('compareContent');
-const qaContent = document.getElementById('qaContent');
-const inquiryContent = document.getElementById('inquiryContent');
-const header = document.getElementById("header");
-const toIntroContent = document.getElementsByClassName("toIntroContent");
-const toSupportContent = document.getElementsByClassName("toSupportContent");
-const toChargeContent = document.getElementsByClassName("toChargeContent");
-const toCompareContent = document.getElementsByClassName("toCompareContent");
-const toQAContent = document.getElementsByClassName("toQAContent");
-const toInquiryContent = document.getElementsByClassName("toInquiryContent");
+//ナビスクロール関連
+const idEls = {
+    intro : document.getElementById('intro'),
+    support : document.getElementById('support'),
+    charge : document.getElementById('charge'),
+    compare : document.getElementById('compare'),
+    QA : document.getElementById('QA'),
+    inquiry : document.getElementById('inquiry')
+}
+const classEls = {
+    intro : document.getElementsByClassName("toIntro"),
+    support : document.getElementsByClassName("toSupport"),
+    charge : document.getElementsByClassName("toCharge"),
+    compare : document.getElementsByClassName("toCompare"),
+    QA : document.getElementsByClassName("toQA"),
+    inquiry : document.getElementsByClassName("toInquiry")
+}
 
+//お問い合わせ関連
 const createdBy = document.getElementById("id_created_by");
 const subject = document.getElementById("id_subject");
 const opts = subject.options;
@@ -36,7 +41,6 @@ msgs = [createdByMessage, subjectMessage, contentMessage];
 
 const beforeSubmitBtn = document.getElementById("beforeSubmitBtn");
 
-
 /**
  * スクロールイベントを設定する
  * @param {array element} linkFrom
@@ -45,7 +49,7 @@ const beforeSubmitBtn = document.getElementById("beforeSubmitBtn");
 function addScrollEvent(linkFrom, linkTo){
     for(let i = 0; i < linkFrom.length; i++){
         linkFrom[i].addEventListener("click", (e)=>{
-            moveToIndex(location.pathname, e);
+            // moveToIndex(location.pathname, e);
             scrollToTarget(linkTo, 0);
         })
     }
@@ -119,31 +123,16 @@ function validationList(index){
 */
 window.addEventListener("load", ()=>{
     //ヘッダーのボタンに対象の項目へスクロールするイベントを設定
-    addScrollEvent(toIntroContent, introContent);
-    addScrollEvent(toSupportContent, supportContent);
-    addScrollEvent(toChargeContent, chargeContent);
-    addScrollEvent(toCompareContent, compareContent);
-    addScrollEvent(toQAContent, qaContent);
-    addScrollEvent(toInquiryContent, inquiryContent);
+    for(let key in idEls){
+        addScrollEvent(classEls[key], idEls[key]);
+    }
 
     //他のページでヘッダーのボタンが押された場合でも対象の項目へスクロールさせる
-    if(sessionStorage.getItem(isIntroButton) === "yes"){
-        scrollToTarget(introContent, 0);
+    const navTo = sessionStorage.getItem(navToSessionKey);
+    if(navTo && idEls[navTo]){
+        scrollToTarget(idEls[navTo], 0);
     }
-    else if(sessionStorage.getItem(isSupportButton) === "yes"){
-        scrollToTarget(supportContent, 0);
-    }
-    else if(sessionStorage.getItem(isChargeButton) === "yes"){
-        scrollToTarget(chargeContent, 0);
-    }
-    else if(sessionStorage.getItem(isQAButton) === "yes"){
-        scrollToTarget(qaContent, 0);
-    }else if(sessionStorage.getItem(isCompareButton) === "yes"){
-        scrollToTarget(compareContent, 0);
-    }else if(sessionStorage.getItem(isInquiryButton) === "yes"){
-        scrollToTarget(inquiryContent, 0);
-    }
-
+    
     //問い合わせ関連のモダールを表示する
     const inquiryModals = document.getElementsByClassName("inquiry-modal")
     for(let i = 0; i < inquiryModals.length; i++){
@@ -174,25 +163,14 @@ window.addEventListener("load", ()=>{
             }
         })
     }
+
+    //お問合せフォーム関連にイベントを設定
+    for(let i = 0; i < reqInputs.length; i++){
+        reqInputs[i].addEventListener("change",()=>{
+            validationList(i);
+        })
+    }
 }) 
-
-//メールアドレス欄
-createdBy.addEventListener("change", ()=>{
-    //メール形式チェック
-    validationList(createdByIndex);
-})
-
-//件名欄
-subject.addEventListener("change", ()=>{
-    //空欄チェック
-    validationList(subjectIndex);
-})
-
-//お問い合わせ内容欄
-content.addEventListener("change", ()=>{
-    //空欄チェック
-    validationList(contentIndex);
-})
 
 //送信ボタン（本送信前）
 beforeSubmitBtn.addEventListener("click", (e)=>{
@@ -211,18 +189,5 @@ beforeSubmitBtn.addEventListener("click", (e)=>{
         modalCreatedBy.innerText = createdBy.value;
         modalContent.innerText = content.value;
         submitModal.show();
-    }
-})
-
-//送信ボタン（本送信）
-beforeSubmitBtn.addEventListener("click", (e)=>{
-    for(let i = 0; i < reqInputs.length; i++){
-        validationList(i);
-    }
-
-    if(invalidEls.length > 0){
-        submitModal.hide();
-        invalidEls[0].focus();
-        e.preventDefault();
     }
 })

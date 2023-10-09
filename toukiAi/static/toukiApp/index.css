@@ -1,10 +1,10 @@
-.toInquiryContent:hover, .toSupportContent:hover, .toChargeContent:hover{
+.toInquiry:hover, .toSupport:hover, .toCharge:hover{
     cursor: pointer;
     cursor: hand;
 }
 
 @media(min-width: 992px){
-    #introContentSubtitle{
+    #introSubtitle{
         display: flex!important;
         justify-content: center!important;
     }

@@ -1,18 +1,23 @@
 "use strict";
 
-let isIntroButton = "isIntroButton";
-let isSupportButton = "isSupportButton";
-let isChargeButton = "isChargeButton";
-let isCompareButton = "isCompareButton";
-let isQAButton = "isQAButton";
-let isInquiryButton = "isInquiryButton";
-const toIntroContentBtn = document.getElementById("toIntroContentBtn");
-const toSupportContentBtn = document.getElementById("toSupportContentBtn");
-const toChargeContentBtn = document.getElementById("toChargeContentBtn");
-const toCompareContentBtn = document.getElementById("toCompareContentBtn");
-const toQAContentBtn = document.getElementById("toQAContentBtn");
-const toInquiryContentBtn = document.getElementById("toInquiryContentBtn");
+const navToSessionKey = "navToSessionKey";
+const navToClass = {
+    "toIntro": "intro",
+    "toSupport": "support",
+    "toCharge" : "charge",
+    "toCompare" : "compare",
+    "toQA" : "QA",
+    "toInquiry" : "inquiry"
+}
+
+const toIntroBtn = document.getElementById("toIntroBtn");
+const toSupportBtn = document.getElementById("toSupportBtn");
+const toChargeBtn = document.getElementById("toChargeBtn");
+const toCompareBtn = document.getElementById("toCompareBtn");
+const toQABtn = document.getElementById("toQABtn");
+const toInquiryBtn = document.getElementById("toInquiryBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const headerBtns = [toIntroBtn, toSupportBtn, toChargeBtn, toCompareBtn, toQABtn, toInquiryBtn, logoutBtn];
 
 /*
     index以外のページにいるときにヘッダーにあるボタンが押されたとき、
@@ -23,22 +28,14 @@ function moveToIndex(pathname, e){
 
     // index以外のページのとき
     if(pathname !== indexURL) {
-
         //押したボタンをセッションに取得させる
-        if(e.target.classList.contains("toIntroContent")){
-            sessionStorage.setItem(isIntroButton, "yes");
-        }else if(e.target.classList.contains("toSupportContent")){
-            sessionStorage.setItem(isSupportButton, "yes");
-        }else if(e.target.classList.contains("toChargeContent")){
-            sessionStorage.setItem(isChargeButton, "yes");
-        }else if(e.target.classList.contains("toQAContent")){
-            sessionStorage.setItem(isQAButton, "yes");
-        }else if(e.target.classList.contains("toCompareContent")){
-            sessionStorage.setItem(isCompareButton, "yes");
-        }else if(e.target.classList.contains("toInquiryContent")){
-            sessionStorage.setItem(isInquiryButton, "yes");
+        for(let className in navToClass){
+            if(e.target.classList.contains(className)){
+                sessionStorage.setItem(navToSessionKey, navToClass[className]);
+                break;
+            }
         }
-        
+                
         //indexに移動する
         location.href = "/";
     }    
@@ -47,34 +44,21 @@ function moveToIndex(pathname, e){
 /*
     イベント集
 */
-toIntroContentBtn.addEventListener("click", (e)=>{
-    moveToIndex(location.pathname, e);
-})
-
-toSupportContentBtn.addEventListener("click", (e)=>{
-    moveToIndex(location.pathname, e);
-})
-
-toChargeContentBtn.addEventListener("click", (e)=>{
-    moveToIndex(location.pathname, e);
-})
-
-toCompareContentBtn.addEventListener("click", (e)=>{
-    moveToIndex(location.pathname, e);
-})
-
-toQAContentBtn.addEventListener("click", (e)=>{
-    moveToIndex(location.pathname, e);
-})
-
-toInquiryContentBtn.addEventListener("click", (e)=>{
-    moveToIndex(location.pathname, e);
-})
-
-logoutBtn.addEventListener("click", ()=>{
-    const date1 = new Date();
-	const date2 = date1.getHours() + "時" + 
-				date1.getMinutes() + "分" + 
-				date1.getSeconds() + "秒"
-    sessionStorage.setItem("lastUpdateDate", date2);
+window.addEventListener("load",()=>{
+    //各ボタンにイベントを設定する
+    for(let i = 0; i < headerBtns.length; i++){
+        if(i < headerBtns.length - 1){
+            headerBtns[i].addEventListener("click",(e)=>{
+                moveToIndex(location.pathname, e);
+            })
+        }else{
+            headerBtns[i].addEventListener("click",(e)=>{
+                const date1 = new Date();
+                const date2 = date1.getHours() + "時" + 
+                            date1.getMinutes() + "分" + 
+                            date1.getSeconds() + "秒"
+                sessionStorage.setItem("lastUpdateDate", date2);
+            })
+        }
+    }
 })

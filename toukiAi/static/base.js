@@ -10,6 +10,7 @@ const mdWidth = 767;
 const lgWidth = 991;
 const xlWidth = 1199;
 const xxlWidth = 1399;
+const header = document.getElementById("header");
 
 //bootstrapのツールチップを有効化
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
@@ -157,7 +158,6 @@ function slideToggle(el){
  */
 function scrollToTarget(el, duration = 250) {
     let rect = el.getBoundingClientRect();
-    const header = document.getElementById("header");
     let gap = header.clientHeight + 40;
     let targetPosition = rect.top + window.scrollY - gap;
 

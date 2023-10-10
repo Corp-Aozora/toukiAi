@@ -3,8 +3,6 @@
 /**
  * 全テンプレートで共通の変数
  */
-const display = "block";
-const hidden = "none";
 const smWidth = 575;
 const mdWidth = 767;
 const lgWidth = 991;
@@ -416,13 +414,14 @@ function toggleErrorMessage(isValid, el, message=""){
     //入力値が適切なとき
     if(isValid){
         //エラーメッセージを隠す
-        el.style.display = hidden;
+        el.style.display = "none";
     }else{
         //エラーメッセージを表示する
         el.innerHTML = message;
-        el.style.display = display;
+        el.style.display = "block";
     }
 }
+
 
 function removePx(){
     const mainContainer = document.getElementById("mainContainer");
@@ -435,6 +434,34 @@ function removePx(){
     }
 }
 
+/**
+ * tagName,className,Nameで取得した要素の最後の要素を取得する
+ * @param {string} selector セレクタ
+ * @param {string} attribute tag、class、nameのいずれか
+ * @param {string} target 取得する要素の親要素
+ * @returns HTMLCollectionの最後の要素
+ */
+function getLastElByAttribute(selector, attribute, target = null) {
+    let els;
+    switch (attribute) {
+        case 'tag':
+            els = target ? target.getElementsByTagName(selector): document.getElementsByTagName(selector);
+            break;
+        case 'class':
+            els = target ? target.getElementsByClassName(selector): document.getElementsByClassName(selector);
+            break;
+        case 'name':
+            els = target ? target.getElementsByName(selector): document.getElementsByName(selector);
+            break;
+        default:
+            return null;
+    }
+    return els[els.length - 1];
+}
+
+/**
+ * イベントリスナー集
+ */
 window.addEventListener("load", ()=>{
     removePx();
 })

@@ -44,10 +44,10 @@ window.addEventListener("load", ()=>{
     //パスワード欄があるとき、パスワードの表示ボタンのトグル機能を追加する
     if(passDisplayToggle !== null){
         passDisplayToggle.addEventListener("click", ()=>{
-            const isHidden = eye.style.display === hidden;
+            const isHidden = eye.style.display === "none";
             password1.type = isHidden ? "password" : "text";
-            eye.style.display = isHidden ? display : hidden;
-            eyeSlash.style.display = isHidden ? hidden : display;
+            eye.style.display = isHidden ? "block" : "none";
+            eyeSlash.style.display = isHidden ? "none" : "block";
         })
     }
 })

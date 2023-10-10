@@ -38,7 +38,7 @@ function updateStep(stepNumber){
         const btn = document.getElementById(`btnStep${stepNumbers[i]}`);
         const link = document.getElementById(`step${stepNumbers[i]}Link`);
 
-        i === stepNumber - 1 ? arrow.style.display = display: done.style.display = display;
+        i === stepNumber - 1 ? arrow.style.display = "block": done.style.display = "block";
 
         btn.disabled = false;
         link.href = `${rootPath}service-step${stepNumbers[i]}`;
@@ -229,13 +229,13 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
     //入力値が適切なとき
     if(isValid){
         //エラーメッセージを隠す
-        messageEl.style.display = hidden;
+        messageEl.style.display = "none";
         //次へボタンを有効化判別
         if(invalidEls.length === 0) nextBtn.disabled = false;        
     }else{
         //エラーメッセージを表示する
         messageEl.innerHTML = message;
-        messageEl.style.display = display;
+        messageEl.style.display = "block";
         //配列に取得
         invalidEls.push(el);
         //次へのボタンを無効化

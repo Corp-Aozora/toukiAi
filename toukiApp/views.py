@@ -168,6 +168,22 @@ def step_one(request):
     }
     return render(request, "toukiApp/step_one.html", context)
 
+#ステップ２
+#必要書類リスト
+def step_two(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
+    user = User.objects.get(email = request.user)
+  
+    context = {
+        "title" : "２．必要書類一覧",
+        "user" : user,
+        "sections" : Sections.SECTIONS[Sections.STEP2],
+        "service_content" : Sections.SERVICE_CONTENT,
+    }
+    return render(request, "toukiApp/step_two.html", context)
+
 #ユーザー情報
 def step_option_select(request):
     if not request.user.is_authenticated:

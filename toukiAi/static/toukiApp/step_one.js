@@ -55,8 +55,11 @@ const inputsField = new InputsField();
 const decedentFieldsetIdx = 0;
 //次へボタンのイベントハンドラー
 let oneStepFowardHandler;
+//子供情報
+let childrenData;
 //子供なしフラグ
 let isNoChild = false;
+//兄弟姉妹なしフラグ
 let isNoCollateral = false;
 //両親の数次相続フラグ
 let isParentsInheritance = false;
@@ -1735,6 +1738,21 @@ function adjustFieldsets(fieldset){
 }
 
 /**
+ * 子の欄の初期値に応じたイベントを発生させる
+ */
+function dispatchChildIniChangeEvent(){
+    const event = new Event("change");
+    for(let key in childrenData){
+        if(childrenData[key].checked){
+            reqInputs[childrenData[key].idx].checked = true;
+            reqInputs[childrenData[key].idx].dispatchEvent(event);
+        }else{
+            break;
+        }
+    }
+}
+
+/**
  * フィールドセットに初期値を反映させる
  * @param fieldset 反映させるフィールドセット
  */
@@ -1748,11 +1766,11 @@ function setIniData(fieldset){
             reqInputs[isChildFalseIdx].dispatchEvent(event);
         }
     }else if(fieldset.id === "id_child-0-fieldset"){
-        //子１の欄のとき
+        //子１の欄のとき、全てのこの欄に初期値を入力する
         const childForms = getForms("child");
         const childrenFieldsetIdx = inputsField.reqFieldsets.length - 2;
         const childrenFieldset = inputsField.reqFieldsets[childrenFieldsetIdx];
-        let childrenData = reflectData(childrenFieldset, "children", childForms);
+        childrenData = reflectData(childrenFieldset, "children", childForms);
         //インデックスを子の欄のものに合わせる
         childrenData.isSameSpouseTrue.idx = 1;
         childrenData.isLiveTrue.idx = 3;
@@ -1761,15 +1779,9 @@ function setIniData(fieldset){
         childrenData.isJapanTrue.idx = 16;
 
         //初期値があるときは、そのイベントを発生させる。チェックが連続しているときだけループを続ける
-        const event = new Event("change");
-        for(let key in childrenData){
-            if(childrenData[key].checked){
-                reqInputs[childrenData[key].idx].checked = true;
-                reqInputs[childrenData[key].idx].dispatchEvent(event);
-            }else{
-                break;
-            }
-        }
+        dispatchChildIniChangeEvent();
+    }else if(fieldset.classList.contains("childFieldset")){
+        dispatchChildIniChangeEvent();
     }
 }
 

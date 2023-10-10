@@ -26,10 +26,10 @@ const toggler = document.getElementById("toggler");
     どのボタンが押されたかを取得してindexに移動する
 */
 function moveToIndex(pathname, e){
-    const indexURL = "/toukiApp/"
+    const indexURLs = ["/toukiApp/", "/toukiApp/index"];
 
     // index以外のページのとき
-    if(pathname !== indexURL) {
+    if(!indexURLs.includes(pathname)) {
         //押したボタンをセッションに取得させる
         for(let className in navToClass){
             if(e.target.classList.contains(className)){

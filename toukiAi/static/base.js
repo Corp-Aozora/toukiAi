@@ -171,6 +171,7 @@ function slideDownIfHidden(el){
  * @param {number} time スライドアップが完了する時間間
  */
 function slideDownAfterDelay(el, time = 250){
+    if(time === null) time = 250;
     setTimeout(() => {
         slideDownAndScroll(el);
     }, time);

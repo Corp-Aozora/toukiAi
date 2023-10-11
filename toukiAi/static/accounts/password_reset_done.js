@@ -43,7 +43,7 @@ function accountResetPassword(input){
     }).catch(error => {
         console.log(error);
     }).finally(()=>{
-        slideDown(resentMessage);
+        slideDownAndScroll(resentMessage);
     });
 }
 

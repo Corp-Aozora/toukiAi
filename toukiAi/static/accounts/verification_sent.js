@@ -49,7 +49,7 @@ email.addEventListener("keypress", (e)=>{
 submitBtn.addEventListener("click", ()=>{
     //メールアドレスの形式チェック
     if(isEmail(reqInputs[emailIndex].value)[0]){
-        slideDown(resentMessage);
+        slideDownAndScroll(resentMessage);
 
         toggleErrorMessage(true, msgEls[emailIndex], msgs[emailIndex]);
         

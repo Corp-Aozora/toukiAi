@@ -4,19 +4,17 @@
     変数
 */
 const checkBoxes = document.getElementsByTagName("input");
-const checkBoxesArea = document.getElementsByClassName("input-group-text");
+const btnSignup = document.getElementById("btnSignup");
+const availableText = document.getElementById("availableText");
+const signupLink = document.getElementById("signupLink");
+const signupURL = "/account/signup/";
 let checkedCount = 0;
 
 /**
-    利用できるか判別する処理
-    @param {event} e
-*/
+ * 利用できるか判別する処理
+ * @param {event} e
+ */
 function showResult(e){
-    const signupURL = "/account/signup/";
-    const btnSignup = document.getElementById("btnSignup");
-    const availableText = document.getElementById("availableText");
-    const linkToSignup = document.getElementById("linkToSignup");
-
     //チェックが入ったとき
     if(e.target.checked){
         //チェックされたボタンのカウントを変更する
@@ -26,8 +24,8 @@ function showResult(e){
         if(checkedCount === checkBoxes.length){
             //登録ボタンを有効化、URLを設定、利用できる旨のテキストを表示する
             btnSignup.disabled = false;
-            linkToSignup.setAttribute("href", signupURL);
-            slideDown(availableText);            
+            signupLink.setAttribute("href", signupURL);
+            slideDownAndScroll(availableText);        
         }
     }else{
         //それ以外のとき
@@ -36,19 +34,15 @@ function showResult(e){
 
         //登録ボタンを無効化、URLを削除、利用できる旨のテキストを非表示にする
         btnSignup.disabled = true;
-        linkToSignup.removeAttribute("href");
-        slideUp(availableText);        
+        signupLink.removeAttribute("href");
+        slideDownAndScroll(availableText);        
     }
 }
 
 /**
-    イベント集
-*/
+ * イベントリスナー
+ */
 window.addEventListener("load", ()=>{
-    //チェックボックスにイベントを設定
-    for(let i = 0; i < checkBoxes.length; i++){
-        checkBoxes[i].addEventListener("change", (e)=>{
-            showResult(e);
-        })
-    }
+    //各チェックボックスにイベントを設定
+    checkBoxes.forEach(checkBox => {checkBox.addEventListener("change", showResult)});
 })

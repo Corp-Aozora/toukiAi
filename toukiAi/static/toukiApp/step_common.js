@@ -178,25 +178,6 @@ function setNavTogglerStyle(){
 }
 
 /**
- * あるボタンを押したらある要素を表示する
- * @param {button} btn 表示する要素 
- * @param {element} target 表示する要素 
- */
-function buttonToElement(btn, target){
-    
-    //あるボタンが押されたとき
-    if(btn.checked){
-        //要素を表示する
-        if(target.style.display === "none"){
-            slideDown(target);
-            scrollToTarget(target);
-        }
-    }else{
-        slideUp(target);
-    }
-}
-
-/**
  * 次へのボタンのトグル
  * @param {boolean} isValid チェック結果
  * @param {element} el チェック対象の要素

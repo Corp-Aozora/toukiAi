@@ -11,8 +11,8 @@ const xxlWidth = 1399;
 const header = document.getElementById("header");
 
 //bootstrapのツールチップを有効化
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
 let reqInputs = [];
 let msgEls = [];
@@ -43,7 +43,6 @@ function emphasizeText(el){
  */
 function removeEmphasizeText(el){
     el.classList.remove("text-primary", "border-bottom", "border-primary");
-
 }
 
 /**
@@ -51,7 +50,7 @@ function removeEmphasizeText(el){
  * @param {string} str 変換したい文字列
  * @return {string} 変換された文字列を返す
  */
-var ZenkakuToHankaku = function(str) {
+function ZenkakuToHankaku(str) {
 	return String(str).replace(/[！-～]/g, function(s) {
 		return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
 	});
@@ -137,16 +136,42 @@ const slideDown = (el, duration = 250) => {
 };
 
 /**
- * 要素のスライドトグル
- * @param {HTMLElement} el 
+ * slideDownの後にscrollToTargetを実行する
+ * @param {HTMLElement} el 対象の要素
+ */
+function slideDownAndScroll(el){
+    slideDown(el);
+    scrollToTarget(el);
+}
+
+/**
+ * 要素が表示されているときは、slideUp、非表示のときはslideUpしてスクロールする
+ * @param {HTMLElement} el 対象の要素
  */
 function slideToggle(el){
-    if(el.style.display === "flex" || el.style.display === "block"){
-        slideUp(el);
-    }else{
+    if(window.getComputedStyle(el) !== 'none') slideUp(el);
+    else slideDownAndScroll(el);
+}
+
+
+/**
+ * 非表示のとき対象の要素を表示する
+ * @param {HTMLElement} el 表示する要素
+ */
+function slideDownIfHidden(el){
+    if(window.getComputedStyle(el) === "none")
+        slideDownAndScroll(el);
+}
+
+/**
+ * 同じ要素をスライドアップしてスライドダウンするときの表示
+ * @param {HTMLElement} el 対象の要素
+ * @param {number} time スライドアップが完了する時間間
+ */
+function slideDownAfterDelay(el, time = 250){
+    setTimeout(() => {
         slideDown(el);
-        scrollToTarget(el);
-    }
+    }, time);
 }
 
 /**
@@ -160,37 +185,23 @@ function scrollToTarget(el, duration = 250) {
     let targetPosition = rect.top + window.scrollY - gap;
 
     setTimeout(() => {
-        scrollTo(0, targetPosition);
+        window.scrollTo({
+            top: targetPosition,
+            behavior: "smooth"
+        });
     }, duration);
 }
 
 /**
- * 複製された要素を削除する
- * @param {string} targetId 
- * @param {number} count
- */
-function removeElement(targetId, count){
-    let target = document.querySelector(`[id=${targetId}]`);
-    slideUp(target);
-    count -= 1;
-    setTimeout(()=>{
-        target.remove();
-    }, 250);
-
-    return count;
-}
-
-/**
  * 整数チェック
- * @param {string} val 
+ * @param {string|number} val チェック対象の値（文字列｜数字）
  * @param {HTMLElement} el 対象の要素（数字以外があるときは、空文字を入力する。全角数字があるときは半角数字に変換する）
  * @returns {boolean} 整数のときはtrue、違うときはfalse
  */
 function isNumber(val, el){
     //入力値がないときは、何もしない
-    if(val === ""){
-        return false;
-    } 
+    val = String(val);
+    if(val === "") return false;
 
     //全角を半角にする
     const reg = new RegExp(/^[0-9０-９]*$/);
@@ -206,38 +217,46 @@ function isNumber(val, el){
 
 /**
  * 桁数チェック
- * @param {number} value チェック対象の数字
+ * @param {number} val チェック対象の数字
  * @param {string} type チェックする桁数
  * @return {boolean} 適切なときはtrue、それ以外はfalse
  */
-function isDigit(value, type){
-    let countDigit;
+function isDigit(val, type){
+    let validDigit;
+    let countDigit = String(val).length;
     //電話番号（10桁又は11桁）
     if(type === "phoneNumber"){
-        const validDigit = [10, 11]
-        countDigit = String(value).length;
-
-        for(let i = 0; i < validDigit.length; i++){
-            if(validDigit[i] === countDigit) return true;
-        }
-
-        return false;
-    }else{
-        return false;
+        validDigit = [10, 11]
+        return validDigit.includes(countDigit);
+    }else if(type === "postNumber"){
+        //郵便番号（7桁）
+        validDigit = 7;
+        return (validDigit === countDigit);
     }
 }
 
 /**
  * 電話番号形式チェック
- * @param {string} value 
+ * @param {string} val 
  * @param {HTMLElement} el 
  * @returns {boolean} 形式に合致するときはtrue、合致しないときはfalse
  */
-function checkPhoneNumber(value, el){
-    const result = isNumber(value, el);
-    if(result === false) return false;
-
+function checkPhoneNumber(val, el){
+    const result = isNumber(val, el);
+    if(!result) return false;
     return isDigit(el.value, "phoneNumber");
+}
+
+/**
+ * 郵便番号形式チェック
+ * @param {string} val 
+ * @param {HTMLElement} el 
+ * @returns {boolean} 形式に合致するときはtrue、合致しないときはfalse
+ */
+function checkPostNumber(val, el){
+    const result = isNumber(val, el);
+    if(!result) return false;
+    return isDigit(el.value, "postNumber");
 }
 
 /**

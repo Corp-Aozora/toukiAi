@@ -152,15 +152,18 @@ function getCityData(val, el){
 }
 
 /**
- * 属性のプレフィックスを変更する
- * @param {string} attribute 変更対象の属性
+ * クローンしたフォームのid又はnameのプレフィックスを変更する
+ * @param {string[]|string} attributes 変更対象の属性（複数可）
  * @param {HTMLElement} el 変更対象の要素
  * @param {number} num 変更後のプレフィックス番号
  */
-function updateCloneIdOrName(attribute, el, num){
-    const oldAttribute = el.getAttribute(attribute);
-    const newAttribute = oldAttribute.replace(/\d+/g, num);
-    el.setAttribute(attribute, newAttribute);
+function updateCloneIdOrName(attributes, el, num){
+    if(!Array.isArray(attributes)) attributes = [attributes];
+    attributes.forEach(attribute => {
+        const oldAttribute = el.getAttribute(attribute);
+        const newAttribute = oldAttribute.replace(/\d+/g, num);
+        el.setAttribute(attribute, newAttribute);
+    });
 }
 
 /**
@@ -205,8 +208,7 @@ function updateCloneAttribute(fieldset, relation, oldCount){
     const inputsArr = fieldset.getElementsByTagName("input");
     const addTabIdx = 12; //元のタブインデックスに加算する数字
     for(let i = 0, len = inputsArr.length; i < len; i++){
-        updateCloneIdOrName("name", inputsArr[i], oldCount);
-        updateCloneIdOrName("id", inputsArr[i], oldCount);
+        updateCloneIdOrName(["name", "id"], inputsArr[i], oldCount);
         updateCloneTabindex(inputsArr[i], addTabIdx);
     }
 
@@ -218,7 +220,7 @@ function updateCloneAttribute(fieldset, relation, oldCount){
 }
 
 /**
- * 直前のフィールドセットをコピーする
+ * 直前のフィールドセットをコピーしてidを変更する
  * @param {string} relation 続柄（child又はcollateral）
  * @returns idのプレフィックスを更新した複製したフィールドセット
  */
@@ -338,7 +340,7 @@ function addGuideActive(guideList, nextIdx){
     guideField.btns.push(guideList.getElementsByClassName("guideBtn")[guideField.elIdx]);
     guideField.caretIcons.push(guideList.getElementsByClassName("guideCaret")[guideField.elIdx]);
     
-    if(guideField.guides[nextIdx].style.display === "none")
+    if(window.getComputedStyle(guideField.guides[nextIdx]) === "none")
         guideField.guides[nextIdx].style.display = "block";
 
     guideField.guides[nextIdx].classList.add("active");
@@ -546,7 +548,7 @@ function oneStepBack(i){
  */
 function slideUpDisuseEls(elsArr, startIdx, endIdx){
     for(let i = startIdx; i < endIdx + 1; i++){
-        if(elsArr[i].style.display !== "none") slideUp(elsArr[i]);    
+        if(window.getComputedStyle(elsArr[i]) !== "none") slideUp(elsArr[i]);    
     }
 }
 
@@ -555,7 +557,7 @@ function slideUpDisuseEls(elsArr, startIdx, endIdx){
  * @param {HTMLElement} el 対象の要素
  */
 function slideUpDisuseEl(el){
-    if(el.style.display !== "none") slideUp(el);    
+    if(window.getComputedStyle(el.style.display)) slideUp(el);    
 }
 
 /**
@@ -563,31 +565,11 @@ function slideUpDisuseEl(el){
  * @param {HTMLElement} el 対象のエラー要素
  * @param {HTMLElement} btn 無効化したいボタン
  */
-function pushInvalidEl(el, btn = null){
+function pushInvalidEl(el, btn){
     if(invalidEls.indexOf(el) === -1){
         invalidEls.push(el);
-        if(btn !== null) btn.disabled = true;
+        btn.disabled = true;
     }
-}
-
-/**
- * 非表示のとき対象の要素を表示する
- * @param {HTMLElement} el 表示する要素
- */
-function slideDownElIfHidden(el){
-    if(el.style.display === "none")
-        slideDown(el);
-}
-
-/**
- * 同じ要素をスライドアップしてスライドダウンするときの表示
- * @param {HTMLElement} el 対象の要素
- * @param {number} time スライドアップが完了する時間間
- */
-function slideDownAfterSlideUp(el, time = null){
-    setTimeout(() => {
-        slideDown(el);
-    }, time = time !== null ? time: 250);
 }
 
 /**
@@ -598,7 +580,7 @@ function slideDownAfterSlideUp(el, time = null){
  */
 function pushInvalidElAndSDIfHidden(errEl, btn, displayEl){
     pushInvalidEl(errEl, btn);
-    slideDownElIfHidden(displayEl);
+    slideDownIfHidden(displayEl);
 }
 
 /**
@@ -618,7 +600,7 @@ function changeCourse(...args){
     if(args[0])
         pushInvalidEl(args[0], args[1]);
     iniQs(args[2], args[3], args[4], args[5], args[6]);
-    slideDownAfterSlideUp(args[7], args[8]);
+    slideDownAfterDelay(args[7], args[8]);
 }
 
 /**
@@ -762,7 +744,7 @@ class SpouseRbHandler extends CommonRbHandler{
                 inputsField.errMsgEls[this.idxs.isStepChild.form].style.display = "none";
                 inputsField.errMsgEls[this.idxs.isStepChild.form].innerHTML = "";
                 //被相続人以外の子を表示する
-                slideDownElIfHidden(Qs[this.idxs.isStepChild.form], nextBtn);
+                slideDownIfHidden(Qs[this.idxs.isStepChild.form], nextBtn);
             }
         )
     }
@@ -851,7 +833,7 @@ class ChildRbHandler extends CommonRbHandler{
     //同じ配偶者
     static isSameSpouse(Qs){
         //手続時存在欄が表示されてないとき表示する
-        slideDownElIfHidden(Qs[this.idxs.isLive.form]);
+        slideDownIfHidden(Qs[this.idxs.isLive.form]);
         //手続時存在の初期値があるとき、手続時存在trueのイベントを発生させる
         if(reqInputs[this.idxs.isLive.input[yes]].disabled){
             const event = new Event("change");
@@ -947,7 +929,7 @@ class ChildRbHandler extends CommonRbHandler{
 
     //配偶者確認
     static isSpouse(el){
-        slideDownElIfHidden(el);
+        slideDownIfHidden(el);
     }
 
     //子供存在
@@ -971,7 +953,7 @@ class ChildRbHandler extends CommonRbHandler{
     //成人
     static isAdult(el){
         //日本在住欄を表示する
-        slideDownElIfHidden(el);
+        slideDownIfHidden(el);
         //日本在住の初期値があるとき、日本在住trueのイベントを発生させる
         if(reqInputs[this.idxs.isJapan.input[yes]].disabled){
             const event = new Event("change");
@@ -1134,7 +1116,7 @@ class AscendantRbHandler extends CommonRbHandler{
         this.handleYesNo(rbIdx, this.idxs.isRemarriage.input[yes],
             ()=>{
                 //エラー要素に被相続人以外の子をfalseを追加して次へボタンを無効化
-                slideDown(Qs[this.idxs.isChild.form]);
+                slideDownAndScroll(Qs[this.idxs.isChild.form]);
                 //エラーを非表示にする
                 inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = "none";
                 inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "";
@@ -1433,7 +1415,7 @@ class ChildrenRbHandler extends CommonRbHandler{
                 pushInvalidEl(reqInputs[this.idxs.isJapan.input[yes]], nextBtn);
                 //人数入力欄を表示する
                 reqInputs[this.idxs.count.input].value = "1";
-                slideDown(Qs[this.idxs.count.form]);
+                slideDownAndScroll(Qs[this.idxs.count.form]);
                 slideDown(Qs[this.idxs.isSameParents.form]);
                 //子供いないフラグをfalseにする
                 isNoChild = false;
@@ -1452,7 +1434,7 @@ class ChildrenRbHandler extends CommonRbHandler{
 
     //同じ両親
     static isSameParents(el){
-        slideDownElIfHidden(el);
+        slideDownIfHidden(el);
     }
 
     //手続時存在
@@ -1487,7 +1469,7 @@ class ChildrenRbHandler extends CommonRbHandler{
 
     //成人
     static isAdult(el){
-        slideDownElIfHidden(el);
+        slideDownIfHidden(el);
     }
 }
 

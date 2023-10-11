@@ -47,22 +47,24 @@ function removeEmphasizeText(el){
 
 /**
  * 文字列内にある全角を半角へ変換
- * @param {string} str 変換したい文字列
+ * @param {string|number} val 変換したい文字列
  * @return {string} 変換された文字列を返す
  */
-function ZenkakuToHankaku(str) {
-	return String(str).replace(/[！-～]/g, function(s) {
+function ZenkakuToHankaku(val) {
+    val = String(val);
+	return String(val).replace(/[！-～]/g, function(s) {
 		return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
 	});
 };
 
 /**
  * 半角を全角にする
- * @param {string} str 
- * @returns 
+ * @param {string|number} val 変換する文字列又は数字
+ * @returns {string} 全角にした文字列
  */
-function hankakuToZenkaku(str) {
-    return str.replace(/[!-~]/g, function(s) {
+function hankakuToZenkaku(val) {
+    val = String(val);
+    return val.replace(/[!-~]/g, function(s) {
         return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
     });
 }
@@ -149,7 +151,7 @@ function slideDownAndScroll(el){
  * @param {HTMLElement} el 対象の要素
  */
 function slideToggle(el){
-    if(window.getComputedStyle(el) !== 'none') slideUp(el);
+    if(window.getComputedStyle(el).display !== 'none') slideUp(el);
     else slideDownAndScroll(el);
 }
 
@@ -159,7 +161,7 @@ function slideToggle(el){
  * @param {HTMLElement} el 表示する要素
  */
 function slideDownIfHidden(el){
-    if(window.getComputedStyle(el) === "none")
+    if(window.getComputedStyle(el).display === "none")
         slideDownAndScroll(el);
 }
 
@@ -170,7 +172,7 @@ function slideDownIfHidden(el){
  */
 function slideDownAfterDelay(el, time = 250){
     setTimeout(() => {
-        slideDown(el);
+        slideDownAndScroll(el);
     }, time);
 }
 
@@ -416,7 +418,7 @@ const csrftoken = getCookie('csrftoken');
  * @param {string} val 
 */
 function isAlphaNumSymbolIncluded(val){
-    if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・]+$/.test(val)){
+    if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・￥]+$/.test(val)){
         return true;
     }else{
         return "英数記号は使用できません";

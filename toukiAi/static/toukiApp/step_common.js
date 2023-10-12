@@ -226,15 +226,18 @@ function afterValidation(isValid, messageEl, message, el, nextBtn){
 }
 
 /**
- * 引数に渡された要素の子要素として存在するinput要素を全て初期化する
- * @param {HTMLElement} el 初期化したいinput要素が属する親要素
+ * 引数に渡された１つ又は配列に入った要素の子要素として存在するinput要素を全て初期化する
+ * @param {HTMLElement[]|HTMLElement} els 初期化したいinput要素が属する親要素（配列形式じゃなくてもOK）
  */
-function iniAllInputs(el){
-    for (let i = 0; i < el.length; i++) {
-        const inputs = el[i].getElementsByTagName('input');
+function iniAllInputs(els){
+    if(!Array.isArray(els)) els = [els];
+
+    for (let i = 0; i < els.length; i++) {
+        const inputs = els[i].getElementsByTagName('input');
         for (let j = 0; j < inputs.length; j++) {
             if (inputs[j].type === 'text') inputs[j].value = '';
             else if (inputs[j].type === 'radio') inputs[j].checked = false;
+            else if (inputs[j].type === 'number') inputs[j].value = "0";
         }
     }
 }
@@ -271,6 +274,23 @@ function replaceElements(field, tagName){
         let oldEl = els[i];
         let newEl = oldEl.cloneNode(true);
         oldEl.parentNode.replaceChild(newEl, oldEl);
+    }
+}
+
+/**
+ * 引数で渡された要素の後ろにある特定のタグの一番最初の要素を返す
+ * @param {HTMLElement} el 
+ * @param {string} tagName
+ * @return 引数で渡された要素の後ろにある特定のタグの一番最初の要素
+ */
+function getNextElByTag(el, tagName){
+    let i = 0;
+    while (el && i < 10) {
+        el = el.nextElementSibling;
+        i++;
+        if (el && el.matches(`${tagName}`)) {
+            return el;
+        }
     }
 }
 

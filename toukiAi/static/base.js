@@ -323,23 +323,22 @@ function trimAllSpace(val, el){
 
 /**
  * 空文字チェック
- * @param {string} value チェック対象の値
  * @param {HTMLElement} el チェック対象の要素
  * @return 空文字でないときは先頭と末尾の空白を削除した入力値を返す、空文字のときは、falseを返す
  */
-function isBlank(value, el){
-    const str = value.trim();
+function isBlank(el){
+    const str = el.value.trim();
     return str.length === 0 ? "入力が必須です": false;
 }
 
 /**
  * 改行チェック
- * @param {string} value 
+ * @param {string} str 
  * @param {HTMLElement} el 
  * @returns 要素に改行コードを空文字に変換した文字列を入力する
  */
-function toSingleLine(value, el){
-    el.value = value.replace(/\n|\r/g, "");
+function toSingleLine(str, el){
+    el.value = str.replace(/\n|\r/g, "");
 }
 
 /**
@@ -360,13 +359,13 @@ function isSymbolIncluded(value, el){
 
 /**
  * 全角入力チェック
- * @param {string} val チェック対象の値 
  * @param {HTMLElement} el チェック対象の要素
  * @returns 条件に一致しないときはエラーメッセージ、一致するときは、校正した文字列を返す
  */
-function isOnlyZenkaku(val, el){
+function isOnlyZenkaku(el){
+    const val = el.value;
     //スペースを削除
-    let str = trimAllSpace(val,el)
+    let str = trimAllSpace(val, el);
     if(str.length == 0) return "入力が必須です";
 
     //改行チェック

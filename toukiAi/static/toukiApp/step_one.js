@@ -178,14 +178,17 @@ let isNoCollateral = false;
 let isParentsInheritance = false;
 //卑属から尊属に権利が移動したフラグ
 let isTransfferedToAscendant = false;
+//尊属から傍系に権利が移動したフラグ
+let isTransfferedToCollateral = false;
 
 /**
- * 初期化
+ * 初期処理
  */
 function initialize(){
     updateSideBar();
     reqInputs = [...decedent.inputs];
     invalidEls = [...decedent.inputs];
+    //年は初期値があり値もnullになることはないためエラー要素から除外する
     invalidEls.splice(Decedent.idxs.deathYear, 1);
 }
 
@@ -413,24 +416,28 @@ function displayFieldset(fieldset){
 /**
  * 次の項目を有効化して前の項目を無効化する
  * @param {HTMLElement} fromFieldset 押された次へボタンが属するフィールドセット
- * @param {number} i 押された次へボタンのインデックス
  */
-function enableNextFieldset(fromFieldset, i){
-    //次の項目を取得（子がいないときは、子の欄をスキップするために２加算する）
-    let nextFieldset = (isNoChild) ? 
-        document.getElementsByTagName("fieldset")[i + 2]:
-        document.getElementsByTagName("fieldset")[i + 1];
-
+function enableNextFieldset(fromFieldset){
+    //次のフィールドセットを取得する
+    let nextFieldset;
+    //子供欄から子がいないフラグtrueのとき、父欄を取得する
+    if(fromFieldset.id === "childrenFieldset" && isNoChild){
+        nextFieldset = document.getElementById("id_ascendant-0-fieldset");
+    }
+    else if(fromFieldset.id === "id_ascendant-1-fieldset" && isTransfferedToCollateral){
+        //母欄から兄弟姉妹に権利移動フラグtrueのとき、兄弟姉妹欄を表示する
+        nextFieldset = document.getElementById("collateralsFieldset");
+    }else{
+        //原則次のフィールドセットを取得する
+        nextFieldset = getNextElByTag(fromFieldset, "fieldset");
+    }
     //次の項目を表示、hrを挿入、次の項目にスクロール
     inputsField.reqFieldsets.push(nextFieldset);
     displayFieldset(nextFieldset);
-    
     //前の項目を無効化
     fromFieldset.disabled = true;
-
     //次のフィールドセットの要素を取得する
     getFieldsetEl(true, nextFieldset);
-
     //次の項目の最初の入力欄にフォーカスする
     reqInputs[0].focus();
 }
@@ -505,65 +512,58 @@ function adjustGuide(guideList, oldCount, newCount){
 }
 
 /**
+ * ガイドのタイトルの本番を変更する
+ * @param {HTMLElement} preFieldset １つ前のフィールドセット
+ * @param {HTMLElement[]} guideList ガイド
+ * @param {string} relation 更新対象の続柄
+ */
+function updateGuideTitleMainNum(preFieldset, guideList, relation){
+    const ascendantFieldsets = guideList.getElementsByClassName(`${relation}Guide`);
+    const preFieldsetTitle = preFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
+    const preFieldsetTitleParts = preFieldsetTitle.replace(/\n/g, "").replace(/\s/g, "").split("－");
+    const preFieldsetMainNum = parseInt(ZenkakuToHankaku(preFieldsetTitleParts[0]));
+    for(let i = 0, len = ascendantFieldsets.length; i < len; i++){
+        const btn = ascendantFieldsets[i].firstElementChild;
+        const oldTitle = btn.textContent;
+        const oldTitleParts = oldTitle.replace(/\n/g, "").replace(/\s/g, "").split("．");
+        const oldNumberingParts = oldTitleParts[0].split("－");
+        const newMainNum = hankakuToZenkaku(parseInt(ZenkakuToHankaku(preFieldsetMainNum)) + 1);
+        const newNumbering = newMainNum + "－" + oldNumberingParts[1];
+        const newTitle = `${newNumbering}．${oldTitleParts[1]}`;
+        btn.textContent = newTitle;
+    }
+}
+
+/**
  * ガイドを更新する
  * @param {HTMLElement[]} fromFieldset 押された次へボタンが属するフィールドセット
  */
 function updateGuide(fromFieldset){
     const guideList = document.getElementById("guideList");
     const nextIdx = inputsField.reqFieldsets.length - 1;
-
     //一つ前のガイドを通常表示にする
     removeGuideActive(guideList, nextIdx);
-
     //子供欄から父の欄を表示するとき
     if(isNoChild && fromFieldset.id === "childrenFieldset"){
         //子のガイドが複製されているとき、子１以外は削除する
         const childGuides = guideList.getElementsByClassName("childGuide");
         removeAllExceptFirst(childGuides);
-
         //子のガイドをスキップするために2加算する
         Guide.elIdx += 2;
-
         //母のガイドも無効化した状態で表示する
         guideList.getElementsByClassName("ascendantGuide")[1].style.display = "block";
-
         //タイトルの本番を変更する
-        const ascendantFieldsets = guideList.getElementsByClassName("ascendantGuide");
-        const preFieldsetTitle = fromFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
-        const preFieldsetTitleParts = preFieldsetTitle.replace(/\n/g, "").replace(/\s/g, "").split("－");
-        const preFieldsetMainNum = parseInt(ZenkakuToHankaku(preFieldsetTitleParts[0]));
-        for(let i = 0, len = ascendantFieldsets.length; i < len; i++){
-            const btn = ascendantFieldsets[i].firstElementChild;
-            const oldTitle = btn.textContent;
-            const oldTitleParts = oldTitle.replace(/\n/g, "").replace(/\s/g, "").split("．");
-            const oldNumberingParts = oldTitleParts[0].split("－");
-            const newMainNum = hankakuToZenkaku(parseInt(ZenkakuToHankaku(preFieldsetMainNum)) + 1);
-            const newNumbering = newMainNum + "－" + oldNumberingParts[1];
-            const newTitle = `${newNumbering}．${oldTitleParts[1]}`;
-            btn.textContent = newTitle;
-        }
-
+        updateGuideTitleMainNum(fromFieldset, guideList, "ascendant");
     }else if(isTransfferedToAscendant){
         //父の要素に移動する
         Guide.elIdx += 1;
         //タイトルの本番を変更する
-        const ascendantFieldsets = guideList.getElementsByClassName("ascendantGuide");
-        const preFieldsetTitle = fromFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
-        const preFieldsetTitleParts = preFieldsetTitle.replace(/\n/g, "").replace(/\s/g, "").split("－");
-        const preFieldsetMainNum = parseInt(ZenkakuToHankaku(preFieldsetTitleParts[0]));
-        for(let i = 0, len = ascendantFieldsets.length; i < len; i++){
-            const btn = ascendantFieldsets[i].firstElementChild;
-            const oldTitle = btn.textContent;
-            const oldTitleParts = oldTitle.replace(/\n/g, "").replace(/\s/g, "").split("．");
-            const oldNumberingParts = oldTitleParts[0].split("－");
-            const newMainNum = hankakuToZenkaku(parseInt(ZenkakuToHankaku(preFieldsetMainNum)) + 1);
-            const newNumbering = newMainNum + "－" + oldNumberingParts[1];
-            const newTitle = `${newNumbering}．${oldTitleParts[1]}`;
-            btn.textContent = newTitle;
-        }
+        updateGuideTitleMainNum(fromFieldset, guideList, "ascendant");
         //母のガイドも無効化した状態で表示する
         guideList.getElementsByClassName("ascendantGuide")[1].style.display = "block";
-
+    }else if(fromFieldset.id === "id_ascendantFieldset-1-fieldset" && isTransfferedToCollateral){
+        //母の欄から兄弟姉妹欄を表示するとき
+        Guide.elIdx += 5;
     }else{
         Guide.elIdx += 1;
         
@@ -578,22 +578,22 @@ function updateGuide(fromFieldset){
 
     //次の項目を強調する
     addGuideActive(guideList, nextIdx);
-
     //次の項目のガイドボタンにイベントを追加
     Guide.btns[nextIdx].addEventListener("click", scrollToTargetHandler);
 }
 
 /**
  * 前の項目を有効化する
- * @param {number} i 押された戻るボタンのインデックス
+ * @param {HTMLElement} preFieldset 押された戻るボタンが属するフィールドセットの１つ前のフィールドセット
  */
-function putBackFieldset(i){
-    const disableField = inputsField.reqFieldsets[i + 1]; //無効化対象のフィールドセット
-    const enableField = inputsField.reqFieldsets[i]; //有効化対象のフィールドセット
+function putBackFieldset(preFieldset){
+    const disableField = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1]; //無効化対象のフィールドセット
     const removeHr = disableField.previousElementSibling; //削除対象のhrタグ
 
     //無効化対象のフィールドセットが子供欄のとき子供不存在フラグをfalseに戻す
     if(disableField.id === "childrenFieldset") isNoChild = false;
+    //兄弟姉妹欄のとき、尊属から傍系への権利移動フラグをfalseに戻す
+    else if(disableField.id === "collateralFieldset") isTransfferedToCollateral = false;
 
     //無効化するフィールドにあるイベントが設定されている要素を初期化してイベントを削除する
     replaceElements(disableField, "input");
@@ -606,11 +606,11 @@ function putBackFieldset(i){
     removeHr.remove();
     
     //直前の項目を有効化してスクロール
-    enableField.disabled = false;
-    scrollToTarget(enableField);
+    preFieldset.disabled = false;
+    scrollToTarget(preFieldset);
     
     //一つ前のフィールドの要素を取得する
-    getFieldsetEl(false, enableField);
+    getFieldsetEl(false, preFieldset);
 
     //子の欄から戻るときは、途中の入力データを保存しない
     if(disableField.id === "id_child-0-fieldset") preserveInvalidEls.length = 0;
@@ -646,9 +646,8 @@ function enablePreGuide(idx){
 
 /**
  * ガイドを一つ戻す
- * @param {number} i 押された次へボタンのインデックス
  */
-function putBackGuide(i){
+function putBackGuide(){
     const currentIdx = Guide.guides.length - 1;
     
     //子１の欄のとき
@@ -672,6 +671,8 @@ function putBackGuide(i){
     else if(currentGuideId === "id_child-0-guide"){
         isNoChild = false;
         Guide.elIdx -= 1;
+    }else if(currentGuideId === "id_collaterals-guide"){
+        Guide.elIdx -= 5;
     }else{
         Guide.elIdx -= 1;
     }
@@ -684,13 +685,13 @@ function putBackGuide(i){
 
 /**
  * 前の項目を有効化にする
- * @param {num} i 押された戻るボタンのインデックス
+ * @param {HTMLElement} preFieldset 押された戻るボタンが属するフィールドセットの１つ前のフィールドセット
  */
-function oneStepBack(i){
+function oneStepBack(preFieldset){
     return function(e){
         //前の項目を有効化とガイドの巻き戻し
-        putBackGuide(i);
-        putBackFieldset(i);
+        putBackGuide();
+        putBackFieldset(preFieldset);
     }
 }
 
@@ -1376,11 +1377,10 @@ function handleNumInputKeyDown(e, nextEl){
  * @param {HTMLElement} nextBtn 次へボタン
  */
 function handleFullWidthInputChange(el, idx, nextBtn){
-    const val = el.value;
     //エラー要素から削除
     invalidEls = invalidEls.filter(x => x !== el);
     //入力値のチェック結果を取得して結果に応じた処理をする
-    isValid = isOnlyZenkaku(val, el);
+    isValid = isOnlyZenkaku(el);
     sort(isValid, inputsField.errMsgEls[idx], isValid, reqInputs[idx], nextBtn);
 }
 
@@ -1701,49 +1701,43 @@ function reflectData(fieldset, relation, forms){
 }
 
 /**
- * 尊属のタイトルを更新する
- * @param {HTMLElement} fieldsets 全尊属のフィールドセット
+ * 全尊属の欄のタイトルを更新する
  * @param {HTMLElement} preFieldset 一つ前のフィールドセット
  */
-function updateAscendantTitle(fieldsets, preFieldset){
-    const ascendants = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"];
-
-    if(isTransfferedToAscendant){
-        const preFieldsetTitle = preFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
-        const preFieldsetTitleParts = preFieldsetTitle.replace(/\n/g, "").replace(/\s/g, "").split("－");
-        const preFieldsetNum = parseInt(ZenkakuToHankaku(preFieldsetTitleParts[0]));
-
-        for(let i = 0, len = fieldsets.length; i < len; i++){
-            //タイトルを変更する
-            const titleEl =  fieldsets[i].getElementsByClassName("fieldsetTitle")[0];
-            const newNum = hankakuToZenkaku(String(preFieldsetNum + 1));
-            const newTitle = `${newNum}－${hankakuToZenkaku(String(i + 1))}．${ascendants[i]}について`;
-            titleEl.textContent = newTitle;
-        }
+function updateAscendantTitle(preFieldset){
+    const fieldsets = document.getElementsByClassName("ascendantFieldset");
+    const ascendantNames = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"];
+    const preFieldsetTitle = preFieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
+    const preFieldsetTitleParts = preFieldsetTitle.replace(/\n/g, "").replace(/\s/g, "").split("－");
+    const preFieldsetNum = parseInt(ZenkakuToHankaku(preFieldsetTitleParts[0]));
+    for(let i = 0, len = fieldsets.length; i < len; i++){
+        const titleEl =  fieldsets[i].getElementsByClassName("fieldsetTitle")[0];
+        const newNum = hankakuToZenkaku(String(preFieldsetNum + 1));
+        const newTitle = `${newNum}－${hankakuToZenkaku(String(i + 1))}．${ascendantNames[i]}について`;
+        titleEl.textContent = newTitle;
     }
 }
 
 /**
- * 引数で渡すフィールドセット内にあるinputとbutton要素にタブインデックスを設定する
- * @param {HTMLElement[]} fieldsets タブインデックスを設定する要素があるフィールドセット
+ * 引数で渡すフィールドセット内にあるinputとbutton要素にタブインデックスを更新する
+ * @param {HTMLElement[]} fieldsets タブインデックスを更新するinput要素が属するフィールドセット
  */
-function updateNextFieldsetTabindex(fieldsets){
+function updateAscendantTabindex(fieldsets){
     const lastNextBtn = inputsField.nextBtns[inputsField.nextBtns.length - 1];
-    const newTabindex = parseInt(lastNextBtn.getAttribute("tabindex")) + 1;
-    //ループ処理をしてタブインデックスを設定する
+    let newTabindex = parseInt(lastNextBtn.getAttribute("tabindex")) + 1;
+    const beforeCountInputIdx = 13;
+    const afterCountInputIdx = 15;
     for(let i = 0, len = fieldsets.length; i < len; i++){
         const inputs = Array.from(fieldsets[i].getElementsByTagName("input"));
         const buttons = Array.from(fieldsets[i].getElementsByTagName("button"));
-        const beforeCountInputIdx = 13;
-        const afterCountInputIdx = 15;
-        
+        //尊属欄用のインデックス（子の人数の入力欄に+-のボタンがあるため）
         inputs.splice(beforeCountInputIdx, 0, buttons.shift());
         inputs.splice(afterCountInputIdx, 0, buttons.shift());
-
         const els = inputs.concat(buttons);
         for(let j = 0, len = els.length; j < len; j++){
             els[j].setAttribute("tabindex", (newTabindex + j));
         }
+        newTabindex += els.length;
     }
 }
 
@@ -1789,41 +1783,43 @@ function checkIfTransfferedToAscendant(){
 }
 
 /**
+ * 子供欄から子の欄を表示するとき
+ */
+function childrenToChild(){
+    const oldTotalForms = document.getElementById(`id_child-TOTAL_FORMS`);
+    const oldFormCount = parseInt(oldTotalForms.value);
+    const newFormCount = parseInt(reqInputs[ChildCommon.idxs.count.input].value);
+    let childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
+    //増えたとき、増えた分の子の欄を生成する
+    if(newFormCount > oldFormCount){
+        for(let i = oldFormCount; i < newFormCount; i ++){
+            createForm(true);
+        }
+    }else if(newFormCount < oldFormCount){
+        //減ったとき、余分な子の欄を削除する
+        oldTotalForms.value = newFormCount;
+        childFieldsets.slice(newFormCount).forEach(el => el.parentNode.removeChild(el));
+    }
+    //父、母、子の欄を初期化する
+    const ascendantFieldsets = document.getElementsByClassName("ascendantFieldset");
+    const parentsFieldsets = Array.from(ascendantFieldsets).slice(0, 2);
+    iniIndivisualFieldsets(parentsFieldsets);
+    childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
+    iniIndivisualFieldsets(childFieldsets);
+}
+
+/**
  * 必要なフィールドセットを生成や使用しない欄の初期化など対象の続柄のフィールドセットを一括で調整をする
  * @param {HTMLElement} fieldset 押された次へボタンがあるフィールドセット
  */
 function adjustFieldsets(fieldset){
-    //子の欄の調整
+    //子供欄から子の欄を表示するとき、子の欄のフォーム数の調整と父、母、子の欄の初期化
     if(fieldset.id === "childrenFieldset" && !isNoChild){
-        const childCountInputIdx = 2;
-        const oldTotalForms = document.getElementById(`id_child-TOTAL_FORMS`);
-        const oldFormCount = parseInt(oldTotalForms.value);
-        const newFormCount = parseInt(reqInputs[childCountInputIdx].value);
-        const fieldsets = Array.from(document.getElementsByClassName("childFieldset"));
-
-        //増えたとき
-        if(newFormCount > oldFormCount){
-            const isChild = true;
-            for(let i = oldFormCount; i < newFormCount; i ++){
-                createForm(isChild);
-            }
-        }else if(newFormCount < oldFormCount){
-            //減ったとき
-            oldTotalForms.value = newFormCount;
-            fieldsets.slice(newFormCount).forEach(el => el.parentNode.removeChild(el));
-        }
-
-        //父、母の欄を初期化する
-        const ascendantFieldsets = document.getElementsByClassName("ascendantFieldset");
-        const parentsFieldsets = Array.from(ascendantFieldsets).slice(0, 2);
-        iniIndivisualFieldsets(parentsFieldsets);
-        const childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
-        iniIndivisualFieldsets(childFieldsets);
+        childrenToChild();
         return;
-
     }
 
-    //この欄の次へボタンが押されたとき
+    //子の欄の次へボタンが押されたとき
     if(fieldset.classList.contains("childFieldset")){
         //最後の子の欄のとき
         const lastChildFieldset = getLastElByAttribute("childFieldset", "class");
@@ -1832,27 +1828,41 @@ function adjustFieldsets(fieldset){
             isTransfferedToAscendant = checkIfTransfferedToAscendant();
     }
 
+    //父欄を表示するとき
     if(
         (fieldset.id === "childrenFieldset" && isNoChild) ||
         (isTransfferedToAscendant)
     ){
-        //父欄のとき
-        //尊属欄のタイトルを設定
-        const ascendantFieldsets = document.getElementsByClassName("ascendantFieldset");
-        updateAscendantTitle(ascendantFieldsets, fieldset);
+        //全尊属の欄のタイトルを設定
+        updateAscendantTitle(fieldset);
         //父母欄のタブインデックスを設定
+        const ascendantFieldsets = document.getElementsByClassName("ascendantFieldset");
         const parentsFieldsets = [ascendantFieldsets[0], ascendantFieldsets[1]];
-        updateNextFieldsetTabindex(parentsFieldsets);
+        updateAscendantTabindex(parentsFieldsets);
 
         //子から尊属に権利が移動した場合はこの初期化はしない
         if(isTransfferedToAscendant) return;
 
-        //子の欄を初期化する
+        //子供欄から父の欄を表示するときは、子の欄を初期化する
         const childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
         removeAllExceptFirst(childFieldsets);
         iniIndivisualFieldsets([childFieldsets[0]]);
-        const totalForms = document.getElementById(`id_child-TOTAL_FORMS`);
-        totalForms.value = 1;
+        document.getElementById(`id_child-TOTAL_FORMS`).value = 1;
+        return;
+    }
+
+    //母欄のとき
+    if(fieldset.id === "id_ascendant-1-fieldset"){
+        //父方の祖父欄を表示する
+        //母方の祖父欄を表示する
+        //兄弟姉妹欄を表示する
+        const fatherInputs = document.getElementById("id_ascendant-0-fieldset").getElementsByTagName("input");
+        const isFatherRefuse = fatherInputs[Ascendant.idxs.isRefuse.input[yes]];
+        const motherInputs = fieldset.getElementsByTagName("input");
+        const isMotherRefuse = motherInputs[Ascendant.idxs.isRefuse.input[yes]];
+        if(isFatherRefuse && isMotherRefuse) isTransfferedToCollateral = true;
+        return;
+        //完了フィールドセットを表jしうる
     }
 }
 
@@ -1970,19 +1980,19 @@ function enableSubmitBtnFieldset(fromFieldset){
 
 /**
  * 入力が完了したか判別する
- * @param {HTMLElement} fieldset 
- * @returns 
+ * @param {HTMLElement} fieldset 押された次へボタンが属するフィールドセット
+ * @returns 入力完了フラグ
  */
 function checkIfDone(fieldset){
-    //最後の子で次へボタンが押されたとき、１人でも手続時に健在な人がいれば完了ボタンを表示する
+    //最後の子の欄で次へボタンが押されたとき、１人でも手続時に健在な人がいれば完了ボタンを表示する
     if(fieldset.classList.contains("childFieldset")){
         const lastChildFieldset = getLastElByAttribute("childFieldset", "class");
         if(fieldset === lastChildFieldset){
             const childFieldsets = document.getElementsByClassName("childFieldset");
             for(let i = 0, len = childFieldsets.length; i < len; i++){
-                const isLiveTrue = childFieldsets[i].getElementsByTagName("input")[Descendant.idxs.isLive.input[yes]].checked;
-                const isRefuseFalse = childFieldsets[i].getElementsByTagName("input")[Descendant.idxs.isRefuse.input[no]].checked;
-                //手続時に健在かつ相続放棄していないとき
+                const inputs = childFieldsets[i].getElementsByTagName("input");
+                const isLiveTrue = inputs[Descendant.idxs.isLive.input[yes]].checked;
+                const isRefuseFalse = inputs[Descendant.idxs.isRefuse.input[no]].checked;
                 if(isLiveTrue && isRefuseFalse){
                     enableSubmitBtnFieldset(fieldset);
                     return true;
@@ -1995,21 +2005,18 @@ function checkIfDone(fieldset){
 
 /**
  * 次の項目とガイドの次の項目を有効化して前の項目を無効化する
- * @param {number} fromNextBtnIdx 押された次へボタンのインデックス
- * @param {boolean} isIndivisual 次の欄が個人用欄か
+ * @param {boolean} isIndivisual 次の欄が個人用欄フラグ
  */
-function oneStepFoward(fromNextBtnIdx, isIndivisual){
-    
-    const fromFieldset = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1];
+function oneStepFoward(isIndivisual){
+    const fromFieldsetIdx = inputsField.reqFieldsets.length - 1
+    const fromFieldset = inputsField.reqFieldsets[fromFieldsetIdx];
 
     //入力完了判断
     if(checkIfDone(fromFieldset)) return;
-
     //有効化対象の続柄の全fieldsetの下準備
-    if(fromFieldset) adjustFieldsets(fromFieldset);
-
+    adjustFieldsets(fromFieldset);
     //次のフィールドセットを表示
-    enableNextFieldset(fromFieldset, fromNextBtnIdx);
+    enableNextFieldset(fromFieldset);
     //ガイドを更新
     updateGuide(fromFieldset);
 
@@ -2042,15 +2049,15 @@ function oneStepFoward(fromNextBtnIdx, isIndivisual){
     }
 
     //戻るボタンにイベントを設定
-    const oneStepBackHandler = oneStepBack(fromNextBtnIdx);
-    inputsField.preBtnsArr[fromNextBtnIdx].addEventListener("click", oneStepBackHandler);
+    const oneStepBackHandler = oneStepBack(fromFieldset);
+    inputsField.preBtnsArr[inputsField.preBtnsArr.length - 1].addEventListener("click", oneStepBackHandler);
 
     //次へボタンにイベントを設定
     //配偶者欄又は母方の祖父母欄のとき
     if([spouse.fieldset.id, "motherGmotherFieldset"].includes(fieldset.id)){
-        oneStepFowardHandler = function () {oneStepFoward(fromNextBtnIdx + 1, false)};
+        oneStepFowardHandler = function () {oneStepFoward(false)};
     }else{
-        oneStepFowardHandler = function () {oneStepFoward(fromNextBtnIdx + 1, true)};
+        oneStepFowardHandler = function () {oneStepFoward(true)};
     }
     nextBtn.addEventListener("click", oneStepFowardHandler);
 }
@@ -2075,11 +2082,10 @@ function sort(isValid, errorMessagesEl, message, el, nextBtn){
  * @param {elemet} el チェック対象の要素
  */
 function decedentValidation(el){
-    const val = el.value;
     //チェック対象をエラー配列から削除
     invalidEls = invalidEls.filter(x => x !== el);
     //氏名のときは全角チェック、その他は空欄チェック
-    return el === decedent.inputs[Decedent.idxs.name] ? isOnlyZenkaku(val, el): isBlank(val, el);
+    return (el === decedent.inputs[Decedent.idxs.name]) ? isOnlyZenkaku(el): isBlank(el);
 }
 
 /**
@@ -2088,11 +2094,10 @@ function decedentValidation(el){
 
 //最初の画面表示後の処理
 window.addEventListener("load", ()=>{
-
     //初期処理
     initialize();
     
-    //input要素でenterを押したらPOSTが実行されないようにする
+    //全input要素にenterを押したことによるPOSTが実行されないようにする
     const inputArr = document.getElementsByTagName("input");
     for(let i = 0, len = inputArr.length; i < len; i++){
         inputArr[i].addEventListener("keydown",(e)=>{
@@ -2101,48 +2106,45 @@ window.addEventListener("load", ()=>{
         })
     }
 
-    //被相続人欄をループ
+    //被相続人の入力欄にイベントを設定する
     for(let i = 0, len = decedent.inputs.length; i < len; i++){
-        
-        //被相続人欄内の入力欄にイベントを設定
+        //氏名欄のとき、enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
+        if(i === Decedent.idxs.name){
+            decedent.inputs[i].addEventListener("keydown",(e)=>{
+                if(e.key === "Enter"){
+                    e.preventDefault();
+                    decedent.inputs[Decedent.idxs.deathYear].focus();
+                }
+            })
+        }
+
+        //前入力欄にchangeイベントを設定する
         decedent.inputs[i].addEventListener("change", (e)=>{
-            const el = e.target;
-            const val = el.value;
-
             //入力値のチェック結果を取得
+            const el = e.target;
             isValid = decedentValidation(el);
-    
-            //結果に応じて分岐
+            //チェック結果に応じて処理を分岐
             sort(isValid, decedent.errMsgEls[i], isValid, decedent.inputs[i], decedent.nextBtn);
-
-            //住所の都道府県
+            //住所又は本籍地のの都道府県のとき、市町村データを取得する
             if(el === decedent.inputs[Decedent.idxs.prefecture] || el === decedent.inputs[Decedent.idxs.domicilePrefecture]){
-
-                //市区町村データ取得
+                const val = el.value;
                 getCityData(val, decedent.inputs[i + 1]);
             }
         })
     }
 
+    //氏名欄にフォーカスする
     decedent.inputs[Decedent.idxs.name].focus();
 })
 
 //画面のサイズが変更されたとき
 window.addEventListener('resize', () => {
+    //サイドバーの高さを調整する
     setSidebarHeight();
 });
 
-//この章の入力状況欄
-//１．お亡くなりになった方についてボタン
+//被相続人ガイド
 Guide.btns[0].addEventListener("click", scrollToTargetHandler)
-
-//氏名
-decedent.inputs[Decedent.idxs.name].addEventListener("keydown",(e)=>{
-    if(e.key === "Enter"){
-        e.preventDefault();
-        decedent.inputs[Decedent.idxs.deathYear].focus();
-    }
-})
 
 //被相続人欄の次へボタン
 decedent.nextBtn.addEventListener("click",(e)=>{
@@ -2160,5 +2162,5 @@ decedent.nextBtn.addEventListener("click",(e)=>{
     }
     
     //チェックを通ったときは、次へ入力欄を有効化する
-    oneStepFoward(decedent.fieldsetIdx, true);
+    oneStepFoward(true);
 })

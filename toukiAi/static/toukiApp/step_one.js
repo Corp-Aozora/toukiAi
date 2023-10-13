@@ -83,15 +83,13 @@ class Descendant extends Person{
     //入力欄のインデックス
     static idxs = {
         name:{form: 0, input: 0},
-        isSameSpouse:{form: 1, input: [1, 2]},
-        isLive:{form: 2, input: [3, 4]},
-        isExist:{form: 3, input: [5, 6]},
-        isRefuse:{form: 4, input: [7, 8]},
-        isSpouse:{form: 5, input: [9, 10]},
+        isLive:{form: 1, input: [1, 2]},
+        isExist:{form: 2, input: [3, 4]},
+        isRefuse:{form: 3, input: [5, 6]},
+        isSpouse:{form: 4, input: [7, 8]},
+        isRemarriage:{form: 5, input: [9, 10]},
         isChild:{form: 6, input: [11, 12]},
-        childCount:{form: 7, input: 13},
-        isAdult:{form: 8, input: [14, 15]},
-        isJapan:{form: 9, input: [16, 17]}
+        isJapan:{form: 7, input: [13, 14]},
     }
 }
 const child = new Descendant("id_child-0-fieldset", 3);
@@ -103,15 +101,13 @@ class Ascendant extends Person{
     //入力欄のインデックス
     static idxs = {
         name:{form: 0, input: 0},
-        isSameSpouse:{form: 1, input: [1, 2]},
-        isLive:{form: 2, input: [3, 4]},
-        isExist:{form: 3, input: [5, 6]},
-        isRefuse:{form: 4, input: [7, 8]},
-        isSpouse:{form: 5, input: [9, 10]},
+        isLive:{form: 1, input: [1, 2]},
+        isExist:{form: 2, input: [3, 4]},
+        isRefuse:{form: 3, input: [5, 6]},
+        isSpouse:{form: 4, input: [7, 8]},
+        isRemarriage:{form: 5, input: [9, 10]},
         isChild:{form: 6, input: [11, 12]},
-        childCount:{form: 7, input: 13},
-        isAdult:{form: 8, input: [14, 15]},
-        isJapan:{form: 9, input: [16, 17]}
+        isJapan:{form: 7, input: [13, 14]}
     }
 }
 const father = new Ascendant("id_ascendant-0-fieldset", 3);
@@ -180,6 +176,8 @@ let isParentsInheritance = false;
 let isTransfferedToAscendant = false;
 //尊属から傍系に権利が移動したフラグ
 let isTransfferedToCollateral = false;
+//母欄から母方の祖父欄を表示するフラグ
+let isToMotherGfather = false;
 
 /**
  * 初期処理
@@ -296,12 +294,33 @@ function updateCloneTabindex(el, addNum){
 }
 
 /**
- * 子又は兄弟姉妹欄のタイトルの枝番を更新する
- * @param {HTMLElement} el 対象の要素 
+ * 尊属のタイトルの枝番を更新する
+ * @param {boolean} isFieldset フィールドセットのタイトル変更フラグ（falseのときはガイドのタイトルを変更する）
+ */
+function updateMotherGParentsTitle(isFieldset){
+    const gFather = isFieldset? document.getElementById("id_ascendant-4-fieldset"): document.getElementsByClassName("motherGGuide")[0];
+    const gMother = isFieldset? document.getElementById("id_ascendant-5-fieldset"): document.getElementsByClassName("motherGGuide")[1];
+    const motherGEls = [gFather, gMother];
+    const zokugara = ["母方の祖父", "母方の祖母"];
+    for(let i = 0, len = motherGEls.length; i < len; i++){
+        const oldTitleEl = isFieldset? motherGEls[i].getElementsByClassName("fieldsetTitle")[0]: motherGEls[i].getElementsByTagName("button")[0];
+        const oldTitle = oldTitleEl.textContent;
+        const removedSpace = oldTitle.replace(/\n|\s/g, "");
+        const oldNum = removedSpace.split("．")[0];
+        const idx = oldNum.lastIndexOf("－");
+        const newNumbering = oldNum.slice(0, idx + 1) + hankakuToZenkaku(String(3 + i));
+        const newTitle = `${newNumbering}．${zokugara[i]}について`;
+        oldTitleEl.textContent = newTitle;
+    }
+}
+
+/**
+ * タイトルの枝番を更新する
+ * @param {HTMLElement} el 対象の要素
  * @param {string} zokugara 続柄（日本語）、子又は兄弟姉妹
  * @param {number} newNum 新しい番号
  */
-function updateTitleBranchNum(el, zokugara, newNum){
+function updateTitleBranchNumAndPrefix(el, zokugara, newNum){
     const oldTitle = el.textContent;
     const removedSpace = oldTitle.replace(/\n/g, "").replace(/\s/g, "");
     const oldNum = removedSpace.split("．")[0];
@@ -366,7 +385,7 @@ function createForm(isChild){
     const newFieldset = copyPreFieldset(preFieldset, relation, oldCount);
     //タイトルを変更
     const titleEl = newFieldset.querySelector(".fieldsetTitle");
-    updateTitleBranchNum(titleEl, zokugara, newCount);
+    updateTitleBranchNumAndPrefix(titleEl, zokugara, newCount);
     //属性を変更
     updateCloneAttribute(newFieldset, relation, oldCount);
     // 新しいfieldset要素をFormsetに追加します
@@ -427,6 +446,9 @@ function enableNextFieldset(fromFieldset){
     else if(fromFieldset.id === "id_ascendant-1-fieldset" && isTransfferedToCollateral){
         //母欄から兄弟姉妹に権利移動フラグtrueのとき、兄弟姉妹欄を表示する
         nextFieldset = document.getElementById("collateralsFieldset");
+    }else if(fromFieldset.id === "id_ascendant-1-fieldset" && isToMotherGfather){
+        //母欄から母方の祖父欄に移動するフラグtrueのとき
+        nextFieldset = document.getElementById("id_ascendant-4-fieldset");
     }else{
         //原則次のフィールドセットを取得する
         nextFieldset = getNextElByTag(fromFieldset, "fieldset");
@@ -498,7 +520,7 @@ function adjustGuide(guideList, oldCount, newCount){
             const clone = copyFrom.cloneNode(true);
             //タイトルの枝番を変更
             const btn = clone.querySelector("button");
-            updateTitleBranchNum(btn, "子", (i + 1));
+            updateTitleBranchNumAndPrefix(btn, "子", (i + 1));
             //idを変更して非表示から表示に変更して最後の要素の次に挿入する
             clone.style.display = "block";
             clone.id = `id_child-${i}-guide`
@@ -544,7 +566,7 @@ function updateGuide(fromFieldset){
     //一つ前のガイドを通常表示にする
     removeGuideActive(guideList, nextIdx);
     //子供欄から父の欄を表示するとき
-    if(isNoChild && fromFieldset.id === "childrenFieldset"){
+    if(fromFieldset.id === "childrenFieldset" && isNoChild){
         //子のガイドが複製されているとき、子１以外は削除する
         const childGuides = guideList.getElementsByClassName("childGuide");
         removeAllExceptFirst(childGuides);
@@ -561,9 +583,13 @@ function updateGuide(fromFieldset){
         updateGuideTitleMainNum(fromFieldset, guideList, "ascendant");
         //母のガイドも無効化した状態で表示する
         guideList.getElementsByClassName("ascendantGuide")[1].style.display = "block";
-    }else if(fromFieldset.id === "id_ascendantFieldset-1-fieldset" && isTransfferedToCollateral){
+    }else if(fromFieldset.id === "id_ascendant-1-fieldset" && isTransfferedToCollateral){
         //母の欄から兄弟姉妹欄を表示するとき
         Guide.elIdx += 5;
+    }else if(fromFieldset.id === "id_ascendant-1-fieldset" && isToMotherGfather){
+        //母の欄から母方の祖父欄を表示するとき
+        updateMotherGParentsTitle(false);
+        Guide.elIdx += 3;
     }else{
         Guide.elIdx += 1;
         
@@ -587,11 +613,15 @@ function updateGuide(fromFieldset){
  * @param {HTMLElement} preFieldset 押された戻るボタンが属するフィールドセットの１つ前のフィールドセット
  */
 function putBackFieldset(preFieldset){
-    const disableField = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1]; //無効化対象のフィールドセット
+    const disableField = getLastElFromArray(inputsField.reqFieldsets); //無効化対象のフィールドセット
     const removeHr = disableField.previousElementSibling; //削除対象のhrタグ
 
     //無効化対象のフィールドセットが子供欄のとき子供不存在フラグをfalseに戻す
     if(disableField.id === "childrenFieldset") isNoChild = false;
+    //父欄のとき、卑属から尊属への権利移動フラグをfalseに戻す
+    else if(disableField.id === "id_ascendant-0-fieldset") isTransfferedToAscendant = false;
+    //母方の祖父欄のとき、母欄から母方の祖父欄へ移動するフラグをfalseに戻す
+    else if(disableField.id === "id_ascendant-4-fieldset") isToMotherGfather = false;
     //兄弟姉妹欄のとき、尊属から傍系への権利移動フラグをfalseに戻す
     else if(disableField.id === "collateralFieldset") isTransfferedToCollateral = false;
 
@@ -614,14 +644,13 @@ function putBackFieldset(preFieldset){
 
     //子の欄から戻るときは、途中の入力データを保存しない
     if(disableField.id === "id_child-0-fieldset") preserveInvalidEls.length = 0;
-    else if(disableField.id === "id_ascendant-0-fieldset") isTransfferedToAscendant = false;
 }
 
 /**
- * ガイドを削除する
- * @param {number} idx 
+ * 最後のガイドを削除する
  */
-function removeGuide(idx){
+function removeLastGuide(){
+    const idx = Guide.guides.length - 1;
     Guide.guides[idx].classList.remove("active");
     Guide.guides.pop();
 
@@ -634,10 +663,10 @@ function removeGuide(idx){
 }
 
 /**
- * 戻るボタンにより一つ前のガイドを有効化する
- * @param {number} idx 
+ * 一つ前のガイドを作業中にする
  */
-function enablePreGuide(idx){
+function enablePreGuide(){
+    const idx = Guide.guides.length - 1;
     Guide.checkIcons[idx].style.display = "none";
     Guide.checkIcons.pop();
     Guide.guides[idx].classList.add("active");
@@ -648,39 +677,34 @@ function enablePreGuide(idx){
  * ガイドを一つ戻す
  */
 function putBackGuide(){
-    const currentIdx = Guide.guides.length - 1;
-    
+    //ガイドの非表示処理
+    const currentGuideId = getLastElFromArray(Guide.guides).id;
+    let guides;
     //子１の欄のとき
-    const currentGuideId = Guide.guides[currentIdx].id;
     if(currentGuideId === "id_child-0-guide"){
-        const guides = document.getElementsByClassName("childGuide");
-        slideUpDisuseEls(guides, 0, guides.length - 1)
+        guides = document.getElementsByClassName("childGuide");
     }else if(currentGuideId === "id_father-guide"){
         //父欄のとき
-        const guides = document.getElementsByClassName("ascendantGuide");
-        slideUpDisuseEls(guides, 0, guides.length - 1)
+        guides = document.getElementsByClassName("ascendantGuide");
     }else if(currentGuideId === "id_fatherGfather-guide"){
         //父方の祖父欄のとき
+        guides = document.getElementsByClassName("motherGGuide");
     }else if(currentGuideId === "id_motherGfather-guide"){
-        //母方の祖父欄のとき
+        //母方の祖父欄のとき、母方の祖父母欄を非表示にする
+        guides = document.getElementsByClassName("motherGGuide");
     }
+    slideUpDisuseEls(guides, 0, guides.length - 1);
 
-    //押されたボタンに応じて要素番号を変更する
-    if(isNoChild && currentGuideId === "id_father-guide")
-        Guide.elIdx -= 2;
-    else if(currentGuideId === "id_child-0-guide"){
-        isNoChild = false;
-        Guide.elIdx -= 1;
-    }else if(currentGuideId === "id_collaterals-guide"){
-        Guide.elIdx -= 5;
-    }else{
-        Guide.elIdx -= 1;
-    }
+    //押されたボタンに応じてガイドの表示している要素のインデックスを変更する
+    if(currentGuideId === "id_father-guide" && isNoChild) Guide.elIdx -= 2;
+    else if(currentGuideId === "id_collaterals-guide") Guide.elIdx -= 5;
+    else if(currentGuideId === "id_motherGfather-guide" && isToMotherGfather) Guide.elIdx -= 3;
+    else Guide.elIdx -= 1;
 
     //ガイドのデータを削除する
-    removeGuide(currentIdx);
+    removeLastGuide();
     //一つ前の項目をactiveにする
-    enablePreGuide(currentIdx - 1);
+    enablePreGuide();
 }
 
 /**
@@ -1116,39 +1140,28 @@ function setChildRbsEvent(rbIdx, Qs, nextBtn){
  * 尊属のラジオボタンのイベントハンドラー
  */
 class AscendantRbHandler extends CommonRbHandler{
-    static idxs = {
-        name:{form: 0, input: 0},
-        isLive:{form: 1, input: [1, 2]},
-        isExist:{form: 2, input: [3, 4]},
-        isRefuse:{form: 3, input: [5, 6]},
-        isSpouse:{form: 4, input: [7, 8]},
-        isRemarriage:{form: 5, input: [9, 10]},
-        isChild:{form: 6, input: [11, 12]},
-        isJapan:{form: 7, input: [13, 14]},
-    }
-
     //手続時存在
     static isLive(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, this.idxs.isLive.input[yes],
+        this.handleYesNo(rbIdx, Ascendant.idxs.isLive.input[yes],
             ()=>{
                 //yesAction
                 //エラー要素に日本在住trueを追加して次へボタンを無効化/falseのときに表示した質問と値の初期化/相続放棄欄を表示
-                const rbIdx = getSequentialNumArr(this.idxs.isExist.input[yes], this.idxs.isChild.input[no]);
+                const rbIdx = getSequentialNumArr(Ascendant.idxs.isExist.input[yes], Ascendant.idxs.isChild.input[no]);
                 changeCourse(
-                    reqInputs[this.idxs.isJapan.input[yes]], nextBtn,
-                    Qs, this.idxs.isExist.form, this.idxs.isChild.form, rbIdx, null,
-                    Qs[this.idxs.isRefuse.form], null
+                    reqInputs[Ascendant.idxs.isJapan.input[yes]], nextBtn,
+                    Qs, Ascendant.idxs.isExist.form, Ascendant.idxs.isChild.form, rbIdx, null,
+                    Qs[Ascendant.idxs.isRefuse.form], null
                 )
                 isParentsInheritance = false;
             },
             ()=>{
                 //noAction
                 //エラー要素に被相続人以外の子を追加して次へボタンを無効化/相続放棄欄以降の非表示と値の初期化/配偶者存在欄を表示
-                const rbIdxs = this.idxs.isRefuse.input.concat(this.idxs.isJapan.input);
+                const rbIdxs = Ascendant.idxs.isRefuse.input.concat(Ascendant.idxs.isJapan.input);
                 changeCourse(
-                    reqInputs[this.idxs.isChild.input[yes]], nextBtn,
-                    Qs, this.idxs.isRefuse.form, this.idxs.isJapan.form, rbIdxs, null,
-                    Qs[this.idxs.isExist.form], null
+                    reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn,
+                    Qs, Ascendant.idxs.isRefuse.form, Ascendant.idxs.isJapan.form, rbIdxs, null,
+                    Qs[Ascendant.idxs.isExist.form], null
                 )
             }
         )
@@ -1156,15 +1169,15 @@ class AscendantRbHandler extends CommonRbHandler{
 
     //相続時存在
     static isExist(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, this.idxs.isExist.input[yes],
+        this.handleYesNo(rbIdx, Ascendant.idxs.isExist.input[yes],
             ()=>{
                 //エラー要素に被相続人以外の子欄を追加して次へボタンを無効にする、相続放棄を表示する
-                pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isChild.input[yes]], nextBtn, Qs[this.idxs.isRefuse.form]);
+                pushInvalidElAndSDIfHidden(reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn, Qs[Ascendant.idxs.isRefuse.form]);
             }
             ,()=>{
                 //氏名以外のエラー要素を全て削除して氏名が入力されているときは次へボタンを有効にする、trueで表示した質問を全て非表示にして値を初期化する
-                const rbIdxs = getSequentialNumArr(this.idxs.isRefuse.input[yes], this.idxs.isChild.input[no]);
-                breakQ(reqInputs[this.idxs.name.input], nextBtn, Qs, this.idxs.isRefuse.form, this.idxs.isChild.form, rbIdxs);
+                const rbIdxs = getSequentialNumArr(Ascendant.idxs.isRefuse.input[yes], Ascendant.idxs.isChild.input[no]);
+                breakQ(reqInputs[Ascendant.idxs.name.input], nextBtn, Qs, Ascendant.idxs.isRefuse.form, Ascendant.idxs.isChild.form, rbIdxs);
                 isParentsInheritance = false;
             }
         )
@@ -1172,23 +1185,23 @@ class AscendantRbHandler extends CommonRbHandler{
 
     //相続放棄
     static isRefuse(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, this.idxs.isRefuse.input[yes],
+        this.handleYesNo(rbIdx, Ascendant.idxs.isRefuse.input[yes],
             ()=>{
                 //氏名が入力されているときは次へボタンを有効化する、falseで表示する質問を全て非表示にして値を初期化
-                const rbIdxs = getSequentialNumArr(this.idxs.isSpouse.input[yes], this.idxs.isJapan.input[no]);
-                breakQ(reqInputs[this.idxs.name.input], nextBtn, Qs, this.idxs.isSpouse.form, this.idxs.isJapan.form, rbIdxs);
+                const rbIdxs = getSequentialNumArr(Ascendant.idxs.isSpouse.input[yes], Ascendant.idxs.isJapan.input[no]);
+                breakQ(reqInputs[Ascendant.idxs.name.input], nextBtn, Qs, Ascendant.idxs.isSpouse.form, Ascendant.idxs.isJapan.form, rbIdxs);
                 isParentsInheritance = false;
             },
             ()=>{
                 //手続時生存trueのとき
-                if(reqInputs[this.idxs.isLive.input[yes]].checked){
-                    pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isJapan.input[yes]], nextBtn, Qs[this.idxs.isJapan.form]);
-                }else if(reqInputs[this.idxs.isExist.input[yes]].checked){
+                if(reqInputs[Ascendant.idxs.isLive.input[yes]].checked){
+                    pushInvalidElAndSDIfHidden(reqInputs[Ascendant.idxs.isJapan.input[yes]], nextBtn, Qs[Ascendant.idxs.isJapan.form]);
+                }else if(reqInputs[Ascendant.idxs.isExist.input[yes]].checked){
                     //相続時生存trueのとき
                     //日本在住trueをエラー要素を追加して次へボタンを無効化、日本在住欄を表示する
-                    pushInvalidElAndSDIfHidden(reqInputs[this.idxs.isChild.input[yes]], nextBtn, Qs[this.idxs.isSpouse.form]);
-                    inputsField.errMsgEls[this.idxs.isSpouse.form].style.display = "none";
-                    inputsField.errMsgEls[this.idxs.isSpouse.form].innerHTML = "";           
+                    pushInvalidElAndSDIfHidden(reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn, Qs[Ascendant.idxs.isSpouse.form]);
+                    inputsField.errMsgEls[Ascendant.idxs.isSpouse.form].style.display = "none";
+                    inputsField.errMsgEls[Ascendant.idxs.isSpouse.form].innerHTML = "";           
                 }
             }
         )
@@ -1196,71 +1209,71 @@ class AscendantRbHandler extends CommonRbHandler{
     
     //配偶者存在
     static isSpouse(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, this.idxs.isSpouse.input[yes],
+        this.handleYesNo(rbIdx, Ascendant.idxs.isSpouse.input[yes],
             ()=>{
                 //エラー要素に子の存在trueを追加して次へボタンを無効化、falseで表示した質問を初期化、配偶者は母か確認欄を表示する
                 changeCourse(
-                    reqInputs[this.idxs.isChild.input[yes]], nextBtn,
-                    Qs, this.idxs.isChild.form, this.idxs.isChild.form, this.idxs.isChild.input, null,
-                    Qs[this.idxs.isRemarriage.form], null
+                    reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn,
+                    Qs, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.input, null,
+                    Qs[Ascendant.idxs.isRemarriage.form], null
                 )
                 //配偶者は母か確認欄のエラーメッセージを初期化する
-                inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = "none";
-                inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "";
+                inputsField.errMsgEls[Ascendant.idxs.isRemarriage.form].style.display = "none";
+                inputsField.errMsgEls[Ascendant.idxs.isRemarriage.form].innerHTML = "";
             },
             ()=>{
                 //エラー要素に子の存在trueを追加して次へボタンを無効化、trueで表示した質問を初期化、被相続人以外の子の欄を表示する
-                const rbIdxs = getSequentialNumArr(this.idxs.isRemarriage.input[yes], this.idxs.isChild.input[no]);
+                const rbIdxs = getSequentialNumArr(Ascendant.idxs.isRemarriage.input[yes], Ascendant.idxs.isChild.input[no]);
                 changeCourse(
-                    reqInputs[this.idxs.isChild.input[yes]], nextBtn,
-                    Qs, this.idxs.isRemarriage.form, this.idxs.isChild.form, rbIdxs, null,
-                    Qs[this.idxs.isChild.form], null
+                    reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn,
+                    Qs, Ascendant.idxs.isRemarriage.form, Ascendant.idxs.isChild.form, rbIdxs, null,
+                    Qs[Ascendant.idxs.isChild.form], null
                 )
                 //エラーを非表示にする
-                inputsField.errMsgEls[this.idxs.isChild.form].style.display = "none";
-                inputsField.errMsgEls[this.idxs.isChild.form].innerHTML = "";
+                inputsField.errMsgEls[Ascendant.idxs.isChild.form].style.display = "none";
+                inputsField.errMsgEls[Ascendant.idxs.isChild.form].innerHTML = "";
             }
         )
     }
 
     //配偶者と母が同じを表示する
     static isRemarriage(rbIdx, Qs, nextBtn){
-        this.handleYesNo(rbIdx, this.idxs.isRemarriage.input[yes],
+        this.handleYesNo(rbIdx, Ascendant.idxs.isRemarriage.input[yes],
             ()=>{
                 //エラー要素に被相続人以外の子をfalseを追加して次へボタンを無効化
-                slideDownAndScroll(Qs[this.idxs.isChild.form]);
+                slideDownAndScroll(Qs[Ascendant.idxs.isChild.form]);
                 //エラーを非表示にする
-                inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = "none";
-                inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "";
+                inputsField.errMsgEls[Ascendant.idxs.isRemarriage.form].style.display = "none";
+                inputsField.errMsgEls[Ascendant.idxs.isRemarriage.form].innerHTML = "";
             },
             ()=>{
                 //システム対応外であることを表示する
-                inputsField.errMsgEls[this.idxs.isRemarriage.form].style.display = "block";
-                inputsField.errMsgEls[this.idxs.isRemarriage.form].innerHTML = "本システムでは対応できません";
+                inputsField.errMsgEls[Ascendant.idxs.isRemarriage.form].style.display = "block";
+                inputsField.errMsgEls[Ascendant.idxs.isRemarriage.form].innerHTML = "本システムでは対応できません";
                 //エラー要素として被相続人以外の子trueを追加してボタンを無効化する、被相続人以外の子を初期化する
-                pushInvalidEl(reqInputs[this.idxs.isChild.input[yes]], nextBtn);
-                iniQs(Qs, this.idxs.isChild.form, this.idxs.isChild.form, this.idxs.isChild.input);
+                pushInvalidEl(reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn);
+                iniQs(Qs, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.input);
             }
         )
     }
 
     //被相続人以外の子を表示する
     static isChild(rbIdx, nextBtn){
-        this.handleYesNo(rbIdx, this.idxs.isChild.input[yes],
+        this.handleYesNo(rbIdx, Ascendant.idxs.isChild.input[yes],
             ()=>{
                 //氏名が適切に入力されているかチェックして次へボタンを有効化判別
-                breakQ(reqInputs[this.idxs.name.input], nextBtn);
+                breakQ(reqInputs[Ascendant.idxs.name.input], nextBtn);
                 //エラーメッセージを非表示にする
-                inputsField.errMsgEls[this.idxs.isChild.form].innerHTML = "";
-                inputsField.errMsgEls[this.idxs.isChild.form].style.display = "none";
+                inputsField.errMsgEls[Ascendant.idxs.isChild.form].innerHTML = "";
+                inputsField.errMsgEls[Ascendant.idxs.isChild.form].style.display = "none";
                 isParentsInheritance = true;
             },
             ()=>{
                 //エラーを表示する
-                inputsField.errMsgEls[this.idxs.isChild.form].innerHTML = "本システムでは対応できません";
-                inputsField.errMsgEls[this.idxs.isChild.form].style.display = "block";
+                inputsField.errMsgEls[Ascendant.idxs.isChild.form].innerHTML = "本システムでは対応できません";
+                inputsField.errMsgEls[Ascendant.idxs.isChild.form].style.display = "block";
                 //trueをエラー要素に追加して次へボタンを無効化する
-                pushInvalidEl(reqInputs[this.idxs.isChild.input[yes]], nextBtn);
+                pushInvalidEl(reqInputs[Ascendant.idxs.isChild.input[yes]], nextBtn);
             }
         )
     }
@@ -1273,29 +1286,20 @@ class AscendantRbHandler extends CommonRbHandler{
  * @param {HTMLElement} nextBtn 次へボタン
  */
 function setAscendantRbsEvent(rbIdx, Qs, nextBtn){
-    const nameIdx = 0;
-    const isLiveIdx = [1, 2];
-    const isExistIdx = [3, 4];
-    const isRefuseIdx = [5, 6];
-    const isSpouseIdx = [7, 8];
-    const isRemarriageIdx = [9, 10];
-    const isChildIdx = [11, 12];
-    const isJapanIdx = [13, 14];
-
     //手続時存在
-    if(isLiveIdx.includes(rbIdx)) AscendantRbHandler.isLive(rbIdx, Qs, nextBtn);
+    if(Ascendant.idxs.isLive.input.includes(rbIdx)) AscendantRbHandler.isLive(rbIdx, Qs, nextBtn);
     //相続時存在
-    else if(isExistIdx.includes(rbIdx)) AscendantRbHandler.isExist(rbIdx, Qs, nextBtn);
+    else if(Ascendant.idxs.isExist.input.includes(rbIdx)) AscendantRbHandler.isExist(rbIdx, Qs, nextBtn);
     //相続放棄
-    else if(isRefuseIdx.includes(rbIdx)) AscendantRbHandler.isRefuse(rbIdx, Qs, nextBtn);
+    else if(Ascendant.idxs.isRefuse.input.includes(rbIdx)) AscendantRbHandler.isRefuse(rbIdx, Qs, nextBtn);
     //配偶者存在
-    else if(isSpouseIdx.includes(rbIdx)) AscendantRbHandler.isSpouse(rbIdx, Qs, nextBtn);
+    else if(Ascendant.idxs.isSpouse.input.includes(rbIdx)) AscendantRbHandler.isSpouse(rbIdx, Qs, nextBtn);
     //配偶者と母は同じ
-    else if(isRemarriageIdx.includes(rbIdx)) AscendantRbHandler.isRemarriage(rbIdx, Qs, nextBtn);
+    else if(Ascendant.idxs.isRemarriage.input.includes(rbIdx)) AscendantRbHandler.isRemarriage(rbIdx, Qs, nextBtn);
     //被相続人以外の子
-    else if(isChildIdx.includes(rbIdx)) AscendantRbHandler.isChild(rbIdx, nextBtn);
+    else if(Ascendant.idxs.isChild.input.includes(rbIdx)) AscendantRbHandler.isChild(rbIdx, nextBtn);
     //日本在住
-    else AscendantRbHandler.isJapan(nameIdx, nextBtn);
+    else AscendantRbHandler.isJapan(Ascendant.idxs.name.input, nextBtn);
 }
 
 /**
@@ -1723,7 +1727,7 @@ function updateAscendantTitle(preFieldset){
  * @param {HTMLElement[]} fieldsets タブインデックスを更新するinput要素が属するフィールドセット
  */
 function updateAscendantTabindex(fieldsets){
-    const lastNextBtn = inputsField.nextBtns[inputsField.nextBtns.length - 1];
+    const lastNextBtn = getLastElFromArray(inputsField.nextBtns);
     let newTabindex = parseInt(lastNextBtn.getAttribute("tabindex")) + 1;
     const beforeCountInputIdx = 13;
     const afterCountInputIdx = 15;
@@ -1853,16 +1857,24 @@ function adjustFieldsets(fieldset){
 
     //母欄のとき
     if(fieldset.id === "id_ascendant-1-fieldset"){
+        const fatherInputs = document.getElementById("id_ascendant-0-fieldset").getElementsByTagName("input");
+        const isFatherRefuse = fatherInputs[Ascendant.idxs.isRefuse.input[yes]].checked;
+        const motherInputs = fieldset.getElementsByTagName("input");
+        const isMotherRefuse = motherInputs[Ascendant.idxs.isRefuse.input[yes]].checked;
+        const isMotherExist = motherInputs[Ascendant.idxs.isExist.input[yes]].checked;
         //父方の祖父欄を表示する
         //母方の祖父欄を表示する
+        if(isFatherRefuse && !isMotherExist){
+            isToMotherGfather = true;
+            //タイトルのナンバリングを変更する
+            updateMotherGParentsTitle(true);
+            return;
+        } 
         //兄弟姉妹欄を表示する
-        const fatherInputs = document.getElementById("id_ascendant-0-fieldset").getElementsByTagName("input");
-        const isFatherRefuse = fatherInputs[Ascendant.idxs.isRefuse.input[yes]];
-        const motherInputs = fieldset.getElementsByTagName("input");
-        const isMotherRefuse = motherInputs[Ascendant.idxs.isRefuse.input[yes]];
-        if(isFatherRefuse && isMotherRefuse) isTransfferedToCollateral = true;
-        return;
-        //完了フィールドセットを表jしうる
+        if(isFatherRefuse && isMotherRefuse){
+            isTransfferedToCollateral = true;
+            return;
+        } 
     }
 }
 
@@ -1920,50 +1932,53 @@ function setIniData(fieldset){
  */
 function handleSubmitBtnFieldsetPreBtnClick(e){
     //完了フィールドセットを非表示にする
-    const fieldset = document.getElementById("submitBtnFieldset");
+    const submitBtnFieldset = document.getElementById("submitBtnFieldset");
     const lastHr = getLastElByAttribute("hr", "tag");
     slideUp(lastHr);
-    slideUp(fieldset);
+    slideUp(submitBtnFieldset);
     lastHr.remove();
     //一つ前のフィールドセットを有効化する
-    const preFieldset = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1];
+    const preFieldset = getLastElFromArray(inputsField.reqFieldsets);
     preFieldset.disabled = false;
     scrollToTarget(preFieldset);
     //一つ前のフィールドセットを最初の項目にフォーカスする
     reqInputs[0].focus();
     //最後のガイドをactiveにする
-    const lastGuideIdx = Guide.guides.length - 1;
-    Guide.guides[lastGuideIdx].classList.add("active");
-    //最後のガイドをキャレットを表示する
-    Guide.caretIcons[lastGuideIdx].style.display = "inline-block";
-    //最後のガイドをチェックを非表示にする
-    getLastElByAttribute("guideCheck", "class", Guide.guides[lastGuideIdx]).style.display = "none";
+    const lastGuide = getLastElFromArray(Guide.guides);
+    lastGuide.classList.add("active");
+    //最後のガイドのキャレットを表示する
+    const lastCaretIcon = getLastElFromArray(Guide.caretIcons);
+    lastCaretIcon.style.display = "inline-block";
+    //最後のガイドのチェックを非表示にする
+    const lastCheckIcon = getLastElByAttribute("guideCheck", "class", lastGuide);
+    lastCheckIcon.style.display = "none";
     //このイベントを削除する
-    const preBtn = fieldset.getElementsByClassName("previousBtn")[0];
+    const preBtn = submitBtnFieldset.getElementsByClassName("previousBtn")[0];
     preBtn.removeEventListener("click", handleSubmitBtnFieldsetPreBtnClick);
 }
 
 /**
  * 完了フィールドセットを有効化する
- * @param {HTMLElement} fromFieldset 一つ前のフィールドセット
+ * inputFieldやGuideのデータは１つ前のフィールドセットのもののままにする
+ * @param {HTMLElement} preFieldset 一つ前のフィールドセット
  */
-function enableSubmitBtnFieldset(fromFieldset){
+function enableSubmitBtnFieldset(preFieldset){
     //完了フィールドセットを表示する
     const submitBtnFieldset = document.getElementById("submitBtnFieldset");
     displayFieldset(submitBtnFieldset);
     //最後のガイドのactiveを削除する
-    const lastGuideIdx = Guide.guides.length - 1;
-    const lastGuide = Guide.guides[lastGuideIdx];
+    const lastGuide = getLastElFromArray(Guide.guides);
     lastGuide.classList.remove("active");
     //最後のガイドのキャレットを非表示にする
-    Guide.caretIcons[lastGuideIdx].style.display = "none";
+    const lastCaretIcon = getLastElFromArray(Guide.caretIcons);
+    lastCaretIcon.style.display = "none";
     //最後のガイドのチェックを取得して表示する
     const lastGuideCheck = lastGuide.getElementsByClassName("guideCheck")[0];
     lastGuideCheck.style.display = "inline-block";
     //一つ前のフィールドセットを無効化する
-    fromFieldset.disabled = true;
+    preFieldset.disabled = true;
     //ボタンにタブインデックスを設定
-    const lastFieldset = inputsField.reqFieldsets[inputsField.reqFieldsets.length - 1];
+    const lastFieldset = getLastElFromArray(inputsField.reqFieldsets);
     const lastTabindex = lastFieldset.getElementsByClassName("nextBtn")[0].getAttribute("tabindex");
     const newTabindex = lastTabindex + 1;
     const btns = submitBtnFieldset.getElementsByTagName("button");
@@ -1984,23 +1999,47 @@ function enableSubmitBtnFieldset(fromFieldset){
  * @returns 入力完了フラグ
  */
 function checkIfDone(fieldset){
+    let isDone = false;
     //最後の子の欄で次へボタンが押されたとき、１人でも手続時に健在な人がいれば完了ボタンを表示する
     if(fieldset.classList.contains("childFieldset")){
         const lastChildFieldset = getLastElByAttribute("childFieldset", "class");
         if(fieldset === lastChildFieldset){
             const childFieldsets = document.getElementsByClassName("childFieldset");
-            for(let i = 0, len = childFieldsets.length; i < len; i++){
-                const inputs = childFieldsets[i].getElementsByTagName("input");
+            isDone = childFieldsets.some(fieldset => {
+                const inputs = fieldset[i].getElementsByTagName("input");
                 const isLiveTrue = inputs[Descendant.idxs.isLive.input[yes]].checked;
                 const isRefuseFalse = inputs[Descendant.idxs.isRefuse.input[no]].checked;
-                if(isLiveTrue && isRefuseFalse){
-                    enableSubmitBtnFieldset(fieldset);
-                    return true;
-                }
-            }
+                return isLiveTrue&&isRefuseFalse;
+            })
+        }
+    }else if(fieldset.id === "id_ascendant-1-fieldset"){
+        //母の欄のとき
+        const fatherInputs = document.getElementById("id_ascendant-0-fieldset").getElementsByTagName("input");
+        const isFatherLive = fatherInputs[Ascendant.idxs.isLive.input[yes]].checked;
+        const isFatherExist = fatherInputs[Ascendant.idxs.isExist.input[yes]].checked;
+        const isFatherRefuse = fatherInputs[Ascendant.idxs.isRefuse.input[yes]].checked;
+        const motherInputs = document.getElementById("id_ascendant-1-fieldset").getElementsByTagName("input");
+        const isMotherLive = motherInputs[Ascendant.idxs.isLive.input[yes]].checked;
+        const isMotherExist = motherInputs[Ascendant.idxs.isExist.input[yes]].checked;
+        const isMotherRefuse = motherInputs[Ascendant.idxs.isRefuse.input[yes]].checked;
+        /**
+         * 父が手続時存在trueかつ相続放棄trueで母が手続時存在trueかつ相続放棄false
+         * 父が手続時存在trueかつ相続放棄falseかつ母が手続時存在trueかつ相続放棄true
+         * 父が手続時存在trueかつ相続放棄falseかつ母が手続時存在trueかつ相続放棄false
+         * 父が手続時存在trueかつ相続放棄falseかつ母が相続時存在trueかつ相続放棄true
+         * 父が相続時存在trueかつ相続放棄trueで母が手続時存在trueかつ相続放棄false
+         */
+        if(
+            isFatherLive && isMotherLive && (isFatherRefuse && !isMotherRefuse || !isFatherRefuse) ||
+            isFatherLive && !isFatherRefuse && isMotherExist && isMotherRefuse ||
+            isFatherExist && isFatherRefuse && isMotherLive && !isMotherRefuse
+        ){
+            isDone = true;
         }
     }
-    return false;
+    if(isDone) enableSubmitBtnFieldset(fieldset);
+
+    return isDone;
 }
 
 /**
@@ -2008,8 +2047,7 @@ function checkIfDone(fieldset){
  * @param {boolean} isIndivisual 次の欄が個人用欄フラグ
  */
 function oneStepFoward(isIndivisual){
-    const fromFieldsetIdx = inputsField.reqFieldsets.length - 1
-    const fromFieldset = inputsField.reqFieldsets[fromFieldsetIdx];
+    const fromFieldset = getLastElFromArray(inputsField.reqFieldsets);
 
     //入力完了判断
     if(checkIfDone(fromFieldset)) return;
@@ -2021,10 +2059,9 @@ function oneStepFoward(isIndivisual){
     updateGuide(fromFieldset);
 
     //表示対象のフィールドセットのデータを取得する
-    const currentIdx = inputsField.reqFieldsets.length - 1;
-    const fieldset = inputsField.reqFieldsets[currentIdx];
-    const Qs = inputsField.reqFieldsets[currentIdx].getElementsByClassName("Q");
-    const nextBtn = inputsField.nextBtns[currentIdx];
+    const fieldset = getLastElFromArray(inputsField.reqFieldsets);
+    const Qs = fieldset.getElementsByClassName("Q");
+    const nextBtn = getLastElFromArray(inputsField.nextBtns);
 
     //表示対象のフィールドセットが個人入力欄のとき
     if(isIndivisual){
@@ -2050,10 +2087,11 @@ function oneStepFoward(isIndivisual){
 
     //戻るボタンにイベントを設定
     const oneStepBackHandler = oneStepBack(fromFieldset);
-    inputsField.preBtnsArr[inputsField.preBtnsArr.length - 1].addEventListener("click", oneStepBackHandler);
+    const preBtn = getLastElFromArray(inputsField.preBtnsArr);
+    preBtn.addEventListener("click", oneStepBackHandler);
 
     //次へボタンにイベントを設定
-    //配偶者欄又は母方の祖父母欄のとき
+    //配偶者欄又は母方の祖父母欄のとき、子供欄又は兄弟姉妹欄用のイベントを設定するようにする
     if([spouse.fieldset.id, "motherGmotherFieldset"].includes(fieldset.id)){
         oneStepFowardHandler = function () {oneStepFoward(false)};
     }else{

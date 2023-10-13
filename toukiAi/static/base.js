@@ -481,6 +481,15 @@ function getLastElByAttribute(selector, attribute, target = null) {
 }
 
 /**
+ * 配列の最後の要素を取得する
+ * @param {array} arr 
+ * @returns 
+ */
+function getLastElFromArray(arr){
+    return arr[arr.length - 1];
+}
+
+/**
  * イベントリスナー集
  */
 window.addEventListener("load", ()=>{

@@ -320,7 +320,7 @@ function updateMotherGParentsTitle(isFieldset){
  * @param {string} zokugara 続柄（日本語）、子又は兄弟姉妹
  * @param {number} newNum 新しい番号
  */
-function updateTitleBranchNumAndPrefix(el, zokugara, newNum){
+function updateChildOrCollateralTitle(el, zokugara, newNum){
     const oldTitle = el.textContent;
     const removedSpace = oldTitle.replace(/\n/g, "").replace(/\s/g, "");
     const oldNum = removedSpace.split("．")[0];
@@ -385,7 +385,7 @@ function createForm(isChild){
     const newFieldset = copyPreFieldset(preFieldset, relation, oldCount);
     //タイトルを変更
     const titleEl = newFieldset.querySelector(".fieldsetTitle");
-    updateTitleBranchNumAndPrefix(titleEl, zokugara, newCount);
+    updateChildOrCollateralTitle(titleEl, zokugara, newCount);
     //属性を変更
     updateCloneAttribute(newFieldset, relation, oldCount);
     // 新しいfieldset要素をFormsetに追加します
@@ -520,7 +520,7 @@ function adjustGuide(guideList, oldCount, newCount){
             const clone = copyFrom.cloneNode(true);
             //タイトルの枝番を変更
             const btn = clone.querySelector("button");
-            updateTitleBranchNumAndPrefix(btn, "子", (i + 1));
+            updateChildOrCollateralTitle(btn, "子", (i + 1));
             //idを変更して非表示から表示に変更して最後の要素の次に挿入する
             clone.style.display = "block";
             clone.id = `id_child-${i}-guide`
@@ -590,6 +590,7 @@ function updateGuide(fromFieldset){
         //母の欄から母方の祖父欄を表示するとき
         updateMotherGParentsTitle(false);
         Guide.elIdx += 3;
+        guideList.getElementsByClassName("motherGGuide")[1].style.display = "block";
     }else{
         Guide.elIdx += 1;
         
@@ -693,7 +694,7 @@ function putBackGuide(){
         //母方の祖父欄のとき、母方の祖父母欄を非表示にする
         guides = document.getElementsByClassName("motherGGuide");
     }
-    slideUpDisuseEls(guides, 0, guides.length - 1);
+    if(guides) slideUpDisuseEls(guides, 0, guides.length - 1);
 
     //押されたボタンに応じてガイドの表示している要素のインデックスを変更する
     if(currentGuideId === "id_father-guide" && isNoChild) Guide.elIdx -= 2;
@@ -1858,13 +1859,14 @@ function adjustFieldsets(fieldset){
     //母欄のとき
     if(fieldset.id === "id_ascendant-1-fieldset"){
         const fatherInputs = document.getElementById("id_ascendant-0-fieldset").getElementsByTagName("input");
+        const isFatherLive = fatherInputs[Ascendant.idxs.isLive.input[yes]].checked;
         const isFatherRefuse = fatherInputs[Ascendant.idxs.isRefuse.input[yes]].checked;
         const motherInputs = fieldset.getElementsByTagName("input");
         const isMotherRefuse = motherInputs[Ascendant.idxs.isRefuse.input[yes]].checked;
         const isMotherExist = motherInputs[Ascendant.idxs.isExist.input[yes]].checked;
         //父方の祖父欄を表示する
         //母方の祖父欄を表示する
-        if(isFatherRefuse && !isMotherExist){
+        if((isFatherLive || isFatherRefuse) && !isMotherExist){
             isToMotherGfather = true;
             //タイトルのナンバリングを変更する
             updateMotherGParentsTitle(true);
@@ -2063,27 +2065,14 @@ function oneStepFoward(isIndivisual){
     const Qs = fieldset.getElementsByClassName("Q");
     const nextBtn = getLastElFromArray(inputsField.nextBtns);
 
-    //表示対象のフィールドセットが個人入力欄のとき
-    if(isIndivisual){
-        //イベントを設定
-        for(let i = 0, len = reqInputs.length; i < len; i++){          
-            setEventToIndivisualFieldset(i, fieldset, Qs, nextBtn);
-        }
-    }else{
-        //子供全員又は兄弟姉妹全員入力欄のとき
-        for(let i = 0, len = reqInputs.length; i < len; i++){
-            setEventToGroupFieldset(i, fieldset, Qs, nextBtn);
-        }
+    //イベントを設定
+    for(let i = 0, len = reqInputs.length; i < len; i++){          
+        isIndivisual ? setEventToIndivisualFieldset(i, fieldset, Qs, nextBtn): setEventToGroupFieldset(i, fieldset, Qs, nextBtn);
     }
 
-    //有効化対象のフィールドセット全てに初期値をセットする
-    //子供欄のとき
-    if(fieldset.id === "childrenFieldset"){
+    //子供欄又は子の欄のとき、初期値をセットする
+    if(fieldset.id === "childrenFieldset" || fieldset.classList.contains("childFieldset"))
         setIniData(fieldset);
-    }else if(fieldset.classList.contains("childFieldset")){
-        //子の欄のとき
-        setIniData(fieldset);
-    }
 
     //戻るボタンにイベントを設定
     const oneStepBackHandler = oneStepBack(fromFieldset);

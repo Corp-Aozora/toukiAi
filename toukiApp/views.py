@@ -124,12 +124,15 @@ def step_one(request):
     
     user = User.objects.get(email = request.user)
     child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
+    grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
+    child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
     
     if request.method == "POST":
         decedent_form = StepOneDecedentForm(request.POST)
         spouse_form = StepOneSpouseForm(request.POST)
         childs_form = child_form_set(request.POST, prefix="child")
+        grand_childs_form = grand_child_form_set(request.POST, prefix="gchild")
         ascendant_form = ascendant_form_set(request.POST, prefix="ascendant")
 
         # トランザクションが必要
@@ -161,6 +164,8 @@ def step_one(request):
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
         "child_form_set" : child_form_set(prefix="child"),
+        "child_spouse_form_set" : child_spouse_form_set(prefix="child_spouse"),
+        "grand_child_form_set" : grand_child_form_set(prefix="grand_child"),
         "ascendant_form_set" : ascendant_form_set(prefix="ascendant"),
         "child_form_internal_field_name" : child_form_internal_field_name,
         "ascendant_form_internal_field_name": ascendant_form_internal_field_name,

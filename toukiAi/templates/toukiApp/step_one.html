@@ -439,11 +439,11 @@
                 </fieldset>
                 {{ child_form_set.management_form }}
                 {% for form in child_form_set %}
-                    <fieldset id="id_child-0-fieldset" class="childFieldset" style="display: none;">
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="childFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
-                                    ４－１．{{sections.3}}
+                                    ４－１．{{sections.4}}
                                 </span>
                             </h5>
                         </div>
@@ -610,6 +610,271 @@
                             <div class="d-flex justify-content-between px-3 pb-3">
                                 <button type="button" class="btn btn-secondary previousBtn" tabindex="44">戻る</button>
                                 <button type="button" class="btn btn-primary nextBtn" disabled="true" tabindex="45">次へ</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                {{ child_spouse_form_set.management_form}}
+                {% for form in child_spouse_form_set %}
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="childSpouseFieldset" style="display: none;">
+                        <div class="pb-3">
+                            <h5 class="form-label">
+                                <span class="bg-danger-subtle p-1 rounded-3 fieldsetTitle">
+                                    ５－１．子の配偶者について
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-text">
+                                    {% for field in spouse_form %}
+                                        {% if field.html_name in spouse_form_internal_field_name %}
+                                        {% elif field.html_name == "spouse_name" %}
+                                            <div class="input-group Q">
+                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                    氏名
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition" style="display: none;">
+                                                </span>
+                                            </div>
+                                        {% else %}
+                                            {% if field.html_name == "spouse_is_exist" %}
+                                                <div class="Q mt-3">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold rounded-top">
+                                                            子の死亡時にご健在でしたか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "spouse_is_live" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            今現在もご健在ですか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "spouse_is_refuse" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            家庭裁判所で相続放棄をされてますか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.html_name == "spouse_is_japan" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            住民票は日本にありますか？
+                                                        </span>
+                                                    </div>
+                                            {% endif %}
+                                                    <div class="form-control input-group">
+                                                        {% for choice in field %}
+                                                            <div class="form-check col">
+                                                                {% if forloop.counter == 1 %}
+                                                                    <label class="form-check-label ms-5">
+                                                                {% else %}
+                                                                    <label class="form-check-label">
+                                                                {% endif %}
+                                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                                    </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            {% if field.html_name == "spouse_is_live"  %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            配偶者（再婚相手）はいますか？
+                                                        </span>
+                                                    </div>
+                                                    <div class="form-control input-group">
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label ms-5">
+                                                                <input class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                                はい
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                                いない
+                                                            </label>
+                                                        </div>
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            被相続人以外との子はいますか？（死亡した子も含む）
+                                                        </span>
+                                                    </div>
+                                                    <div class="form-control input-group">
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label ms-5">
+                                                                <input class="form-check-input" type="radio" name="{{form.prefix}}-is_step_child">
+                                                                はい
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input" type="radio" name="{{form.prefix}}-is_step_child">
+                                                                いない
+                                                            </label>
+                                                        </div>
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            {% endif %}                                            
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between px-3 pb-3">
+                                <button type="button" class="btn btn-secondary previousBtn">戻る</button>
+                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                {{ grand_child_form_set.management_form }}
+                {% for form in grand_child_form_set %}
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="grandChildFieldset" style="display: none;">
+                        <div class="pb-3">
+                            <h5 class="form-label">
+                                <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
+                                    ５－２．子の子（孫）について
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-text">
+                                    {% for field in form %}
+                                        {% if field.name in child_form_internal_field_name %}
+                                        {% elif field.name == "name" %}
+                                            <div class="input-group Q">
+                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                    氏名
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition" style="display: none;">
+                                                </span>
+                                            </div>
+                                        {% else %}
+                                            {% if field.name == "is_live" %}
+                                                <div class="Q">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            現在ご健在ですか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.name == "is_exist" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            被相続人の死亡時点ではご健在でしたか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.name == "is_refuse" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            相続放棄してますか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.name == "is_adult" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            成人してますか？
+                                                        </span>
+                                                    </div>
+                                            {% elif field.name == "is_japan" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            住民票は日本にありますか？
+                                                        </span>
+                                                    </div>
+                                            {% endif %}
+                                                    <div class="form-control input-group">
+                                                        {% for choice in field %}
+                                                            <div class="form-check col">
+                                                                {% if forloop.counter == 1 %}
+                                                                    <label class="form-check-label ms-5">
+                                                                {% else %}
+                                                                    <label class="form-check-label">
+                                                                {% endif %}
+                                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                                    </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            {% if field.name == "is_refuse" %}
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            死亡時に配偶者がいましたか？
+                                                        </span>
+                                                    </div>
+                                                    <div class="form-control input-group">
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label ms-5">
+                                                                <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                                はい
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label">
+                                                                <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                                いいえ
+                                                            </label>
+                                                        </div>
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="Q" style="display: none;">
+                                                    <div>
+                                                        <span class="input-group-text fw-bold">
+                                                            子はいましたか？（亡くなった子や養子を含む）
+                                                        </span>
+                                                    </div>
+                                                    <div class="form-control input-group">
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label ms-5">
+                                                                <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                                はい
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check col">
+                                                            <label class="form-check-label">
+                                                                <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                                いいえ
+                                                            </label>
+                                                        </div>
+                                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between px-3 pb-3">
+                                <button type="button" class="btn btn-secondary previousBtn">戻る</button>
+                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                             </div>
                         </div>
                     </fieldset>
@@ -789,7 +1054,7 @@
                     <div class="pb-3">
                         <h5 class="form-label">
                             <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
-                                ６．{{sections.10}}
+                                ６．{{sections.11}}
                             </span>
                         </h5>
                     </div>
@@ -1113,7 +1378,7 @@
                 </div>
                 <div class="card-body">
                     <ul id="guideList" class="ps-1">
-                        <li class="card-title active guide">
+                        <li id="id_decedent-0-guide" class="card-title active guide decedentGuide">
                             <button type="button" class="border-0 bg-white p-0 guideBtn">
                                 １．{{sections.0}}
                             </button>
@@ -1124,7 +1389,7 @@
                                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
                             </svg>
                         </li>
-                        <li class="card-title guide">
+                        <li id="id_spouse-0-guide" class="card-title guide spouseGuide">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 ２．{{sections.1}}
                             </button>
@@ -1149,6 +1414,17 @@
                         <li id="id_child-0-guide" class="card-title guide childGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 ４－１．子１について
+                            </button>
+                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
+                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                            </svg>
+                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check guideCheck" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
+                            </svg>
+                        </li>
+                        <li id="id_grand_child-0-guide" class="card-title guide grandChildGuide" style="display: none;">
+                            <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
+                                ．（孫）について
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>

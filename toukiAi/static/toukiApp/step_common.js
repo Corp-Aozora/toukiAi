@@ -235,6 +235,7 @@ function iniAllInputs(els){
     for (let i = 0; i < els.length; i++) {
         const inputs = els[i].getElementsByTagName('input');
         for (let j = 0; j < inputs.length; j++) {
+            inputs.disabled = false;
             if (inputs[j].type === 'text') inputs[j].value = '';
             else if (inputs[j].type === 'radio') inputs[j].checked = false;
             else if (inputs[j].type === 'number') inputs[j].value = "0";
@@ -279,8 +280,8 @@ function replaceElements(field, tagName){
 
 /**
  * 引数で渡された要素の後ろにある特定のタグの一番最初の要素を返す
- * @param {HTMLElement} el 
- * @param {string} tagName
+ * @param {HTMLElement} el 基準となる要素
+ * @param {string} tagName 取得したい要素のタグ名
  * @return 引数で渡された要素の後ろにある特定のタグの一番最初の要素
  */
 function getNextElByTag(el, tagName){

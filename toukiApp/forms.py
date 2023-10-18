@@ -6,9 +6,6 @@ from django.utils import timezone
 from .models import *
 
 CustomUser = get_user_model()
-decedent_max_index = 7
-spouse_max_index = 18
-children_max_index = 29
 
 # 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容
@@ -91,16 +88,12 @@ class StepOneSpouseForm(forms.ModelForm):
         return "spouse_" + field_name
                 
     def __init__(self, *args, **kwargs):
-        tabindex = decedent_max_index
         
         for field in self.base_fields.values():
             field.required = False
 
-            tabindex += 1
             if field.label in ["被相続人", "配偶者", "配偶者id", "相続人"]:
                 continue
-            
-            field.widget.attrs.update({"tabindex": str(tabindex)})
             
             if field.label == "氏名":
                 field.widget.attrs.update({
@@ -132,16 +125,12 @@ class StepOneDescendantForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        tabindex = children_max_index
         
         for field in self.base_fields.values():
             field.required = False
 
-            tabindex += 1
             if field.label in ["被相続人", "親1", "親1id", "親2", "親2id", "相続人",]:
                 continue
-            
-            field.widget.attrs.update({"tabindex": str(tabindex)})
             
             if field.label == "氏名":
                 field.widget.attrs.update({

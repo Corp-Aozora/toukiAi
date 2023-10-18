@@ -490,6 +490,28 @@ function getLastElFromArray(arr){
 }
 
 /**
+ * 数字の入力を制限する
+ * @param {event} e キーダウンイベント
+ */
+function disableNumKey(e){
+    if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+    }
+}
+
+/**
+ * 半角入力を制限する
+ * @param {event} e キーダウンイベント
+ */
+function disableHankaku(e){
+    // 半角文字のキーコードは32から126まで
+    if (e.keyCode >= 32 && e.keyCode <= 126) {
+        // 半角文字のキーが押された場合、デフォルトの動作をキャンセル
+        e.preventDefault();
+    }
+}
+
+/**
  * イベントリスナー集
  */
 window.addEventListener("load", ()=>{

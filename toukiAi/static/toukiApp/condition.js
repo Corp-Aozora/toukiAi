@@ -4,17 +4,17 @@
     変数
 */
 const checkBoxes = document.getElementsByTagName("input");
-const btnSignup = document.getElementById("btnSignup");
-const availableText = document.getElementById("availableText");
-const signupLink = document.getElementById("signupLink");
-const signupURL = "/account/signup/";
-let checkedCount = 0;
 
 /**
  * 利用できるか判別する処理
  * @param {event} e
- */
+*/
 function showResult(e){
+    const btnSignup = document.getElementById("btnSignup");
+    const availableText = document.getElementById("availableText");
+    const signupLink = document.getElementById("signupLink");
+    const signupURL = "/account/signup/";
+    let checkedCount = 0;
     //チェックが入ったとき
     if(e.target.checked){
         //チェックされたボタンのカウントを変更する
@@ -44,5 +44,5 @@ function showResult(e){
  */
 window.addEventListener("load", ()=>{
     //各チェックボックスにイベントを設定
-    checkBoxes.forEach(checkBox => {checkBox.addEventListener("change", showResult)});
+    Array.from(checkBoxes).forEach(checkBox => {checkBox.addEventListener("change", showResult)});
 })

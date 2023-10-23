@@ -322,6 +322,20 @@ function getNextElByTag(el, tagName){
     }
 }
 
+/**
+ * 特定の形式のクラス名を削除する
+ * @param {HTMLElement} el 
+ * @param {RegExp} pattern 
+ * @returns クラスを削除した後の要素
+ */
+function removeSpecificPatternClass(el, pattern){
+    el.classList.forEach(className => {
+        if(pattern.test(className))
+            el.classList.remove(className);
+    });
+    return el;
+}
+
 
 /*
     イベント

@@ -42,10 +42,14 @@ section.container{
 
 section.card{
     width: 400px!important;
-    height: 400px!important;
+    height: 500px!important;
     position: sticky!important;
     /* top: var(--top)!important; */
     top: calc(50% - 250px);
+}
+
+section.card .card-body{
+    overflow-y: auto;
 }
 
 section.card li{

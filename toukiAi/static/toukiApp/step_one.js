@@ -557,8 +557,8 @@ function createChildsHeirsGuide(){
     order.forEach((item, i) => {
         let clone = copyFrom.cloneNode(true);
         clone.style.display = "block";
-        clone.disabled = "true";
         let btn = clone.querySelector("button");
+        btn.disabled = "true";
         let type = item.fieldset.classList.contains("childSpouseFieldset") ? "childSpouse" : "grandChild";
         btn.textContent = item.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
         clone.id = `id_${type === "childSpouse" ? "child_spouse" : "grand_child"}-${guideCount[type]}-guide`;
@@ -584,8 +584,8 @@ function createChildsHeirGuide(persons){
     for(let i = 0, len = persons.length; i < len; i ++){
         const clone = copyFrom.cloneNode(true);
         clone.style.display = "block";
-        clone.disableField = "true";
         const btn = clone.querySelector("button");
+        btn.disabled = "true";
         btn.textContent = fieldset[i].querySelector(".fieldsetTitle").textContent;
         clone.id = `id_${idPrefix}-${i}-guide`;
         clone.className = `card-title guide ${className}Guide childsHeirGuide`;
@@ -2349,13 +2349,15 @@ function createChildsHeirInstance(isSpouse, idx){
  */
 function createChildsHeirsFieldset(childsHeirs){
     let preFieldset = getLastElByAttribute("childFieldset", "class");
-    let templates = {
-        "ChildSpouse": document.getElementById("id_child_spouse-0-fieldset"),
-        "GrandChild": document.getElementById("id_grand_child-0-fieldset")
+    const childSpouseTemplate = removeSpecificPatternClass(document.getElementById("id_child_spouse-0-fieldset"), /^child\d+Spouse$/);
+    const grandChildTemplate = removeSpecificPatternClass(document.getElementById("id_grand_child-0-fieldset"), /^child\d+Child\d+$/);
+    const templates = {
+        "ChildSpouse": childSpouseTemplate,
+        "GrandChild": grandChildTemplate
     };
     removeAll(Array.from(document.getElementsByClassName("childSpouseFieldset")).concat(Array.from(document.getElementsByClassName("grandChildFieldset"))));
     for(let i = 0, len = childsHeirs.length; i < len; i++){
-        let newElement = templates[childsHeirs[i].constructor.name].cloneNode(true);
+        const newElement = templates[childsHeirs[i].constructor.name].cloneNode(true);
         preFieldset.after(newElement);
         preFieldset = newElement;
     }
@@ -2389,16 +2391,16 @@ function selectChildTo(){
     removeAllExceptFirst(document.getElementsByClassName("childSpouseFieldset"));
     removeAllExceptFirst(document.getElementsByClassName("grandChildFieldset"));
     let isDone = false; //完了フラグ
-    let isSpouse = false; //子の配偶者表示フラグ
-    let isChild = false; //孫表示フラグ
+    let isChildSpouse = false; //子の配偶者表示フラグ
+    let isGrandChild = false; //孫表示フラグ
     //権利移動のパターンをチェックする
     for(let i = 0, len = childs.length; i < len; i++){
         const inputs = childs[i].inputs;
         const isLive = inputs[Child.idxs.isLive.input[yes]].checked;
         const isExist = inputs[Child.idxs.isExist.input[yes]].checked;
         const isRefuse = inputs[Child.idxs.isRefuse.input[yes]].checked;
-        isSpouse = inputs[Child.idxs.isSpouse.input[yes]].checked;
-        isChild = inputs[Child.idxs.isChild.input[yes]].checked;
+        const isSpouse = inputs[Child.idxs.isSpouse.input[yes]].checked;
+        const isChild = inputs[Child.idxs.isChild.input[yes]].checked;
         if(isLive){
             if(!isRefuse)
                 isDone = true;
@@ -2410,17 +2412,23 @@ function selectChildTo(){
          * ・子の中に相続時生存true、かつ相続放棄false、かつ子がいるとき
          */
         if(isExist && !isRefuse){
-            if(isSpouse)
+            if(isSpouse){
+                isChildSpouse = true;
                 createChildsHeirInstance(true, i);
-            if(isChild)
+            }
+            if(isChild){
+                isGrandChild = true;
                 createChildsHeirInstance(false, i);
+            }
         }
         /**
          * 代襲のとき
          * ・子の中に相続時生存false、かつ子がいるとき
          */
-        if(!isExist && isChild)
+        if(!isExist && isChild){
+            isGrandChild = true;
             createChildsHeirInstance(false, i);
+        }
     }
     /**
      * 数次相続のとき
@@ -2429,7 +2437,7 @@ function selectChildTo(){
      * ３，フィールドセットのタイトルと属性値を更新する
      * ４，インスタンスとフィールドセットを紐付ける
      */
-    if(isSpouse || isChild){
+    if(isChildSpouse || isGrandChild){
         const sortedInstances = getSortedChildsHeirsInstance();
         createChildsHeirsFieldset(sortedInstances);
         const sortedFieldsets = updateChildsHeirFieldsets(sortedInstances);
@@ -2439,11 +2447,11 @@ function selectChildTo(){
          * ・配偶者のみのとき、配偶者を表示する
          * ・孫のみのとき、孫を表示する
          */
-        if(isSpouse && isChild)
+        if(isChildSpouse && isGrandChild)
             return childs.indexOf(grandChilds[0].successFrom) < childs.indexOf(childSpouses[0].successFrom) ? grandChilds[0]: childSpouses[0];
-        if(isSpouse)
+        if(isChildSpouse)
             return childSpouses[0];  
-        if(isChild)
+        if(isGrandChild)
             return grandChilds[0];
     }
     /**

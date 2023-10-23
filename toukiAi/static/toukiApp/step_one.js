@@ -758,7 +758,6 @@ function enablePreGuide(){
 function slideUpSameRelationGuides(currentGuideId){
     const guideClasses = {
         "id_child-0-guide": "childGuide",
-        "id_child_spouse-0-guide": "childsHeirGuide",
         "id_ascendant-0-guide": "ascendantGuide",
         "id_ascendant-2-guide": "fatherGGuide",
         "id_ascendant-4-guide": "motherGGuide",
@@ -766,12 +765,16 @@ function slideUpSameRelationGuides(currentGuideId){
         "id_collateral-0-guide": "collateralGuide"
     };
     //孫１が子の相続人のうち最初の相続人のとき、guideClassesに要素を追加する
-    if(currentGuideId === "id_grand_child-0-guide" && childSpouses.length === 0)
+    if(currentGuideId === Guide.guides.filter(x => x.classList.contains("childsHeirGuide"))[0]?.id){
+        guideClasses["id_child_spouse-0-guide"] = "childsHeirGuide";
         guideClasses["id_grand_child-0-guide"] = "childsHeirGuide";
+    }
     //現在のガイドのidがguideClassesに存在するとき、現在のガイドと同じクラスを持つ全ての要素を一括して非表示にする
     if(currentGuideId in guideClasses){
         const guides = Array.from(document.getElementsByClassName(guideClasses[currentGuideId]));
         slideUpEls(guides, 0, guides.length - 1);
+        if(guideClasses["id_grand_child-0-guide"])
+            removeAll(guides);
     }
 }
 

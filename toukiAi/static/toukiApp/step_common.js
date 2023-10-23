@@ -235,7 +235,7 @@ function iniAllInputs(els){
     for (let i = 0; i < els.length; i++) {
         const inputs = els[i].getElementsByTagName('input');
         for (let j = 0; j < inputs.length; j++) {
-            inputs.disabled = false;
+            inputs[j].disabled = false;
             if (inputs[j].type === 'text') inputs[j].value = '';
             else if (inputs[j].type === 'radio') inputs[j].checked = false;
             else if (inputs[j].type === 'number') inputs[j].value = "0";
@@ -245,7 +245,17 @@ function iniAllInputs(els){
 
 /**
  * 最初の要素以外全て削除する
- * @param {HTMLElement[]} els 
+ * @param {array} els 
+ */
+function removeAll(els){
+    els.forEach((el) => {
+        el.parentNode.removeChild(el);
+    });
+}
+
+/**
+ * 最初の要素以外全て削除する
+ * @param {HTMLElement[]|HTMLCollection} els 
  */
 function removeAllExceptFirst(els){
     for (let i = els.length - 1; i > 0; i--) {
@@ -279,7 +289,24 @@ function replaceElements(field, tagName){
 }
 
 /**
- * 引数で渡された要素の後ろにある特定のタグの一番最初の要素を返す
+ * 引数で渡された要素より前にある一番近い特定のタグの要素を返す
+ * @param {HTMLElement} el 基準となる要素
+ * @param {string} tagName 取得したい要素のタグ名
+ * @return 引数で渡された要素より前にある一番近い特定のタグの要素
+ */
+function getPreElByTag(el, tagName){
+    let i = 0;
+    while (el && i < 10) {
+        el = el.previousElementSibling;
+        i++;
+        if (el && el.matches(`${tagName}`)) {
+            return el;
+        }
+    }
+}
+
+/**
+ * 引数で渡された要素より後ろにある特定のタグの一番最初の要素を返す
  * @param {HTMLElement} el 基準となる要素
  * @param {string} tagName 取得したい要素のタグ名
  * @return 引数で渡された要素の後ろにある特定のタグの一番最初の要素

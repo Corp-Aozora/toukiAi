@@ -84,9 +84,6 @@ class StepOneSpouseForm(forms.ModelForm):
             "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
         }
 
-    def add_prefix(self, field_name):
-        return "spouse_" + field_name
-                
     def __init__(self, *args, **kwargs):
         
         for field in self.base_fields.values():
@@ -98,7 +95,6 @@ class StepOneSpouseForm(forms.ModelForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "id": "id_spouse_name",
                     "placeholder": "姓名間にスペースなし",
                     "maxlength": "30",
                 })

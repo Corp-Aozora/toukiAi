@@ -143,9 +143,9 @@ def step_one(request):
         # 親族情報の保存
             return redirect(to='/toukiApp/step_Two')
     else:
-        decedent_form = StepOneDecedentForm()
-        spouse_form = StepOneSpouseForm()
-        spouse_form_internal_field_name = ["spouse_decedent", "spouse_content_type", "spouse_object_id", "spouse_is_heir"]
+        decedent_form = StepOneDecedentForm(prefix="decedent")
+        spouse_form = StepOneSpouseForm(prefix="spouse")
+        spouse_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
         child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
         ascendant_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
         ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]

@@ -21,15 +21,15 @@
         <form action="{% url 'toukiApp:step_one' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
             <section class="container ms-0">
-                <fieldset id="decedentFieldset">
+                <fieldset id="id_decedent-0-fieldset" class="decedentFieldset">
                     <h5 class="form-label">
                         <span class="bg-secondary-subtle p-1 rounded-3 fieldsetTitle">
                             １．{{sections.0}}
                         </span>
                     </h5>
                     {% for field in decedent_form %}
-                        {% if field.html_name == "user" %}
-                        {% elif field.html_name == "name" %}
+                        {% if field.name == "user" %}
+                        {% elif field.name == "name" %}
                             <div class="input-group mt-4 position-relative Q">
                                 <label for="{{field.auto_id}}" class="input-group-text label">
                                     {{ field.label }}
@@ -38,7 +38,7 @@
                                 <span class="errorMessage emPosition" style="display: none;">
                                 </span>
                             </div>
-                        {% elif field.html_name == "death_year" %}
+                        {% elif field.name == "death_year" %}
                             <div class="mt-4">
                                 <span class="form-label fs-5">
                                     死亡した
@@ -54,7 +54,7 @@
                                     <span class="errorMessage emPosition" style="display: none;">
                                     </span>
                                 </div>
-                        {% elif field.html_name == "death_month" %}
+                        {% elif field.name == "death_month" %}
                                 <div class="input-group Q">
                                     <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                         月
@@ -64,7 +64,7 @@
                                     </span>
                                 </div>
                             </div>
-                        {% elif field.html_name == "prefecture" %}
+                        {% elif field.name == "prefecture" %}
                             <div class="mt-4">
                                 <span class="form-label fs-5">
                                     死亡時に
@@ -85,7 +85,7 @@
                                     </span>
                                 </div>
 
-                        {% elif field.html_name == "city" %}
+                        {% elif field.name == "city" %}
                                 <div class="input-group position-relative Q">
                                     <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
                                         市区町村
@@ -98,7 +98,7 @@
                                     </span>
                                 </div>
                             </div>
-                        {% elif field.html_name == "domicile_prefecture" %}
+                        {% elif field.name == "domicile_prefecture" %}
                             <div class="mt-4">
                                 <span class="form-label fs-5">
                                     死亡時に
@@ -119,7 +119,7 @@
                                     </span>
                                 </div>
 
-                        {% elif field.html_name == "domicile_city" %}
+                        {% elif field.name == "domicile_city" %}
                                 <div class="input-group position-relative Q">
                                     <label for="{{field.auto_id}}" class="input-group-text label">
                                         市区町村
@@ -136,7 +136,7 @@
                         <button type="button" class="btn btn-primary nextBtn" tabindex="8" disabled="true">次へ</button>
                     </div>
                 </fieldset>
-                <fieldset id="spouseFieldset" style="display: none;">
+                <fieldset id="id_spouse-0-fieldset" class="spouseFieldset" style="display: none;">
                     <div class="pb-3">
                         <h5 class="form-label">
                             <span class="bg-danger-subtle p-1 rounded-3 fieldsetTitle">
@@ -148,10 +148,10 @@
                         <div class="card-body">
                             <div class="card-text">
                                 {% for field in spouse_form %}
-                                    {% if field.html_name in spouse_form_internal_field_name %}
-                                    {% elif field.html_name == "spouse_name" %}
+                                    {% if field.name in spouse_form_internal_field_name %}
+                                    {% elif field.name == "name" %}
                                         <div class="input-group Q">
-                                            <label class="input-group-text fw-bold" for="id_spouse_name">
+                                            <label class="input-group-text fw-bold" for="{{field.auto_id}}">
                                                 氏名
                                             </label>
                                             {{ field }}
@@ -159,28 +159,28 @@
                                             </span>
                                         </div>
                                     {% else %}
-                                        {% if field.html_name == "spouse_is_exist" %}
+                                        {% if field.name == "is_exist" %}
                                             <div class="Q mt-3">
                                                 <div>
                                                     <span class="input-group-text fw-bold rounded-top">
                                                         被相続人の死亡時にご健在でしたか？
                                                     </span>
                                                 </div>
-                                        {% elif field.html_name == "spouse_is_live" %}
+                                        {% elif field.name == "is_live" %}
                                             <div class="Q" style="display: none;">
                                                 <div>
                                                     <span class="input-group-text fw-bold">
                                                         今現在もご健在ですか？
                                                     </span>
                                                 </div>
-                                        {% elif field.html_name == "spouse_is_refuse" %}
+                                        {% elif field.name == "is_refuse" %}
                                             <div class="Q" style="display: none;">
                                                 <div>
                                                     <span class="input-group-text fw-bold">
                                                         家庭裁判所で相続放棄をされてますか？
                                                     </span>
                                                 </div>
-                                        {% elif field.html_name == "spouse_is_japan" %}
+                                        {% elif field.name == "is_japan" %}
                                             <div class="Q" style="display: none;">
                                                 <div>
                                                     <span class="input-group-text fw-bold">
@@ -204,7 +204,7 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                        {% if field.html_name == "spouse_is_live"  %}
+                                        {% if field.name == "is_live"  %}
                                             <div class="Q" style="display: none;">
                                                 <div>
                                                     <span class="input-group-text fw-bold">
@@ -262,7 +262,7 @@
                         </div>
                     </div>
                 </fieldset>
-                <fieldset id="childCommonFieldset" style="display: none;">
+                <fieldset id="id_child_common-0-fieldset" class="childCommonFieldset" style="display: none;">
                     <div class="pb-3">
                         <h5 class="form-label">
                             <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
@@ -616,7 +616,7 @@
                 {% endfor %}
                 {{ child_spouse_form_set.management_form}}
                 {% for form in child_spouse_form_set %}
-                    <fieldset id="id_{{form.prefix}}-fieldset" class="childSpouseFieldset" style="display: none;">
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="childSpouseFieldset childsHeirFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-danger-subtle p-1 rounded-3 fieldsetTitle">
@@ -628,8 +628,8 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in spouse_form %}
-                                        {% if field.html_name in spouse_form_internal_field_name %}
-                                        {% elif field.html_name == "spouse_name" %}
+                                        {% if field.name in spouse_form_internal_field_name %}
+                                        {% elif field.name == "name" %}
                                             <div class="input-group Q">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
                                                     氏名
@@ -639,28 +639,28 @@
                                                 </span>
                                             </div>
                                         {% else %}
-                                            {% if field.html_name == "spouse_is_exist" %}
+                                            {% if field.name == "is_exist" %}
                                                 <div class="Q mt-3">
                                                     <div>
                                                         <span class="input-group-text fw-bold rounded-top">
                                                             子の死亡時にご健在でしたか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "spouse_is_live" %}
+                                            {% elif field.name == "is_live" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             今現在もご健在ですか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "spouse_is_refuse" %}
+                                            {% elif field.name == "is_refuse" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
                                                             家庭裁判所で相続放棄をされてますか？
                                                         </span>
                                                     </div>
-                                            {% elif field.html_name == "spouse_is_japan" %}
+                                            {% elif field.name == "is_japan" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
@@ -684,7 +684,7 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                            {% if field.html_name == "spouse_is_live"  %}
+                                            {% if field.name == "is_live"  %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
@@ -745,7 +745,7 @@
                 {% endfor %}
                 {{ grand_child_form_set.management_form }}
                 {% for form in grand_child_form_set %}
-                    <fieldset id="id_{{form.prefix}}-fieldset" class="grandChildFieldset" style="display: none;">
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="grandChildFieldset childsHeirFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
@@ -766,6 +766,29 @@
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
                                                 </span>
+                                            </div>
+                                            <div class="Q mt-3">
+                                                <div>
+                                                    <span class="input-group-text fw-bold rounded-top">
+                                                        配偶者との子ですか？
+                                                    </span>
+                                                </div>
+                                                <div class="form-control input-group">
+                                                    <div class="form-check col">
+                                                        <label class="form-check-label ms-5">
+                                                            <input id="id_{{form.prefix}}-is_same_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_spouse">
+                                                            はい
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check col">
+                                                        <label class="form-check-label">
+                                                            <input id="id_{{form.prefix}}-is_same_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_spouse">
+                                                            いいえ
+                                                        </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                </div>
                                             </div>
                                         {% else %}
                                             {% if field.name == "is_live" %}
@@ -1414,28 +1437,6 @@
                         <li id="id_child-0-guide" class="card-title guide childGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
                                 ４－１．子１について
-                            </button>
-                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
-                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
-                            </svg>
-                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check guideCheck" viewBox="0 0 16 16">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
-                            </svg>
-                        </li>
-                        <li id="id_child-spouse-0-guide" class="card-title guide childSpouseGuide" style="display: none;">
-                            <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                （子の配偶者）
-                            </button>
-                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
-                                <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
-                            </svg>
-                            <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 fs-5 bg-success text-white rounded-circle bi bi-check guideCheck" viewBox="0 0 16 16">
-                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"></path>
-                            </svg>
-                        </li>
-                        <li id="id_grand_child-0-guide" class="card-title guide grandChildGuide" style="display: none;">
-                            <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                （孫）
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>

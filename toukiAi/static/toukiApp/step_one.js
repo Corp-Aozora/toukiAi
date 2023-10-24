@@ -626,7 +626,7 @@ function childCommonToFatherGuide(fromPerson, guideList){
 
 /**
  * ガイドを更新する
- * @param {} fromPerson １つ前に入力された人
+ * @param {EveryPerson} fromPerson １つ前に入力された人
  */
 function updateGuide(fromPerson){
     const fromFieldset = fromPerson.fieldset;
@@ -661,6 +661,11 @@ function updateGuide(fromPerson){
             updateAscendantTitle(fromPerson, false);
         }
         //次のガイドにインデックスを移す
+        Guide.elIdx += 1;
+    }else if(fromPerson === getLastChildsHeir()){
+        //子の相続人で最後のフィールドセットのとき
+        guideList.getElementsByClassName("ascendantGuide")[1].style.display = "block";
+        updateAscendantTitle(fromPerson, false);
         Guide.elIdx += 1;
     }else if(fromFieldsetId === "id_ascendant-1-fieldset" && collateralCommons.length === 1){
         //母の欄から兄弟姉妹欄を表示するとき
@@ -2526,6 +2531,27 @@ function selectChildsHeirTo(){
 }
 
 /**
+ * 子の最後の相続人のインスタンスを返す
+ * @returns 子の最後の相続人のインスタンス
+ */
+function getLastChildsHeir(){
+    const childsHeirs = childSpouses.concat(grandChilds);
+    let maxIndex = -1;
+    let lastChildsHeir = null;
+    for (let childsHeir of childsHeirs) {
+        const index = childs.indexOf(childsHeir.successFrom);
+        if (index > maxIndex) {
+            maxIndex = index;
+            lastChildsHeir = childsHeir;
+        } else if (index === maxIndex && childsHeir instanceof GrandChild) {
+            // 同じchildsのインデックスを持つ場合は、GrandChildの方を優先
+            lastChildsHeir = childsHeir;
+        }
+    }
+    return lastChildsHeir;
+}
+
+/**
  * 次に回答してもらう人を判別して、インスタンスを生成する
  * @param {EveryPerson} fromPerson 前の人
  * @returns 次に回答してもらう人を返す|trueのとき入力完了|falseのとき該当なし（エラー）
@@ -2554,7 +2580,7 @@ function getNextPersonAndCreateCourse(fromPerson){
     }else if(preFieldset.classList.contains("childFieldset")){
         //最後以外の子の欄のとき、次の子を返す
         return childs[getNextPersonIdx(childs, preFieldset)];
-    }else if(preFieldset === getLastElByAttribute("childsHeirFieldset", "class")){
+    }else if(fromPerson === getLastChildsHeir()){
         //最後の子の相続人のとき
         return selectChildsHeirTo();
     }else if(preFieldset.classList.contains("childsHeirFieldset")){

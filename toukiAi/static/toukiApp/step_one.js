@@ -476,7 +476,8 @@ function getFieldsetEl(isForward, person){
 function displayNextFieldset(nextFieldset){
     //次のフィールドセットを表示/hrを挿入/次のフィールドセットにスクロール/最初の入力欄にフォーカス
     slideDown(nextFieldset);
-    document.createElement("hr").className = "my-5";
+    const hr = document.createElement("hr");
+    hr.className = "my-5";
     nextFieldset.before(hr);
     scrollToTarget(nextFieldset);
     nextFieldset.querySelector("input").focus();
@@ -1136,7 +1137,7 @@ class ChildRbHandler extends CommonRbHandler{
         const {inputs, Qs, nextBtn} = personDataToVariable(person);
         const rbIdxs = rbIdx === Child.idxs.isLive.input[yes] ? 
             getSequentialNumArr(Child.idxs.isExist.input[yes], Child.idxs.isChild.input[no]):
-            Child.idxs.isRefuse.input.concat(Child.idxs.isAdult.input).concat(Child.idxs.isJapan.input);
+            Child.idxs.isRefuse.input.concat(Child.idxs.isAdult.input, Child.idxs.isJapan.input);
         this.handleYesNo(rbIdx, Child.idxs.isLive.input[yes],
             ()=>{
                 //yesAction
@@ -1284,7 +1285,7 @@ class GrandChildRbHandler extends CommonRbHandler{
         const {inputs, Qs, nextBtn} = personDataToVariable(person);
         const rbIdxs = rbIdx === GrandChild.idxs.isLive.input[yes] ? 
             getSequentialNumArr(GrandChild.idxs.isExist.input[yes], GrandChild.idxs.isChild.input[no]):
-            GrandChild.idxs.isRefuse.input.concat(GrandChild.idxs.isAdult.input).concat(GrandChild.idxs.isJapan.input);
+            GrandChild.idxs.isRefuse.input.concat(GrandChild.idxs.isAdult.input, GrandChild.idxs.isJapan.input);
         this.handleYesNo(rbIdx, GrandChild.idxs.isLive.input[yes],
             ()=>{
                 //yesAction
@@ -2505,11 +2506,31 @@ function getNextChildsHeir(preFieldset){
 }
 
 /**
+ * 子の最後の相続人から次へ表示する欄を判別する
+ * @returns 卑属が相続人のときはtrue、違うときは父インスタンス
+ */
+function selectChildsHeirTo(){
+    //子、子の配偶者、孫の中に手続時生存trueかつ相続放棄falseが１人以上いるとき、完了フィールドセットを表示する
+    const descendants = childs.concat(childSpouses, grandChilds);
+    const isLiveAndNotRefuse = descendant => {
+        const isLive = descendant.inputs[descendant.constructor.idxs.isLive.input[yes]].checked;
+        const isRefuse = descendant.inputs[descendant.constructor.idxs.isRefuse.input[no]].checked;
+        return isLive && isRefuse;
+    };
+    if (descendants.some(isLiveAndNotRefuse)) {
+        return true;
+    }
+    //いないとき、父母インスタンスを生成して父インスタンスを返す
+    new Ascendant("id_ascendant-1-fieldset");
+    return new Ascendant("id_ascendant-0-fieldset");
+}
+
+/**
  * 次に回答してもらう人を判別して、インスタンスを生成する
  * @param {EveryPerson} fromPerson 前の人
  * @returns 次に回答してもらう人を返す|trueのとき入力完了|falseのとき該当なし（エラー）
  */
-function getNextPersonAndCreateFieldsetsAndInstance(fromPerson){
+function getNextPersonAndCreateCourse(fromPerson){
     const preFieldset = fromPerson.fieldset;
     const preFieldsetId = preFieldset.id;
     //被相続人欄の次へボタンが押されたとき配偶者欄を返す
@@ -2527,7 +2548,7 @@ function getNextPersonAndCreateFieldsetsAndInstance(fromPerson){
         const childCount = countChild();
         if(childCount > 0) return childCommonToChild(childCount);
         else return childCommonToFather();
-    }else if(preFieldset === childs[childs.length - 1].fieldset){
+    }else if(preFieldset === getLastElFromArray(childs).fieldset){
         //最後の子個人欄のとき、完了・子の配偶者・孫・父のいずれかを取得する
         return selectChildTo();
     }else if(preFieldset.classList.contains("childFieldset")){
@@ -2535,6 +2556,7 @@ function getNextPersonAndCreateFieldsetsAndInstance(fromPerson){
         return childs[getNextPersonIdx(childs, preFieldset)];
     }else if(preFieldset === getLastElByAttribute("childsHeirFieldset", "class")){
         //最後の子の相続人のとき
+        return selectChildsHeirTo();
     }else if(preFieldset.classList.contains("childsHeirFieldset")){
         //子の相続人のとき、次の子の相続人を返す
         return getNextChildsHeir(preFieldset);
@@ -2679,7 +2701,7 @@ function adjustFieldsetsAndInstance(fromPerson, nextPerson){
  * @param fromPerson 入力が完了した人
  */
 function oneStepFoward(fromPerson){
-    const nextPerson = getNextPersonAndCreateFieldsetsAndInstance(fromPerson);
+    const nextPerson = getNextPersonAndCreateCourse(fromPerson);
     if(nextPerson === null){
         console.log("次の人が見つかりませんでした");
         return;

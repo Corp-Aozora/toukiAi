@@ -215,12 +215,13 @@ let oneStepFowardHandler;
 let countChild = () => parseInt(childCommon.inputs[ChildCommon.idxs.count.input].value);
 
 /**
- * 初期処理
+ * ロード時の初期処理
+ * ・サイドバーを更新する
+ * ・被相続人の入力欄のエラー要素を取得する（死亡年はnullになることがないため除く）
  */
 function initialize(){
     updateSideBar();
     invalidEls = [...decedent.inputs];
-    //年は初期値があり値もnullになることはないためエラー要素から除外する
     invalidEls.splice(Decedent.idxs.deathYear, 1);
 }
 
@@ -307,7 +308,7 @@ function getCityData(val, el){
 
 /**
  * 人のデータを変数に代入する
- * @param {Spouse|ChildCommon|Child|ChildSpouse|GrandChild|Ascendant|CollateralCommon|Collateral} person  
+ * @param {EveryPerson} person  
  * @returns 変数化した人のデータ
  */
 function personDataToVariable(person){
@@ -340,6 +341,17 @@ function updateCloneIdOrName(attributes, el, newVal, oldVal){
 }
 
 /**
+ * タイトルのナンバリング（「本番－枝番」の部分）を取得する
+ * @param {HTMLElement} titleEl タイトル要素
+ * @returns タイトルのナンバリング
+ */
+function getTitleNumbering(titleEl){
+    const title = titleEl.textContent;
+    const removedSpace = title.replace(/\n|\s/g, "");
+    return removedSpace.split("．")[0];
+}
+
+/**
  * タイトルの枝番を更新する（母欄から母方の祖父欄に移動するとき用）
  * 
  * フィールドセットとガイドで共通使用
@@ -347,17 +359,19 @@ function updateCloneIdOrName(attributes, el, newVal, oldVal){
  * @example 「１－１．（続柄）について」を「１－２．（続柄）について」に変換する
  */
 function updateTitleBranchNum(isFieldset){
-    const gFather = isFieldset? document.getElementById("id_ascendant-4-fieldset"): document.getElementsByClassName("motherGGuide")[0];
-    const gMother = isFieldset? document.getElementById("id_ascendant-5-fieldset"): document.getElementsByClassName("motherGGuide")[1];
-    const motherGEls = [gFather, gMother];
+    const motherGParents = ["id_ascendant-4-fieldset", "id_ascendant-5-fieldset"].map(id => 
+        isFieldset ?
+            document.getElementById(id) :
+            document.getElementsByClassName("motherGGuide")[id === "id_ascendant-4-fieldset" ? 0 : 1]
+    );
     const zokugara = ["母方の祖父", "母方の祖母"];
-    for(let i = 0, len = motherGEls.length; i < len; i++){
-        const oldTitleEl = isFieldset? motherGEls[i].getElementsByClassName("fieldsetTitle")[0]: motherGEls[i].getElementsByTagName("button")[0];
-        const oldTitle = oldTitleEl.textContent;
-        const removedSpace = oldTitle.replace(/\n|\s/g, "");
-        const oldNum = removedSpace.split("．")[0];
-        const idx = oldNum.lastIndexOf("－");
-        const newNumbering = oldNum.slice(0, idx + 1) + hankakuToZenkaku(String(3 + i));
+    for(let i = 0, len = motherGParents.length; i < len; i++){
+        const oldTitleEl = isFieldset?
+            motherGParents[i].getElementsByClassName("fieldsetTitle")[0]:
+            motherGParents[i].getElementsByTagName("button")[0];
+        const oldNumbering = getTitleNumbering(oldTitleEl);
+        const idx = oldNumbering.lastIndexOf("－");
+        const newNumbering = oldNumbering.slice(0, idx + 1) + hankakuToZenkaku(String(3 + i));
         const newTitle = `${newNumbering}．${zokugara[i]}について`;
         oldTitleEl.textContent = newTitle;
     }
@@ -372,13 +386,11 @@ function updateTitleBranchNum(isFieldset){
  * @example 「１－１．（続柄）１について」を「１－２．（続柄）２について」に変換する
  */
 function updateTitleBranchNumAndPersonIdx(el, zokugara){
-    const oldTitle = el.textContent; //旧タイトル
-    const removedSpace = oldTitle.replace(/\n/g, "").replace(/\s/g, ""); //スペースと改行を削除
-    const oldNum = removedSpace.split("．")[0]; //ナンバリングの部分を取得する
-    const idx = oldNum.lastIndexOf("－"); //－のインデックスを取得する
-    const oldBranchNum = oldNum.slice(idx + 1); //枝番を取得する
+    const oldNumbering = getTitleNumbering(el); //旧ナンバリングを取得する
+    const idx = oldNumbering.lastIndexOf("－"); //－のインデックスを取得する
+    const oldBranchNum = oldNumbering.slice(idx + 1); //枝番を取得する
     const newBranchNum = parseInt(ZenkakuToHankaku(oldBranchNum)) + 1; //枝番に１加算する
-    const newNumbering = oldNum.slice(0, idx + 1) + hankakuToZenkaku(String(newBranchNum)); //枝番を更新したナンバリングを取得する
+    const newNumbering = oldNumbering.slice(0, idx + 1) + hankakuToZenkaku(String(newBranchNum)); //枝番を更新したナンバリングを取得する
     const newTitle = `${newNumbering}．${zokugara}${hankakuToZenkaku(String(newBranchNum))}について`; //枝番と続柄のインデックスを更新したタイトルを取得する
     el.textContent = newTitle; //新しいタイトルに上書きする
 }
@@ -387,17 +399,15 @@ function updateTitleBranchNumAndPersonIdx(el, zokugara){
  * クローンした要素の属性を更新（子個人又は兄弟姉妹個人の欄を生成したとき用）
  * @param {HTMLElement} fieldset 属性を更新する対象のフィールドセット
  * @param {string} relation 続柄（child又はcollateral）
- * @param {number} newIdx 属性に付与する新しいインデックス
+ * @param {number} newIdx 属性を更新する対象の人のインデックス
  */
 function updateCloneAttribute(fieldset, relation, newIdx){
     //フィールどセットのidを変更
     fieldset.id = `id_${relation}-${newIdx}-fieldset`;
     //氏名のlabelのforを変更
-    const label = fieldset.querySelector("label");
-    label.setAttribute("for", `id_${relation}-${newIdx}-name`);
+    fieldset.querySelector("label").setAttribute("for", `id_${relation}-${newIdx}-name`);
     //inputとbuttonのname、id、tabindexを変更する
-    const btns = fieldset.getElementsByTagName("button");
-    let newTabindex = parseInt(btns[btns.length - 1].getAttribute("tabindex")) + 1;
+    let newTabindex = parseInt(getLastElByAttribute("nextBtn", "class", fieldset).getAttribute("tabindex")) + 1;
     const els = fieldset.querySelectorAll("input, button");
     for(let i = 0, len = els.length; i < len; i++){
         if(els[i].tagName.toLowerCase() === "input")
@@ -424,12 +434,12 @@ function cloneAndUpdateFieldset(preEl, relation, newIdx){
 }
 
 /**
- * フォームを生成する
+ * 子個人又は兄弟姉妹個人のフィールドセットを生成する
  * @param {boolean} isChild 子フォームの生成か兄弟姉妹フォームの生成か判別する用
  */
 function createChildOrCollateralFieldset(isChild){
     //生成するフォームを判別
-    let relation = isChild ? "child": "collateral";
+    const relation = isChild ? "child": "collateral";
     //formsetの数を１加算する
     const totalForms = document.getElementById(`id_${relation}-TOTAL_FORMS`);
     const oldCount = parseInt(totalForms.value);
@@ -443,85 +453,78 @@ function createChildOrCollateralFieldset(isChild){
 
 /**
  * フィールドセットに属する要素を取得する
- * @param {boolean} isForward
- * @param {Spouse|ChildCommon|Child|ChildSpouse|GrandChild|Ascendant|CollateralCommon|Collateral} person 取得する要素を持つ人
+ * @param {boolean} isForward 次へボタンフラグ（falseは戻るボタンが押されたとき）
+ * @param {EveryPerson} person 取得する要素を持つ人
  */
 function getFieldsetEl(isForward, person){
-    //次へボタンが押されたとき
     if(isForward){
         reqFieldsets.push(person);
         invalidEls.length = 0;
-        invalidEls = preserveInvalidEls.length > 0 ? preserveInvalidEls.pop(): Array.from(person.fieldset.getElementsByTagName("input"));
+        invalidEls = preserveInvalidEls.length > 0 ?
+            preserveInvalidEls.pop():
+            Array.from(person.fieldset.getElementsByTagName("input"));
     }else{
-        //戻るボタンが押されたとき
         preserveInvalidEls.push(invalidEls.slice());
         invalidEls.length = 0; //preserveInvalidElArrに追加する前に実行するとpreserveInvalidElArrに正しく追加されない
     }
 }
 
 /**
- * 次の項目を有効化する
+ * 次のフィールドセットの有効化
  * @param {HTMLElement} nextFieldset 有効化するフィールドセット
  */
 function displayNextFieldset(nextFieldset){
-    //次の項目を表示、hrを挿入、次の項目にスクロール
+    //次のフィールドセットを表示/hrを挿入/次のフィールドセットにスクロール/最初の入力欄にフォーカス
     slideDown(nextFieldset);
-    const hr = document.createElement("hr");
-    hr.className = "my-5";
+    document.createElement("hr").className = "my-5";
     nextFieldset.before(hr);
     scrollToTarget(nextFieldset);
-    //次の項目の最初の入力欄にフォーカスする
     nextFieldset.querySelector("input").focus();
 }
 
 /**
- * 次のガイドボタンにイベントを設定する
+ * ガイドを押したら対象のフィールドセットにスクロールするイベントを設定する
  * @param {event} e クリックイベント
  */
 function scrollToTargetHandler(e){
-    //次の項目にスクロールする
     const idx = Guide.btns.indexOf(e.target);
     scrollToTarget(reqFieldsets[idx].fieldset, 0);
 }
 
 /**
- * ガイドを強調する（事前にGuide.elIdxの加算をすること）
+ * 対象のガイド要素を取得して強調する（事前にGuide.elIdxの加算をすること）
  * @param {HTMLElement} guideList ガイド全体の要素
  */
-function addGuideActive(guideList){
-    const idx = Guide.guides.length;
+function addNextGuideActive(guideList){
     Guide.guides.push(guideList.getElementsByClassName("guide")[Guide.elIdx]);
     Guide.btns.push(guideList.getElementsByClassName("guideBtn")[Guide.elIdx]);
     Guide.caretIcons.push(guideList.getElementsByClassName("guideCaret")[Guide.elIdx]);
-    
-    if(window.getComputedStyle(Guide.guides[idx]).display === "none")
-        Guide.guides[idx].style.display = "block";
-
-    Guide.guides[idx].classList.add("active");
-    Guide.btns[idx].disabled = false;
-    Guide.caretIcons[idx].style.display = "inline-block";
+    const lastGuide = getLastElFromArray(Guide.guides);
+    if(window.getComputedStyle(lastGuide).display === "none")
+        lastGuide.style.display = "block";
+    lastGuide.classList.add("active");
+    getLastElFromArray(Guide.btns).disabled = false;
+    getLastElFromArray(Guide.caretIcons).style.display = "inline-block";
 }
 
 /**
- * ガイドを通常表示にする
+ * 完了したフィールドセットのガイドを通常表示にする
  * @param {HTMLElement} guideList ガイド全体の要素
  */
 function removePreGuideActive(guideList){
-    //通常表示にする
-    const idx = Guide.guides.length - 1;
-    Guide.guides[idx].classList.remove("active");
-    Guide.caretIcons[idx].style.display = "none";
+    getLastElFromArray(Guide.guides).classList.remove("active");
+    getLastElFromArray(Guide.caretIcons).style.display = "none";
     Guide.checkIcons.push(guideList.getElementsByClassName("guideCheck")[Guide.elIdx]);
-    Guide.checkIcons[idx].style.display = "inline-block";
+    getLastElFromArray(Guide.checkIcons).style.display = "inline-block";
 }
 
 /**
- * 子のガイドを複製する
+ * 子のガイドの数を追加又は削除する/追加のときは、タイトルとidを変更して表示する/全ての子を表示する
  * @param {HTMLElement} guideList ガイド全体の要素
  * @param {number} oldCount 初期値である１又は前に入力された子の人数
  * @param {number} newCount 新たに入力された子の人数
  */
-function adjustChildGuide(guideList, oldCount, newCount){
+function adjustChildGuideCount(guideList, oldCount, newCount){
     const childGuides = Array.from(guideList.getElementsByClassName("childGuide"));
     //子が増えたとき
     if(newCount > oldCount){
@@ -530,15 +533,14 @@ function adjustChildGuide(guideList, oldCount, newCount){
             const copyFrom = getLastElByAttribute("childGuide", "class");
             const clone = copyFrom.cloneNode(true);
             //タイトルの枝番を変更
-            const btn = clone.querySelector("button");
-            updateTitleBranchNumAndPersonIdx(btn, "子");
+            updateTitleBranchNumAndPersonIdx(clone.querySelector("button"), "子");
             //idを変更して非表示から表示に変更して最後の要素の次に挿入する
             clone.style.display = "block";
             clone.id = `id_child-${i}-guide`;
             copyFrom.after(clone)
         }
     }else if(newCount < oldCount){
-        //子が減ったとき
+        //子が減ったとき、減った分の子のガイドを削除する
         childGuides.slice(newCount).forEach(el => el.parentNode.removeChild(el));
     }
     //子のガイドが２つ以上あるとき、子１以外のガイドも表示する
@@ -547,20 +549,20 @@ function adjustChildGuide(guideList, oldCount, newCount){
 }
 
 /**
- * 子の配偶者と孫がいるときのガイドを生成する
+ * 子の配偶者と孫のガイド両方を生成する
  */
-function createChildsHeirsGuide(){
-    let order = childSpouses.concat(grandChilds);
-    order.sort((a, b) => childs.indexOf(a.successFrom) - childs.indexOf(b.successFrom));
-    let guideCount = { childSpouse: 0, grandChild: 0 };
+function createChildsHeirGuides(){
+    const childsHeirInstances = childSpouses.concat(grandChilds); //子の配偶者と孫のインスタンスを結合する
+    childsHeirInstances.sort((a, b) => childs.indexOf(a.successFrom) - childs.indexOf(b.successFrom)); //子の相続人を子のインデックス順にソートする
+    let guideCount = { childSpouse: 0, grandChild: 0 }; //子の配偶者、孫のインデックス（ガイドのidに付与するインデックス用）
     let copyFrom = getLastElByAttribute("childGuide", "class");
-    order.forEach((item, i) => {
+    childsHeirInstances.forEach((instance, i) => {
         let clone = copyFrom.cloneNode(true);
         clone.style.display = "block";
-        let btn = clone.querySelector("button");
+        const btn = clone.querySelector("button");
         btn.disabled = "true";
-        let type = item.fieldset.classList.contains("childSpouseFieldset") ? "childSpouse" : "grandChild";
-        btn.textContent = item.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
+        const type = instance.fieldset.classList.contains("childSpouseFieldset") ? "childSpouse" : "grandChild";
+        btn.textContent = instance.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
         clone.id = `id_${type === "childSpouse" ? "child_spouse" : "grand_child"}-${guideCount[type]}-guide`;
         clone.className = `card-title guide ${type}Guide childsHeirGuide`;
         clone.getElementsByClassName("guideCheck")[0].style.display = "none";
@@ -571,24 +573,24 @@ function createChildsHeirsGuide(){
 }
 
 /**
- * 子の配偶者又は孫のガイドを生成する
- * @param {(ChildSpouse|GrandChild)[]} persons childSpouses又はgrandChilds
+ * 子の配偶者又は孫のガイドいずれかのみ生成する
+ * @param {(ChildSpouse|GrandChild)[]} persons 生成する系統（childSpouses又はgrandChilds）
  */
 function createChildsHeirGuide(persons){
     const isChildSpouse = persons[0].constructor.name === "ChildSpouse";
     const relation = isChildSpouse? "childSpouse": "grandChild";
     const idPrefix = isChildSpouse? "child_spouse": "grand_child";
-    const className = `card-title guide ${relation}Guide`;
-    const fieldset = document.getElementsByClassName("childsHeirFieldset");
+    const fieldsets = document.getElementsByClassName("childsHeirFieldset");
     let copyFrom = getLastElByAttribute("childGuide", "class");
+    //フィールドセットは子の配偶者又は孫のテンプレとして残ってるだけの可能性があるためインスタンスの数でループする
     for(let i = 0, len = persons.length; i < len; i ++){
         const clone = copyFrom.cloneNode(true);
         clone.style.display = "block";
         const btn = clone.querySelector("button");
         btn.disabled = "true";
-        btn.textContent = fieldset[i].querySelector(".fieldsetTitle").textContent;
+        btn.textContent = fieldsets[i].querySelector(".fieldsetTitle").textContent;
         clone.id = `id_${idPrefix}-${i}-guide`;
-        clone.className = `card-title guide ${className}Guide childsHeirGuide`;
+        clone.className = `card-title guide ${relation}Guide childsHeirGuide`;
         clone.getElementsByClassName("guideCheck")[0].style.display = "none";
         copyFrom.after(clone)
         copyFrom = clone;
@@ -599,7 +601,7 @@ function createChildsHeirGuide(persons){
  * 追加のガイドを表示する
  * @param {HTMLElement} guideList ガイドのラッパー要素
  * @param {string} selector querySelectorAllで指定するセレクタ
- * @example 子が複数いるときに子１の表示と同時に他の子も表示するなど
+ * @example 子が複数いるときに子１の表示と同時に他の子も全員表示するなど
  */
 function displayAdditionalGuide(guideList, selector){
     Array.from(guideList.querySelectorAll(selector)).slice(1).forEach(el => el.style.display = "block");
@@ -615,7 +617,6 @@ function displayAdditionalGuide(guideList, selector){
  * @param {HTMLElement} guideList 
  */
 function childCommonToFatherGuide(fromPerson, guideList){
-    //子１以外のガイドを削除する
     removeAllExceptFirst(guideList.getElementsByClassName("childGuide"));
     guideList.getElementsByClassName("ascendantGuide")[1].style.display = "block";
     updateAscendantTitle(fromPerson, false);
@@ -644,7 +645,7 @@ function updateGuide(fromPerson){
             removeAll(secondaryHeirGuides);
         //子の配偶者と孫がいるときを表示するとき
         if(childSpouses.length > 0 && grandChilds.length > 0){
-            createChildsHeirsGuide();
+            createChildsHeirGuides();
         }else if(childSpouses.length > 0){
             //子の配偶者のみいるとき
             createChildsHeirGuide(childSpouses);
@@ -683,11 +684,11 @@ function updateGuide(fromPerson){
             //子の数を取得する
             const oldCount = guideList.getElementsByClassName("childGuide").length;
             const newCount = document.getElementsByClassName("childFieldset").length;
-            adjustChildGuide(guideList, oldCount, newCount);
+            adjustChildGuideCount(guideList, oldCount, newCount);
         }
     }
     //次の項目を強調する
-    addGuideActive(guideList);
+    addNextGuideActive(guideList);
     //次の項目のガイドボタンにイベントを追加
     getLastElFromArray(Guide.btns).addEventListener("click", scrollToTargetHandler);
 }
@@ -1996,7 +1997,7 @@ function updateAscendantTabindex(preFieldset, fieldsets){
 
 /**
  * 個人入力欄のフィールドセットの値の初期化、有効化、非表示にする
- * @param {Spouse|Child|ChildSpouse|GrandChild|Ascendant|Collateral} persons 初期化対象の人（複数可）
+ * @param {Spouse|Child|ChildSpouse|GrandChild|Ascendant|Collateral} persons 初期化対象のインスタンス（複数可）
  */
 function iniIndivisualFieldsets(persons){
     if(!Array.isArray(persons)) persons = [persons];
@@ -2380,16 +2381,28 @@ function linkChildsHeirInstanceToFieldset(instances, fieldsets){
         instances[i].errMsgEls = Array.from(fieldsets[i].getElementsByClassName("errorMessage"));
     }
 }
+
+/**
+ * 被相続人の子の相続人のインスタンスとフィールドセットを初期化する
+ */
+function iniChildsHeirInstanceAndFieldset(){
+    removeAllExceptFirst(document.getElementsByClassName("childSpouseFieldset"));
+    removeAllExceptFirst(document.getElementsByClassName("grandChildFieldset"));
+    childSpouses.length = 0;
+    grandChilds.length = 0;
+    new ChildSpouse("id_child_spouse-0-fieldset");
+    new GrandChild("id_grand_child-0-fieldset");
+    iniIndivisualFieldsets(childSpouses.concat(grandChilds));
+    childSpouses.length = 0;
+    grandChilds.length = 0;
+}
 /**
  * 最後の子の欄から次に表示する欄を判別する
  * @returns 次に表示する人又はtrue（trueを返すとき完了フィールドセットを表示する）
  */
 function selectChildTo(){
-    //最後の子の欄で次へボタンが押されたとき、子の相続人のインスタンスを全削除
-    childSpouses.length = 0;
-    grandChilds.length = 0;
-    removeAllExceptFirst(document.getElementsByClassName("childSpouseFieldset"));
-    removeAllExceptFirst(document.getElementsByClassName("grandChildFieldset"));
+    //子の相続人のインスタンスとフィールドセットを初期化
+    iniChildsHeirInstanceAndFieldset();
     let isDone = false; //完了フラグ
     let isChildSpouse = false; //子の配偶者表示フラグ
     let isGrandChild = false; //孫表示フラグ

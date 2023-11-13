@@ -212,7 +212,7 @@ class Descendant(CommonModel):
         verbose_name_plural = _("卑属")
 
 # 尊属
-# 外部キー２つ：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとidが２つ
+# 外部キー１つ：子のモデルとid
 class Ascendant(CommonModel):
     decedent = models.ForeignKey(
         Decedent,
@@ -284,12 +284,7 @@ class Collateral(CommonModel):
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     is_heir = models.BooleanField(verbose_name="相続人", default=False)
     is_refuse = models.BooleanField(verbose_name="相続放棄", default=False)
-    exist_list = (
-        (0, "いる"),
-        (1, "いない"),
-        (2, "逝去"),
-    )
-    exist = models.CharField(verbose_name="死亡時存在", max_length=10, choices=exist_list)
+    is_exist = models.BooleanField(verbose_name="死亡時存在", default=False)
     is_live = models.BooleanField(verbose_name="手続時存在", default=False)
     is_japan = models.BooleanField(verbose_name="日本在住", default=True)
     is_adult = models.BooleanField(verbose_name="成人", default=True)
@@ -320,7 +315,7 @@ class Collateral(CommonModel):
         related_name = "collateral_update_by"
     )
     
-    step_one_fields = []
+    step_one_fields = ["content_type1", "object_id1", "content_type2", "object_id2", "name", "decedent", "is_live", "is_exist", "is_refuse", "is_adult", "is_japan", "is_heir",]
     
     class Meta:
         verbose_name = _("傍系")

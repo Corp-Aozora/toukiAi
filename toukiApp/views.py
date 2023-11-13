@@ -127,6 +127,7 @@ def step_one(request):
     grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
     child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
+    collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
     
     if request.method == "POST":
         decedent_form = StepOneDecedentForm(request.POST)
@@ -134,6 +135,7 @@ def step_one(request):
         childs_form = child_form_set(request.POST, prefix="child")
         grand_childs_form = grand_child_form_set(request.POST, prefix="gchild")
         ascendant_form = ascendant_form_set(request.POST, prefix="ascendant")
+        collaterals_form = collateral_form_set(request.POST, prefix="collateral")
 
         # トランザクションが必要
         # 被相続人情報の保存
@@ -149,6 +151,7 @@ def step_one(request):
         child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
         ascendant_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
         ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
+        collateral_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
     
     prefectures = []
     for p in PREFECTURES:
@@ -170,6 +173,8 @@ def step_one(request):
         "child_form_internal_field_name" : child_form_internal_field_name,
         "ascendant_form_internal_field_name": ascendant_form_internal_field_name,
         "ascendants_relation" : ascendants_relation,
+        "collateral_form_set" : collateral_form_set(prefix="collateral"),
+        "collateral_form_internal_field_name" : collateral_form_internal_field_name,
     }
     return render(request, "toukiApp/step_one.html", context)
 

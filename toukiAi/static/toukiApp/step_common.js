@@ -178,54 +178,6 @@ function setNavTogglerStyle(){
 }
 
 /**
- * 次へのボタンのトグル
- * @param {boolean} isValid チェック結果
- * @param {element} el チェック対象の要素
- * @param {number} index ボタン要素のインデックス
- */
-function toggleNextBtn(isValid, el, index){
-    //入力値が適切なとき
-    if(isValid){
-        //配列に取得
-        if(invalidEls.indexOf(el) !== -1) invalidEls.push(el);
-        //次へのボタンを無効化
-        nextBtns[index].disabled = true;
-    }else{
-        //配列から削除
-        invalidEls = invalidEls.filter(x => x !== el);
-        //次へボタンを有効化判別
-        if(invalidEls.length === 0) nextBtns[index].disabled = false;
-    }
-}
-
-/**
- * 入力値チェック後の処理
- * @param {boolean} isValid 入力値のチェック結果
- * @param {element} messageEl エラーメッセージを表示する要素
- * @param {string} message エラーメッセージ
- * @param {element} el チェック対象の要素
- * @param {element} nextBtn 次へボタン
- */
-function afterValidation(isValid, messageEl, message, el, nextBtn){
-    //入力値が適切なとき
-    if(isValid){
-        //エラーメッセージを隠す
-        messageEl.style.display = "none";
-        //次へボタンを有効化判別
-        if(invalidEls.length === 0) nextBtn.disabled = false;        
-    }else{
-        //エラーメッセージを表示する
-        messageEl.innerHTML = message;
-        messageEl.style.display = "block";
-        //配列に取得
-        invalidEls.push(el);
-        //次へのボタンを無効化
-        nextBtn.disabled = true;
-        el.value = "";
-    }
-}
-
-/**
  * 引数に渡された１つ又は配列に入った要素の子要素として存在するinput要素を全て初期化する
  * @param {HTMLElement[]|HTMLElement} els 初期化したいinput要素が属する親要素（配列形式じゃなくてもOK）
  */

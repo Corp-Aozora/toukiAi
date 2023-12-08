@@ -35,13 +35,50 @@ class OpenInquiryForm(forms.ModelForm):
         })
         
         super().__init__(*args, **kwargs)
-                
 
+# STEP1の被相続人、配偶者、尊属の基本フォーム
+class BaseOneForm(forms.ModelForm):
+    index = forms.CharField(required=False, widget=forms.HiddenInput())
+    target = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        abstract = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['index'].widget.attrs.update({
+            'class': 'hidden',
+        })
+        self.fields['target'].widget.attrs.update({
+            'class': 'hidden',
+        })
+        
+# STEP1の子、兄弟姉妹の基本フォーム
+class BaseTwoForm(forms.ModelForm):
+    index = forms.CharField(required=False, widget=forms.HiddenInput())
+    target1 = forms.CharField(required=False, widget=forms.HiddenInput())
+    target2 = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        abstract = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['index'].widget.attrs.update({
+            'class': 'hidden',
+        })
+        self.fields['target1'].widget.attrs.update({
+            'class': 'hidden',
+        })
+        self.fields['target2'].widget.attrs.update({
+            'class': 'hidden',
+        })        
+        
 # STEP1の被相続人フォーム
-class StepOneDecedentForm(forms.ModelForm):
+class StepOneDecedentForm(BaseOneForm):
     class Meta:
         model = Decedent
-        fields = model.step_one_fields
+        fields = model.step_one_fields + ["index", "target"]
         widgets = {
             "city": forms.Select(),
             "domicile_city": forms.Select(),
@@ -72,11 +109,11 @@ class StepOneDecedentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
                 
 # STEP1の配偶者フォーム
-class StepOneSpouseForm(forms.ModelForm):
+class StepOneSpouseForm(BaseOneForm):
     class Meta:
         model = Spouse
         # decedent, content_type, object_id, name, is_exist, is_live, is_heir, is_refuse, is_japan
-        fields = model.step_one_fields
+        fields = model.step_one_fields + ["index", "target"]
         widgets = {
             "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "いない・逝去していた")]),
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
@@ -107,11 +144,11 @@ class StepOneSpouseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
                 
 # STEP1の子フォーム
-class StepOneDescendantForm(forms.ModelForm):
+class StepOneDescendantForm(BaseTwoForm):
     class Meta:
         model = Descendant
         # decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, is_exist, is_refuse, is_adult, is_japan, is_heir
-        fields = model.step_one_fields
+        fields = model.step_one_fields + ["index", "target1", "target2"]
         widgets = {
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
             "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
@@ -142,12 +179,12 @@ class StepOneDescendantForm(forms.ModelForm):
             
         super().__init__(*args, **kwargs)
                 
-# STEP1の親フォーム
-class StepOneAscendantForm(forms.ModelForm):
+# STEP1の尊属フォーム
+class StepOneAscendantForm(BaseOneForm):
     class Meta:
         model = Ascendant
         # content_type1, object_id1, name, decedent, is_live, is_exist, is_refuse, is_japan, is_heir
-        fields = model.step_one_fields
+        fields = model.step_one_fields + ["index", "target"]
         widgets = {
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
             "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
@@ -177,12 +214,12 @@ class StepOneAscendantForm(forms.ModelForm):
             
         super().__init__(*args, **kwargs)
         
-# STEP1の子フォーム
-class StepOneCollateralForm(forms.ModelForm):
+# STEP1の兄弟姉妹フォーム
+class StepOneCollateralForm(BaseTwoForm):
     class Meta:
         model = Collateral
         # decedent, content_type1, object_id1, content_type2, object_id2, name, is_live, is_exist, is_refuse, is_adult, is_japan, is_heir
-        fields = model.step_one_fields
+        fields = model.step_one_fields + ["index", "target1", "target2"]
         widgets = {
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
             "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),

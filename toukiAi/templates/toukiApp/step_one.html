@@ -118,7 +118,6 @@
                                     <span class="errorMessage emPosition" style="display: none;">
                                     </span>
                                 </div>
-
                         {% elif field.name == "domicile_city" %}
                                 <div class="input-group position-relative Q">
                                     <label for="{{field.auto_id}}" class="input-group-text label">
@@ -126,14 +125,15 @@
                                     </label>
                                     {{ field }}
                                     <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                        
                                     </span>
                                 </div>
                             </div>
+                        {% else %}
+                            {{ field }}
                         {% endif %}
                     {% endfor %}
                     <div class="text-end mt-5">
-                        <button type="button" class="btn btn-primary nextBtn" tabindex="8" disabled="true">次へ</button>
+                        <button type="button" class="btn btn-primary nextBtn" tabindex="10" disabled="true">次へ</button>
                     </div>
                 </fieldset>
                 <fieldset id="id_spouse-0-fieldset" class="spouseFieldset" style="display: none;">
@@ -158,7 +158,7 @@
                                             <span class="errorMessage emPosition" style="display: none;">
                                             </span>
                                         </div>
-                                    {% else %}
+                                    {% elif field.name != "index" and field.name != "target" %}
                                         {% if field.name == "is_exist" %}
                                             <div class="Q mt-3">
                                                 <div>
@@ -251,7 +251,9 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                        {% endif %}                                            
+                                        {% endif %}
+                                    {% else %}
+                                        {{field}}
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -484,7 +486,7 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                        {% else %}
+                                        {% elif field.name != "index" and field.name != "target1" and field.name != "target2" %}
                                             {% if field.name == "is_live" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
@@ -603,6 +605,8 @@
                                                     </div>
                                                 </div>
                                             {% endif %}
+                                        {% else %}
+                                            {{field}}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -627,7 +631,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="card-text">
-                                    {% for field in spouse_form %}
+                                    {% for field in form %}
                                         {% if field.name in spouse_form_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
@@ -638,7 +642,7 @@
                                                 <span class="errorMessage emPosition" style="display: none;">
                                                 </span>
                                             </div>
-                                        {% else %}
+                                        {% elif field.name != "index" and field.name != "target" %}
                                             {% if field.name == "is_exist" %}
                                                 <div class="Q mt-3">
                                                     <div>
@@ -731,7 +735,9 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                            {% endif %}                                            
+                                            {% endif %}          
+                                        {% else %}
+                                            {{field}}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -790,7 +796,7 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                        {% else %}
+                                        {% elif field.name != "index" and field.name != "target1" and field.name != "target2" %}
                                             {% if field.name == "is_live" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
@@ -891,6 +897,8 @@
                                                     </div>
                                                 </div>
                                             {% endif %}
+                                        {% else %}
+                                            {{field}}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -926,7 +934,7 @@
                                                 <span class="errorMessage emPosition" style="display: none;">
                                                 </span>
                                             </div>
-                                        {% else %}
+                                        {% elif field.name != "index" and field.name != "target" %}
                                             {% if field.name == "is_live" %}
                                                 <div class="Q mt-3 round-top">
                                                     <div>
@@ -1062,6 +1070,8 @@
                                                     </div>
                                                 </div>
                                             {% endif %}
+                                        {% else %}
+                                            {{field}}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -1295,7 +1305,7 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                        {% else %}
+                                        {% elif field.name != "index" and field.name != "target1" and field.name != "target2" %}
                                             {% if field.name == "is_live" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
@@ -1381,13 +1391,13 @@
                                                     <div class="form-control input-group">
                                                         <div class="form-check col">
                                                             <label class="form-check-label ms-5">
-                                                                <input id="id_{{form.prefix}}-is_collateral_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_collateral">
+                                                                <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
                                                                 はい
                                                             </label>
                                                         </div>
                                                         <div class="form-check col">
                                                             <label class="form-check-label">
-                                                                <input id="id_{{form.prefix}}-is_collateral_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_collateral">
+                                                                <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
                                                                 いいえ
                                                             </label>
                                                         </div>
@@ -1396,6 +1406,8 @@
                                                     </div>
                                                 </div>
                                             {% endif %}
+                                        {% else %}
+                                            {{field}}
                                         {% endif %}
                                     {% endfor %}
                                 </div>

@@ -40,13 +40,19 @@ class Decedent extends Person{
         prefecture : 3,
         city : 4,
         domicilePrefecture : 5,
-        domicileCity : 6
+        domicileCity : 6,
+        index : 7,
+        target : 8,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
         super(fieldsetId);
-        this.inputs = this.inputs.concat(Array.from(this.fieldset.getElementsByTagName("select")));
-        this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter((_, index) => index !== Decedent.idxs.deathYear);
+        this.inputs = Array.from(this.fieldset.querySelectorAll("input, select"));
+        this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
+            (_, i) => i !== Decedent.idxs.deathYear && i != Decedent.idxs.index && i !== Decedent.idxs.target
+        );
+        this.inputs[Decedent.idxs.index].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
+        this.inputs[Decedent.idxs.target].value = "";
         decedents.push(this);
     }
 }
@@ -63,10 +69,15 @@ class Spouse extends Person{
         isRemarriage : {form: 3, input: [5, 6]},
         isStepChild : {form: 4, input: [7, 8]},
         isRefuse : {form: 5, input: [9, 10]},
-        isJapan : {form: 6, input: [11, 12]}
+        isJapan : {form: 6, input: [11, 12]},
+        index : {form: 7, input: 13},
+        target : {form: 8, input: 14}
     }
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = this.noInputs.filter((_, i) => i !== Spouse.idxs.index.input && i !== Spouse.idxs.target.input);
+        this.inputs[Spouse.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
+        this.inputs[Spouse.idxs.target.input].value = decedent.inputs[Decedent.idxs.index].value.trim();
         if(this.constructor === Spouse)
             spouses.push(this);
     }
@@ -108,9 +119,15 @@ class Child extends Person{
         count:{form: 7, input: 13},
         isAdult:{form: 8, input: [14, 15]},
         isJapan:{form: 9, input: [16, 17]},
+        index : {form: 10, input: 18},
+        target1 : {form: 11, input: 19},
+        target2 : {form: 12, input: 20},
     }
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = this.noInputs.filter((_, i) => i !== Child.idxs.index.input && i !== Child.idxs.target1.input && i !== Child.idxs.target2.input);
+        this.inputs[Child.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
+        this.inputs[Child.idxs.target1.input].value = decedent.inputs[Decedent.idxs.index].value.trim();
         if(this.constructor === Child)
             childs.push(this);
     }
@@ -121,7 +138,9 @@ const childSpouses = [];
 class ChildSpouse extends Spouse{
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = this.noInputs.filter((_, i) => i !== ChildSpouse.idxs.index.input && i !== ChildSpouse.idxs.target.input);
         this.successFrom;
+        this.inputs[ChildSpouse.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
         childSpouses.push(this);
     }
 }
@@ -140,10 +159,15 @@ class GrandChild extends Child{
         isChild:{form: 6, input: [11, 12]},
         isAdult:{form: 7, input: [13, 14]},
         isJapan:{form: 8, input: [15, 16]},
+        index : {form: 9, input: 17},
+        target1 : {form: 10, input: 18},
+        target2 : {form: 11, input: 19},
     }
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = this.noInputs.filter((_, i) => i !== GrandChild.idxs.index.input && i !== GrandChild.idxs.target1.input && i !== GrandChild.idxs.target2.input);
         this.successFrom;
+        this.inputs[GrandChild.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
         grandChilds.push(this);
     }
 }
@@ -160,10 +184,14 @@ class Ascendant extends Person{
         isSpouse:{form: 4, input: [7, 8]},
         isRemarriage:{form: 5, input: [9, 10]},
         isChild:{form: 6, input: [11, 12]},
-        isJapan:{form: 7, input: [13, 14]}
+        isJapan:{form: 7, input: [13, 14]},
+        index : {form: 8, input: 15},
+        target : {form: 9, input: 16}
     }
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = this.noInputs.filter((_, i) => i !== Ascendant.idxs.index.input && i !== Ascendant.idxs.target.input);
+        this.inputs[Ascendant.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
         ascendants.push(this);
     }
 }
@@ -200,10 +228,16 @@ class Collateral extends Person{
         isSpouse:{form: 5, input: [9, 10]},
         isChild:{form: 6, input: [11, 12]},
         isAdult:{form: 7, input: [13, 14]},
-        isJapan:{form: 8, input: [15, 16]}
+        isJapan:{form: 8, input: [15, 16]},
+        index : {form: 9, input: 17},
+        target1 : {form: 10, input: 18},
+        target2 : {form: 11, input: 19},
     }
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = this.noInputs.filter((_, i) => i !== Collateral.idxs.index.input && i !== Collateral.idxs.target1.input && i !== Collateral.idxs.target2.input);
+        this.inputs[Collateral.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
+        this.inputs[Collateral.idxs.target1.input].value = decedent.inputs[Decedent.idxs.index].value.trim();
         collaterals.push(this);
     }
 }
@@ -478,7 +512,7 @@ function updateCloneAttribute(fieldset, relation, newIdx){
     const els = fieldset.querySelectorAll("input, button");
     for(let i = 0, len = els.length; i < len; i++){
         if(els[i].tagName.toLowerCase() === "input")
-            updateAttribute(["name", "id"], els[i], newIdx, /\d+/g);
+            updateAttribute(["name", "id"], els[i], newIdx, /\d+/);
         els[i].setAttribute("tabindex", newTabindex + i);
     }
 }
@@ -573,12 +607,11 @@ function inactiveGuide(guideList){
 
 /**
  * 子個人又は兄弟姉妹個人のガイドを生成/タイトル変更/ガイドを表示/idを変更/１つ前のガイドの次に挿入する
- * @param {boolean} isChild 子のガイド生成フラグ（falseのときは兄弟姉妹のガイドを生成する）
+ * @param {string} relation 続柄（child又はcollateral）
  * @param {number} idx 続柄インデックス（例：子１のときは１）
  */
-function createChildOrCollateralGuide(isChild, idx){
-    const relation = isChild? "child": "collateral";
-    const zokugara = isChild? "子": "兄弟姉妹";
+function createChildOrCollateralGuide(relation, idx){
+    const zokugara = relation === "child" ? "子": "兄弟姉妹";
     //直前のガイドをコピー
     const copyFrom = getLastElByAttribute(`${relation}Guide`, "class");
     const clone = copyFrom.cloneNode(true);
@@ -592,24 +625,25 @@ function createChildOrCollateralGuide(isChild, idx){
 
 /**
  * 子のガイドの数を追加又は削除する/追加のときは、タイトルとidを変更して表示する/全ての子を表示する
+ * @param {string} relation 続柄（child又はcollateral）
  * @param {HTMLElement} guideList ガイド全体の要素
  * @param {number} oldCount 初期値である１又は前に入力された子の人数
  * @param {number} newCount 新たに入力された子の人数
  */
-function adjustChildGuideCount(guideList, oldCount, newCount){
-    const childGuides = Array.from(guideList.getElementsByClassName("childGuide"));
+function adjustChildGuideCount(relation, guideList, oldCount, newCount){
+    const guides = Array.from(guideList.getElementsByClassName(`${relation}Guide`));
     //子が増えたとき、増えた分のガイドを生成する
     if(newCount > oldCount){
         for(let i = oldCount; i < newCount; i ++){
-            createChildOrCollateralGuide(true, i);
+            createChildOrCollateralGuide(relation, i);
         }
     }else if(newCount < oldCount){
         //子が減ったとき、減った分の子のガイドを削除する
-        childGuides.slice(newCount).forEach(el => el.parentNode.removeChild(el));
+        guides.slice(newCount).forEach(el => el.parentNode.removeChild(el));
     }
     //子のガイドが２つ以上あるとき、子１以外のガイドも表示する
-    if(childGuides.length > 1)
-        displayAdditionalGuide(guideList, ".childGuide");
+    if(guides.length > 1)
+        displayAdditionalGuide(guideList, `.${relation}Guide`);
 }
 
 /**
@@ -775,7 +809,7 @@ function updateGuide(fromPerson, nextPerson){
             //子の数を取得する
             const oldCount = guideList.getElementsByClassName("childGuide").length;
             const newCount = document.getElementsByClassName("childFieldset").length;
-            adjustChildGuideCount(guideList, oldCount, newCount);
+            adjustChildGuideCount("child", guideList, oldCount, newCount);
         }else if(fromFieldsetId === "id_ascendant-1-fieldset"){
             //母から父方の祖父を表示するとき、父方の祖母を無効化した状態で表示する
             guideList.getElementsByClassName("fatherGGuide")[1].style.display = "block";
@@ -785,6 +819,11 @@ function updateGuide(fromPerson, nextPerson){
             guideList.getElementsByClassName("motherGGuide")[1].style.display = "block";
         }else if(fromFieldsetId === "id_ascendant-5-fieldset"){
             UpdateTitle.collateralCommonGuide(guideList);
+        }else if(fromFieldsetId === "id_collateral_common-0-fieldset"){
+            //兄弟姉妹の数を取得する
+            const oldCount = guideList.getElementsByClassName("collateralGuide").length;
+            const newCount = document.getElementsByClassName("collateralFieldset").length;
+            adjustChildGuideCount("collateral", guideList, oldCount, newCount);
         }
     }
     //次の項目を強調する
@@ -1084,10 +1123,11 @@ function iniErrMsgEls(errMsgEl){
 /**
  * システム対応外であることを表示する
  * @param {HTMLElement} el
+ * @param {string} msg
  */
-function displayNotAvailable(el){
+function displayNotAvailable(el, msg = null){
     el.style.display = "block";
-    el.innerHTML = "本システムでは対応できません";
+    el.innerHTML = msg? msg: "本システムでは対応できません";
 }
 
 /**
@@ -1226,7 +1266,7 @@ function setSpouseRbsEvent(rbIdx, spouse){
  */
 class ChildRbHandler extends CommonRbHandler{
     //同じ配偶者
-    static isSameParents(person){
+    static isSameParents(rbIdx, person){
         const {inputs, Qs} = personDataToVariable(person);
         //手続時存在欄が表示されてないとき表示する
         slideDownIfHidden(Qs[Child.idxs.isLive.form]);
@@ -1246,6 +1286,19 @@ class ChildRbHandler extends CommonRbHandler{
                     inputs[Child.idxs.isJapan.input[yes]].dispatchEvent(event);
             }
         }
+        this.handleYesNo(rbIdx, Child.idxs.isSameParents.input[yes],
+            ()=>{
+                //yesAction
+                //続柄を設定する
+                if(spouse.inputs[Spouse.idxs.isExist.input[yes]].checked)
+                    inputs[Child.idxs.target2.input].value = spouse.inputs[Spouse.idxs.index.input].value.trim();
+            },
+            ()=>{
+                //noAction
+                //続柄を設定する
+                inputs[Child.idxs.target2.input].value = "";
+            }
+        )
     }
 
     //手続時存在
@@ -1369,7 +1422,7 @@ class ChildRbHandler extends CommonRbHandler{
  */
 function setChildRbsEvent(rbIdx, person){
     //同じ配偶者
-    if(Child.idxs.isSameParents.input.includes(rbIdx)) ChildRbHandler.isSameParents(person);
+    if(Child.idxs.isSameParents.input.includes(rbIdx)) ChildRbHandler.isSameParents(rbIdx, person);
     //手続時存在
     else if(Child.idxs.isLive.input.includes(rbIdx)) ChildRbHandler.isLive(rbIdx, person);
     //相続時存在
@@ -1387,13 +1440,242 @@ function setChildRbsEvent(rbIdx, person){
 }
 
 /**
+ * 兄弟姉妹の欄のラジオボタンのイベントハンドラー
+ */
+class CollateralRbHandler extends CommonRbHandler{
+    //同じ配偶者
+    static isSameParents(rbIdx, person){
+        const {inputs, Qs} = personDataToVariable(person);
+        //手続時存在欄が表示されてないとき表示する
+        slideDownIfHidden(Qs[Collateral.idxs.isLive.form]);
+        //手続時存在の初期値があるとき、手続時存在trueのイベントを発生させる
+        if(inputs[Collateral.idxs.isLive.input[yes]].disabled){
+            const event = new Event("change");
+            inputs[Collateral.idxs.isLive.input[yes]].dispatchEvent(event);
+            //相続放棄の初期値があるとき、相続放棄trueのイベントを発生させる
+            if(inputs[Collateral.idxs.isRefuse.input[no]].disabled){
+                inputs[Collateral.idxs.isRefuse.input[no]].checked = true;
+                inputs[Collateral.idxs.isRefuse.input[no]].dispatchEvent(event);
+                //成人欄の初期値があるとき、成人trueのイベントを発生させる
+                if(inputs[Collateral.idxs.isAdult.input[yes]].disabled)
+                    inputs[Collateral.idxs.isAdult.input[yes]].dispatchEvent(event);
+                //日本在住の初期値があるとき、日本在住trueのイベントを発生させる
+                if(inputs[Collateral.idxs.isJapan.input[yes]].disabled)
+                    inputs[Collateral.idxs.isJapan.input[yes]].dispatchEvent(event);
+            }
+        }
+        this.handleYesNo(rbIdx, Collateral.idxs.isSameParents.input[yes],
+            ()=>{
+                //yesAction
+                //続柄を設定する
+                if(spouse.inputs[Spouse.idxs.isExist.input[yes]].checked)
+                    inputs[Collateral.idxs.target2.input].value = spouse.inputs[Spouse.idxs.index.input].value.trim();
+            },
+            ()=>{
+                //noAction
+                //続柄を設定する
+                inputs[Collateral.idxs.target2.input].value = "";
+            }
+        )
+    }
+
+    //手続時存在
+    static isLive(rbIdx, person){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(person);
+        const rbIdxs = rbIdx === Collateral.idxs.isLive.input[yes] ? 
+            getSequentialNumArr(Collateral.idxs.isExist.input[yes], Collateral.idxs.isChild.input[no]):
+            Collateral.idxs.isRefuse.input.concat(Collateral.idxs.isAdult.input, Collateral.idxs.isJapan.input);
+        this.handleYesNo(rbIdx, Collateral.idxs.isLive.input[yes],
+            ()=>{
+                //yesAction
+                //エラーが削除されているとき、日本在住trueボタンをエラー要素を追加して次へボタンを無効化する/falseのときに表示する欄を非表示にして入力値とボタンを初期化/相続放棄欄を表示する
+                changeCourse(
+                    person, inputs[Collateral.idxs.isJapan.input[yes]],
+                    Qs, Collateral.idxs.isExist.form, Collateral.idxs.isChild.form, rbIdxs, null,
+                    Qs[Collateral.idxs.isRefuse.form]
+                )
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isRefuse.form]);
+            },
+            ()=>{
+                //noAction
+                slideUpEls(Qs[Collateral.idxs.isRefuse.form]);
+                //相続放棄欄、成人欄、日本在住欄を非表示かつボタンを初期化/相続時存在欄を表示する
+                changeCourse(
+                    person, inputs[Collateral.idxs.isChild.input[no]],
+                    Qs, Collateral.idxs.isRefuse.form, Collateral.idxs.isJapan.form, rbIdxs, null,
+                    Qs[Collateral.idxs.isExist.form]
+                )
+            }
+        )
+    }
+
+    //相続時存在
+    static isExist(rbIdx, person){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(person);
+        this.handleYesNo(rbIdx, Collateral.idxs.isExist.input[yes],
+            ()=>{
+                //falseのときに表示する欄を非表示にして入力値、ボタンを初期化する/相続放棄欄を表示
+                changeCourse(
+                    person, inputs[Collateral.idxs.isChild.input[no]],
+                    Qs, Collateral.idxs.isChild.form, Collateral.idxs.isChild.form, Collateral.idxs.isChild.input, null,
+                    Qs[Collateral.idxs.isRefuse.form]
+                )
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isExist.form]);
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isRefuse.form]);
+            },
+            ()=>{
+                //trueのときに表示する欄を非表示にして値とボタンを初期化/子の存在確認欄を表示
+                if(person === getLastElFromArray(collaterals)){
+                    if(spouse.inputs[Spouse.idxs.isExist.input[no]].checked || spouse.inputs[Spouse.idxs.isRefuse.input[yes]].checked){
+                        pushInvalidEl(person, inputs[Collateral.idxs.isJapan.input[yes]]);
+                        displayNotAvailable(errMsgEls[Collateral.idxs.isExist.form], "相続人がいない場合、本システムでは対応できません");
+                        slideUp(Qs[Collateral.idxs.isRefuse.form]);
+                        return;
+                    }else{
+                        iniErrMsgEls(errMsgEls[Collateral.idxs.isExist.form]);
+                    }
+                }
+                const rbIdxs = getSequentialNumArr(Collateral.idxs.isRefuse.input[yes], Collateral.idxs.isChild.input[no]);
+                changeCourse(
+                    person, inputs[Collateral.idxs.isChild.input[no]],
+                    Qs, Collateral.idxs.isRefuse.form, Collateral.idxs.isChild.form, rbIdxs, null,
+                    Qs[Collateral.idxs.isChild.form]
+                )
+
+            }
+        )
+    }
+
+    //相続放棄
+    static isRefuse(rbIdx, person){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(person);
+        this.handleYesNo(rbIdx, Collateral.idxs.isRefuse.input[yes],
+            ()=>{
+                //氏名欄にエラーがないときは次へボタンを有効化する/falseのときに表示する欄を非表示にして値とボタンを初期化
+                const rbIdxs = getSequentialNumArr(Collateral.idxs.isSpouse.input[yes], Collateral.idxs.isJapan.input[no]);
+                breakQ(inputs[Collateral.idxs.name.input], person, Qs, Collateral.idxs.isSpouse.form, Collateral.idxs.isJapan.form, rbIdxs);
+                if(person === getLastElFromArray(collaterals)){
+                    if(spouse.inputs[Spouse.idxs.isExist.input[no]].checked || spouse.inputs[Spouse.idxs.isRefuse.input[yes]].checked){
+                        pushInvalidEl(person, inputs[Collateral.idxs.isJapan.input[yes]]);
+                        displayNotAvailable(errMsgEls[Collateral.idxs.isRefuse.form], "相続人がいない場合、本システムでは対応できません");
+                    }else{
+                        iniErrMsgEls(errMsgEls[Collateral.idxs.isRefuse.form]);
+                    }
+                }
+            },
+            ()=>{
+                //手続時存在trueのとき
+                if(inputs[Collateral.idxs.isLive.input[yes]].checked){
+                    //エラー要素を追加と次へボタンを無効化、成人欄を表示
+                    pushInvalidElAndSDIfHidden(person, inputs[Collateral.idxs.isJapan.input[yes]], Qs[Collateral.idxs.isAdult.form]);
+                }else if(inputs[Collateral.idxs.isExist.input[yes]].checked){
+                    //死亡時存在trueのとき
+                    //エラー要素を追加と次へボタンを無効化、配偶者確認欄を表示
+                    pushInvalidElAndSDIfHidden(person, inputs[Collateral.idxs.isChild.input[no]], Qs[Collateral.idxs.isSpouse.form]);
+                }
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isRefuse.form]);
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isSpouse.form]);
+            }            
+        )
+    }
+
+    //配偶者確認
+    static isSpouse(rbIdx, person){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(person);
+        this.handleYesNo(rbIdx, Collateral.idxs.isSpouse.input[yes],
+            ()=>{
+                //エラー要素を取得/システム対応外表示
+                pushInvalidEl(person, inputs[Collateral.idxs.isChild.input[no]]);
+                displayNotAvailable(errMsgEls[Collateral.idxs.isSpouse.form], "兄弟姉妹の数次相続には対応してません。");
+                slideUp(Qs[Collateral.idxs.isChild.form]);
+            },
+            ()=>{
+                //配偶者存在と子存在のエラー表示を初期化する
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isSpouse.form]);
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isChild.form]);
+                //子供存在欄を表示する
+                slideDownIfHidden(Qs[Collateral.idxs.isChild.form]);
+            }
+        )
+    }
+
+    //子供存在
+    static isChild(rbIdx, person){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(person);
+        this.handleYesNo(rbIdx, Collateral.idxs.isChild.input[yes],
+            ()=>{
+                //システム対応外を表示する
+                pushInvalidEl(person, inputs[Collateral.idxs.isChild.input[no]]);
+                displayNotAvailable(errMsgEls[Collateral.idxs.isChild.form], "兄弟姉妹の数次相続には対応してません。");
+            },
+            ()=>{
+                iniErrMsgEls(errMsgEls[Collateral.idxs.isChild.form]);
+                breakQ(inputs[Collateral.idxs.name.input], person);
+            }
+        )
+    }
+
+    //成人
+    static isAdult(person){
+        const {inputs, Qs} = personDataToVariable(person);
+        //日本在住欄を表示する
+        slideDownIfHidden(Qs[Collateral.idxs.isJapan.form]);
+        //日本在住の初期値があるとき、日本在住trueのイベントを発生させる
+        if(inputs[Collateral.idxs.isJapan.input[yes]].disabled){
+            const event = new Event("change");
+            inputs[Collateral.idxs.isJapan.input[yes]].dispatchEvent(event);
+        }
+    }
+}
+
+/**
+ * 子項目を表示する
+ * @param {number} rbIdx イベントを設定するinputのインデックス
+ * @param {Collateral} person 対象の子
+ */
+function setCollateralRbsEvent(rbIdx, person){
+    //同じ配偶者
+    if(Collateral.idxs.isSameParents.input.includes(rbIdx)) CollateralRbHandler.isSameParents(rbIdx, person);
+    //手続時存在
+    else if(Collateral.idxs.isLive.input.includes(rbIdx)) CollateralRbHandler.isLive(rbIdx, person);
+    //相続時存在
+    else if(Collateral.idxs.isExist.input.includes(rbIdx)) CollateralRbHandler.isExist(rbIdx, person);
+    //相続放棄
+    else if(Collateral.idxs.isRefuse.input.includes(rbIdx)) CollateralRbHandler.isRefuse(rbIdx, person);
+    //配偶者確認
+    else if(Collateral.idxs.isSpouse.input.includes(rbIdx)) CollateralRbHandler.isSpouse(rbIdx, person);
+    //子の存在欄
+    else if(Collateral.idxs.isChild.input.includes(rbIdx)) CollateralRbHandler.isChild(rbIdx, person);
+    //成人欄
+    else if(Collateral.idxs.isAdult.input.includes(rbIdx)) CollateralRbHandler.isAdult(person);
+    //日本在住欄
+    else if(Collateral.idxs.isJapan.input.includes(rbIdx)) CollateralRbHandler.isJapan(Collateral.idxs.name.input, person);
+}
+
+/**
  * 孫の欄のラジオボタンのイベントハンドラー
  */
 class GrandChildRbHandler extends CommonRbHandler{
     //同じ配偶者
-    static isSameParents(person){
+    static isSameParents(rbIdx, person){
+        const {inputs, Qs} = personDataToVariable(person);
         //手続時存在欄が表示されてないとき表示する
-        slideDownIfHidden(person.Qs[GrandChild.idxs.isLive.form]);
+        slideDownIfHidden(Qs[GrandChild.idxs.isLive.form]);
+        this.handleYesNo(rbIdx, GrandChild.idxs.isSameParents.input[yes],
+            ()=>{
+                //yesAction
+                //続柄を設定する
+                const childSpouse = childSpouses.find(x => x.successFrom === person.successFrom);
+                if(childSpouse && inputs[GrandChild.idxs.isSameParents.input[yes]].checked){
+                    inputs[GrandChild.idxs.target2.input].value = childSpouse.inputs[ChildSpouse.idxs.index.input].value;
+                }
+            },
+            ()=>{
+                //noAction
+                //続柄を設定する
+                inputs[GrandChild.idxs.target2.input].value = "";
+            }
+        )
     }
 
     //手続時存在
@@ -1521,7 +1803,7 @@ class GrandChildRbHandler extends CommonRbHandler{
  */
 function setGrandChildRbsEvent(rbIdx, person){
     //同じ配偶者
-    if(GrandChild.idxs.isSameParents.input.includes(rbIdx)) GrandChildRbHandler.isSameParents(person);
+    if(GrandChild.idxs.isSameParents.input.includes(rbIdx)) GrandChildRbHandler.isSameParents(rbIdx, person);
     //手続時存在
     else if(GrandChild.idxs.isLive.input.includes(rbIdx)) GrandChildRbHandler.isLive(rbIdx, person);
     //相続時存在
@@ -1911,10 +2193,15 @@ function setEventToIndivisualFieldset(person){
                 })
             }else if(fieldset.classList.contains("ascendantFieldset")){
                 //尊属の欄のとき
-
                 //尊属専用のラジオボタンイベントを設定
                 inputs[i].addEventListener("change",(e)=>{
                     setAscendantRbsEvent(i, person);
+                })
+            }else if(fieldset.classList.contains("collateralFieldset")){
+                //兄弟姉妹個人欄のとき
+                //兄弟姉妹個人専用のラジオボタンイベントを設定
+                inputs[i].addEventListener("change", (e)=>{
+                    setCollateralRbsEvent(i, person);
                 })
             }
         }
@@ -1991,10 +2278,41 @@ class ChildCommonRbHandler extends CommonRbHandler{
     }
 }
 
+class CollateralCommonRbHandler extends ChildCommonRbHandler{
+    static isExist(rbIdx, person){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(person);
+        this.handleYesNo(rbIdx, CollateralCommon.idxs.isExist.input[yes],
+            //yesAction
+            ()=>{
+                //エラー要素を初期化する
+                person.noInputs = person.noInputs.filter(x => x.id === inputs[CollateralCommon.idxs.isJapan.input[yes]].id)
+                pushInvalidEl(person, inputs[CollateralCommon.idxs.isJapan.input[yes]]);
+                //人数入力欄を表示する
+                inputs[CollateralCommon.idxs.count.input].value = "1";
+                slideDownAndScroll(Qs[CollateralCommon.idxs.count.form]);
+                slideDown(Qs[CollateralCommon.idxs.isSameParents.form]);
+                iniErrMsgEls(errMsgEls[CollateralCommon.idxs.isExist.form]);
+            },
+            //noAction
+            ()=>{
+                //trueのときに表示する欄を初期化して次へボタンを有効化する
+                const rbIdxs = getSequentialNumArr(CollateralCommon.idxs.isSameParents.input[yes], CollateralCommon.idxs.isJapan.input[no])
+                breakQ(null, person, Qs, CollateralCommon.idxs.count.form, CollateralCommon.idxs.isJapan.form, rbIdxs, inputs[CollateralCommon.idxs.count.input])
+                if(spouse.inputs[Spouse.idxs.isExist.input[no]].checked || spouse.inputs[Spouse.idxs.isRefuse.input[yes]].checked){
+                    pushInvalidEl(person, inputs[CollateralCommon.idxs.isExist.input[yes]]);
+                    displayNotAvailable(errMsgEls[CollateralCommon.idxs.isExist.form]);
+                }else{
+                    iniErrMsgEls(errMsgEls[CollateralCommon.idxs.isExist.form]);
+                }
+            }
+        )
+    }
+}
+
 /**
- * 子共通又は兄弟姉妹共通欄のラジオボタンのイベントを設定する
+ * 子共通のラジオボタンのイベントを設定する
  * @param {number} rbIdx ラジオボタンのインデックス
- * @param {ChildCommon|CollateralCommon} person 子共通又は兄弟姉妹共通欄のインスタンス
+ * @param {ChildCommon} person 子共通のインスタンス
  */
 function setChildCommonRbsEvent(rbIdx, person){
     //子供存在
@@ -2012,6 +2330,26 @@ function setChildCommonRbsEvent(rbIdx, person){
 }
 
 /**
+ * 兄弟姉妹共通欄のラジオボタンのイベントを設定する
+ * @param {number} rbIdx ラジオボタンのインデックス
+ * @param {CollateralCommon} person 兄弟姉妹共通のインスタンス
+ */
+function setCollateralCommonRbsEvent(rbIdx, person){
+    //子供存在
+    if(CollateralCommon.idxs.isExist.input.includes(rbIdx)) CollateralCommonRbHandler.isExist(rbIdx, person);
+    //同じ両親
+    else if(CollateralCommon.idxs.isSameParents.input.includes(rbIdx)) CollateralCommonRbHandler.isSameParents(person.Qs[CollateralCommon.idxs.isLive.form]);
+    //手続時生存
+    else if(CollateralCommon.idxs.isLive.input.includes(rbIdx)) CollateralCommonRbHandler.isLive(rbIdx, person);
+    //相続放棄
+    else if(CollateralCommon.idxs.isRefuse.input.includes(rbIdx)) CollateralCommonRbHandler.isRefuse(rbIdx, person);
+    //成人
+    else if(CollateralCommon.idxs.isAdult.input.includes(rbIdx)) CollateralCommonRbHandler.isAdult(person.Qs[CollateralCommon.idxs.isJapan.form]);
+    //日本在住
+    else CollateralCommonRbHandler.isJapan(CollateralCommon.idxs.count.input, person);
+}
+
+/**
  * 子共通欄又は兄弟姉妹共通欄のイベントを設定する
  * @param {EveryPerson} person  イベントを設定する対象の共通欄インスタンス
  */
@@ -2022,9 +2360,15 @@ function setEventToCommonFieldset(person){
         if(i === person.constructor.idxs.count.input){
             countFormHandler(person, i, 1, 15);
         }else{
-            inputs[i].addEventListener("change", (e)=>{
-                setChildCommonRbsEvent(i, person);
-            })
+            if(person.constructor.name === "ChildCommon"){
+                inputs[i].addEventListener("change", (e)=>{
+                    setChildCommonRbsEvent(i, person);
+                })
+            }else{
+                inputs[i].addEventListener("change", (e)=>{
+                    setCollateralCommonRbsEvent(i, person);
+                })
+            }
         }
     }
 }
@@ -2115,7 +2459,7 @@ function adjustChildOrCollateralFieldsetCount(relation, newCount){
     //増えたとき、増えた分のfieldsetを生成する
     if(newCount > oldCount){
         for(let i = oldCount; i < newCount; i ++){
-            createChildOrCollateralFieldset(true);
+            createChildOrCollateralFieldset(relation === "child"? true: false);
         }
     }else if(newCount < oldCount){
         //減ったとき、余分な子のfieldsetを削除する
@@ -2145,6 +2489,22 @@ function adjustChildOrCollateralInstanceCount(relation, newCount){
 }
 
 /**
+ * エラー要素を初期化する
+ * @param {EveryPersonButCommon[]} persons 
+ */
+function iniNoInputs(persons){
+    for(let i = 0, len = persons.length; i < len; i++){
+        const idxs = persons[i].constructor.idxs;
+        persons[i].noInputs = Array.from(persons[i].fieldset.getElementsByTagName("input")).filter((_, x) =>{
+            return !(idxs.index && x === idxs.index.input) &&
+                   !(idxs.target && x === idxs.target.input) &&
+                   !(idxs.target1 && x === idxs.target1.input) &&
+                   !(idxs.target2 && x === idxs.target2.input);
+        });
+    }
+}
+
+/**
  * 子供欄から子の欄を表示するときの処理
  * @param {number} childCount 子の数
  * @return 子１のインスタンス
@@ -2165,6 +2525,8 @@ function childCommonToChild(childCount){
     }
     //すべての子のフィールドセットを初期化して子１を返す
     iniIndivisualFieldsets(childs);
+    //エラー要素を初期化する
+    iniNoInputs(childs);
     return childs[0];
 }
 
@@ -2295,11 +2657,43 @@ function handleSubmitBtnFieldsetPreBtnClick(e){
 }
 
 /**
+ * 完了fieldsetのOKボタンのクリックイベントハンドラー
+ * @param {EveryPersonButCommon} fromPerson 
+ */
+function cleanFormData(fromPerson){
+    //インスタンスが生成されていないフォームのデータを初期化する
+    if(fromPerson === getLastElFromArray(childs)){
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("childSpouseFieldset")));
+        iniIndivisualFieldsets(childSpouses[0]);
+        childSpouses.length = 0;
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("grandChildFieldset")));
+        iniIndivisualFieldsets(grandChilds[0]);
+        grandChilds.length = 0;
+        iniIndivisualFieldsets(ascendants);
+        ascendants.length = 0;
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
+        iniIndivisualFieldsets(collaterals[0]);
+        collaterals.length = 0;
+    }else if(fromPerson === getLastElFromArray(childSpouses) || fromPerson === getLastElFromArray(grandChilds)){
+        iniIndivisualFieldsets(ascendants);
+        ascendants.length = 0;
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
+        iniIndivisualFieldsets(collaterals[0]);
+        collaterals.length = 0;
+    }else if(fromPerson === getLastElFromArray(ascendants)){
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
+        iniIndivisualFieldsets(collaterals[0]);
+        collaterals.length = 0;
+    }
+}
+
+/**
  * 完了fieldsetを有効化する
  * 
  * inputFieldやGuideのデータは１つ前のfieldsetのもののままにする
+ * @param {EveryPersonButCommon} fromPerson 
  */
-function enableSubmitBtnFieldset(){
+function enableSubmitBtnFieldset(fromPerson){
     //完了fieldsetを表示する
     const submitBtnFieldset = document.getElementById("submitBtnFieldset");
     displayNextFieldset(submitBtnFieldset);
@@ -2323,7 +2717,21 @@ function enableSubmitBtnFieldset(){
     preBtn.addEventListener("click", handleSubmitBtnFieldsetPreBtnClick);
     //完了ボタンにフォーカスを移動する
     const nextBtn = submitBtnFieldset.getElementsByClassName("nextBtn")[0];
+    const handleSubmitBtnFieldsetNextBtnClick = cleanFormData(fromPerson);
+    nextBtn.addEventListener("click", handleSubmitBtnFieldsetNextBtnClick)
     nextBtn.focus();
+}
+
+/**
+ * 父母のインスタンスを生成してフィールドセットにインデックスを付与する
+ */
+function createFatherAndMotherInstance(){
+    const father = new Ascendant("id_ascendant-0-fieldset");
+    new Ascendant("id_ascendant-1-fieldset");
+    for(let i = 0, len = ascendants.length; i < len; i++){
+        ascendants[i].inputs[Ascendant.idxs.target.input].value = decedent.inputs[Decedent.idxs.index].value.trim();
+    }
+    return father;
 }
 
 /**
@@ -2332,15 +2740,19 @@ function enableSubmitBtnFieldset(){
  */
 function childCommonToFather(){
     const childFieldsets = Array.from(document.getElementsByClassName("childFieldset"));
-    if(childFieldsets.length > 1)
+    if(childFieldsets.length > 1){
         removeAllExceptFirst(childFieldsets);
-    if(childs.length > 1)
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("childSpouseFieldset")));
+        removeAllExceptFirst(Array.from(document.getElementsByClassName("grandChildFieldset")));
+    }
+    if(childs.length > 1){
         iniIndivisualFieldsets(childs[0]);
+        iniIndivisualFieldsets(childSpouses[0]);
+        iniIndivisualFieldsets(grandChilds[0])
+    }
     childs.length = 0;
     document.getElementById(`id_child-TOTAL_FORMS`).value = 1;
-    const father = new Ascendant("id_ascendant-0-fieldset");
-    new Ascendant("id_ascendant-1-fieldset");
-    return father;
+    return createFatherAndMotherInstance();
 }
 
 /**
@@ -2398,7 +2810,6 @@ function updateChildsHeirFieldsets(instances){
         }else{
             //異なるとき、その子の相続人のインデックスを１に戻す、孫のインデックスも１に戻す、数次相続の数を１増やす
             countHeir = 1;
-            grandChildIdx = 0;
             countSuccessFrom += 1;
         }
         preChildIdx = childIdx;
@@ -2414,12 +2825,31 @@ function updateChildsHeirFieldsets(instances){
             fieldsets[i -1];
         let newTabindex = parseInt(preFieldset.getElementsByClassName("nextBtn")[0].getAttribute("tabindex")) + 1;
         const els = fieldsets[i].querySelectorAll("input, button");
-        for(let i = 0, len = els.length; i < len; i++){
-            if(els[i].tagName.toLowerCase() === "input"){
-                if(isSpouse) updateAttribute(["id, name"], els[i], `child_spouse-${childSpouseIdx}`, /spouse/g);
-                else updateAttribute(["id, name"], els[i], `${grandChildIdx}`, /\d+/g);
+        for(let j = 0, len = els.length; j < len; j++){
+            if(els[j].tagName.toLowerCase() === "input"){
+                if(isSpouse){
+                    updateAttribute(["id", "name"], els[j], `${newIdx}`, "0");
+                    if(els[j].type === "hidden"){
+                        if(els[j].id.includes("index")){
+                            const title = fieldsets[i].getElementsByClassName("fieldsetTitle")[0].textContent;
+                            els[j].value = title.match(/[^．]+/)[0];
+                        }else{
+                            els[j].value = instances[i].successFrom.inputs[Child.idxs.index.input].value.trim();
+                        }
+                    }
+                }else{
+                    updateAttribute(["id", "name"], els[j], `${newIdx}`, "0");
+                    if(els[j].type === "hidden"){
+                        if(els[j].id.includes("index")){
+                            const title = fieldsets[i].getElementsByClassName("fieldsetTitle")[0].textContent;
+                            els[j].value = title.match(/[^．]+/)[0];
+                        }else if(els[j].id.includes("target1")){
+                            els[j].value = instances[i].successFrom.inputs[Child.idxs.index.input].value.trim();
+                        }
+                    }
+                } 
             }
-            els[i].setAttribute("tabindex", newTabindex + i);
+            els[j].setAttribute("tabindex", newTabindex + j);
         }
         const className = isSpouse? `child${childIdx}Spouse`: `child${childIdx}Child${grandChildIdx}`;
         fieldsets[i].classList.add(className);
@@ -2465,6 +2895,8 @@ function createChildsHeirsFieldset(childsHeirs){
         preFieldset.after(newElement);
         preFieldset = newElement;
     }
+    document.getElementById("id_child_spouse-TOTAL_FORMS").value = childSpouses.length;
+    document.getElementById("id_grand_child-TOTAL_FORMS").value = grandChilds.length;
     if(childSpouses.length === 0) preFieldset.after(templates["ChildSpouse"].cloneNode(true));
     else if(grandChilds.length === 0) preFieldset.after(templates["GrandChild"].cloneNode(true));
 }
@@ -2577,9 +3009,7 @@ function selectChildTo(){
     if(isDone)
         return true;
     //尊属に権利が移動したとき（卑属に相続人がいないとき）
-    const father = new Ascendant("id_ascendant-0-fieldset");
-    new Ascendant("id_ascendant-1-fieldset");
-    return father;
+    return createFatherAndMotherInstance();
 }
 
 /**
@@ -2624,9 +3054,7 @@ function selectChildsHeirTo(){
         return true;
     }
     //いないとき、父母インスタンスを生成して父インスタンスを返す
-    const father = new Ascendant("id_ascendant-0-fieldset");
-    new Ascendant("id_ascendant-1-fieldset");
-    return father;
+    return createFatherAndMotherInstance()
 }
 
 /**
@@ -2669,24 +3097,21 @@ function collateralCommonToCollateral(fromPerson){
     adjustChildOrCollateralInstanceCount("collateral", count);
     //兄弟姉妹個人の欄を初期化する
     iniIndivisualFieldsets(collaterals);
+    //エラー要素を初期化する
+    iniNoInputs(collaterals);
     return collaterals[0];
 }
 
 /**
  * 兄弟姉妹共通欄から返すデータを判別する
- * ＞兄弟姉妹がいるとき
- * 　・兄弟姉妹１のタイトルを変更する
- * 　・人数分の兄弟姉妹のインスタンスとfieldsetを生成して兄弟姉妹１を返す
- * ＞配偶者が手続時生存trueかつ相続放棄false、かついないが選択されているとき
- * 　・true（完了）を返す
- * ＞上記のいずれにも該当しないとき
- * 　・nullを返す
  * @param {EveryPerson} fromPerson 
  */
 function selectCollateralCommonTo(fromPerson){
+    //兄弟姉妹がいるとき、兄弟姉妹１を返す
     const isExist = fromPerson.inputs[CollateralCommon.idxs.isExist.input[yes]].checked;
     if(isExist)
         return collateralCommonToCollateral(fromPerson);
+    //兄弟姉妹がいないとき、配偶者が手続時生存trueかつ相続放棄falseであれば完了フラグを返す
     const isSpouseLive = spouses[0].inputs[Spouse.idxs.isLive.input[yes]].checked;
     const isSpouseRefuse = spouses[0].inputs[Spouse.idxs.isRefuse.input[yes]].checked;
     if(isSpouseLive && !isSpouseRefuse)
@@ -2711,6 +3136,10 @@ function motherToMotherGfather(){
     }else{
         motherGfather = new Ascendant("id_ascendant-4-fieldset");
         new Ascendant("id_ascendant-5-fieldset");
+        //母方の祖父母のtargetを設定する
+        for(let i = 2, len = ascendants.length; i < len; i++){
+            ascendants[i].inputs[Ascendant.idxs.target.input].value = ascendants[1].inputs[Ascendant.idxs.index.input].value.trim();
+        }
         return motherGfather;
     }
 }
@@ -2748,6 +3177,10 @@ function motherToFatherGfather(){
         ascendants.sort((a, b) => {
             return parseInt(a.fieldset.id.split('-')[1]) - parseInt(b.fieldset.id.split('-')[1]);
         });
+    }
+    //父方の祖父母のtargetを設定する
+    for(let i = 2; i < 4; i++){
+        ascendants[i].inputs[Ascendant.idxs.target.input].value = ascendants[0].inputs[Ascendant.idxs.index.input].value.trim();
     }
     return fatherGfather;
 }
@@ -2839,6 +3272,9 @@ function selectFatherGmotherTo(){
         return ascendants[4];
     const motherGfather = new Ascendant("id_ascendant-4-fieldset");
     new Ascendant("id_ascendant-5-fieldset");
+    for(let i = 4; i < 6; i++){
+        ascendants[i].inputs[Ascendant.idxs.target.input].value = ascendants[1].inputs[Ascendant.idxs.index.input].value.trim();
+    }
     return motherGfather;
 }
 
@@ -2851,6 +3287,17 @@ function selectChildCommonTo(){
     if(childCount > 0)
         return childCommonToChild(childCount);
     return childCommonToFather();
+}
+
+/**
+ * 前の子にindexとtargetのvalueをセットして次の子のインスタンスを返す
+ * @param {EveryPersonButCommon} fromPerson 前の子のインスタンス
+ */
+function getNextChild(fromPerson){
+    if(fromPerson.inputs[fromPerson.constructor.idxs.isSameParents.input[yes]].checked){
+        fromPerson.inputs[fromPerson.constructor.idxs.target2.input].value = "２";
+    }
+    return childs[childs.indexOf(fromPerson) + 1];
 }
 
 /**
@@ -2899,7 +3346,7 @@ function getNextPersonAndCreateCourse(fromPerson){
         return selectChildTo();
     //１つ前が最後以外の子の欄のとき
     if(childs.includes(fromPerson))
-        return childs[getNextPersonIdx(childs, preFieldset)];
+        return getNextChild(fromPerson);
     //１つ前が最後の子の相続人のとき
     if(fromPerson === getLastChildsHeir())
         return selectChildsHeirTo();
@@ -2915,7 +3362,7 @@ function getNextPersonAndCreateCourse(fromPerson){
     //１つ前が父方の祖母欄のとき
     if(preFieldsetId === "id_ascendant-3-fieldset")
         return selectFatherGmotherTo();
-    //１つ前が母方の祖母インスタンスのとき、兄弟姉妹共通インスタンスを返す
+    //１つ前が母方の祖母インスタンスのとき
     if(preFieldsetId === "id_ascendant-5-fieldset")
         return selectMotherGmotherTo();
     //１つ前が兄弟姉妹共通インスタンスのとき
@@ -2986,12 +3433,12 @@ function adjustFieldsetsAndInstance(fromPerson, nextPerson){
          * 子から権利移動したとき
          * ・子の欄を子１のみにして子１の入力欄を初期化する
         */
-       if(nextFieldsetId === "id_ascendant-0-fieldset"){
-           UpdateTitle.ascendants(fromPerson, true);
-           const ascendantFieldsets = Array.from(document.getElementsByClassName("ascendantFieldset"));
+        if(nextFieldsetId === "id_ascendant-0-fieldset"){
+            UpdateTitle.ascendants(fromPerson, true);
+            const ascendantFieldsets = Array.from(document.getElementsByClassName("ascendantFieldset"));
             updateAscendantTabindex(fromPerson.nextBtn, ascendantFieldsets);
         }else if(nextPerson.fieldset.id === "id_ascendant-4-fieldset"){
-                UpdateTitle.motherGparents(true);
+            UpdateTitle.motherGparents(true);
         }
     }else if(nextPerson.fieldset.classList.contains("collateralCommonFieldset")){
         /**
@@ -3010,7 +3457,7 @@ function adjustFieldsetsAndInstance(fromPerson, nextPerson){
          * ・イベントを設定する
          * ・初期値を設定する
          */
-        setEventToIndivisualFieldset(nextPerson.fieldset);
+        setEventToIndivisualFieldset(nextPerson);
         setIniData(nextPerson);
     }
 }
@@ -3032,7 +3479,7 @@ function oneStepFoward(fromPerson){
         //fromPersonに応じてインスタンスを初期化する
 
         //入力完了のとき完了fieldsetを表示してエラーのときは何もせずに処理を中止
-        if(nextPerson) enableSubmitBtnFieldset();
+        if(nextPerson) enableSubmitBtnFieldset(fromPerson);
         return;
     }
     //有効化対象のfieldsetの複製や属性値を調整、イベントの設定、初期値の設定をする
@@ -3124,19 +3571,21 @@ window.addEventListener("load", ()=>{
         }
 
         //前入力欄にchangeイベントを設定する
-        decedent.inputs[i].addEventListener("change", (e)=>{
-            //入力値のチェック結果を取得
-            const el = e.target;
-            isValid = decedentValidation(el);
-            //チェック結果に応じて処理を分岐
-            afterValidation(isValid, decedent.errMsgEls[i], isValid, el, decedent);
-
-            //住所又は本籍地のの都道府県のとき、市町村データを取得する
-            if(el === decedent.inputs[Decedent.idxs.prefecture] || el === decedent.inputs[Decedent.idxs.domicilePrefecture]){
-                const val = el.value;
-                getCityData(val, decedent.inputs[i + 1]);
-            }
-        })
+        if(i !== Decedent.idxs.index && i !== Decedent.idxs.target){
+            decedent.inputs[i].addEventListener("change", (e)=>{
+                //入力値のチェック結果を取得
+                const el = e.target;
+                isValid = decedentValidation(el);
+                //チェック結果に応じて処理を分岐
+                afterValidation(isValid, decedent.errMsgEls[i], isValid, el, decedent);
+    
+                //住所又は本籍地のの都道府県のとき、市町村データを取得する
+                if(el === decedent.inputs[Decedent.idxs.prefecture] || el === decedent.inputs[Decedent.idxs.domicilePrefecture]){
+                    const val = el.value;
+                    getCityData(val, decedent.inputs[i + 1]);
+                }
+            })
+        }
     }
 
     //氏名欄にフォーカスする
@@ -3157,8 +3606,10 @@ decedent.nextBtn.addEventListener("click",(e)=>{
 
     //被相続人欄の入力値を全てチェックする
     for(let i = 0, len = decedent.inputs.length; i < len; i++){
-        isValid = decedentValidation(decedent.inputs[i])
-        afterValidation(isValid, decedent.errMsgEls[i], isValid, decedent.inputs[i], decedent);
+        if(i !== Decedent.idxs.index && i !== Decedent.idxs.target){
+            isValid = decedentValidation(decedent.inputs[i])
+            afterValidation(isValid, decedent.errMsgEls[i], isValid, decedent.inputs[i], decedent);
+        }
     }
 
     //エラーがあるときは、処理を中止してエラーの要素にフォーカスする

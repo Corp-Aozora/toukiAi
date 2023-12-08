@@ -27,6 +27,7 @@ from django.db import transaction
 from smtplib import SMTPException
 import socket
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.contenttypes.models import ContentType
 
 def index(request):
     is_inquiry = False
@@ -133,17 +134,80 @@ def step_one(request):
         decedent_form = StepOneDecedentForm(request.POST)
         spouse_form = StepOneSpouseForm(request.POST)
         childs_form = child_form_set(request.POST, prefix="child")
-        grand_childs_form = grand_child_form_set(request.POST, prefix="gchild")
+        child_spouse_form = child_spouse_form_set(request.POST or None, prefix="child_spouse")
+        grand_childs_form = grand_child_form_set(request.POST or None, prefix="grand_child")
         ascendant_form = ascendant_form_set(request.POST, prefix="ascendant")
         collaterals_form = collateral_form_set(request.POST, prefix="collateral")
 
-        # トランザクションが必要
-        # 被相続人情報の保存
-        if decedent_form.is_valid():
-            decedent_form.save()
-            
-        # 親族情報の保存
-            return redirect(to='/toukiApp/step_Two')
+        if (decedent_form.is_valid() and spouse_form.is_valid() and 
+        childs_form.is_valid() and grand_childs_form.is_valid() and 
+        ascendant_form.is_valid() and collaterals_form.is_valid()):
+            try:
+                with transaction.atomic():
+                    decedent = decedent_form.save(commit=False)
+                    decedent.user = user
+                    decedent.save()
+                    
+                    if spouse_form.cleaned_data.get("is_exist"):
+                        spouse = spouse_form.save(commit=False)
+                        spouse.decedent = decedent
+                        spouse.content_type = ContentType.objects.get_for_model(Decedent)
+                        spouse.object_id = decedent.id
+                        spouse.is_heir = spouse_form.cleaned_data.get("is_live") and not spouse_form.cleaned_data.get("is_refuse")
+                        spouse.save()
+                        
+                    if childs_form[0].cleadned_data.get("name"):
+                        for form in childs_form:
+                            child = form.save(commit=False)
+                            child.decedent = decedent
+                            child.content_type1 = ContentType.objects.get_for_model(Decedent)
+                            child.object_id1 = decedent.id
+                            child.content_type2 = ContentType.objects.get_for_model(Spouse)
+                            child.object_id2 = spouse.id
+                            child.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+                            child.save()
+                    if grand_childs_form is not None:
+                        for form in grand_childs_form:
+                            grand_child = form.save(commit=False)
+                            grand_child.decedent = decedent
+                            grand_child.content_type1 = ContentType.objects.get_for_model(Descendant)
+                            grand_child.object_id1 = decedent.id
+                            grand_child.content_type2 = ContentType.objects.get_for_model(Spouse)
+                            grand_child.object_id2 = spouse.id
+                            grand_child.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+                            grand_child.save()
+                    if child_spouse_form is not None:
+                        for form in child_spouse_form:
+                            child_spouse = form.save(commit=False)
+                            child_spouse.decedent = decedent
+                            child_spouse.content_type = ContentType.objects.get_for_model(Descendant)
+                            child_spouse.object_id = decedent.id
+                            child_spouse.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+                            child_spouse.save()
+                    if ascendant_form is not None:
+                        for form in ascendant_form:
+                            ascendant = form.save(commit=False)
+                            ascendant.decedent = decedent
+                            # ascendant.content_type = ContentType.objects.get_for_model()
+                            # ascendant.object_id = 
+                            ascendant.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+                            ascendant.save()
+                    if collaterals_form is not None:
+                        for form in collaterals_form:
+                            collateral = form.save(commit=False)
+                            collateral.decedent = decedent
+                            grand_child.content_type1 = ContentType.objects.get_for_model(Descendant)
+                            grand_child.object_id1 = decedent.id
+                            # 被相続人の配偶者が親のとき
+                            # grand_child.content_type2 = ContentType.objects.get_for_model()
+                            # grand_child.object_id2 = spouse.id
+                            collateral.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+                            collateral.save()
+            except:
+                # ここでエラーハンドリングを行います
+                pass
+            else:
+                return redirect('/toukiApp/step_Two')
     else:
         decedent_form = StepOneDecedentForm(prefix="decedent")
         spouse_form = StepOneSpouseForm(prefix="spouse")

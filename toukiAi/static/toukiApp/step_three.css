@@ -1,0 +1,47 @@
+.inheritCheckArea{
+    width: 250px!important;
+}
+
+.heirColumn{
+    max-width: 550px!important;
+}
+
+.divisionArea{
+    width: 310px!important;
+}
+
+#landOl, #bldgOl, #condominiumOl, #officeOl, #decendantResistryAddressList{
+    counter-reset: section 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;;
+}
+
+#landOl li:before, #bldgOl li:before, #condominiumOl li:before, #officeOl li, #decendantResistryAddressList li:before{
+    counter-increment: section 1;
+    content: "(" counter(section) ")";
+    font: bold;
+    font-size: 1.25rem;
+    padding-right: 0.5rem;
+}
+
+#officeOl{
+    max-width:400px;
+}
+
+.numberArea, .landCategoryArea{
+    width: 230px!important;
+}
+
+.numberOfRealEstateArea{
+    width: 170px!important;
+}
+
+.prefectureInput{
+    max-width: 140px;
+    width: 100%;
+}
+
+#papersList{
+    max-width:260px!important;
+}

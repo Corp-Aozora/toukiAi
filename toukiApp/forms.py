@@ -104,7 +104,7 @@ class StepOneDecedentForm(BaseOneForm):
                     })
                     
                     if field.label in ["本籍地の市区町村", "住所の市区町村"]:
-                        field.disabled = True
+                        field.widget.attrs['disabled'] = 'disabled'
             
         super().__init__(*args, **kwargs)
                 

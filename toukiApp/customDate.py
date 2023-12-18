@@ -39,14 +39,7 @@ class CustomDate:
     
     #選択肢インプット用の今年までの年タプルを生成
     def min_to_now_year(self):
-        years = []
-        
-        for i, year in enumerate(self._ad_with_jc):
-            years.append((i, year))
-            
-            if year[0:4] == str(datetime.now().year):
-                break
-        
+        years = [(year, year) for year in self._ad_with_jc if int(year[:4]) <= datetime.now().year]
         return tuple(reversed(years))
     
     #選択肢インプット用のクレカの有効期限年タプルを生成
@@ -54,13 +47,11 @@ class CustomDate:
         x = datetime.now().year
         min_year = (x - 10) % 100
         max_year = (x + 11) % 100
-        years = [(i, str(j)) for i, j in enumerate(range(min_year, max_year))]
-        return tuple(years)
+        return self.list_to_2Dtuple(range(min_year, max_year))
     
     #リストから選択肢インプット用のタプルを生成
     def list_to_2Dtuple(self, lst):
-        x = [(i, el) for i, el in enumerate(lst)]
-        return tuple(x)
+        return tuple((str(el), str(el)) for el in lst)
 
 class CustomDateReturn:
     i = CustomDate()

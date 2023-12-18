@@ -1,0 +1,725 @@
+{% extends "toukiapp/base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_one.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+{% load custom_filters %}
+{% block content %}
+<div id="thirdStepWrap" class="d-flex container-xxl">
+    {% include "toukiApp/step_sidebar.html" %}
+    <div class="pt-4 ps-4 container-xxl">
+        <div>
+            <h4>申請書類作成のために以下を入力してください。</h4>
+        </div>
+        <hr>
+        <form>
+            {% csrf_token %}
+            <section class="container" id="decendantColumn">
+                <fieldset id="decendantField">
+                    <h5 class="form-label" id="decendantColumnTitle">１．被相続人情報</h5>
+                    <div class="input-group mt-3">
+                        <span class="input-group-text" id="decendantNameSpan">氏名</span>
+                        <input type="text" class="form-control mdInput" id="decendantNameInput" aria-describedby="decendantNameSpan" placeholder="福岡太郎" aria-label="福岡太郎" required>                    
+                    </div>
+                    <div>
+                        <span class="form-text mt-0">※死亡の記載がある戸籍謄本に記載された氏名のとおり入力してください。</span>
+                    </div>
+                    <div class="mt-3">
+                        <label for="decendantDeathYearSelect" class="form-label fs-5">死亡日</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="decendantDeathYearSpan">年</span>
+                            <div>
+                                <select name="decendantDeathYear" class="form-select text-center rounded-0 mdInput" id="decendantDeathYearSelect" aria-describedby="decendantDeathYearSpan" required>
+                                    {% for year in years reversed %}
+                                    <option value="{{year}}">{{year}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="input-group-text" id="decendantDeathMonthSpan">月</span>
+                            <div class="dateSelect">
+                                <select name="decendantDeathMonth" class="form-select text-center rounded-0" id="decendantDeathMonthSelect" aria-describedby="decendantDeathMonthSpan" required>
+                                    {% for month in months %}
+                                    <option value="{{month}}">{{month}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="input-group-text" id="decendantDeathDateSpan">日</span>
+                            <div class="dateSelect">
+                            <select name="decendantDeathDate" class="form-select text-center rounded-0 rounded-end" id="decendantDeathDateSelect" aria-describedby="decendantDeathDateSpan" required>
+                                {% for day in days %}
+                                    <option value="{{day}}">{{day}}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 birthDateArea">
+                        <label for="decendantBirthYearSelect" class="form-label fs-5">生年月日</label>
+                        <div class="input-group">
+                            <span class="input-group-text" id="decendantBirthYearSpan">年</span>
+                            <div class="yearSelect">
+                                <select name="decendantBirthYear" class="form-select text-center rounded-0" id="decendantBirthYearSelect" aria-describedby="decendantBirthYearSpan" required>
+                                    {% for year in years reversed %}
+                                    <option value="{{year}}">{{year}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="input-group-text" id="decendantBirthMonthSpan">月</span>
+                            <div class="dateSelect">
+                                <select name="decendantBirthMonth" class="form-select text-center rounded-0" id="decendantBirthMonthSelect" aria-describedby="decendantBirthMonthSpan" required>
+                                    {% for month in months %}
+                                    <option value="{{month}}">{{month}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="input-group-text" id="decendantBirthDateSpan">日</span>
+                            <div class="dateSelect">
+                            <select name="decendantBirthDate" class="form-select text-center rounded-0 rounded-end" id="decendantBirthDateSelect" aria-describedby="decendantBirthDateSpan" required>
+                                {% for day in days %}
+                                    <option value="{{day}}">{{day}}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex">
+                            <div>
+                                <label for="decendantPrefectureSelect" class="form-label fs-5">死亡時の住所</label>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="form-text mt-0">※住民票のとおり入力してください。</span>
+                            </div>
+                        </div>
+                        <div class="input-group prefectureArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantPrefectureSpan">都道府県</span>
+                            <select name="decendantPrefecture" class="form-select" id="decendantPrefectureSelect" aria-describedby="decendantPrefectureSpan" required>
+                                <option ></option>
+                                {% for prefecture in prefectures %}
+                                <option value="{{prefecture}}">{{prefecture}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group fromCityArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantCitySpan">市区町村</span>
+                            <input type="text" class="form-control" id="decendantCityInput" aria-describedby="decendantCitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
+                        </div>
+                        <div class="input-group fromCityArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantAreaAddressSpan">町域・番地</span>
+                            <input type="text" class="form-control" id="decendantAreaAddressInput" aria-describedby="decendantAreaAddressSpan" placeholder="天神１丁目１番１号" aria-label="天神１丁目１番１号" required>
+                        </div>
+                        <div class="input-group fromCityArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantBldgSpan">建物名・号室</span>
+                            <input type="text" class="form-control" id="decendantBldgInput" aria-describedby="decendantBldgSpan" placeholder="天神マンション１０１号室" aria-label="天神マンション１０１号室" required>
+                        </div>
+                    </div>  
+                    <div class="mt-3">
+                        <div class="d-flex">
+                            <div>
+                                <label for="decendantDomicilePrefectureSelect" class="form-label fs-5">死亡時の本籍地</label>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="form-text mt-0">※死亡の記載がある戸籍謄本のとおり入力してください。</span>
+                            </div>
+                        </div>
+                        <div class="input-group prefectureArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantPrefectureSpan">都道府県</span>
+                            <select name="decendantDomicilePrefecture" class="form-select" id="decendantDomicilePrefectureSelect" aria-describedby="decendantPrefectureSpan" required>
+                                <option ></option>
+                                {% for prefecture in prefectures %}
+                                <option value="{{prefecture}}">{{prefecture}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group fromCityArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantDomicileCitySpan">市区町村</span>
+                            <input type="text" class="form-control" id="decendantDomicileCityInput" aria-describedby="decendantDomicileCitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
+                        </div>
+                        <div class="input-group fromCityArea">
+                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantDomicileAreaAddressSpan">町域・番地</span>
+                            <input type="text" class="form-control" id="decendantDomicileAreaAddressInput" aria-describedby="decendantDomicileAreaAddressSpan" placeholder="天神１丁目１番" aria-label="天神１丁目１番" required>
+                        </div>
+                    </div>
+                    <!-- 登記情報をupしているときは、自動で取得するため非表示にする -->
+                    <!-- 住所を転記できるようにする -->
+                    <div id="decendantResistryAddressArea" class="mt-3">
+                        <div class="d-flex">
+                            <div>
+                                <span class="form-label fs-5">登記上の住所</label>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="form-text mt-0">※土地・建物全部事項証明書のとおり入力してください。</span>
+                            </div>
+                        </div>
+                        <ol id="decendantResistryAddressList" class="list-group">
+                            <li id="decendantResistry1AddressArea" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
+                                <div class="me-auto">
+                                    <div class="input-group prefectureArea">
+                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1PrefectureSpan">都道府県</span>
+                                        <select name="decendantResistry1Prefecture" class="form-select" id="decendantResistry1PrefectureSelect" aria-describedby="decendantResistry1PrefectureSpan" required>
+                                            <option ></option>
+                                            {% for prefecture in prefectures %}
+                                            <option value="{{prefecture}}">{{prefecture}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="input-group fromCityArea">
+                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1CitySpan">市区町村</span>
+                                        <input type="text" class="form-control" id="decendantResistry1CityInput" aria-describedby="decendantResistry1CitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
+                                    </div>
+                                    <div class="input-group fromCityArea">
+                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1AreaAddressSpan">町域・番地</span>
+                                        <input type="text" class="form-control" id="decendantResistry1AreaAddressInput" aria-describedby="decendantResistry1AreaAddressSpan" placeholder="天神１丁目１番" aria-label="天神１丁目１番" required>
+                                    </div>
+                                    <div class="input-group fromCityArea">
+                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1BldgSpan">建物名・号室</span>
+                                        <input type="text" class="form-control" id="decendantResistry1BldgInput" aria-describedby="decendantResistry1BldgSpan" placeholder="天神マンション１０１号室" aria-label="天神マンション１０１号室" required>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="mt-3 d-flex">
+                        <button type="button" id="addResistryAddressButton" class="btn btn-primary me-3">登記上の住所を追加</button>
+                        <button type="button" id="removeResistryAddressButton" class="btn btn-secondary ms-3" style="display: none;" disabled = "true">削除</button>
+                    </div>
+                    <span id="addResistryAddressButtonNote" class="form-text" style="display: none;">※登記上の住所は５つまでしか登録できません。</span>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="decendantOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="decendantCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <section id="heirsColumn" class="container" style="display: none;">
+                <hr>
+                <div>
+                    <h5 class="form-label d-inline cursor-pointer" id="heirsColumnTitle">２．相続人情報</h5>
+                    <span class="form-text">※クリックすると１で入力した相関図を確認できます。</span>
+                    <!-- １で入力した相関図を表示する -->
+                </div>
+                <fieldset id="heirsField">
+                    <div id="heir1Column" class="border rounded-3 container-md heirColumn mt-3 mx-0">
+                        <div class="mt-2">
+                            <!-- 1.で入力されたニックネームを表示する -->
+                            <span id="heir1Nickname" class="text-primary fw-bold fs-5">佐賀達也<!--（１．で入力されたニックネーム）--></span>
+                            <span>さん</span>
+                        </div>
+                        <div class="mt-2">
+                            <!-- 1.で入力された続柄を表示する -->
+                            <span id="heir1RelationShip" class="text-primary fw-bold fs-5">子１<!--（１．を元に続柄を表示する）--></span>
+                        </div>
+                        <div class="mt-3">
+                            <div class="input-group nameArea mt-3">
+                                <span class="input-group-text" id="heir1NameSpan">氏名</span>
+                                <input type="text" class="form-control" id="heir1NameInput" aria-describedby="heir1NameSpan" placeholder="福岡一郎" aria-label="福岡一郎" maxlength="25" type="text" required>                    
+                            </div>
+                            <span class="form-text mt-0">※印鑑証明書のとおり入力してください。</span>
+                        </div>
+                        <div class="mt-3 birthDateArea">
+                            <label for="heir1BirthYearSelect" class="form-label fs-5">生年月日</label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="heir1BirthYearSpan">年</span>
+                                <div class="yearSelect">
+                                    <select name="heir1BirthYear" class="form-select text-center" id="heir1BirthYearSelect" aria-describedby="heir1BirthYearSpan" required>
+                                        {% for year in years reversed %}
+                                        <option value="{{year}}">{{year}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <span class="input-group-text" id="heir1BirthMonthSpan">月</span>
+                                <div class="dateSelect">
+                                    <select name="heir1BirthMonth" class="form-select text-center " id="heir1BirthMonthSelect" aria-describedby="heir1BirthMonthSpan" required>
+                                        {% for month in months %}
+                                        <option value="{{month}}">{{month}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <span class="input-group-text" id="heir1BirthDateSpan">日</span>
+                                <div class="dateSelect">
+                                <select name="heir1BirthDate" class="form-select text-center" id="heir1BirthDateSelect" aria-describedby="heir1BirthDateSpan" required>
+                                    {% for day in days %}
+                                        <option value="{{day}}">{{day}}</option>
+                                    {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div>
+                                <span class="fs-5">不動産を取得しますか？</span>
+                                <span class="form-text">※一部（持分）を取得する場合も含みます。</span>
+                            </div>
+                            <div class="d-flex justify-content-evenly mt-3 border rounded-3 twoRbs">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="heir1InheritRbs" id="heir1InheritRbsZero">
+                                    <label class="form-check-label" for="heir1InheritRbsZero">する</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="heir1InheritRbs" id="heir1InheritRbsOne">
+                                    <label class="form-check-label" for="heir1InheritRbsOne">しない</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 名義人になる相続人のみ表示する -->
+                        <div id="heir1AddressArea" class="mt-3 addressArera" style="display: none;">
+                            <div class="d-flex">
+                                <div>
+                                    <label for="heir1PrefectureSelect" class="form-label fs-5">住民票上の住所</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="form-text mt-0">※住民票と全く同じ表記をしてください。</span>
+                                </div>
+                            </div>
+                            <div class="input-group prefectureArea">
+                                <span class="input-group-text" id="heir1PrefectureSpan">都道府県</span>
+                                <select name="heir1Prefecture" class="form-select" id="heir1PrefectureSelect" aria-describedby="heir1PrefectureSpan" required>
+                                    <option ></option>
+                                    {% for prefecture in prefectures %}
+                                    <option value="{{prefecture}}">{{prefecture}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="input-group fromCityArea">
+                                <span class="input-group-text" id="heir1CitySpan">市区町村</span>
+                                <input type="text" class="form-control" id="heir1CityInput" aria-describedby="heir1CitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
+                            </div>
+                            <div class="input-group fromCityArea">
+                                <span class="input-group-text" id="heir1AreaAddressSpan">町域・番地</span>
+                                <input type="text" class="form-control" id="heir1AreaAddressInput" aria-describedby="heir1AreaAddressSpan" placeholder="天神１丁目１番１号" aria-label="天神１丁目１番１号" required>
+                            </div>
+                            <div class="input-group fromCityArea">
+                                <span class="input-group-text" id="heir1BldgSpan">建物名・号室</span>
+                                <input type="text" class="form-control" id="heir1BldgInput" aria-describedby="heir1BldgSpan" placeholder="天神マンション１０１号室" aria-label="天神マンション１０１号室" required>
+                            </div>
+                        </div>  
+                        <!-- 前配偶者、異父母のとき以外は非表示 -->
+                        <div class="my-3">
+                            <label id="concernedPeopleNameLabel" for="concernedPeopleNameInput"  class="form-label fs-5">
+                                <span id="relationshipWithHeir" class="fs-5 fw-bold">（１．の続柄が表示される）</span>
+                                の氏名
+                            </label>
+                            <div class="input-group nameArea">
+                                <input type="text" class="form-control" id="concernedPeopleNameInput" placeholder="長崎太郎" aria-describedby="heirNameLabel" maxlength="25" type="text" required>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="heirsOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="heirsCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <section id="divisionColumn" class="container" style="display: none;">
+                <hr>
+                <div>
+                    <h5 class="form-label" id="divisionColumnTitle">３．遺産分割方法</h5>
+                </div>
+                <fieldset id="divisionField">
+                    <div class="mt-3">
+                        <div>
+                            <span class="fs-5">不動産をどのように分配しますか？</span>
+                        </div>
+                        <div class="d-flex mt-3 divisionArea justify-content-between border rounded-3 px-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="divisionRbs" id="divisionRbsZero">
+                                <label class="form-check-label" for="divisionRbsZero">一人が取得</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="divisionRbs" id="divisionRbsOne">
+                                <label class="form-check-label" for="divisionRbsOne">法定相続</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="divisionRbs" id="divisionRbsTwo">
+                                <label class="form-check-label" for="divisionRbsTwo">その他</label>
+                            </div>
+                        </div>
+                        <!-- 一人が取得のとき表示する -->
+                        <div id="divisionAquirerArea" class="input-group nameArea mt-3" style="display: none;">
+                            <span class="input-group-text text-evenly" id="divisionAllAquirerSpan">取得者</span>
+                            <select name="divisionAllAquirerCandidate" class="form-select" id="divisionAllAquirerSelect" aria-describedby="divisionAllAquirerSpan" required>
+                                <option ></option>
+                                {% for prefecture in prefectures %}
+                                <option value="{{prefecture}}">{{prefecture}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="divisionOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="divisionCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <!-- PDFをupしてない場合のみ確認する -->
+            <section id="numberOfRealEstateColumn" class="container" style="display: none;">
+                <hr>
+                <h5>４．不動産情報</h5>
+                <fieldset id="numberOfRealEstateField">
+                    <div class="input-group mt-3 smallNumberWithTextArea">
+                        <span class="input-group-text" id="numberOfLandLabel">土地の数</span>
+                        <input type="text" class="form-control rounded-end" id="numberOfLandInput" aria-describedby="numberOfLandLabel" required>
+                        <div class="d-flex align-items-center ms-2">
+                            <span>※区分建物の敷地を除きます。</span>
+                        </div>
+                    </div>
+                    <!-- マンションのとき共有部分がないか注意が必要 -->
+                    <div class="input-group smallNumberArea">
+                        <span class="input-group-text" id="numberOfBldgLabel">建物の数</span>
+                        <input type="text" class="form-control" id="numberOfBldgInput" aria-describedby="numberOfBldgLabel" required>
+                    </div>
+                    <!-- 敷地権付きとなしと分ける必要がある -->
+                    <div class="input-group smallNumberArea">
+                        <span class="input-group-text" id="numberOfCondominiumLabel">区分建物の数</span>
+                        <input type="text" class="form-control" id="numberOfCondominiumInput" aria-describedby="numberOfCondominiumLabel" required>
+                    </div>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="numberOfRealEstateOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="numberOfRealEstateCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <section id="landColumn" class="container" style="display: none;">
+                <hr>
+                <div>
+                    <h5 class="form-label" id="landColumnTitle">４－１．土地情報</h5>
+                </div>
+                <fieldset id="landField">
+                    <div class="mt-3">
+                        <ol id="landOl" class="list-group">
+                            <li id="land1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
+                                <div class="me-auto">
+                                    <!-- PDFをUpしているときは、所在と地番を自動入力して評価額以外（追加ボタンも）は非表示にする -->
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1PrefectureSpan">都道府県</span>
+                                        <select name="land1Prefectures" class="form-select smInput" id="land1Prefecture" aria-describedby="land1PrefectureSpan" required>
+                                            <option ></option>
+                                            {% for prefecture in prefectures %}
+                                            <option value="{{prefecture}}">{{prefecture}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1LocationLabel">所在</span>
+                                        <input type="text" class="form-control lgInput" id="land1Location" aria-describedby="land1LocationLabel" placeholder="福岡市中央区天神１丁目" aria-label="福岡市中央区天神１丁目" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1NumberLabel">地番</span>
+                                        <input type="text" class="form-control smInput" id="land1Number" aria-describedby="land1NumberLabel" placeholder="１番１" aria-label="１番１" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1CategoryLabel">地目</span>
+                                        <select name="land1Categorys" class="form-select smInput" id="land1Category" aria-describedby="land1CategoryLabel" required>
+                                            <option ></option>
+                                            {% for landCategory in landCategorys %}
+                                            <option value="{{landCategory}}">{{landCategory}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1SizeLabel">地積</span>
+                                        <input type="text" class="form-control rounded-end smInput" id="land1SizeIntegerInput" aria-describedby="land1SizeLabel" placeholder="１００" aria-label="１００" required>
+                                        <span class="text-center my-auto" style="width:30px;">・</span>
+                                        <input type="text" class="form-control rounded-3 xsInput" id="land1SizeDecimalInput" aria-describedby="land1SizeLabel" placeholder="００" aria-label="００" required>
+                                        <span class="ms-2 my-auto">㎡</span>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1ValueLabel">評価額</span>
+                                        <input type="text" class="form-control rounded-end mdInput" id="land1ValueInput" aria-describedby="land1ValueLabel" placeholder="１２３４５４６７" aria-label="１２３４５４６７" required>
+                                        <span class="text-center my-auto" style="width:30px;">円</span>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1OwnershipLabel">所有権</span>
+                                        <input type="text" class="form-control rounded-end smInput" id="land1OwnershipTopInput" aria-describedby="land1OwnershipLabel" placeholder="１" aria-label="１" required>
+                                        <span class="text-center my-auto" style="width:30px;">／</span>
+                                        <input type="text" class="form-control rounded-3  smInput" id="land1OwnershipBottomInput" aria-describedby="land1OwnershipLabel" placeholder="１" aria-label="１" required>
+                                        <div class="d-flex align-items-center ms-2">
+                                            <span class="form-text fs-6">※所有権のときは、１／１にしてください。</span>
+                                        </div>
+                                    </div>
+                                    <!-- 法定相続のときは不要 -->
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1AcquirerLabel">取得者</span>
+                                        <select name="land1Acquirer" class="form-select mdInput" id="land1AcquirerSelect" aria-describedby="land1AcquirerLabel" required>
+                                            <option ></option>
+                                        </select>
+                                    </div>
+                                    <!-- 法定相続、一人が全て取得のときは不要 -->
+                                    <div class="input-group">
+                                        <span class="input-group-text mdLabel" id="land1AcquisitionRateLabel">取得割合</span>
+                                        <input type="text" class="form-control rounded-end smInput" id="land1coacquisitionRateTopInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
+                                        <span class="text-center my-auto" style="width:30px;">／</span>
+                                        <input type="text" class="form-control rounded-3 smInput" id="land1coacquisitionRateBottomInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
+                                        <div class="d-flex align-items-center">
+                                            <span class="form-text fs-6 ms-2">※全て取得するときは、１／１にしてください。</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <div class="d-flex mt-3">
+                                <button type="button" id="addLandBtn" class="btn btn-primary">土地を追加</button>
+                                <button type="button" id="removeLandBtn" class="btn btn-secondary ms-5" disabled="false" style="display: none;">土地を削除</button>
+                            </div>
+                        </ol>
+                    </div>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="landOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="landCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <section id="bldgColumn" class="container" style="display: none;">
+                <hr>
+                <div>
+                    <h5 class="form-label" id="bldgColumnTitle">４－２．建物情報</h5>
+                </div>
+                <fieldset id="bldgField">
+                    <div class="mt-3">
+                        <ol id="bldgOl" class="list-group">
+                            <li id="bldg1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
+                                <div class="me-auto">
+                                    <!-- PDFをUpしているときは、所在地と家屋番号を自動入力して評価額以外（追加ボタンも）は非表示にする -->
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1PrefectureSpan">都道府県</span>
+                                        <select name="bldg1Prefectures" class="form-select smInput" id="bldg1Prefecture" aria-describedby="bldg1PrefectureSpan" required>
+                                            <option ></option>
+                                            {% for prefecture in prefectures %}
+                                            <option value="{{prefecture}}">{{prefecture}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1LocationLabel">所在地</span>
+                                        <input type="text" class="form-control lgInput" id="bldg1locationInput" aria-describedby="bldg1LocationLabel" placeholder="福岡市中央区天神１丁目１番地１" aria-label="福岡市中央区天神１丁目１番地１" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1NumberLabel">家屋番号</span>
+                                        <input type="text" class="form-control smInput" id="bldg1NumberInput" aria-describedby="bldg1NumberLabel" placeholder="１番１" aria-label="１番１" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1CategoryLabel">種類</span>
+                                        <input type="text" class="form-control smInput" id="bldg1CategoryInput" aria-describedby="bldg1CategoryLabel" placeholder="居宅" aria-label="居宅" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1ArchitectureLabel">構造</span>
+                                        <input type="text" class="form-control lgInput" id="bldg1ArchitectureInput" aria-describedby="bldg1ArchitectureLabel" placeholder="木造かわら葺平屋建" aria-label="木造かわら葺平屋建" required>
+                                    </div>
+                                    <div id="bldg1Size1" class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1Size1Label">床面積　1F</span>
+                                        <input type="text" class="form-control rounded-3 smInput" id="bldg1Size1IntegerInput" aria-describedby="bldg1Size1Label" placeholder="１００" aria-label="１００" required>
+                                        <span class="text-center my-auto" style="width:30px;">・</span>
+                                        <input type="text" class="form-control rounded-3 xsInput" id="bldg1Size1DecimalInput" aria-describedby="bldg1Size1Label" placeholder="００" aria-label="００" required>
+                                    </div>
+                                    <div class="mt-3 mb-3 d-flex">
+                                        <button type="button" id="addBldg1SizeButton" class="btn btn-primary me-3">床面積を追加</button>
+                                        <button type="button" id="removeBldg1SizeButton" class="btn btn-secondary ms-3" style="display: none;" disabled="true">削除</button>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1ValueLabel">評価額</span>
+                                        <input type="text" class="form-control mdInput" id="bldg1ValueInput" aria-describedby="bldg1ValueLabel" placeholder="１２３４５４６７" aria-label="１２３４５４６７" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="bldg1OwnershipLabel">所有権</span>
+                                        <input type="text" class="form-control rounded-end smInput" id="bldg1OwnershipTopInput" aria-describedby="bldg1OwnershipLabel" placeholder="１" aria-label="１" required>
+                                        <span class="text-center my-auto" style="width:30px;">／</span>
+                                        <input type="text" class="form-control rounded-3 smInput" id="bldg1OwnershipBottomInput" aria-describedby="bldg1OwnershipLabel" placeholder="１" aria-label="１" required>
+                                        <div class="d-flex align-items-center">
+                                            <!-- 割り切れないときはエラーメッセージ出す -->
+                                            <span class="form-text fs-6 ms-2">※所有者のときは、１／１にしてください。</span>
+                                        </div>
+                                    </div>
+                                    <!-- 法定相続のときは不要 -->
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="land1AcquirerLabel">取得者</span>
+                                        <select name="land1Acquirer" class="form-select mdInput" id="land1AcquirerSelect" aria-describedby="land1AcquirerLabel" required>
+                                            <option ></option>
+                                        </select>
+                                    </div>
+                                    <!-- 法定相続、一人が全て取得のときは不要 -->
+                                    <div class="input-group">
+                                        <span class="input-group-text lgLabel" id="land1AcquisitionRateLabel">取得割合</span>
+                                        <input type="text" class="form-control rounded-end smInput" id="land1coacquisitionRateTopInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
+                                        <span class="text-center my-auto" style="width:30px;">／</span>
+                                        <input type="text" class="form-control rounded-3 smInput" id="land1coacquisitionRateBottomInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
+                                        <div class="d-flex align-items-center">
+                                            <span class="form-text fs-6 ms-2">※全て取得するときは、１／１にしてください。</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <div class="d-flex mt-3">
+                                <button type="button" id="addBldgBtn" class="btn btn-primary">建物を追加</button>
+                                <button type="button" id="removeBldgBtn" class="btn btn-secondary ms-3" style="display: none;" disabled="true">建物を削除</button>
+                            </div>
+                        </ol>
+                    </div>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="bldgOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="bldgCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <section id="condominiumColumn" class="container" style="display: none;">
+                <hr>
+                <div>
+                    <h5 class="form-label" id="condominiumColumnTitle">４－３．区分建物情報</h5>
+                </div>
+                <fieldset id="condominiumField">
+                    <div class="mt-3">
+                        <ol id="condominiumOl" class="list-group">
+                            <li id="condominium1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
+                                <div class="me-auto">
+                                    <!-- PDFをUpしているときは、所在地と家屋番号を自動入力して評価額以外（追加ボタンも）は非表示にする -->
+                                    <!-- <div class="input-group serialNumberArea">
+                                        <span class="input-group-text" id="condominium1SerialNumberLabel">不動産番号</span>
+                                        <input type="text" class="form-control" id="condominium1lSerialNumberInput" aria-describedby="condominium1SerialNumberLabel" placeholder="０１２３４５６７８９０１２" aria-label="０１２３４５６７８９０１２" required>
+                                    </div> -->
+                                    <div class="input-group valueArea">
+                                        <span class="input-group-text" id="condominium1ValueLabel">評価額</span>
+                                        <input type="text" class="form-control" id="condominium1ValueInput" aria-describedby="condominium1ValueLabel" placeholder="１２３４５４６７" aria-label="１２３４５４６７" required>
+                                    </div>
+                                    <div class="input-group ownershipArea">
+                                        <span class="input-group-text" id="condominium1OwnershipLabel">所有権</span>
+                                        <input type="text" class="form-control rounded-end ownershipTop" id="condominium1OwnershipTopInput" aria-describedby="condominium1OwnershipLabel" placeholder="１" aria-label="１" required>
+                                        <span class="text-center my-auto" style="width:30px;">／</span>
+                                        <input type="text" class="form-control rounded-3 ownershipBottom" id="condominium1OwnershipBottomInput" aria-describedby="condominium1OwnershipLabel" placeholder="１" aria-label="１" required>
+                                        <div class="d-flex align-items-center">
+                                            <span class="form-text fs-6">※所有者のときは、１／１にしてください。</span>
+                                        </div>
+                                    </div>
+                                    <div class="input-group valueArea">
+                                        <span class="input-group-text" id="condominium1Site1ValueLabel">敷地権１の評価額</span>
+                                        <input type="text" class="form-control" id="condominium1Site1ValueInput" aria-describedby="condominium1Site1ValueLabel" placeholder="１２３４５４６７" aria-label="１２３４５４６７" required>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="addCondominiumSiteButton" class="btn btn-primary">敷地権を追加</button>
+                                    </div>
+                                    <!-- 法定相続のときは不要 -->
+                                    <div class="input-group acquirerArea">
+                                        <span class="input-group-text" id="land1AcquirerLabel">取得者</span>
+                                        <select name="land1Acquirer" class="form-select" id="land1AcquirerSelect" aria-describedby="land1AcquirerLabel" required>
+                                            <option ></option>
+                                        </select>
+                                    </div>
+                                    <!-- 法定相続、一人が全て取得のときは不要 -->
+                                    <div class="input-group acquisitionRateArea">
+                                        <span class="input-group-text" id="land1AcquisitionRateLabel">取得割合</span>
+                                        <input type="text" class="form-control rounded-end acquisitionRateTop" id="land1coacquisitionRateTopInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
+                                        <span class="text-center my-auto" style="width:30px;">／</span>
+                                        <input type="text" class="form-control rounded-3 acquisitionRateBottom" id="land1coacquisitionRateBottomInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
+                                        <div class="d-flex align-items-center">
+                                            <span class="form-text fs-6">※所有権のときは、１／１にしてください。</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <div class="d-flex mt-3">
+                                <button type="button" class="btn btn-primary">区分建物を追加</button>
+                                <button type="button" class="btn btn-secondary ms-5">区分建物を削除</button>
+                            </div>
+                        </ol>
+                    </div>
+                </fieldset>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button type="button" id="condominiumOkBtn" class="btn btn-primary me-3">確定</button>
+                    <button type="button" id="condominiumCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                </div>
+            </section>
+            <section id="applicationColumn" class="container" style="display: none;">
+                <hr>
+                <div>
+                    <h5 class="form-label" id="applicationColumnTitle">５．申請情報</h5>
+                </div>
+                <fieldset id="applicationField">
+                    <div class="mt-3">
+                        <div class="input-group">
+                            <span class="input-group-text" id="applicantLabel">申請人</span>
+                            <select name="applicants" class="form-select rounded-end mdInput" id="applicantSelect" aria-describedby="applicantLabel" required>
+                                <option ></option>
+                            </select>
+                        </div>
+                        <div>
+                            <span class="form-text ms-2">※取得する方のみ申請人になれます</span>
+                        </div>
+                        <div class="mt-3">
+                            <div>
+                                <span class="fs-5">登記完了後に以下の書類は必要ですか？</span>
+                            </div>
+                            <div>
+                                <ul id="papersList" class="list-group list-group-flush mt-2 form-text">
+                                    <li class="list-group-item">遺産分間協議証明書</li>
+                                    <li class="list-group-item">戸籍謄本</li>
+                                    <li class="list-group-item">住民票</li>
+                                    <li class="list-group-item">印鑑証明書</li>
+                                    <li class="list-group-item border-bottom">固定資産評価証明書又は課税明細書</li>
+                                </ul>
+                            </div>
+                            <div class="d-flex justify-content-evenly mt-3 border rounded-3 twoRbs form-control">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="returnPaperRbs" id="returnPaperRbsZero">
+                                    <label class="form-check-label" for="returnPaperRbsZero">必要</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="returnPaperRbs" id="returnPaperRbsOne">
+                                    <label class="form-check-label" for="returnPaperRbsOne">不要</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div>
+                                <span class="fs-5">管轄法務局一覧</span>
+                            </div>
+                            <ol id="officeOl" class="list-group">
+                                <li id="office1" class="list-group-item d-flex align-items-center border-0 ps-0">
+                                    <!-- 取得した又は入力された不動産情報に基づいて法務局を自動で調べて表示する -->
+                                    <div class="text-start text-wrap">
+                                        <div>
+                                            ○○法務局
+                                        </div>
+                                        <div>
+                                            住所：
+                                        </div>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                        <div class="mt-3">
+                            <div>
+                                <span class="fs-5">法務局への書類提出方法について</span>
+                            </div>
+                            <div class="d-flex justify-content-evenly mt-3 border rounded-3 twoRbs form-control">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="submissionMethodRbs" id="submissionMethodRbsZero" required>
+                                    <label class="form-check-label" for="submissionMethodRbsZero">郵送</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="submissionMethodRbs" id="submissionMethodRbsOne">
+                                    <label class="form-check-label" for="submissionMethodRbsOne">持参</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </section>
+            <div class="text-center my-5">
+                <h5 id="statusText">現在１／５項目</h5>
+                <a class="text-decoration-none" href="{% url 'service-stepFour' %}">
+                    <button id="completeBtn" type="button" class="btn btn-primary mt-3" disabled="true">完了</button>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_one.js' %}"></script>
+{% endblock %}

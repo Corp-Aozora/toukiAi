@@ -135,6 +135,19 @@
                     <div class="text-end mt-5">
                         <button type="button" class="btn btn-primary nextBtn" tabindex="10" disabled="true">次へ</button>
                     </div>
+                    {% if decedent_form.errors %}
+                        <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                            {% for field, errors in decedent_form.errors.items %}
+                                <div>
+                                    <ul>
+                                        {% for error in errors %}
+                                            <li style="list-style-type: none;">{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </fieldset>
                 <fieldset id="id_spouse-0-fieldset" class="spouseFieldset" style="display: none;">
                     <div class="pb-3">
@@ -262,6 +275,19 @@
                             <button type="button" class="btn btn-secondary preBtn">戻る</button>
                             <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                         </div>
+                        {% if spouse_form.errors %}
+                            <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                {% for field, errors in spouse_form.errors.items %}
+                                    <div>
+                                        <ul>
+                                            {% for error in errors %}
+                                                <li style="list-style-type: none;">{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 </fieldset>
                 <fieldset id="id_child_common-0-fieldset" class="childCommonFieldset" style="display: none;">
@@ -615,6 +641,19 @@
                                 <button type="button" class="btn btn-secondary preBtn">戻る</button>
                                 <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                             </div>
+                            {% if form.errors %}
+                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                    {% for field, errors in form.errors.items %}
+                                        <div>
+                                            <ul>
+                                                {% for error in errors %}
+                                                    <li style="list-style-type: none;">{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -746,6 +785,19 @@
                                 <button type="button" class="btn btn-secondary preBtn">戻る</button>
                                 <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                             </div>
+                            {% if form.errors %}
+                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                    {% for field, errors in form.errors.items %}
+                                        <div>
+                                            <ul>
+                                                {% for error in errors %}
+                                                    <li style="list-style-type: none;">{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -907,6 +959,19 @@
                                 <button type="button" class="btn btn-secondary preBtn">戻る</button>
                                 <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                             </div>
+                            {% if form.errors %}
+                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                    {% for field, errors in form.errors.items %}
+                                        <div>
+                                            <ul>
+                                                {% for error in errors %}
+                                                    <li style="list-style-type: none;">{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -1080,6 +1145,19 @@
                                 <button type="button" class="btn btn-secondary preBtn">戻る</button>
                                 <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                             </div>
+                            {% if form.errors %}
+                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                    {% for field, errors in form.errors.items %}
+                                        <div>
+                                            <ul>
+                                                {% for error in errors %}
+                                                    <li style="list-style-type: none;">{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -1138,7 +1216,7 @@
                                 <div class="Q" style="display: none;">
                                     <div>
                                         <span class="input-group-text fw-bold">
-                                            異父母の兄弟姉妹はいますか？
+                                            全員被相続人と同じ両親ですか？
                                         </span>
                                     </div>
                                     <div class="form-control input-group">
@@ -1151,7 +1229,7 @@
                                         <div class="form-check col">
                                             <label class="form-check-label">
                                                 <input id="id_collateral_common-is_same_parents_1" class="form-check-input" type="radio" name="collateral_common_is_same_parents" value="false">
-                                                いいえ
+                                                異父母の兄弟姉妹がいる
                                             </label>
                                         </div>
                                         <span class="errorMessage rbEmPosition" style="display: none;">
@@ -1285,7 +1363,7 @@
                                             <div class="Q mt-3">
                                                 <div>
                                                     <span class="input-group-text fw-bold rounded-top">
-                                                        配偶者との子ですか？
+                                                        被相続人と同じ両親ですか？
                                                     </span>
                                                 </div>
                                                 <div class="form-control input-group">
@@ -1416,6 +1494,19 @@
                                 <button type="button" class="btn btn-secondary preBtn">戻る</button>
                                 <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
                             </div>
+                            {% if form.errors %}
+                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                    {% for field, errors in form.errors.items %}
+                                        <div>
+                                            <ul>
+                                                {% for error in errors %}
+                                                    <li style="list-style-type: none;">{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}

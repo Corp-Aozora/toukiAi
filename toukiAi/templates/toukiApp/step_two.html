@@ -2,23 +2,23 @@
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiapp/sidebar.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiapp/service-stepTwo.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiapp/service-common.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_two.css' %}">
+
 {% endblock %}
 {% block header %}
-    {% include "toukiapp/service-header.html" %}
+    {% include "toukiApp/step_header.html" %}
 {% endblock %}
-
+{% load custom_filters %}
 {% block content %}
 <div class="d-flex container-xxl">
-    {% include "toukiapp/sidebar.html" %}
+    {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
         <div>
             <h4>必要書類一覧</h4>
         </div>
         <hr>
-        <form>
+        <form action="{% url 'toukiApp:step_two' %}" method="POST" class="my-4" novalidate>
+            {% csrf_token %}
             <h5>取得した書類には☑してください</h5>
             <div id="realEstateInfoColumn" class="mt-3">
                 <div class="form-check">
@@ -237,9 +237,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-4">
-                <a class="text-decoration-none" href="{% url 'service-stepThree' %}">
-                    <button type="button" class="btn btn-primary">完了</button>
-                </a>
+                <input id="submitBtn" type="submit" class="btn btn-primary nextBtn" value="ＯＫ">
             </div>
         </form>
     </div>
@@ -247,12 +245,10 @@
 {% endblock %}
 
 {% block footer %}
-{% include "toukiapp/service-footer.html" %}
+{% include "toukiApp/step_footer.html" %}
 {% endblock %}
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiapp/service-stepTwo.js' %}"></script>
-    <script src="{% static 'toukiapp/sidebar.js' %}"></script>
-    <script src="{% static 'toukiapp/service-common.js' %}"></script>
+    <script src="{% static 'toukiApp/step_two.js' %}"></script>
 {% endblock %}

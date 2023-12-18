@@ -237,7 +237,6 @@ class Collateral extends Person{
         super(fieldsetId);
         this.noInputs = this.noInputs.filter((_, i) => i !== Collateral.idxs.index.input && i !== Collateral.idxs.target1.input && i !== Collateral.idxs.target2.input);
         this.inputs[Collateral.idxs.index.input].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
-        this.inputs[Collateral.idxs.target1.input].value = decedent.inputs[Decedent.idxs.index].value.trim();
         collaterals.push(this);
     }
 }
@@ -1468,12 +1467,13 @@ class CollateralRbHandler extends CommonRbHandler{
             ()=>{
                 //yesAction
                 //続柄を設定する
-                if(spouse.inputs[Spouse.idxs.isExist.input[yes]].checked)
-                    inputs[Collateral.idxs.target2.input].value = spouse.inputs[Spouse.idxs.index.input].value.trim();
+                inputs[Collateral.idxs.target1.input].value = ascendants[0].inputs[Ascendant.idxs.index.input].value.trim();
+                inputs[Collateral.idxs.target2.input].value = ascendants[1].inputs[Ascendant.idxs.index.input].value.trim();
             },
             ()=>{
                 //noAction
                 //続柄を設定する
+                inputs[Collateral.idxs.target1.input].value = "";
                 inputs[Collateral.idxs.target2.input].value = "";
             }
         )
@@ -2663,27 +2663,45 @@ function handleSubmitBtnFieldsetPreBtnClick(e){
 function cleanFormData(fromPerson){
     //インスタンスが生成されていないフォームのデータを初期化する
     if(fromPerson === getLastElFromArray(childs)){
-        removeAllExceptFirst(Array.from(document.getElementsByClassName("childSpouseFieldset")));
-        iniIndivisualFieldsets(childSpouses[0]);
-        childSpouses.length = 0;
-        removeAllExceptFirst(Array.from(document.getElementsByClassName("grandChildFieldset")));
-        iniIndivisualFieldsets(grandChilds[0]);
-        grandChilds.length = 0;
-        iniIndivisualFieldsets(ascendants);
-        ascendants.length = 0;
-        removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
-        iniIndivisualFieldsets(collaterals[0]);
-        collaterals.length = 0;
+        if(childSpouses.length > 0){
+            removeAllExceptFirst(Array.from(document.getElementsByClassName("childSpouseFieldset")));
+            iniIndivisualFieldsets(childSpouses[0]);
+            childSpouses.length = 0;
+        }
+        if(grandChilds.length > 0){
+            removeAllExceptFirst(Array.from(document.getElementsByClassName("grandChildFieldset")));
+            iniIndivisualFieldsets(grandChilds[0]);
+            grandChilds.length = 0;
+        }
+        if(ascendants.length > 0){
+            iniIndivisualFieldsets(ascendants);
+            ascendants.length = 0;
+        }
+        if(collaterals.length > 0){
+            removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
+            iniIndivisualFieldsets(collaterals[0]);
+            collaterals.length = 0;
+        }
     }else if(fromPerson === getLastElFromArray(childSpouses) || fromPerson === getLastElFromArray(grandChilds)){
-        iniIndivisualFieldsets(ascendants);
-        ascendants.length = 0;
-        removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
-        iniIndivisualFieldsets(collaterals[0]);
-        collaterals.length = 0;
+        if(ascendants.length > 0){
+            iniIndivisualFieldsets(ascendants);
+            ascendants.length = 0;
+        }
+        if(collaterals.length > 0){
+            removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
+            iniIndivisualFieldsets(collaterals[0]);
+            collaterals.length = 0;
+        }
     }else if(fromPerson === getLastElFromArray(ascendants)){
-        removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
-        iniIndivisualFieldsets(collaterals[0]);
-        collaterals.length = 0;
+        if(collaterals.length > 0){
+            removeAllExceptFirst(Array.from(document.getElementsByClassName("collateralFieldset")))
+            iniIndivisualFieldsets(collaterals[0]);
+            collaterals.length = 0;
+        }
+    }
+    const els = document.querySelectorAll("[disabled]");
+    for(let i = 0, len = els.length; i < len; i++){
+        els[i].disabled = false;
     }
 }
 

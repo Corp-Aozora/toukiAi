@@ -14,6 +14,7 @@ urlpatterns = [
     
     path('step_one', views.step_one, name='step_one'),
     path('step_two', views.step_two, name='step_two'),
+    path('step_three', views.step_three, name='step_three'),
     path("step_option_select", views.step_option_select, name="step_option_select"),
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 

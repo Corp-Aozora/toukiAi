@@ -301,162 +301,89 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="card-text">
-                                <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold rounded-top">
-                                            子供はいましたか？（亡くなった子や養子を含む）
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_child_common-is_child_0" class="form-check-input" type="radio" name="child_common_is_child" value="true">
-                                                はい
-                                            </label>
+                                {% for field in child_common_form %}
+                                    {% if field.name in common_form_internal_field_name %}
+                                    {% elif field.name == "count" %}
+                                        <div class="Q" style="display: none;">
+                                            <div>
+                                                <span class="input-group-text fw-bold">
+                                                    何人ですか？（亡くなった子や養子を含む）
+                                                </span>
+                                            </div>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true">
+                                                    －
+                                                </button>
+                                                {{ field }}
+                                                <button type="button" class="btn btn-outline-secondary increaseBtn">
+                                                    ＋
+                                                </button>
+                                                <span class="errorMessage rbEmPosition" style="display: none;">
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_child_common-is_child_1" class="form-check-input" type="radio" name="child_common_is_child" value="false">
-                                                いいえ
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            何人ですか？（亡くなった子や養子を含む）
-                                        </span>
-                                    </div>
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true">
-                                            －
-                                        </button>
-                                        <input id="id_child_common-count" type="number" class="form-control text-center no-spin" name="child_common_count" value="0">
-                                        <button type="button" class="btn btn-outline-secondary increaseBtn">
-                                            ＋
-                                        </button>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            全員配偶者との子ですか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_child_common-is_same_parents_0" class="form-check-input" type="radio" name="child_common_is_same_parents" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_child_common-is_same_parents_1" class="form-check-input" type="radio" name="child_common_is_same_parents" value="false">
-                                                前配偶者との子がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在全員ご健在ですか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_child_common-is_Live_0" class="form-check-input" type="radio" name="child_common_is_live" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_child_common-is_Live_1" class="form-check-input" type="radio" name="child_common_is_live" value="false">
-                                                亡くなっている子がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            家庭裁判所で相続放棄をした方はいますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_child_common-is_refuse_0" class="form-check-input" type="radio" name="child_common_is_refuse" value="true">
-                                                いる
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_child_common-is_refuse_1" class="form-check-input" type="radio" name="child_common_is_refuse" value="false">
-                                                いない
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在もご健在の方は全員成人してますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_child_common-is_adult_0" class="form-check-input" type="radio" name="child_common_is_adult" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_child_common-is_adult_1" class="form-check-input" type="radio" name="child_common_is_adult" value="false">
-                                                未成年の子がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在もご健在の方は全員日本に住民票がありますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_child_common-is_japan_0" class="form-check-input" type="radio" name="child_common_is_japan" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_child_common-is_japan_1" class="form-check-input" type="radio" name="child_common_is_japan" value="false">
-                                                海外に移住している方がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
+                                    {% else %}
+                                        {% if field.name == "is_exist" %}
+                                            <div class="Q">
+                                                <div>
+                                                    <span class="input-group-text fw-bold rounded-top">
+                                                        子供はいましたか？（亡くなった子や養子を含む）
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_same_parents" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        全員配偶者との子ですか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_live" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        現在全員ご健在ですか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_refuse" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        家庭裁判所で相続放棄をした方はいますか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_adult" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        現在もご健在の方は全員成人してますか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_japan" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        現在もご健在の方は全員日本に住民票がありますか？
+                                                    </span>
+                                                </div>
+                                        {% endif %}
+                                                <div class="form-control input-group">
+                                                    {% for choice in field %}
+                                                        <div class="form-check col">
+                                                            {% if forloop.counter == 1 %}
+                                                                <label class="form-check-label ms-5">
+                                                            {% else %}
+                                                                <label class="form-check-label">
+                                                            {% endif %}
+                                                                    {{ choice.tag }}{{ choice.choice_label }}
+                                                                </label>
+                                                        </div>
+                                                    {% endfor %}
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">
@@ -1172,162 +1099,89 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="card-text">
-                                <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold rounded-top">
-                                            兄弟姉妹はいましたか？（亡くなった方を含む）
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_collateral_common-is_collateral_0" class="form-check-input" type="radio" name="collateral_common_is_collateral" value="true">
-                                                はい
-                                            </label>
+                                {% for field in collateral_common_form %}
+                                    {% if field.name in common_form_internal_field_name %}
+                                    {% elif field.name == "count" %}
+                                        <div class="Q" style="display: none;">
+                                            <div>
+                                                <span class="input-group-text fw-bold">
+                                                    何人ですか？（亡くなった方を含む）
+                                                </span>
+                                            </div>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true">
+                                                    －
+                                                </button>
+                                                {{ field }}
+                                                <button type="button" class="btn btn-outline-secondary increaseBtn">
+                                                    ＋
+                                                </button>
+                                                <span class="errorMessage rbEmPosition" style="display: none;">
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_collateral_common-is_collateral_1" class="form-check-input" type="radio" name="collateral_common_is_collateral" value="false">
-                                                いいえ
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            何人ですか？（亡くなった方を含む）
-                                        </span>
-                                    </div>
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-outline-secondary rounded-0 decreaseBtn" disabled="true">
-                                            －
-                                        </button>
-                                        <input id="id_collateral_common-count" type="number" class="form-control text-center no-spin" name="collateral_common_count" value="0">
-                                        <button type="button" class="btn btn-outline-secondary increaseBtn">
-                                            ＋
-                                        </button>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            全員被相続人と同じ両親ですか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_collateral_common-is_same_parents_0" class="form-check-input" type="radio" name="collateral_common_is_same_parents" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_collateral_common-is_same_parents_1" class="form-check-input" type="radio" name="collateral_common_is_same_parents" value="false">
-                                                異父母の兄弟姉妹がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在全員ご健在ですか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_collateral_common-is_live_0" class="form-check-input" type="radio" name="collateral_common_is_live" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_collateral_common-is_live_1" class="form-check-input" type="radio" name="collateral_common_is_live" value="false">
-                                                亡くなっている兄弟姉妹がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            家庭裁判所で相続放棄をした方はいますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_collateral_common-is_refuse_0" class="form-check-input" type="radio" name="collateral_common_is_refuse" value="true">
-                                                いる
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_collateral_common-is_refuse_1" class="form-check-input" type="radio" name="collateral_common_is_refuse" value="false">
-                                                いない
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在もご健在の方は全員成人してますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_collateral_common-is_adult_0" class="form-check-input" type="radio" name="collateral_common_is_adult" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_collateral_common-is_adult_1" class="form-check-input" type="radio" name="collateral_common_is_adult" value="false">
-                                                未成年の兄弟姉妹がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="Q" style="display: none;">
-                                    <div>
-                                        <span class="input-group-text fw-bold">
-                                            現在もご健在の方は全員日本に住民票がありますか？
-                                        </span>
-                                    </div>
-                                    <div class="form-control input-group">
-                                        <div class="form-check col">
-                                            <label class="form-check-label ms-5">
-                                                <input id="id_collateral_common-is_japan_0" class="form-check-input" type="radio" name="collateral_common_is_japan" value="true">
-                                                はい
-                                            </label>
-                                        </div>
-                                        <div class="form-check col">
-                                            <label class="form-check-label">
-                                                <input id="id_collateral_common-is_japan_1" class="form-check-input" type="radio" name="collateral_common_is_japan" value="false">
-                                                海外に移住している方がいる
-                                            </label>
-                                        </div>
-                                        <span class="errorMessage rbEmPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                </div>
+                                    {% else %}
+                                        {% if field.name == "is_exist" %}
+                                            <div class="Q">
+                                                <div>
+                                                    <span class="input-group-text fw-bold rounded-top">
+                                                        兄弟姉妹はいましたか？（亡くなった方を含む）
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_same_parents" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        全員被相続人と同じ両親ですか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_live" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        全員現在もご健在ですか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_refuse" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        家庭裁判所で相続放棄をした方はいますか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_adult" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        現在もご健在の方は全員成人してますか？
+                                                    </span>
+                                                </div>
+                                        {% elif field.name == "is_japan" %}
+                                            <div class="Q" style="display: none;">
+                                                <div>
+                                                    <span class="input-group-text fw-bold">
+                                                        現在もご健在の方は全員日本に住民票がありますか？
+                                                    </span>
+                                                </div>
+                                        {% endif %}
+                                                <div class="form-control input-group">
+                                                    {% for choice in field %}
+                                                        <div class="form-check col">
+                                                            {% if forloop.counter == 1 %}
+                                                                <label class="form-check-label ms-5">
+                                                            {% else %}
+                                                                <label class="form-check-label">
+                                                            {% endif %}
+                                                                    {{ choice.tag }}{{ choice.choice_label }}
+                                                                </label>
+                                                        </div>
+                                                    {% endfor %}
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">

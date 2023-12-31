@@ -42,7 +42,7 @@ class MyUserAdmin(UserAdmin):
 
 admin.site.register(User, MyUserAdmin)
 
-# 一般お問い合わせ
+# メールアドレス変更申請
 class EmailChangeForm(forms.ModelForm):
     class Meta:
         model = EmailChange

@@ -105,8 +105,10 @@ class StepOneDecedentForm(BaseOneForm):
                     
                     if field.label in ["本籍地の市区町村", "住所の市区町村"]:
                         field.widget.attrs['disabled'] = 'disabled'
-            
+                    elif field.label in ["本籍地の都道府県", "住所の都道府県"]:
+                        field.initial
         super().__init__(*args, **kwargs)
+                        
                 
 # STEP1の配偶者フォーム
 class StepOneSpouseForm(BaseOneForm):
@@ -142,7 +144,42 @@ class StepOneSpouseForm(BaseOneForm):
                 })
             
         super().__init__(*args, **kwargs)
-                
+
+# STEP1の子共通フォーム
+class StepOneDescendantCommonForm(forms.ModelForm):
+    class Meta:
+        model = DescendantCommon
+        # "decedent", "is_exist", "count", "is_same_parents", "is_live", "is_refuse", "is_adult", "is_japan"
+        fields = model.step_one_fields
+        widgets = {
+            "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
+            "is_same_parents": forms.RadioSelect(choices=[("true", "はい"), ("false", "前配偶者との子がいる")]),
+            "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなっている子がいる")]),
+            "is_refuse": forms.RadioSelect(choices=[("true", "いる"), ("false", "いない")]),
+            "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "未成年の子がいる")]),
+            "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している子がいる")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        
+        for field in self.base_fields.values():
+            field.required = False
+
+            if field.label == "被相続人":
+                continue
+            
+            if field.label == "子の数":
+                field.widget.attrs.update({
+                    "class": "form-control text-center no-spin",
+                })
+            
+            else:
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            
+        super().__init__(*args, **kwargs)
+              
 # STEP1の子フォーム
 class StepOneDescendantForm(BaseTwoForm):
     class Meta:
@@ -205,6 +242,41 @@ class StepOneAscendantForm(BaseOneForm):
                     "class": "form-control rounded-end",
                     "placeholder": "姓名間にスペースなし",
                     "maxlength": "30",
+                })
+            
+            else:
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            
+        super().__init__(*args, **kwargs)
+        
+# STEP1の兄弟姉妹共通フォーム
+class StepOneCollateralCommonForm(forms.ModelForm):
+    class Meta:
+        model = CollateralCommon
+        # "decedent", "is_exist", "count", "is_same_parents", "is_live", "is_refuse", "is_adult", "is_japan"
+        fields = model.step_one_fields
+        widgets = {
+            "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
+            "is_same_parents": forms.RadioSelect(choices=[("true", "はい"), ("false", "異父母の兄弟姉妹がいる")]),
+            "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなっている兄弟姉妹がいる")]),
+            "is_refuse": forms.RadioSelect(choices=[("true", "いる"), ("false", "いない")]),
+            "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "未成年の兄弟姉妹がいる")]),
+            "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に移住している兄弟姉妹がいる")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        
+        for field in self.base_fields.values():
+            field.required = False
+
+            if field.label == "被相続人":
+                continue
+            
+            if field.label == "兄弟姉妹の数":
+                field.widget.attrs.update({
+                    "class": "form-control text-center no-spin",
                 })
             
             else:

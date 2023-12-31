@@ -124,16 +124,24 @@ def save_step_one_datas(user, forms, form_sets):
     decedent.created_by = user
     decedent.updated_by = user
     decedent.save()
+    
     # 配偶者
-    if forms[1].cleaned_data.get("is_exist"):
-        spouse = forms[1].save(commit=False)
-        spouse.decedent = decedent
-        spouse.content_type = ContentType.objects.get_for_model(Decedent)
-        spouse.object_id = decedent.id
-        spouse.is_heir = forms[1].cleaned_data.get("is_live") and not forms[1].cleaned_data.get("is_refuse")
-        spouse.created_by = user
-        spouse.updated_by = user
-        spouse.save()
+    spouse = forms[1].save(commit=False)
+    spouse.decedent = decedent
+    spouse.content_type = ContentType.objects.get_for_model(Decedent)
+    spouse.object_id = decedent.id
+    spouse.is_heir = forms[1].cleaned_data.get("is_live") and not forms[1].cleaned_data.get("is_refuse")
+    spouse.created_by = user
+    spouse.updated_by = user
+    spouse.save()
+    
+    # 子共通
+    child_common = forms[2].save(commit=False)
+    child_common.decedent = decedent
+    child_common.created_by = user
+    child_common.updated_by = user
+    child_common.save()
+    
     # 子
     if form_sets[0][0].cleaned_data.get("name"):
         child_dict = {}
@@ -150,6 +158,7 @@ def save_step_one_datas(user, forms, form_sets):
             child.updated_by = user
             child.save()
             child_dict[form.cleaned_data.get("index")] = child
+            
     # 子の配偶者
     if form_sets[1][0].cleaned_data.get("name"):
         child_spouse_dict = {}
@@ -164,6 +173,7 @@ def save_step_one_datas(user, forms, form_sets):
             child_spouse.updated_by = user
             child_spouse.save()
             child_spouse_dict[form.cleaned_data.get("index")] = child_spouse
+            
     # 孫
     if form_sets[2][0].cleaned_data.get("name"):
         for form in form_sets[2]:
@@ -179,6 +189,7 @@ def save_step_one_datas(user, forms, form_sets):
             grand_child.created_by = user
             grand_child.updated_by = user
             grand_child.save()
+            
     # 尊属
     if form_sets[3][0].cleaned_data.get("name"):
         ascendant_dict = {}
@@ -198,6 +209,15 @@ def save_step_one_datas(user, forms, form_sets):
             ascendant.updated_by = user
             ascendant.save()
             ascendant_dict[form.cleaned_data.get("index")] = ascendant
+            
+    # 兄弟姉妹共通
+    if forms[3].cleaned_data.get("is_exist") is not None:
+        collateral_common = forms[3].save(commit=False)
+        collateral_common.decedent = decedent
+        collateral_common.created_by = user
+        collateral_common.updated_by = user
+        collateral_common.save()
+        
     # 兄弟姉妹
     if form_sets[4][0].cleaned_data.get("name"):
         for form in form_sets[4]:
@@ -229,7 +249,9 @@ def step_one(request):
     if request.method == "POST":     
         forms = [
             StepOneDecedentForm(request.POST, prefix="decedent"),
-            StepOneSpouseForm(request.POST, prefix="spouse")
+            StepOneSpouseForm(request.POST, prefix="spouse"),
+            StepOneDescendantCommonForm(request.POST, prefix="child_common"),
+            StepOneCollateralCommonForm(request.POST, prefix="collateral_common"),
             ]
         form_sets = [
             child_form_set(request.POST, prefix="child"),
@@ -263,7 +285,10 @@ def step_one(request):
         
     decedent_form = StepOneDecedentForm(prefix="decedent")
     spouse_form = StepOneSpouseForm(prefix="spouse")
+    child_common_form = StepOneDescendantCommonForm(prefix="child_common")
+    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common")
     spouse_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
+    common_form_internal_field_name = ["decedent"]
     child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
     ascendant_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
     ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
@@ -280,6 +305,9 @@ def step_one(request):
         "decedent_form": decedent_form,
         "spouse_form": spouse_form,
         "spouse_form_internal_field_name": spouse_form_internal_field_name,
+        "child_common_form" : child_common_form,
+        "collateral_common_form" : collateral_common_form,
+        "common_form_internal_field_name" : common_form_internal_field_name,
         "sections" : Sections.SECTIONS[Sections.STEP1],
         "service_content" : Sections.SERVICE_CONTENT,
         "child_form_set" : child_form_set(prefix="child"),

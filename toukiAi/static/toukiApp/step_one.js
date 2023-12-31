@@ -49,7 +49,7 @@ class Decedent extends Person{
         super(fieldsetId);
         this.inputs = Array.from(this.fieldset.querySelectorAll("input, select"));
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
-            (_, i) => i !== Decedent.idxs.deathYear && i != Decedent.idxs.index && i !== Decedent.idxs.target
+            (_, i) => i !== Decedent.idxs.deathYear && i != Decedent.idxs.deathMonth && i != Decedent.idxs.index && i !== Decedent.idxs.target
         );
         this.inputs[Decedent.idxs.index].value = this.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent.split("．")[0].trim();
         this.inputs[Decedent.idxs.target].value = "";

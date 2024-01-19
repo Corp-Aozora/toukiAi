@@ -66,9 +66,9 @@ class Spouse extends Person{
         name : {form: 0, input:0},
         isExist : {form: 1, input: [1, 2]},
         isLive : {form:2, input: [3, 4]},
-        isRemarriage : {form: 3, input: [5, 6]},
-        isStepChild : {form: 4, input: [7, 8]},
-        isRefuse : {form: 5, input: [9, 10]},
+        isRefuse : {form: 3, input: [5, 6]},
+        isRemarriage : {form: 4, input: [7, 8]},
+        isStepChild : {form: 5, input: [9, 10]},
         isJapan : {form: 6, input: [11, 12]},
         index : {form: 7, input: 13},
         target : {form: 8, input: 14}
@@ -358,12 +358,369 @@ class UpdateTitle{
 }
 
 /**
+ * ユーザーに紐づく被相続人の市区町村データを取得する
+ */
+function getUserCityData(){
+    const url = 'get_user_city_data';
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        if(response.city !== ""){
+            decedent.inputs[Decedent.idxs.city].value = response.city;
+        }
+        if(response.domicileCity !== ""){
+            decedent.inputs[Decedent.idxs.domicileCity].value = response.domicileCity;
+        }
+    }).catch(error => {
+        console.log(error);
+    }).finally(()=>{
+        //次へボタンの表示判別
+        decedent.nextBtn.disabled = decedent.noInputs.length === 0 ? false: true;
+    });
+}
+
+/**
+ * 次の人のフォームへ進むか次へボタンにスクロールするか判別する
+ * @param {EveryPerson} person 
+ */
+function oneStepFowardOrScrollToTarget(person){
+    if(person.noInputs.length === 0){
+        person.nextBtn.disabled = false;
+        oneStepFoward(person);
+    }else{
+        scrollToTarget(person.nextBtn);
+    }
+}
+
+/**
+ * ユーザーに紐づくデータのうち氏名のデータを復元する
+ */
+function loadNameData(data, input){
+    if(data !== ""){
+        input.value = data;
+        input.dispatchEvent(new Event("change"));
+    }
+} 
+
+/**
+ * ユーザーに紐づくデータのうちラジオボタンのデータを復元する
+ * @param {Element} input 
+ */
+function loadRbData(input){
+    input.checked = true;
+    input.dispatchEvent(new Event("change"));
+}
+
+/**
+ * ユーザーのデータを取得する
+ */
+async function loadData(){
+    //被相続人データのチェック
+    if(userDataScope.includes("decedent")){
+        for(let i = 0, len = decedent.inputs.length; i < len; i++){
+            //データがあるとき
+            if(decedent.inputs[i].value !== ""){
+                //エラー要素から削除する
+                decedent.noInputs = decedent.noInputs.filter(x => x.id !== decedent.inputs[i].id)
+                //都道府県のとき、市区町村データを取得する
+                if(i === Decedent.idxs.prefecture || i === Decedent.idxs.domicilePrefecture){
+                    await getCityData(decedent.inputs[i].value, decedent.inputs[i + 1]);
+                }
+                if(i === Decedent.idxs.city || i === Decedent.idxs.domicileCity){
+                    getUserCityData();
+                }
+            }
+            //indexとtargetは処理不要
+            if(i === Decedent.idxs.domicileCity)
+                break;
+        }
+        //すべて入力されているとき、次へボタンを有効化する
+        oneStepFowardOrScrollToTarget(decedent);
+    }else{
+        return;
+    }
+
+    //配偶者
+    if(userDataScope.includes("spouse")){
+        const event = new Event("change")
+        loadNameData(spouse_data["name"], spouse.inputs[Spouse.idxs.name.input]);
+
+        if(spouse_data["is_exist"] === true){
+            loadRbData(spouse.inputs[Spouse.idxs.isExist.input[yes]]);
+
+            if(spouse_data["is_live"] === true){
+                loadRbData(spouse.inputs[Spouse.idxs.isLive.input[yes]]);
+
+                if(spouse_data["is_refuse"] === true){
+                    loadRbData(spouse.inputs[Spouse.idxs.isRefuse.input[yes]]);
+                }else if(spouse_data["is_refuse"] === false){
+                    loadRbData(spouse.inputs[Spouse.idxs.isRefuse.input[no]]);
+
+                    if(spouse_data["is_japan"] === true){
+                        loadRbData(spouse.inputs[Spouse.idxs.isJapan.input[yes]]);
+                    }else if(spouse_data["is_japan"] === false){
+                        loadRbData(spouse.inputs[Spouse.idxs.isJapan.input[no]]);
+                    }
+                }
+            }else if(spouse_data["is_live"] === false){
+                loadRbData(spouse.inputs[Spouse.idxs.isLive.input[no]]);
+                
+                if(spouse_data["is_refuse"] === true){
+                    loadRbData(spouse.inputs[Spouse.idxs.isRefuse.input[yes]]);
+                }else if(spouse_data["is_refuse"] === false){
+                    loadRbData(spouse.inputs[Spouse.idxs.isRefuse.input[no]]);
+                    loadRbData(spouse.inputs[Spouse.idxs.isRemarriage.input[no]]);
+                    loadRbData(spouse.inputs[Spouse.idxs.isStepChild.input[no]]);                  
+                }
+            }
+        }else if(spouse_data["is_exist"] === false){
+            loadRbData(spouse.inputs[Spouse.idxs.isExist.input[no]])
+        }
+        //すべて適切に入力されているとき次へボタンを有効化する
+        oneStepFowardOrScrollToTarget(spouse);
+    }else{
+        return;
+    }
+
+    //子共通
+    if(userDataScope.includes("child_common")){
+        //子の数データを取得する（is_existがtrueの場合、1が入力されてしまうため）
+        const count = childCommon.inputs[ChildCommon.idxs.count.input].value;
+        const event = new Event("change");
+
+        for(let i = 0, len = childCommon.inputs.length; i < len; i++){
+            //データがあるとき
+            if(i !== ChildCommon.idxs.count.input && childCommon.inputs[i].checked){
+                //チェックされたボタンに付随するイベントを発生させる
+                childCommon.inputs[i].dispatchEvent(event);
+            }else if(i === ChildCommon.idxs.count.input){
+                childCommon.inputs[ChildCommon.idxs.count.input].value = count;
+                childCommon.inputs[i].dispatchEvent(event);
+            }
+        }
+        //すべて適切に入力されているとき次へボタンを有効化する
+        oneStepFowardOrScrollToTarget(childCommon);
+    }else{
+        return;
+    }
+
+    //子
+    if(userDataScope.includes("child")){
+        for(let i = 0, len = childs.length; i < len; i++){
+            //データがあるとき、データを反映させる
+            loadNameData(childs_data[i]["name"], childs[i].inputs[Child.idxs.name.input]);
+
+            if(childs_data[i]["object_id2"] && childs[i].inputs[Child.idxs.isSameParents.input[yes]].disabled === false){
+                loadRbData(childs[i].inputs[Child.idxs.isSameParents.input[yes]]);
+            }else if(childs_data[i]["object_id2"] === null && childs[i].inputs[Child.idxs.isSameParents.input[no]].disabled === false){
+                loadRbData(childs[i].inputs[Child.idxs.isSameParents.input[no]]);
+            }
+
+            if(childs_data[i]["is_live"] === true && childs[i].inputs[Child.idxs.isLive.input[yes]].disabled === false){
+                loadRbData(childs[i].inputs[Child.idxs.isLive.input[yes]]);
+
+                if(childs_data[i]["is_refuse"] === true){
+                    loadRbData(childs[i].inputs[Child.idxs.isRefuse.input[yes]]);
+                }else if(childs_data[i]["is_refuse"] === false && childs[i].inputs[Child.idxs.isRefuse.input[no]].disabled === false){
+                    loadRbData(childs[i].inputs[Child.idxs.isRefuse.input[no]]);
+                }
+
+            }else if(childs_data[i]["is_live"] === false){
+                loadRbData(childs[i].inputs[Child.idxs.isLive.input[no]]);
+
+                if(childs_data[i]["is_exist"] === true){
+                    loadRbData(childs[i].inputs[Child.idxs.isExist.input[yes]]);
+
+                    if(childs_data[i]["is_refuse"] === true){
+                        loadRbData(childs[i].inputs[Child.idxs.isRefuse.input[yes]]);
+                    }else if(childs_data[i]["is_refuse"] === false && childs[i].inputs[Child.idxs.isRefuse.input[no]].disabled === false){
+                        loadRbData(childs[i].inputs[Child.idxs.isRefuse.input[no]]);
+
+                        if(childs_data[i]["is_spouse"] > 0){
+                            loadRbData(childs[i].inputs[Child.idxs.isSpouse.input[yes]]);
+                        }else if(childs_data[i]["is_spouse"] === 0){
+                            loadRbData(childs[i].inputs[Child.idxs.isSpouse.input[no]]);
+                        }
+
+                        if(childs_data[i]["count"] > 0){
+                            loadRbData(childs[i].inputs[Child.idxs.isChild.input[yes]]);
+                            childs[i].inputs[Child.idxs.count.input].value = childs_data[i]["count"];
+                        }else if(childs_data[i]["count"] === 0){
+                            loadRbData(childs[i].inputs[Child.idxs.isChild.input[no]]);
+                        } 
+            
+                    }
+                }else if(childs_data[i]["is_exist"] === false){
+                    loadRbData(childs[i].inputs[Child.idxs.isExist.input[no]]);
+
+                    if(childs_data[i]["count"] > 0){
+                        loadRbData(childs[i].inputs[Child.idxs.isChild.input[yes]]);
+                        childs[i].inputs[Child.idxs.count.input].value = childs_data[i]["count"];
+                    }else if(childs_data[i]["count"] === 0){
+                        loadRbData(childs[i].inputs[Child.idxs.isChild.input[no]]);
+                    } 
+                }
+            }
+
+            if(childs_data[i]["is_adult"] === true && childs[i].inputs[Child.idxs.isAdult.input[yes]].disabled === false){
+                loadRbData(childs[i].inputs[Child.idxs.isAdult.input[yes]]);
+            }else if(childs_data[i]["is_adult"] === false){
+                loadRbData(childs[i].inputs[Child.idxs.isAdult.input[no]]);
+            }
+
+            if(childs_data[i]["is_japan"] === true && childs[i].inputs[Child.idxs.isJapan.input[yes]].disabled === false){
+                loadRbData(childs[i].inputs[Child.idxs.isJapan.input[yes]]);
+            }else if(childs_data[i]["is_japan"] === false){
+                loadRbData(childs[i].inputs[Child.idxs.isJapan.input[no]]);
+            }
+
+            //すべて適切に入力されているとき次へボタンを有効化する
+            oneStepFowardOrScrollToTarget(childs[i]);
+        }
+    }else{
+        return;
+    }
+
+    //子の相続人
+    if(userDataScope.includes("child_heirs")){
+        //childSpousesとgrandChildsの配列を合体してソートする
+        const childHeirs = getSortedChildsHeirsInstance();
+
+        //データがあるとき、データを反映させる
+        for(let i = 0, len = childHeirs.length; i < len; i++){
+            //子の配偶者のとき
+            if(childHeirs[i].constructor.name === "ChildSpouse"){
+                loadNameData(child_heirs_data[i]["name"], childHeirs[i].inputs[ChildSpouse.idxs.name.input]);
+
+                if(child_heirs_data[i]["is_exist"] === true){
+                    loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isExist.input[yes]]);
+
+                    if(child_heirs_data[i]["is_live"] === true){
+                        loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isLive.input[yes]]);
+        
+                        if(child_heirs_data[i]["is_refuse"] === true){
+                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[yes]]);
+                        }else if(child_heirs_data[i]["is_refuse"] === false){
+                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[no]]);
+
+                            if(child_heirs_data[i]["is_japan"] === true){
+                                loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isJapan.input[yes]]);
+                            }else if(child_heirs_data[i]["is_japan"] === false){
+                                loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isJapan.input[no]]);
+                            }
+                        }
+                    }else if(child_heirs_data[i]["is_live"] === false){
+                        loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isLive.input[no]]);
+                        
+                        if(child_heirs_data[i]["is_refuse"] === true){
+                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[yes]]);
+                        }else if(child_heirs_data[i]["is_refuse"] === false){
+                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[no]]);
+                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRemarriage.input[no]]);
+                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isStepChild.input[no]]);
+                        }
+                    }
+                }else if(child_heirs_data[i]["is_exist"] === false){
+                    loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isExist.input[no]]);
+                }
+            }else{
+                //子の子のとき
+                loadNameData(child_heirs_data[i]["name"], childHeirs[i].inputs[GrandChild.idxs.name.input]);
+    
+                if(child_heirs_data[i]["object_id2"]){
+                    loadRbData(childHeirs[i].inputs[GrandChild.idxs.isSameParents.input[yes]]);
+                }else if(child_heirs_data[i]["object_id2"] === null){
+                    loadRbData(childHeirs[i].inputs[GrandChild.idxs.isSameParents.input[no]]);
+                }
+    
+                if(child_heirs_data[i]["is_live"] === true){
+                    loadRbData(childHeirs[i].inputs[GrandChild.idxs.isLive.input[yes]]);
+    
+                    if(child_heirs_data[i]["is_refuse"] === true){
+                        loadRbData(childHeirs[i].inputs[GrandChild.idxs.isRefuse.input[yes]]);
+                    }else if(child_heirs_data[i]["is_refuse"] === false){
+                        loadRbData(childHeirs[i].inputs[GrandChild.idxs.isRefuse.input[no]]);
+
+                        if(child_heirs_data[i]["is_adult"] === true){
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isAdult.input[yes]]);
+                        }else if(child_heirs_data[i]["is_adult"] === false){
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isAdult.input[no]]);
+                        }
+            
+                        if(child_heirs_data[i]["is_japan"] === true){
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isJapan.input[yes]]);
+                        }else if(child_heirs_data[i]["is_japan"] === false){
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isJapan.input[no]]);
+                        }
+                    }
+    
+                }else if(child_heirs_data[i]["is_live"] === false){
+                    loadRbData(childHeirs[i].inputs[GrandChild.idxs.isLive.input[no]]);
+    
+                    if(child_heirs_data[i]["is_exist"] === true){
+                        loadRbData(childHeirs[i].inputs[GrandChild.idxs.isExist.input[yes]]);
+    
+                        if(child_heirs_data[i]["is_refuse"] === true){
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isRefuse.input[yes]]);
+                        }else if(child_heirs_data[i]["is_refuse"] === false){
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isRefuse.input[no]]);
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isSpouse.input[no]]);
+                            loadRbData(childHeirs[i].inputs[GrandChild.idxs.isChild.input[no]]);
+                        }
+                    }else if(child_heirs_data[i]["is_exist"] === false){
+                        loadRbData(childHeirs[i].inputs[GrandChild.idxs.isExist.input[no]]);
+                        loadRbData(childHeirs[i].inputs[GrandChild.idxs.isChild.input[no]]);
+                    }
+                }
+            }
+
+            //すべて適切に入力されているとき次へボタンを有効化する
+            oneStepFowardOrScrollToTarget(childHeirs[i]);
+        }
+    }else{
+        return;
+    }    
+
+    //孫
+    //父母
+    //父方の祖父母
+    //母方の祖父母
+    //兄弟姉妹共通
+    if(userDataScope.includes("collateral_common")){
+        for(let i = 0, len = collateralCommons[0].inputs.length; i < len; i++){
+            //データがあるとき
+            if(i !== CollateralCommon.idxs.count.input && collateralCommons[0].inputs[i].checked){
+                //チェックされたボタンに付随するイベントを発生させる
+                const event = new Event("change");
+                collateralCommons[0].inputs[i].dispatchEvent(event);
+            }
+        }
+        //すべて適切に入力されているとき次へボタンを有効化する
+        if(collateralCommons[0].noInputs.length === 0){
+            collateralCommons[0].nextBtn.disabled = false;
+            oneStepFoward(collateralCommons[0]);
+        }else{
+            scrollToTarget(collateralCommons[0].nextBtn);
+        }
+    }else{
+        return;
+    }
+    //兄弟姉妹
+}
+
+/**
  * ロード時の初期処理
  * ・サイドバーを更新する
  * ・被相続人の入力欄のエラー要素を取得する（死亡年はnullになることがないため除く）
  */
-function initialize(){
+async function initialize(){
     updateSideBar();
+    await loadData();
 }
 
 /**
@@ -390,7 +747,7 @@ function checkPrefecture(val, el){
  * @param {HTMLElement} el 市区町村欄
  * @returns 
  */
-function getCityData(val, el){
+async function getCityData(val, el){
     //未選択のとき、市町村データを全て削除して無効化する
     if(!checkPrefecture(val, el))
         return;
@@ -408,7 +765,7 @@ function getCityData(val, el){
     el.insertAdjacentHTML('afterend', verifyingEl);
     //都道府県に紐づく市区町村データを取得して表示できるようにする
     const url = 'get_city';
-    fetch(url, {
+    await fetch(url, {
         method: 'POST',
         body: JSON.stringify({"prefecture" : val}),
         headers: {
@@ -1016,7 +1373,7 @@ function pushInvalidElAndSDIfHidden(person, errEl, displayEl){
 /**
  * 相続する続柄が変わったときの処理
  * 
- * pushInvalidEl, iniQs, slideDownAfterSlideUpをまとめた関数
+ * pushInvalidEl([0],[1]), iniQs([2],[3],[4],[5],[6]), slideDownAfterSlideUp([7]をまとめた関数
  * @param {...(HTMLElement|number)} args 
  * [0] {EveryPerson} person
  * [1] {HTMLElement} el
@@ -1024,8 +1381,8 @@ function pushInvalidElAndSDIfHidden(person, errEl, displayEl){
  * [3] {number} startIdx 
  * [4] {number} endIdx 
  * [5] {number[]} rbIdxs
- * [6] {HTMLElement} el  
- * [7] {HTMLElement} textInput
+ * [6] {HTMLElement} textInput
+ * [7] {HTMLElement} el
  */
 function changeCourse(...args){
     if(args[0])
@@ -1165,26 +1522,41 @@ class SpouseRbHandler extends CommonRbHandler{
     //手続時存在
     static isLive(rbIdx, spouse){
         const {inputs, Qs, errMsgEls} = personDataToVariable(spouse);
+        const rbidxs = getSequentialNumArr(Spouse.idxs.isRefuse.input[yes], Spouse.idxs.isJapan.input[no]);
         this.handleYesNo(rbIdx, Spouse.idxs.isLive.input[yes],
             ()=>{
-                //エラー要素に日本在住trueを追加して次へボタンを無効化/被相続人以外の子欄の非表示と値の初期化/相続放棄欄を表示
-                const rbIdx = getSequentialNumArr(Spouse.idxs.isRemarriage.input[yes], Spouse.idxs.isStepChild[no]);
-                changeCourse(
-                    spouse, inputs[Spouse.idxs.isJapan.input[yes]], 
-                    Qs, Spouse.idxs.isRemarriage.form, Spouse.idxs.isStepChild.form, rbIdx, null,
+                changeCourse(spouse, inputs[Spouse.idxs.isJapan.input[yes]],
+                    Qs, Spouse.idxs.isRemarriage.form, Spouse.idxs.isJapan.form, rbidxs, null,
                     Qs[Spouse.idxs.isRefuse.form]
-                )
+                );
             },
             ()=>{
-                //被相続人以外の子のエラーメッセージを非表示
-                iniErrMsgEls(errMsgEls[Spouse.idxs.isRemarriage.form]);
-                //エラー要素に被相続人以外の子falseを追加して次へボタンを無効化/相続放棄欄以降の非表示と値の初期化/被相続人以外の子欄を表示
-                const rbIdxs = getSequentialNumArr(Spouse.idxs.isRefuse.input[yes], Spouse.idxs.isJapan.input[no]);
-                changeCourse(
-                    spouse, inputs[Spouse.idxs.isStepChild.input[no]],
-                    Qs, Spouse.idxs.isRefuse.form, Spouse.idxs.isJapan.form, rbIdxs, null,
-                    Qs[Spouse.idxs.isRemarriage.form]
-                )
+                changeCourse(spouse, inputs[Spouse.idxs.isStepChild.input[yes]],
+                    Qs, Spouse.idxs.isRemarriage.form, Spouse.idxs.isJapan.form, rbidxs, null,
+                    Qs[Spouse.idxs.isRefuse.form]
+                );
+                iniErrMsgEls([errMsgEls[Spouse.idxs.isRemarriage.form], errMsgEls[Spouse.idxs.isStepChild.form]]);
+            }
+        )
+    }
+
+    //相続放棄
+    static isRefuse(rbIdx, spouse){
+        const {inputs, Qs, errMsgEls} = personDataToVariable(spouse);
+        this.handleYesNo(rbIdx, Spouse.idxs.isRefuse.input[yes],
+            ()=>{
+                //氏名が入力されているときは次へボタンを有効化する、日本在住を非表示にして値を初期化
+                const rbidxs = getSequentialNumArr(Spouse.idxs.isRemarriage.input[yes], Spouse.idxs.isJapan.input[no]);
+                breakQ(inputs[Spouse.idxs.name.input], spouse, Qs, Spouse.idxs.isRemarriage.form, Spouse.idxs.isJapan.form, rbidxs);
+            },
+            ()=>{
+                //is_existがtrueのとき、日本在住trueをエラー要素を追加して次へボタンを無効化、日本在住欄を表示する
+                if(inputs[Spouse.idxs.isLive.input[yes]].checked){
+                    pushInvalidElAndSDIfHidden(spouse, inputs[Spouse.idxs.isJapan.input[yes]], Qs[Spouse.idxs.isJapan.form]);
+                }else if(inputs[Spouse.idxs.isLive.input[no]].checked){
+                    pushInvalidElAndSDIfHidden(spouse, inputs[Spouse.idxs.isStepChild.input[no]], Qs[Spouse.idxs.isRemarriage.form]);
+                    iniErrMsgEls([errMsgEls[Spouse.idxs.isRemarriage.form], errMsgEls[Spouse.idxs.isStepChild.form]]);
+                }
             }
         )
     }
@@ -1223,21 +1595,6 @@ class SpouseRbHandler extends CommonRbHandler{
             }
         )
     }
-
-    //相続放棄
-    static isRefuse(rbIdx, spouse){
-        const {inputs, Qs} = personDataToVariable(spouse);
-        this.handleYesNo(rbIdx, Spouse.idxs.isRefuse.input[yes],
-            ()=>{
-                //氏名が入力されているときは次へボタンを有効化する、日本在住を非表示にして値を初期化
-                breakQ(inputs[Spouse.idxs.name.input], spouse, Qs, Spouse.idxs.isJapan.form, Spouse.idxs.isJapan.form, Spouse.idxs.isJapan.input);
-            },
-            ()=>{
-                //日本在住trueをエラー要素を追加して次へボタンを無効化、日本在住欄を表示する
-                pushInvalidElAndSDIfHidden(spouse, inputs[Spouse.idxs.isJapan.input[yes]], Qs[Spouse.idxs.isJapan.form]);
-            }
-        )
-    }
 }
 
 /**
@@ -1250,12 +1607,12 @@ function setSpouseRbsEvent(rbIdx, spouse){
     if(Spouse.idxs.isExist.input.includes(rbIdx)) SpouseRbHandler.isExist(rbIdx, spouse);
     //手続時存在
     else if(Spouse.idxs.isLive.input.includes(rbIdx)) SpouseRbHandler.isLive(rbIdx, spouse);
+    //相続放棄
+    else if(Spouse.idxs.isRefuse.input.includes(rbIdx)) SpouseRbHandler.isRefuse(rbIdx, spouse);
     //配偶者存在
     else if(Spouse.idxs.isRemarriage.input.includes(rbIdx)) SpouseRbHandler.isSpouse(rbIdx, spouse);
     //被相続人以外の子存在
     else if(Spouse.idxs.isStepChild.input.includes(rbIdx)) SpouseRbHandler.isStepChild(rbIdx, spouse);
-    //相続放棄
-    else if(Spouse.idxs.isRefuse.input.includes(rbIdx)) SpouseRbHandler.isRefuse(rbIdx, spouse);
     //日本在住
     else SpouseRbHandler.isJapan(Spouse.idxs.name.input, spouse);
 }
@@ -2735,7 +3092,7 @@ function enableSubmitBtnFieldset(fromPerson){
     preBtn.addEventListener("click", handleSubmitBtnFieldsetPreBtnClick);
     //完了ボタンにフォーカスを移動する
     const nextBtn = submitBtnFieldset.getElementsByClassName("nextBtn")[0];
-    const handleSubmitBtnFieldsetNextBtnClick = cleanFormData(fromPerson);
+    const handleSubmitBtnFieldsetNextBtnClick  = () => cleanFormData(fromPerson);
     nextBtn.addEventListener("click", handleSubmitBtnFieldsetNextBtnClick)
     nextBtn.focus();
 }
@@ -2765,10 +3122,14 @@ function childCommonToFather(){
     }
     if(childs.length > 1){
         iniIndivisualFieldsets(childs[0]);
-        iniIndivisualFieldsets(childSpouses[0]);
-        iniIndivisualFieldsets(grandChilds[0])
+        if(childSpouses.length > 0)
+            iniIndivisualFieldsets(childSpouses[0]);
+        if(grandChilds.length > 0)
+            iniIndivisualFieldsets(grandChilds[0])
     }
     childs.length = 0;
+    childSpouses.length = 0;
+    grandChilds.length = 0;
     document.getElementById(`id_child-TOTAL_FORMS`).value = 1;
     return createFatherAndMotherInstance();
 }
@@ -3304,6 +3665,7 @@ function selectChildCommonTo(){
     const childCount = countChild();
     if(childCount > 0)
         return childCommonToChild(childCount);
+
     return childCommonToFather();
 }
 
@@ -3562,9 +3924,9 @@ function decedentValidation(el){
  * イベント
  */
 //最初の画面表示後の処理
-window.addEventListener("load", ()=>{
+window.addEventListener("load",async ()=>{
     //初期処理
-    initialize();
+    await initialize();
     
     //全input要素にenterを押したことによるPOSTが実行されないようにする
     const inputArr = document.getElementsByTagName("input");
@@ -3588,9 +3950,9 @@ window.addEventListener("load", ()=>{
             })
         }
 
-        //前入力欄にchangeイベントを設定する
+        //全入力欄にchangeイベントを設定する
         if(i !== Decedent.idxs.index && i !== Decedent.idxs.target){
-            decedent.inputs[i].addEventListener("change", (e)=>{
+            decedent.inputs[i].addEventListener("change", async (e)=>{
                 //入力値のチェック結果を取得
                 const el = e.target;
                 isValid = decedentValidation(el);
@@ -3600,7 +3962,7 @@ window.addEventListener("load", ()=>{
                 //住所又は本籍地のの都道府県のとき、市町村データを取得する
                 if(el === decedent.inputs[Decedent.idxs.prefecture] || el === decedent.inputs[Decedent.idxs.domicilePrefecture]){
                     const val = el.value;
-                    getCityData(val, decedent.inputs[i + 1]);
+                    await getCityData(val, decedent.inputs[i + 1]);
                 }
             })
         }

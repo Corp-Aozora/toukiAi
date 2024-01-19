@@ -217,7 +217,7 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                        {% if field.name == "is_live"  %}
+                                        {% if field.name == "is_refuse"  %}
                                             <div class="Q" style="display: none;">
                                                 <div>
                                                     <span class="input-group-text fw-bold">
@@ -654,7 +654,7 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                            {% if field.name == "is_live"  %}
+                                            {% if field.name == "is_refuse"  %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
@@ -1525,13 +1525,14 @@
                         </li>
                     </ul>
                 </div>
-                <div class="card-footer text-center bg-success-subtle p-0">
+                <!-- <div class="card-footer text-center bg-success-subtle p-0">
                     <input id="saveBtn" type="button" class="border-0 bg-success-subtle fw-bold text-success w-100 p-2 fs-5" value="一旦保存する">
-                </div>
+                </div> -->
             </section>
         </form>
     </div>
 </div>
+
 {% endblock %}
 
 {% block footer %}
@@ -1541,4 +1542,8 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_one.js' %}"></script>
+    <script> const userDataScope = JSON.parse("{{userDataScope|escapejs}}"); </script>
+    <script> const spouse_data = JSON.parse("{{spouse_data|escapejs}}"); </script>
+    <script> const childs_data = JSON.parse("{{childs_data|escapejs}}"); </script>
+    <script> const child_heirs_data = JSON.parse("{{child_heirs_data|escapejs}}"); </script>
 {% endblock %}

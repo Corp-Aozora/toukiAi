@@ -57,7 +57,7 @@ class Decedent(CommonModel):
         on_delete=models.CASCADE,
         null = False,
         blank = False,
-        related_name="decedant",
+        related_name="decedent",
     )
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     domicile_prefecture = models.CharField(verbose_name="本籍地の都道府県" ,max_length=20, choices=PREFECTURES, default=None, null=True)
@@ -306,7 +306,7 @@ class Ascendant(CommonModel):
         verbose_name = _("尊属")
         verbose_name_plural = _("尊属")
 
-# 卑属共通
+# 傍系共通
 # 親キーとして被相続人のidを取得する
 class CollateralCommon(CommonModel):
     decedent = models.ForeignKey(
@@ -359,8 +359,8 @@ class Collateral(CommonModel):
         blank = False,
         related_name="collateral",
     )
-    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1", verbose_name="親1")
-    object_id1 = models.PositiveIntegerField(verbose_name="親1id")
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1", verbose_name="親1", null=True)
+    object_id1 = models.PositiveIntegerField(verbose_name="親1id", null=True)
     content_object1 = GenericForeignKey('content_type1', 'object_id1')
     content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral2", verbose_name="親2", null=True)
     object_id2 = models.PositiveIntegerField(verbose_name="親2id", null=True)

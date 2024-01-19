@@ -28,6 +28,9 @@ from smtplib import SMTPException
 import socket
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
+from django.forms.models import model_to_dict
+from operator import itemgetter
+from django.db.models import Q
 
 def index(request):
     is_inquiry = False
@@ -119,7 +122,10 @@ def index(request):
 
 # ステップ１のデータ登録処理
 def save_step_one_datas(user, forms, form_sets):
+    # すべてのデータを削除する
+    
     decedent = forms[0].save(commit=False)
+    Decedent.objects.filter(user=user).delete()
     decedent.user = user
     decedent.created_by = user
     decedent.updated_by = user
@@ -143,9 +149,9 @@ def save_step_one_datas(user, forms, form_sets):
     child_common.save()
     
     # 子
-    if form_sets[0][0].cleaned_data.get("name"):
-        child_dict = {}
-        for form in form_sets[0]:
+    child_dict = {}
+    for form in form_sets[0]:
+        if form.cleaned_data.get("name"):
             child = form.save(commit=False)
             child.decedent = decedent
             child.content_type1 = ContentType.objects.get_for_model(Decedent)
@@ -160,23 +166,24 @@ def save_step_one_datas(user, forms, form_sets):
             child_dict[form.cleaned_data.get("index")] = child
             
     # 子の配偶者
-    if form_sets[1][0].cleaned_data.get("name"):
-        child_spouse_dict = {}
-        for form in form_sets[1]:
+    child_spouse_dict = {}
+    for form in form_sets[1]:
+        if form.cleaned_data.get("name"):
             child_spouse = form.save(commit=False)
             child_spouse.decedent = decedent
             if form.cleaned_data.get("target") in child_dict:
                 child_spouse.content_type = ContentType.objects.get_for_model(Descendant)
-                child_spouse.object_id = child_dict[form.cleaned_data.get("target1")].id
+                child_spouse.object_id = child_dict[form.cleaned_data.get("target")].id
             child_spouse.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
             child_spouse.created_by = user
             child_spouse.updated_by = user
             child_spouse.save()
             child_spouse_dict[form.cleaned_data.get("index")] = child_spouse
+
             
     # 孫
-    if form_sets[2][0].cleaned_data.get("name"):
-        for form in form_sets[2]:
+    for form in form_sets[2]:
+        if form.cleaned_data.get("name"):
             grand_child = form.save(commit=False)
             grand_child.decedent = decedent
             if form.cleaned_data.get("target1") in child_dict:
@@ -191,9 +198,9 @@ def save_step_one_datas(user, forms, form_sets):
             grand_child.save()
             
     # 尊属
-    if form_sets[3][0].cleaned_data.get("name"):
-        ascendant_dict = {}
-        for idx, form in form_sets[3]:
+    ascendant_dict = {}
+    for idx, form in enumerate(form_sets[3]):
+        if form.cleaned_data.get("name"):
             ascendant = form.save(commit=False)
             ascendant.decedent = decedent
             ascendant.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
@@ -219,13 +226,14 @@ def save_step_one_datas(user, forms, form_sets):
         collateral_common.save()
         
     # 兄弟姉妹
-    if form_sets[4][0].cleaned_data.get("name"):
-        for form in form_sets[4]:
+    for form in form_sets[4]:
+        if form.cleaned_data.get("name"):
             collateral = form.save(commit=False)
             collateral.decedent = decedent
             if form.cleaned_data.get("target1") != "":
                 collateral.content_type1 = ContentType.objects.get_for_model(Ascendant)
                 collateral.object_id1 = ascendant_dict[form.cleaned_data.get("target1")].id
+            if form.cleaned_data.get("target2") != "":
                 collateral.content_type2 = ContentType.objects.get_for_model(Ascendant)
                 collateral.object_id2 = ascendant_dict[form.cleaned_data.get("target2")].id
             collateral.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
@@ -278,15 +286,98 @@ def step_one(request):
                 print(f"Error occurred: {e}")
                 # ユーザーにエラーが発生したことを通知します
                 messages.error(request, 'データの保存中にエラーが発生しました。')
+                return redirect('/toukiApp/step_one')
             else:
                 return redirect('/toukiApp/step_two')
         else:
+            if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
+                for form in forms:
+                    if not form.is_valid():
+                        print(f"Form {form} errors: {form.errors}")
+                for form_set in form_sets:
+                    if not form_set.is_valid():
+                        print(f"Formset {form_set} errors: {form_set.errors}")
             return redirect('/toukiApp/step_one')
+    
+    userDataScope = []
+    spouse_data = {}
+    childs_data = []
+    child_heirs_data = []
+    ascendant_data = []
+    collateral_data = []
+    
+    if user.decedent.first():
+        decedent = user.decedent.first()
+        decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
+        userDataScope.append("decedent")
         
-    decedent_form = StepOneDecedentForm(prefix="decedent")
-    spouse_form = StepOneSpouseForm(prefix="spouse")
-    child_common_form = StepOneDescendantCommonForm(prefix="child_common")
-    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common")
+        spouse_form = StepOneSpouseForm(prefix="spouse")
+        spouse = Spouse.objects.filter(decedent=decedent).first()
+        if spouse:
+            spouse_data = model_to_dict(spouse)
+            userDataScope.append("spouse")
+
+            child_common = DescendantCommon.objects.filter(decedent=decedent).first()
+            if child_common:
+                child_common_form = StepOneDescendantCommonForm(prefix="child_common", instance=child_common)
+                userDataScope.append("child_common")
+                
+                childs = Descendant.objects.filter(object_id1=decedent.id)
+                if childs.exists():
+                    childs_data = [
+                        {
+                            **{'id': child.id},
+                            **{'count': Descendant.objects.filter(object_id1=child.id).count()},
+                            **{'is_spouse': Spouse.objects.filter(decedent=decedent, object_id=child.id).count()},
+                            **{f: model_to_dict(child).get(f) for f in StepOneDescendantForm().fields if f in model_to_dict(child)}
+                        }
+                        for child in childs
+                    ]
+                    userDataScope.append("child")
+                    
+                    child_spouses = Spouse.objects.filter(decedent=decedent)[1:]
+                    if child_spouses.exists():
+                        child_spouses_data = [
+                            {
+                                **{"child_id":child_spouse.object_id},
+                                **{f: model_to_dict(child_spouse).get(f) for f in StepOneSpouseForm().fields if f in model_to_dict(child_spouse)}
+                            }
+                            for child_spouse in child_spouses
+                        ]
+                    else:
+                        child_spouses_data = []
+                        
+                    grand_childs = Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id)
+                    if grand_childs.exists():
+                        grand_childs_data = [
+                            {
+                                **{"child_id":grand_child.object_id1},
+                                **{f: model_to_dict(grand_child).get(f) for f in StepOneDescendantForm().fields if f in model_to_dict(grand_child)}
+                            }
+                            for grand_child in grand_childs
+                        ]
+                    else:
+                        grand_childs_data = []
+                        
+                    if child_spouses_data or grand_childs_data:
+                        userDataScope.append("child_heirs")
+                        child_heirs_data = child_spouses_data + grand_childs_data
+                        child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
+
+                collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
+                if collateral_common:
+                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
+                    userDataScope.append("collateral_common")
+                else:
+                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
+            else:
+                child_common_form = StepOneDescendantCommonForm(prefix="child_common")
+    else:
+        decedent_form = StepOneDecedentForm(prefix="decedent")
+        spouse_form = StepOneSpouseForm(prefix="spouse")
+        child_common_form = StepOneDescendantCommonForm(prefix="child_common")
+        collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
+        
     spouse_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
     common_form_internal_field_name = ["decedent"]
     child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
@@ -294,13 +385,8 @@ def step_one(request):
     ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
     collateral_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
     
-    prefectures = []
-    for p in PREFECTURES:
-        prefectures.append(p[1])
-    
     context = {
         "title" : "１．" + Sections.STEP1,
-        "prefectures" : prefectures,
         "user" : user,
         "decedent_form": decedent_form,
         "spouse_form": spouse_form,
@@ -319,7 +405,12 @@ def step_one(request):
         "ascendants_relation" : ascendants_relation,
         "collateral_form_set" : collateral_form_set(prefix="collateral"),
         "collateral_form_internal_field_name" : collateral_form_internal_field_name,
+        "userDataScope" : json.dumps(userDataScope),
+        "spouse_data" : json.dumps(spouse_data),
+        "childs_data" : json.dumps(childs_data),
+        "child_heirs_data" : json.dumps(child_heirs_data),
     }
+    
     return render(request, "toukiApp/step_one.html", context)
 
 #ステップ２
@@ -362,7 +453,55 @@ def step_three(request):
         "sections" : Sections.SECTIONS[Sections.STEP3],
         "service_content" : Sections.SERVICE_CONTENT,
     }
-    return render(request, "toukiapp/service-stepThree.html", context)
+    return render(request, "toukiApp/step_three.html", context)
+
+#ステップ4
+#書類印刷
+def step_four(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
+    user = User.objects.get(email = request.user)
+    
+    context = {
+        "title" : "４．書類の印刷",
+        "user" : user,
+        "sections" : Sections.SECTIONS[Sections.STEP4],
+        "service_content" : Sections.SERVICE_CONTENT,
+    }
+    return render(request, "toukiApp/step_four.html", context)
+
+#ステップ5
+#申請
+def step_five(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
+    user = User.objects.get(email = request.user)
+    
+    context = {
+        "title" : "５．法務局に郵送",
+        "user" : user,
+        "sections" : Sections.SECTIONS[Sections.STEP5],
+        "service_content" : Sections.SERVICE_CONTENT,
+    }
+    return render(request, "toukiApp/step_five.html", context)
+
+#ステップ6
+#申請後について
+def step_six(request):
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
+    user = User.objects.get(email = request.user)
+    
+    context = {
+        "title" : "申請後について",
+        "user" : user,
+        "sections" : Sections.SECTIONS[Sections.STEP6],
+        "service_content" : Sections.SERVICE_CONTENT,
+    }
+    return render(request, "toukiApp/step_six.html", context)
 
 #ユーザー情報
 def step_option_select(request):
@@ -438,6 +577,22 @@ def csrf_failure(request, reason=""):
     # 何かしらの処理
 
     return HttpResponseForbidden('<h1>403 アクセスが制限されています。</h1>', content_type='text/html')
+
+# ユーザーに紐づくstep1の被相続人の市区町村データを取得する
+def get_user_city_data(request):
+    user = User.objects.get(email = request.user)
+    decedent = Decedent.objects.filter(user=user).first()
+    
+    if decedent:
+        repsonse_data = {
+            'city': decedent.city,
+            'domicileCity': decedent.domicile_city
+        }
+    else:
+        repsonse_data = {}
+        
+    return JsonResponse(repsonse_data)
+
 
 
 # 選択された都道府県から市区町村データを取得する

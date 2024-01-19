@@ -1,9 +1,8 @@
-{% extends "toukiapp/base.html" %}
+{% extends "toukiApp/base.html" %}
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_two.css' %}">
-
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}

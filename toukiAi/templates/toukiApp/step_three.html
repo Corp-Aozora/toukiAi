@@ -1,8 +1,8 @@
-{% extends "toukiapp/base.html" %}
+{% extends "toukiApp/base.html" %}
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiApp/step_one.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_three.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -16,7 +16,7 @@
             <h4>申請書類作成のために以下を入力してください。</h4>
         </div>
         <hr>
-        <form>
+        <form action="{% url 'toukiApp:step_four' %}" method="POST" class="my-4" novalidate>
             {% csrf_token %}
             <section class="container" id="decendantColumn">
                 <fieldset id="decendantField">
@@ -706,9 +706,7 @@
             </section>
             <div class="text-center my-5">
                 <h5 id="statusText">現在１／５項目</h5>
-                <a class="text-decoration-none" href="{% url 'service-stepFour' %}">
-                    <button id="completeBtn" type="button" class="btn btn-primary mt-3" disabled="true">完了</button>
-                </a>
+                <button id="completeBtn" type="button" class="btn btn-primary mt-3" disabled="true">完了</button>
             </div>
         </form>
     </div>
@@ -721,5 +719,5 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiApp/step_one.js' %}"></script>
+    <script src="{% static 'toukiApp/step_three.js' %}"></script>
 {% endblock %}

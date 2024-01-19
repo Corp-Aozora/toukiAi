@@ -1,0 +1,117 @@
+{% extends "toukiApp/base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_four.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+{% load custom_filters %}
+{% block content %}
+<div id="thirdStepWrap" class="d-flex container-xxl">
+    {% include "toukiApp/step_sidebar.html" %}
+    <div class="pt-4 ps-4 container-xxl">
+        <div>
+            <h4>下記の書類を指定の枚数印刷して署名押印してください。</h4>
+        </div>
+        <hr>
+        <section class="container" id="agreementColumn">
+            <div>
+                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
+                    <h5 class="form-label">遺産分割協議証明書
+                        <span class="form-text">（拡大表示）</span>
+                    </h5>
+                </a>
+            </div>
+            <div class="mt-3">
+                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                    ダウンロード
+                </a>
+            </div>
+            <div class="mt-3">
+                拡大表示して内容に誤りがないか確認してください。<br>
+                間違いがなければダウンロードして
+                <span class="border-bottom border-dark">
+                    <span id="numberOfHeirs" class="fw-bold mx-2">
+                        ○○
+                    </span>
+                    枚印刷して下記相続人全員から署名押印をもらってください。
+                </span>
+            </div>
+            <div class="form-text">
+                ※住所は印鑑証明書のとおりに記載して、実印（印鑑証明書と同じ印鑑）で押印してください。
+            </div>
+            <div class="mt-3">
+                <ol id="heirsList" class="list-group">
+                    <span class="fw-bold">相続人一覧</span>
+                    <li id="heir1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
+                        <div id="heir1Name" class="me-auto">
+                            ○○
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </section>
+        <hr>
+        <section class="container" id="relationshipColumn">
+            <div>
+                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
+                    <h5 class="form-label">相続関係図
+                        <span class="form-text">（拡大表示）</span>
+                    </h5>
+                </a>
+            </div>
+            <div class="mt-3">
+                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                    ダウンロード
+                </a>
+            </div>
+            <div class="mt-3">
+                拡大表示して内容に誤りがないか確認してください。<br>
+                間違いがなければダウンロードして
+                <span class="border-bottom border-dark">
+                    <span id="numberOfOffice" class="fw-bold mx-2">
+                        ○○
+                    </span>
+                    枚印刷してしてください。
+                </span>
+            </div>
+        </section>
+        <hr>
+        <section class="container" id="relationshipColumn">
+            <div>
+                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
+                    <h5 class="form-label">登記申請書
+                        <span class="form-text">（拡大表示）</span>
+                    </h5>
+                </a>
+            </div>
+            <div class="mt-3">
+                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                    ダウンロード
+                </a>
+            </div>
+            <div class="mt-3">
+                拡大表示して内容に誤りがないか確認してください。<br>
+                間違いがなければ印刷してしてください。<br>
+                申請日の日付はまだ空欄のままにしてください。
+            </div>
+        </section>
+        <div class="text-center my-5">
+            <a class="text-decoration-none" href="{% url 'toukiApp:step_five' %}">
+                <button id="completeBtn" type="button" class="btn btn-primary mt-3">完了</button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_four.js' %}"></script>
+{% endblock %}

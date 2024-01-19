@@ -1,0 +1,156 @@
+{% extends "toukiApp/base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_six.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+    {% load custom_filters %}
+{% block content %}
+<div id="thirdStepWrap" class="d-flex container-xxl">
+    {% include "toukiApp/step_sidebar.html" %}
+    <div class="pt-4 ps-4 container-xxl">
+        <div>
+            <h4>
+                法務局に申請した後について
+            </h4>
+        </div>
+        <hr>
+        <ol id="wrap" class="col-lg-9">
+            <li class="container">
+                <h5>提出した書類に不備があった場合</h5>
+                <div>
+                    提出先の法務局から電話で
+                    <span class="fw-bold border-bottom border-dark">不備を修正又は申請を取下げる</span>
+                    ように指示があります。
+                    <ul id="corrections" class="text-decoration-none ps-0">
+                        <li>
+                            <span class="d-inline-block" style="width:40px;">
+                                例）
+                            </span>
+                            遺産分割協議証明書の押印が不鮮明なため押しなおす又は別途提出しなおしてほしい
+                        </li>
+                        <li>
+                            戸籍謄本が一部不足しているため追完してほしい
+                        </li>
+                        <li>
+                            相続関係図に誤字があるため訂正又は別途提出してほしい
+                        </li>
+                        <li>
+                            提出する法務局を間違えているため取下げてほしい
+                        </li>
+                        <li>
+                            相続人の判定を間違えているため取下げてほしい．．．など
+                        </li>
+                        <li class="form-text">
+                            ※不備が軽微の場合は修正、それ以外は取下げとなります。
+                        </li>
+                    </ul>
+                </div>
+                <div class="mt-3">
+                    <span class="fw-bold border-bottom border-dark">
+                        修正の指示のとき
+                    </span>
+                    <p class="ps-3">
+                        法務局に出向いて修正するか、訂正した書類を郵送してください。
+                    </p>
+                </div>
+                <div>
+                    <div>
+                        <span class="fw-bold border-bottom border-dark">
+                            取下げの指示のとき
+                        </span>
+                        <p class="ps-3">
+                            下記から取下書と再使用証明申請書を印刷して記入押印のうえ指示があった法務局に持参又は郵送してください。
+                        </p>
+                    </div>
+                    <div class="ps-3">
+                        <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                            取下書
+                        </a>
+                        <a class="ms-5 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                            再使用証明申請書
+                        </a>
+                        <p class="form-text">※再使用証明申請書は、法務局で消印されてしまった収入印紙を使えるようにするための書類です。</pv>
+                    </div>
+                    <p class="ps-3">
+                        取下が受理されたら法務局から書類が返却されますので、指摘された不備を修正して書類を整理しなおして改めて法務局に書類を提出してください。
+                    </p>
+                </div>
+            </li>
+            <hr>
+            <li class="container">
+                <h5>手続が完了したら</h5>
+                <div>
+                    <p>
+                        法務局から登記識別情報通知書と登記完了証が届きます。<br>
+                        原本還付処理をしているときは、戸籍謄本や遺産分割協議証明書なども入ってます。
+                    </p>
+                    <div>
+                        <span class="fw-bold border-bottom border-dark">登記識別情報通知書とは</span>
+                        <p class="ps-3">
+                            いわゆる権利証で各不動産ごとに発行されます。<br>
+                            シールが貼ってある部分にパスワードが記載されてますので、シールははがさないようにしてください。
+                        </p>
+                    </div>
+                    <div>
+                        <span class="fw-bold border-bottom border-dark">登記完了証とは</span>
+                        <p class="ps-3">
+                            登記が完了されたことを示すだけで他に使用することはないです。
+                        </p>
+                    </div>
+                    <div>
+                        <span class="fw-bold border-bottom border-dark">登記完了後の不動産の全部事項証明書が必要な場合</span>
+                        <p class="ps-3">
+                            最寄りの法務局に出向く又は郵送で取得する必要があります。お急ぎでない場合は、下記リンクからオンライン請求すると後日普通郵便で受け取ることができます。
+                        </p>
+                        <p>
+                            <a class="ms-3 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                                オンライン申請サイト
+                            </a>
+                        </p>
+                        <div class="ps-3">
+                            <span class="fw-bold border-bottom border-dark">
+                                証明書でなくてもよい場合（登記簿の記載内容を確認したいだけなど）
+                            </span>
+                            <div class="ps-3">
+                                下記リンクからオンライン上で請求してすぐに確認できます。
+                                <p class="form-text">
+                                    ※証明書ではないため、役所や金融機関の手続では使用することができないこともあります。
+                                </p>
+                            </div>
+                            <p>
+                                <a class="ms-3 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
+                                    登記情報サイト
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        返却された書類の中には他の相続人の方の印鑑証明書など重要な個人情報を含むものがありますので、厳重に保管してください。
+                        保管に不安がある場合は、各自に返却するのもいいかと思います。
+                    </div>
+                </div>
+            </li>
+            <hr>
+            <li class="container mt-3">
+                <h5>なんか宣伝とか</h5>
+                <div>
+                    
+                </div>
+            </li>
+        </ol>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_six.js' %}"></script>
+{% endblock %}

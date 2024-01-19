@@ -95,7 +95,7 @@ class StepOneDecedentForm(BaseOneForm):
                 if field.label == "氏名":
                     field.widget.attrs.update({
                         "class": "form-control rounded-end",
-                        "placeholder": "姓名間にスペースなし",
+                        "placeholder": "フルネームで姓名間にスペースなし",
                         "maxlength": "30",
                     })
                 else:
@@ -134,7 +134,7 @@ class StepOneSpouseForm(BaseOneForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "placeholder": "姓名間にスペースなし",
+                    "placeholder": "フルネームで姓名間にスペースなし",
                     "maxlength": "30",
                 })
             
@@ -144,6 +144,9 @@ class StepOneSpouseForm(BaseOneForm):
                 })
             
         super().__init__(*args, **kwargs)
+        for field in ['is_refuse', 'is_exist', 'is_live', 'is_japan']:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
 
 # STEP1の子共通フォーム
 class StepOneDescendantCommonForm(forms.ModelForm):
@@ -179,6 +182,9 @@ class StepOneDescendantCommonForm(forms.ModelForm):
                 })
             
         super().__init__(*args, **kwargs)
+        for field in ["is_exist", "is_same_parents", "is_live", "is_refuse", "is_adult", "is_japan"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
               
 # STEP1の子フォーム
 class StepOneDescendantForm(BaseTwoForm):
@@ -205,7 +211,7 @@ class StepOneDescendantForm(BaseTwoForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "placeholder": "姓名間にスペースなし",
+                    "placeholder": "フルネームで姓名間にスペースなし",
                     "maxlength": "30",
                 })
             
@@ -215,6 +221,9 @@ class StepOneDescendantForm(BaseTwoForm):
                 })
             
         super().__init__(*args, **kwargs)
+        for field in ["is_live", "is_exist", "is_refuse", "is_adult", "is_japan"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
                 
 # STEP1の尊属フォーム
 class StepOneAscendantForm(BaseOneForm):
@@ -240,7 +249,7 @@ class StepOneAscendantForm(BaseOneForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "placeholder": "姓名間にスペースなし",
+                    "placeholder": "フルネームで姓名間にスペースなし",
                     "maxlength": "30",
                 })
             
@@ -285,6 +294,9 @@ class StepOneCollateralCommonForm(forms.ModelForm):
                 })
             
         super().__init__(*args, **kwargs)
+        for field in ["is_exist", "is_same_parents", "is_live", "is_refuse", "is_adult", "is_japan"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
         
 # STEP1の兄弟姉妹フォーム
 class StepOneCollateralForm(BaseTwoForm):
@@ -311,7 +323,7 @@ class StepOneCollateralForm(BaseTwoForm):
             if field.label == "氏名":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
-                    "placeholder": "姓名間にスペースなし",
+                    "placeholder": "フルネームで姓名間にスペースなし",
                     "maxlength": "30",
                 })
             

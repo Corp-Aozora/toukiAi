@@ -79,7 +79,7 @@ class DecedentAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at", "created_at")
     
     form = DecedentChangeForm
-    list_display = ('updated_at', 'created_by', 'name', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'name', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'name', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'name', 'updated_by')
     ordering = ["-updated_at"]
@@ -101,7 +101,7 @@ class SpouseAdmin(admin.ModelAdmin):
     readonly_fields = ("updated_at", "created_at")
     
     form = SpouseChangeForm
-    list_display = ('updated_at', 'created_by', 'name', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'name', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'name', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'name', 'updated_by')
     ordering = ["-updated_at"]
@@ -123,7 +123,7 @@ class DescendantCommonAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = DescendantCommonChangeForm
-    list_display = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']
@@ -145,7 +145,7 @@ class DescendantAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = DescendantChangeForm
-    list_display = ('updated_at', 'created_by', 'name', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'name', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'name', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'name', 'updated_by')
     ordering = ['-updated_at']
@@ -167,7 +167,7 @@ class AscendantAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = AscendantChangeForm
-    list_display = ('updated_at', 'created_by', 'name', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'name', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'name', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'name', 'updated_by')
     ordering = ['-updated_at']
@@ -189,7 +189,7 @@ class CollateralCommonAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = CollateralCommonChangeForm
-    list_display = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']
@@ -211,7 +211,7 @@ class CollateralAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = CollateralChangeForm
-    list_display = ('updated_at', 'created_by', 'name', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'name', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'name', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'name', 'updated_by')
     ordering = ['-updated_at']

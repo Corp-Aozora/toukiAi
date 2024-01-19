@@ -1,0 +1,192 @@
+{% extends "toukiApp/base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_five.css' %}">
+{% endblock %}
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+{% load custom_filters %}
+
+{% block content %}
+<div id="thirdStepWrap" class="d-flex container-xxl">
+    {% include "toukiApp/step_sidebar.html" %}
+    <div class="pt-4 ps-4 container-xxl">
+        <div>
+            <h4>
+                下記の順番で書類を整理して指定の法務局に
+                <!-- 提出方法に合わせて表示する -->
+                <span>（郵送又は持参）</span>
+                してください。
+            </h4>
+        </div>
+        <hr>
+        <ol id="stepList">
+            <!-- 原本還付しないときは非表示にする -->
+            <li class="container mt-3" id="returnPapersColumn">
+                <h5>下記書類を各
+                    <!-- 複数管轄のときは、部数を変える -->
+                    <span id="returnPapersCount">○○</span>
+                    通コピーしてください
+                </h5>
+                <ul id="returnPapersList" class="list-group list-group-flush border-bottom d-inline-block">
+                    <li id="returnPapersOne" class="list-group-item">
+                        固定資産評価証明書又は課税明細書
+                    </li>
+                    <li id="returnPapersTwo" class="list-group-item">
+                        被相続人の住民票の除票又は戸籍の附票
+                    </li>
+                    <li id="returnPapersThree" class="list-group-item">
+                        全相続人分の遺産分割協議証明書
+                    </li>
+                    <li id="returnPapersFour" class="list-group-item">
+                        全相続人分の印鑑証明書
+                    </li>
+                    <li id="returnPapersFive" class="list-group-item">
+                        不動産を取得する方の住民票又は戸籍の附票
+                    </li>
+                    <li id="returnPapersSix" class="list-group-item">
+                        <span class="pe-3">※1</span>不在籍・不在住証明書
+                    </li>
+                    <li id="returnPapersSeven" class="list-group-item">
+                        <span class="pe-3">※1</span>登記済証又は登記識別情報通知書
+                    </li>
+                </ul>
+                <div class="form-text">
+                    <span class="pe-3">※1</span>
+                    被相続人の死亡時の住所と登記上の住所が一致しない場合のみ
+                </div>
+            </li>
+            <hr>
+            <li class="container mt-3" id="papersOrderColumn">
+                <h5>書類を下記順番に重ねて左側2か所をホッチキスで留めてください。</h5>
+                <ol id="papersOrderList" class="list-group list-group-flush border-bottom d-inline-block">
+                    <li id="papersOrderOne" class="list-group-item">
+                        登記申請書
+                        <div class="form-text">※登記申請書、不動産の表示、白紙の順番</div>
+                    </li>
+                    <li id="papersOrderThree" class="list-group-item">
+                        相続関係図
+                    </li>
+                    <li id="papersOrderTwo" class="list-group-item">
+                        固定資産評価証明書又は課税明細書のコピー
+                    </li>
+                    <li id="papersOrderFour" class="list-group-item">
+                        被相続人の住民票又は戸籍の附票のコピー
+                        <div class="form-text">1の※1のコピーがある場合、こちらに重ねてください。</div>
+                    </li>
+                    <li id="papersOrderFive" class="list-group-item">
+                        被相続人の不在籍・不在住証明書のコピー
+                    </li>
+                    <li id="papersOrderSix" class="list-group-item">
+                        登記済証又は登記識別情報通知書のコピー
+                    </li>
+                    <li id="papersOrderSeven" class="list-group-item">
+                        遺産分割協議証明書のコピーと印鑑証明書のコピー
+                        <div class="form-text">※各相続人ごとに並べてください。</div>
+                    </li>
+                    <li id="papersOrderEight" class="list-group-item">
+                        不動産を取得する方の住民票又は戸籍の附票のコピー
+                    </li>
+                </ol>
+            </li>
+            <hr>
+            <li class="container mt-3" id="stampColumn">
+                <h5>2でまとめた書類を下記のとおりに処理してください。</h5>
+                <ol id="stampList" class="list-group list-group-flush border-bottom d-inline-block">
+                    <li id="stampOne" class="list-group-item">
+                        登記申請書の申請人の名前の横に押印
+                        <div class="form-text">※使用する印鑑は認印でも大丈夫です。</div>
+                    </li>
+                    <li id="stampThree" class="list-group-item">
+                        相続関係図の申請人の名前の横に押印
+                        <div class="form-text">※登記申請書と同じ印鑑を使用してください。</div>
+                    </li>
+                    <li id="stampTwo" class="list-group-item">
+                        固定資産評価証明書又は課税明細書のコピーに参考例１のとおり記入押印
+                        <div class="form-text">※参考例１</div>
+                    </li>
+                    <li id="stampFour" class="list-group-item">
+                        以降の書類に参考例２のとおり契印（割印）
+                        <div class="form-text">※参考例２</div>
+                    </li>
+                </ol>
+            </li>
+            <hr>
+            <li class="container" id="originalPapersColumn">
+                <h5>書類の原本は申請書類と同じ順番で重ねてクリアファイル等にはさんでください。</h5>
+                <div class="form-text">※ホッチキス留めはしなくても大丈夫です。</div>
+                <div class="mt-3">
+                    戸籍謄本は被相続人の出生から死亡にかかるものを一番上に置いてください。<br>
+                    法務局職員の作業効率を良くするためのものなので、不明な場合はそのままでも順不同でも大丈夫です。
+                </div>
+            </li>
+            <hr>
+            <!-- すでに確認済みのはずだけどいる？ -->
+            <li class="container" id="checkColumn">
+                <h5>最後に下記を確認してください。</h5>
+                <ol id="checkList" class="list-group d-inline-block mt-3">
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="check1">
+                            <label class="form-check-label" for="check1">
+                              全相続人分の遺産分割協議証明書は揃ってますか？
+                            </label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="check2">
+                            <label class="form-check-label" for="check1">
+                              遺産分割協議証明書の押印と印鑑証明書の印影は同じですか？
+                            </label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="check2">
+                            <label class="form-check-label" for="check1">
+                              遺産分割協議証明書の押印と印鑑証明書の印影は明らかに照合できますか？
+                            </label>
+                        </div>
+                    </li>
+                </ol>
+            </li>
+            <hr>
+            <li class="container" id="submitColumn">
+                <h5>
+                    郵便局で収入印紙とレターパックプラスを2枚購入して法務局に書類を送付してください。
+                </h5>
+                <div class="border-bottom mt-3 d-inline-block">
+                    <span id="taxAmount" class="fw-bold">○○</span>円分の収入印紙
+                    <div class="form-text">※収入印紙の組み合わせは自由です。</div>
+                </div>
+                <div class="mt-3">
+                    <ol id="officeList" class="list-group list-group-flush border-bottom d-inline-block ">
+                        提出先法務局一覧
+                        <li id="office1" class="list-group-item">
+                            <div>○○法務局不動産登記係</div>
+                            <div>住所：</div>
+                        </li>
+                    </ol>
+                </div>
+            </li>
+            <div class="text-center my-5">
+                <a class="text-decoration-none" href="{% url 'toukiApp:step_six' %}">
+                    <button id="completeBtn" type="button" class="btn btn-primary mt-3">完了</button>
+                </a>
+            </div>
+        </ol>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_five.js' %}"></script>
+{% endblock %}

@@ -15,9 +15,13 @@ urlpatterns = [
     path('step_one', views.step_one, name='step_one'),
     path('step_two', views.step_two, name='step_two'),
     path('step_three', views.step_three, name='step_three'),
+    path('step_four', views.step_four, name='step_four'),
+    path('step_five', views.step_five, name='step_five'),
+    path('step_six', views.step_six, name='step_six'),
     path("step_option_select", views.step_option_select, name="step_option_select"),
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 
+    path("get_user_city_data", views.get_user_city_data, name="get_user_city_data"),
     path("get_city", views.get_city, name="get_city"),
     path("is_email", views.is_email, name="is_email"),
 ]

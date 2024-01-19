@@ -418,7 +418,7 @@ const csrftoken = getCookie('csrftoken');
  * @param {string} val 
 */
 function isAlphaNumSymbolIncluded(val){
-    if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・￥]+$/.test(val)){
+    if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・￥]*々*$/.test(val)){
         return true;
     }else{
         return "英数記号は使用できません";

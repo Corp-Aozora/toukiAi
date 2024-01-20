@@ -343,7 +343,7 @@ class UpdateTitle{
         const preTitle = fromPerson.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent;
         const preTitleMainNum = preTitle.replace(/\n/g, "").replace(/\s/g, "").split("－")[0];
         const newTitleMainNum = hankakuToZenkaku(String(parseInt(ZenkakuToHankaku(preTitleMainNum)) + 1));
-        const newTitle = `${newTitleMainNum}－１．${zokugara}について`
+        const newTitle = nextPerson.constructor.name === "CollateralCommon" ? `${newTitleMainNum}．${zokugara}について`:`${newTitleMainNum}－１．${zokugara}について`
         nextPerson.fieldset.getElementsByClassName("fieldsetTitle")[0].textContent = newTitle;
     }
 
@@ -498,7 +498,7 @@ async function loadData(){
             if(i !== ChildCommon.idxs.count.input && childCommon.inputs[i].checked){
                 //チェックされたボタンに付随するイベントを発生させる
                 childCommon.inputs[i].dispatchEvent(event);
-            }else if(i === ChildCommon.idxs.count.input){
+            }else if(i === ChildCommon.idxs.count.input && count > 1){
                 childCommon.inputs[ChildCommon.idxs.count.input].value = count;
                 childCommon.inputs[i].dispatchEvent(event);
             }
@@ -582,8 +582,6 @@ async function loadData(){
             //すべて適切に入力されているとき次へボタンを有効化する
             oneStepFowardOrScrollToTarget(childs[i]);
         }
-    }else{
-        return;
     }
 
     //子の相続人
@@ -682,35 +680,132 @@ async function loadData(){
             //すべて適切に入力されているとき次へボタンを有効化する
             oneStepFowardOrScrollToTarget(childHeirs[i]);
         }
-    }else{
-        return;
-    }    
+    }   
 
-    //孫
-    //父母
-    //父方の祖父母
-    //母方の祖父母
+    //父母、父方の祖父母、母方の祖父母
+    if(userDataScope.includes("ascendant")){
+        //父母のデータを反映させる
+        for(let i = 0; i < ascendants.length; i++){
+            loadNameData(ascendant_data[i]["name"], ascendants[i].inputs[Ascendant.idxs.name.input]);
+
+            if(ascendant_data[i]["is_live"] === true){
+                loadRbData(ascendants[i].inputs[Ascendant.idxs.isLive.input[yes]]);
+
+                if(ascendant_data[i]["is_refuse"] === true){
+                    loadRbData(ascendants[i].inputs[Ascendant.idxs.isRefuse.input[yes]]);
+                }else if(ascendant_data[i]["is_refuse"] === false){
+                    loadRbData(ascendants[i].inputs[Ascendant.idxs.isRefuse.input[no]]);
+                }
+
+            }else if(ascendant_data[i]["is_live"] === false){
+                loadRbData(ascendants[i].inputs[Ascendant.idxs.isLive.input[no]]);
+
+                if(ascendant_data[i]["is_exist"] === true){
+                    loadRbData(ascendants[i].inputs[Ascendant.idxs.isExist.input[yes]]);
+
+                    if(ascendant_data[i]["is_refuse"] === true){
+                        loadRbData(ascendants[i].inputs[Ascendant.idxs.isRefuse.input[yes]]);
+                    }else if(ascendant_data[i]["is_refuse"] === false){
+                        loadRbData(ascendants[i].inputs[Ascendant.idxs.isRefuse.input[no]]);
+                        loadRbData(ascendants[i].inputs[Ascendant.idxs.isSpouse.input[no]]);
+                        loadRbData(ascendants[i].inputs[Ascendant.idxs.isChild.input[yes]]);
+                    }
+                }else if(ascendant_data[i]["is_exist"] === false){
+                    loadRbData(ascendants[i].inputs[Ascendant.idxs.isExist.input[no]]);
+                }
+            }
+
+            if(ascendant_data[i]["is_japan"] === true){
+                loadRbData(ascendants[i].inputs[Ascendant.idxs.isJapan.input[yes]]);
+            }else if(ascendant_data[i]["is_japan"] === false){
+                loadRbData(ascendants[i].inputs[Ascendant.idxs.isJapan.input[no]]);
+            }
+
+            //すべて適切に入力されているとき次へボタンを有効化する
+            oneStepFowardOrScrollToTarget(ascendants[i]);
+        }
+        // //祖父母がいるとき、祖父母のデータを反映させる
+        // if(ascendants.length > 2){
+
+        // }
+    }
+
     //兄弟姉妹共通
     if(userDataScope.includes("collateral_common")){
+        //子の数データを取得する（is_existがtrueの場合、1が入力されてしまうため）
+        const count = collateralCommons[0].inputs[CollateralCommon.idxs.count.input].value;
+        const event = new Event("change");
+
         for(let i = 0, len = collateralCommons[0].inputs.length; i < len; i++){
             //データがあるとき
             if(i !== CollateralCommon.idxs.count.input && collateralCommons[0].inputs[i].checked){
                 //チェックされたボタンに付随するイベントを発生させる
-                const event = new Event("change");
+                collateralCommons[0].inputs[i].dispatchEvent(event);
+            }else if(i === CollateralCommon.idxs.count.input && count > 1){
+                collateralCommons[0].inputs[CollateralCommon.idxs.count.input].value = count;
                 collateralCommons[0].inputs[i].dispatchEvent(event);
             }
         }
         //すべて適切に入力されているとき次へボタンを有効化する
-        if(collateralCommons[0].noInputs.length === 0){
-            collateralCommons[0].nextBtn.disabled = false;
-            oneStepFoward(collateralCommons[0]);
-        }else{
-            scrollToTarget(collateralCommons[0].nextBtn);
-        }
-    }else{
-        return;
+        oneStepFowardOrScrollToTarget(collateralCommons[0]);
     }
+
     //兄弟姉妹
+    if(userDataScope.includes("collateral")){
+        for(let i = 0, len = collaterals.length; i < len; i++){
+            //データがあるとき、データを反映させる
+            loadNameData(collateral_data[i]["name"], collaterals[i].inputs[Collateral.idxs.name.input]);
+
+            if(collateral_data[i]["object_id2"] && collaterals[i].inputs[Collateral.idxs.isSameParents.input[yes]].disabled === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isSameParents.input[yes]]);
+            }else if(collateral_data[i]["object_id2"] === null && collaterals[i].inputs[Collateral.idxs.isSameParents.input[no]].disabled === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isSameParents.input[no]]);
+            }
+
+            if(collateral_data[i]["is_live"] === true && collaterals[i].inputs[Collateral.idxs.isLive.input[yes]].disabled === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isLive.input[yes]]);
+
+                if(collateral_data[i]["is_refuse"] === true){
+                    loadRbData(collaterals[i].inputs[Collateral.idxs.isRefuse.input[yes]]);
+                }else if(collateral_data[i]["is_refuse"] === false && collaterals[i].inputs[Collateral.idxs.isRefuse.input[no]].disabled === false){
+                    loadRbData(collaterals[i].inputs[Collateral.idxs.isRefuse.input[no]]);
+                }
+
+            }else if(collateral_data[i]["is_live"] === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isLive.input[no]]);
+
+                if(collateral_data[i]["is_exist"] === true){
+                    loadRbData(collaterals[i].inputs[Collateral.idxs.isExist.input[yes]]);
+
+                    if(collateral_data[i]["is_refuse"] === true){
+                        loadRbData(collaterals[i].inputs[Collateral.idxs.isRefuse.input[yes]]);
+                    }else if(collateral_data[i]["is_refuse"] === false && collaterals[i].inputs[Collateral.idxs.isRefuse.input[no]].disabled === false){
+                        loadRbData(collaterals[i].inputs[Collateral.idxs.isRefuse.input[no]]);
+                        loadRbData(collaterals[i].inputs[Collateral.idxs.isSpouse.input[no]]);
+                        loadRbData(collaterals[i].inputs[Collateral.idxs.isChild.input[no]]);
+                    }
+                }else if(collateral_data[i]["is_exist"] === false){
+                    loadRbData(collaterals[i].inputs[Collateral.idxs.isExist.input[no]]);
+                    loadRbData(collaterals[i].inputs[Collateral.idxs.isChild.input[no]]);
+                }
+            }
+
+            if(collateral_data[i]["is_adult"] === true && collaterals[i].inputs[Collateral.idxs.isAdult.input[yes]].disabled === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isAdult.input[yes]]);
+            }else if(collateral_data[i]["is_adult"] === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isAdult.input[no]]);
+            }
+
+            if(collateral_data[i]["is_japan"] === true && collaterals[i].inputs[Collateral.idxs.isJapan.input[yes]].disabled === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isJapan.input[yes]]);
+            }else if(collateral_data[i]["is_japan"] === false){
+                loadRbData(collaterals[i].inputs[Collateral.idxs.isJapan.input[no]]);
+            }
+
+            //すべて適切に入力されているとき次へボタンを有効化する
+            oneStepFowardOrScrollToTarget(collaterals[i]);
+        }
+    }
 }
 
 /**
@@ -1648,6 +1743,8 @@ class ChildRbHandler extends CommonRbHandler{
                 //続柄を設定する
                 if(spouse.inputs[Spouse.idxs.isExist.input[yes]].checked)
                     inputs[Child.idxs.target2.input].value = spouse.inputs[Spouse.idxs.index.input].value.trim();
+                if(childCommons[0].inputs[ChildCommon.idxs.isSameParents.input[no]].checked && childs.every(child => child.inputs[Child.idxs.isSameParents.input[yes]].checked))
+                    alert("子供についてで「全員配偶者との子ですか？」に「いいえ」にチェックがされてますが、子全員について「配偶者との子ですか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             },
             ()=>{
                 //noAction
@@ -1672,6 +1769,8 @@ class ChildRbHandler extends CommonRbHandler{
                     Qs, Child.idxs.isExist.form, Child.idxs.count.form, rbIdxs, Qs[Child.idxs.count.form],
                     Qs[Child.idxs.isRefuse.form]
                 )
+                if(childCommons[0].inputs[ChildCommon.idxs.isLive.input[no]].checked && childs.every(child => child.inputs[Child.idxs.isLive.input[yes]].checked))
+                    alert("子供についてで「現在全員ご健在ですか？」に「いいえ」にチェックがされてますが、子全員について「現在もご健在ですか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             },
             ()=>{
                 //noAction
@@ -1729,6 +1828,8 @@ class ChildRbHandler extends CommonRbHandler{
                     //エラー要素を追加と次へボタンを無効化、配偶者確認欄を表示
                     pushInvalidElAndSDIfHidden(person, inputs[Child.idxs.count.input], Qs[Child.idxs.isSpouse.form]);
                 }
+                if(childCommons[0].inputs[ChildCommon.idxs.isRefuse.input[true]].checked && childs.every(child => child.inputs[Child.idxs.isRefuse.input[no]].checked))
+                    alert("子供についてで「家庭裁判所で相続放棄をした方はいますか？」に「はい」にチェックがされてますが、子全員について「相続放棄してますか？」に「いいえ」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             }            
         )
     }
@@ -1768,6 +1869,15 @@ class ChildRbHandler extends CommonRbHandler{
             const event = new Event("change");
             inputs[Child.idxs.isJapan.input[yes]].dispatchEvent(event);
         }
+        if(childCommons[0].inputs[ChildCommon.idxs.isAdult.input[no]].checked && childs.every(child => child.inputs[Child.idxs.isAdult.input[yes]].checked))
+            alert("子供についてで「現在もご健在の方は全員成人してますか？」に「未成年の子がいる」にチェックがされてますが、子全員について「成人してますか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
+    }
+
+    //日本在住
+    static isJapan(idx, person){
+        breakQ(person.inputs[idx], person);
+        if(childCommons[0].inputs[ChildCommon.idxs.isJapan.input[no]].checked && childs.every(child => child.inputs[Child.idxs.isJapan.input[yes]].checked))
+            alert("子供についてで「現在もご健在の方は全員日本に住民票がありますか？」に「海外に居住している子がいる」にチェックがされてますが、子全員について「住民票は日本にありますか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
     }
 }
 
@@ -1799,7 +1909,7 @@ function setChildRbsEvent(rbIdx, person){
  * 兄弟姉妹の欄のラジオボタンのイベントハンドラー
  */
 class CollateralRbHandler extends CommonRbHandler{
-    //同じ配偶者
+    //同じ両親
     static isSameParents(rbIdx, person){
         const {inputs, Qs} = personDataToVariable(person);
         //手続時存在欄が表示されてないとき表示する
@@ -1826,6 +1936,8 @@ class CollateralRbHandler extends CommonRbHandler{
                 //続柄を設定する
                 inputs[Collateral.idxs.target1.input].value = ascendants[0].inputs[Ascendant.idxs.index.input].value.trim();
                 inputs[Collateral.idxs.target2.input].value = ascendants[1].inputs[Ascendant.idxs.index.input].value.trim();
+                if(collateralCommons[0].inputs[CollateralCommon.idxs.isSameParents.input[no]].checked && collaterals.every(collateral => collateral.inputs[Collateral.idxs.isSameParents.input[yes]].checked))
+                    alert("兄弟姉妹についてで「全員被相続人と同じ両親ですか？」に「いいえ」にチェックがされてますが、兄弟姉妹全員について「被相続人と同じ両親ですか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             },
             ()=>{
                 //noAction
@@ -1852,6 +1964,8 @@ class CollateralRbHandler extends CommonRbHandler{
                     Qs[Collateral.idxs.isRefuse.form]
                 )
                 iniErrMsgEls(errMsgEls[Collateral.idxs.isRefuse.form]);
+                if(collateralCommons[0].inputs[CollateralCommon.idxs.isLive.input[no]].checked && collaterals.every(collateral => collateral.inputs[Collateral.idxs.isLive.input[yes]].checked))
+                    alert("兄弟姉妹についてで「全員現在もご健在ですか？」に「いいえ」にチェックがされてますが、兄弟姉妹全員について「現在もご健在ですか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             },
             ()=>{
                 //noAction
@@ -1932,6 +2046,8 @@ class CollateralRbHandler extends CommonRbHandler{
                 }
                 iniErrMsgEls(errMsgEls[Collateral.idxs.isRefuse.form]);
                 iniErrMsgEls(errMsgEls[Collateral.idxs.isSpouse.form]);
+                if(collateralCommons[0].inputs[CollateralCommon.idxs.isRefuse.input[no]].checked && collaterals.every(collateral => collateral.inputs[Collateral.idxs.isRefuse.input[yes]].checked))
+                    alert("兄弟姉妹についてで「家庭裁判所で相続放棄をした方はいますか？」に「はい」にチェックがされてますが、兄弟姉妹全員について「相続放棄してますか？」に「いいえ」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             }            
         )
     }
@@ -1982,6 +2098,15 @@ class CollateralRbHandler extends CommonRbHandler{
             const event = new Event("change");
             inputs[Collateral.idxs.isJapan.input[yes]].dispatchEvent(event);
         }
+        if(collateralCommons[0].inputs[CollateralCommon.idxs.isAdult.input[no]].checked && collaterals.every(collateral => collateral.inputs[Collateral.idxs.isAdult.input[yes]].checked))
+            alert("兄弟姉妹についてで「現在もご健在の方は全員成人してますか？」に「いいえ」にチェックがされてますが、兄弟姉妹全員について「成人してますか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
+    }
+
+    //日本在住
+    static isJapan(idx, person){
+        breakQ(person.inputs[idx], person);
+        if(collateralCommons[0].inputs[CollateralCommon.idxs.isJapan.input[no]].checked && collaterals.every(collateral => collateral.inputs[Collateral.idxs.isJapan.input[yes]].checked))
+            alert("兄弟姉妹についてで「現在もご健在の方は全員日本に住民票がありますか？」に「いいえ」にチェックがされてますが、兄弟姉妹全員について「住民票は日本にありますか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
     }
 }
 
@@ -2182,7 +2307,7 @@ function setGrandChildRbsEvent(rbIdx, person){
 class AscendantRbHandler extends CommonRbHandler{
     //手続時存在
     static isLive(rbIdx, ascendant){
-        const {inputs, Qs, nextBtn} = personDataToVariable(ascendant);
+        const {inputs, Qs, errMsgEls} = personDataToVariable(ascendant);
         this.handleYesNo(rbIdx, Ascendant.idxs.isLive.input[yes],
             ()=>{
                 //yesAction
@@ -2192,7 +2317,9 @@ class AscendantRbHandler extends CommonRbHandler{
                     ascendant, inputs[Ascendant.idxs.isJapan.input[yes]],
                     Qs, Ascendant.idxs.isExist.form, Ascendant.idxs.isChild.form, rbIdx, null,
                     Qs[Ascendant.idxs.isRefuse.form]
-                )
+                    )
+                //相続時生存trueのシステム対応外の表示を非表示にする
+                iniErrMsgEls(errMsgEls[Ascendant.idxs.isExist.form]);
             },
             ()=>{
                 //noAction
@@ -2209,16 +2336,20 @@ class AscendantRbHandler extends CommonRbHandler{
 
     //相続時存在
     static isExist(rbIdx, ascendant){
-        const {inputs, Qs} = personDataToVariable(ascendant);
+        const {inputs, Qs, errMsgEls} = personDataToVariable(ascendant);
         this.handleYesNo(rbIdx, Ascendant.idxs.isExist.input[yes],
             ()=>{
-                //エラー要素に被相続人以外の子欄を追加して次へボタンを無効にする、相続放棄を表示する
-                pushInvalidElAndSDIfHidden(ascendant, inputs[Ascendant.idxs.isChild.input[yes]], Qs[Ascendant.idxs.isRefuse.form]);
+                //システム対応外を表示する
+                displayNotAvailable(errMsgEls[Ascendant.idxs.isExist.form]);
+                pushInvalidEl(ascendant, inputs[Ascendant.idxs.isExist.input[no]]);
+                // //エラー要素に被相続人以外の子欄を追加して次へボタンを無効にする、相続放棄を表示する
+                // pushInvalidElAndSDIfHidden(ascendant, inputs[Ascendant.idxs.isChild.input[yes]], Qs[Ascendant.idxs.isRefuse.form]);
             }
             ,()=>{
                 //氏名以外のエラー要素を全て削除して氏名が入力されているときは次へボタンを有効にする、trueで表示した質問を全て非表示にして値を初期化する
                 const rbIdxs = getSequentialNumArr(Ascendant.idxs.isRefuse.input[yes], Ascendant.idxs.isChild.input[no]);
                 breakQ(inputs[Ascendant.idxs.name.input], ascendant, Qs, Ascendant.idxs.isRefuse.form, Ascendant.idxs.isChild.form, rbIdxs);
+                iniErrMsgEls(errMsgEls[Ascendant.idxs.isExist.form]);
             }
         )
     }
@@ -2251,14 +2382,19 @@ class AscendantRbHandler extends CommonRbHandler{
         const {inputs, Qs, errMsgEls} = personDataToVariable(ascendant);
         this.handleYesNo(rbIdx, Ascendant.idxs.isSpouse.input[yes],
             ()=>{
-                //エラー要素に子の存在trueを追加して次へボタンを無効化、falseで表示した質問を初期化、配偶者は母か確認欄を表示する
-                changeCourse(
-                    ascendant, inputs[Ascendant.idxs.isChild.input[yes]],
-                    Qs, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.input, null,
-                    Qs[Ascendant.idxs.isRemarriage.form]
-                )
-                //配偶者は母か確認欄のエラーメッセージを初期化する
-                iniErrMsgEls(errMsgEls[Ascendant.idxs.isRemarriage.form]);
+                //システム対応外であることを表示する/エラー要素として被相続人以外の子trueを追加してボタンを無効化する、被相続人以外の子を初期化する
+                displayNotAvailable(errMsgEls[Ascendant.idxs.isSpouse.form]);
+                pushInvalidEl(ascendant, inputs[Ascendant.idxs.isChild.input[yes]]);
+                const rbidxs = getSequentialNumArr(Ascendant.idxs.isRemarriage.input[yes], Ascendant.idxs.isChild.input[no]);
+                iniQs(Qs, Ascendant.idxs.isRemarriage.form, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.input);
+                // //エラー要素に子の存在trueを追加して次へボタンを無効化、falseで表示した質問を初期化、配偶者は母か確認欄を表示する
+                // changeCourse(
+                //     ascendant, inputs[Ascendant.idxs.isChild.input[yes]],
+                //     Qs, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.form, Ascendant.idxs.isChild.input, null,
+                //     Qs[Ascendant.idxs.isRemarriage.form]
+                // )
+                // //配偶者は母か確認欄のエラーメッセージを初期化する
+                // iniErrMsgEls(errMsgEls[Ascendant.idxs.isRemarriage.form]);
             },
             ()=>{
                 //エラー要素に子の存在trueを追加して次へボタンを無効化、trueで表示した質問を初期化、被相続人以外の子の欄を表示する
@@ -2269,7 +2405,7 @@ class AscendantRbHandler extends CommonRbHandler{
                     Qs[Ascendant.idxs.isChild.form]
                 )
                 //エラーを非表示にする
-                iniErrMsgEls(errMsgEls[Ascendant.idxs.isChild.form]);
+                iniErrMsgEls([errMsgEls[Ascendant.idxs.isSpouse.form], errMsgEls[Ascendant.idxs.isRemarriage.form], errMsgEls[Ascendant.idxs.isChild.form]]);
             }
         )
     }

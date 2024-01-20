@@ -200,10 +200,12 @@ def save_step_one_datas(user, forms, form_sets):
     # 尊属
     ascendant_dict = {}
     for idx, form in enumerate(form_sets[3]):
+        print("00000")
         if form.cleaned_data.get("name"):
             ascendant = form.save(commit=False)
             ascendant.decedent = decedent
             ascendant.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+            print("11111")
             if idx < 2:
                 ascendant.content_type = ContentType.objects.get_for_model(Decedent)
                 ascendant.object_id = decedent.id
@@ -215,6 +217,7 @@ def save_step_one_datas(user, forms, form_sets):
             ascendant.created_by = user
             ascendant.updated_by = user
             ascendant.save()
+            print("22222")
             ascendant_dict[form.cleaned_data.get("index")] = ascendant
             
     # 兄弟姉妹共通
@@ -290,13 +293,12 @@ def step_one(request):
             else:
                 return redirect('/toukiApp/step_two')
         else:
-            if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
-                for form in forms:
-                    if not form.is_valid():
-                        print(f"Form {form} errors: {form.errors}")
-                for form_set in form_sets:
-                    if not form_set.is_valid():
-                        print(f"Formset {form_set} errors: {form_set.errors}")
+            for form in forms:
+                if not form.is_valid():
+                    print(f"Form {form} errors: {form.errors}")
+            for form_set in form_sets:
+                if not form_set.is_valid():
+                    print(f"Formset {form_set} errors: {form_set.errors}")
             return redirect('/toukiApp/step_one')
     
     userDataScope = []
@@ -364,12 +366,35 @@ def step_one(request):
                         child_heirs_data = child_spouses_data + grand_childs_data
                         child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
 
+                ascendants = Ascendant.objects.filter(decedent=decedent)
+                if ascendants.exists():
+                    ascendant_data = [
+                        {
+                            **{'id': ascendant.id},
+                            **{f: model_to_dict(ascendant).get(f) for f in StepOneAscendantForm().fields if f in model_to_dict(ascendant)}
+                        }
+                        for ascendant in ascendants
+                    ]
+                    ascendant_data = sorted(ascendant_data, key=lambda x: x['id'])
+                    userDataScope.append("ascendant")
+
                 collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
                 if collateral_common:
                     collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
                     userDataScope.append("collateral_common")
+                    
+                    collaterals = Collateral.objects.filter(decedent=decedent)
+                    if collaterals.exists():
+                        collateral_data = [
+                            {
+                                **{'id': collateral.id},
+                                **{f: model_to_dict(collateral).get(f) for f in StepOneCollateralForm().fields if f in model_to_dict(collateral)}
+                            }
+                            for collateral in collaterals
+                        ]
+                        userDataScope.append("collateral")
                 else:
-                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
+                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common")
             else:
                 child_common_form = StepOneDescendantCommonForm(prefix="child_common")
     else:
@@ -409,6 +434,8 @@ def step_one(request):
         "spouse_data" : json.dumps(spouse_data),
         "childs_data" : json.dumps(childs_data),
         "child_heirs_data" : json.dumps(child_heirs_data),
+        "ascendant_data" : json.dumps(ascendant_data),
+        "collateral_data" : json.dumps(collateral_data),
     }
     
     return render(request, "toukiApp/step_one.html", context)

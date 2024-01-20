@@ -2102,7 +2102,7 @@ class CollateralRbHandler extends CommonRbHandler{
             alert("兄弟姉妹についてで「現在もご健在の方は全員成人してますか？」に「いいえ」にチェックがされてますが、兄弟姉妹全員について「成人してますか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
     }
 
-    //日本在住//
+    //日本在住
     static isJapan(idx, person){
         breakQ(person.inputs[idx], person);
         if(collateralCommons[0].inputs[CollateralCommon.idxs.isJapan.input[no]].checked && collaterals.every(collateral => collateral.inputs[Collateral.idxs.isJapan.input[yes]].checked))

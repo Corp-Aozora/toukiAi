@@ -19,87 +19,38 @@
         <form action="{% url 'toukiApp:step_two' %}" method="POST" class="my-4" novalidate>
             {% csrf_token %}
             <h5>下記書類を取得して☑してください</h5>
-            <div id="realEstateInfoColumn" class="mt-3">
-                <div class="form-check">
-                    <div class="ps-2">
-                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbRealEstateInfo">
-                    </div>
-                    <label class="form-check-label fw-bold fs-5 ps-2" for="CbRealEstateInfo">
-                        登記対象の不動産の登記情報又は全部事項証明書
-                    </label>
-                </div>
-                <!-- 所有者が被相続人か要チェック -->
-                <div class="mt-3">
-                    登記する全ての不動産の情報を取得するために、以下のサイトで登記情報を購入して
-                    <span class="fw-bold">
-                        PDFをダウンロード
-                    </span>
-                    してください。<br>
-                    <a class="text-decoration-none" href="https://www1.touki.or.jp/gateway.html">https://www1.touki.or.jp/gateway.html</a>
-                </div>
-                <div class="mt-3">
-                    不動産の情報を手入力で行う場合は、最寄りの法務局で全部事項証明書を取得するか以下のサイトからオンライン請求してください。<br>
-                    <a class="text-decoration-none" href="https://www.touki-kyoutaku-online.moj.go.jp/index.html">https://www.touki-kyoutaku-online.moj.go.jp/index.html</a>
-                </div>
-                <div class="mt-3 col-xl-8">
-                    ※古い登記情報又は全部事項証明書をお持ちの場合でも、内容に変更が生じていることがあり、そのときは法務局で訂正を指示されるため改めてご取得することをお薦めします。
-                </div>
-                <div class="mt-3">
-                    <div id="realEstateInfoUploader" class="col-lg-8 text-center border border-2 rounded-3 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5">
-                        クリックしてPDFファイルを選択又は<br>
-                        PDFファイルをドラッグ＆ドロップ<br>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.6 11.85H0v3.999h.791v-1.342h.803c.287 0 .531-.057.732-.173.203-.117.358-.275.463-.474a1.42 1.42 0 0 0 .161-.677c0-.25-.053-.476-.158-.677a1.176 1.176 0 0 0-.46-.477c-.2-.12-.443-.179-.732-.179Zm.545 1.333a.795.795 0 0 1-.085.38.574.574 0 0 1-.238.241.794.794 0 0 1-.375.082H.788V12.48h.66c.218 0 .389.06.512.181.123.122.185.296.185.522Zm1.217-1.333v3.999h1.46c.401 0 .734-.08.998-.237a1.45 1.45 0 0 0 .595-.689c.13-.3.196-.662.196-1.084 0-.42-.065-.778-.196-1.075a1.426 1.426 0 0 0-.589-.68c-.264-.156-.599-.234-1.005-.234H3.362Zm.791.645h.563c.248 0 .45.05.609.152a.89.89 0 0 1 .354.454c.079.201.118.452.118.753a2.3 2.3 0 0 1-.068.592 1.14 1.14 0 0 1-.196.422.8.8 0 0 1-.334.252 1.298 1.298 0 0 1-.483.082h-.563v-2.707Zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638H7.896Z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-3 fw-bold col-lg-10">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            アップロード済の登記情報
-                        </div>
-                        <div id="trash" class="cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                          <input class="form-check-input me-1" type="checkbox" value="" id="firstRealEstate">
-                          <label class="form-check-label stretched-link" for="firstRealEstate">（例１）</label>
-                        </li>
-                        <li class="list-group-item">
-                          <input class="form-check-input me-1" type="checkbox" value="" id="secondRealEstate">
-                          <label class="form-check-label stretched-link" for="secondRealEstate">（例２）</label>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <hr>
-            <!-- 登記済証又は登記識別情報通知も提示したほうがいいかも？ -->
             <div id="decendantResidentCardColumn">
-                <!-- 不在住証明？ -->
                 <div class="form-check mt-3">
                     <div class="ps-2">
                         <input class="form-check-input fs-5" type="checkbox" value="" id="CbDecendantResidentCard">
                     </div>
                     <label class="form-check-label fw-bold fs-5 ps-2" for="CbDecendantResidentCard">
-                        被相続人の住民票の除票又は戸籍の附票
+                        故{{decedent_name}}さんの住民票の除票又は戸籍の附票
                     </label>
                 </div>
-                <div>
-                    住民票の除票は、被相続人の死亡時の住所地にある市区町村役場で取得することができます。<br>
-                    本籍地がわからないときは、取得の際に本籍地入りにチェックしてください。
+                <div class="mt-3">
+                    <p class="fw-bold">
+                        <span class="border-bottom">住民票の除票について</span>
+                    </p>
+                    <p class="ms-3">
+                        故{{decedent_name}}さんの死亡時の
+                        <span class="fw-bold">住所地</span>
+                        にある市区町村役場で取得することができます。<br>
+                        <span class="fst-italic">※ご取得の際は、本籍地も記載されるように請求してください。</span>
+                    </p>
                 </div>
                 <div class="mt-3">
-                    戸籍の附票は、被相続人の死亡時の本籍地にある市区町村役場で取得することができます。<br>
-                    登記情報に書いてある被相続人の住所が死亡時の住所と異なるときは、こちらを取得してください。<br>
-                    マイナンバー不要
+                    <p class="fw-bold">
+                        <span class="border-bottom">戸籍の附票について</span>
+                    </p>
+                    <p class="ms-3">
+                        故{{decedent_name}}さんの死亡時の
+                        <span class="fw-bold">本籍地</span>
+                        にある市区町村役場で取得することができます。
+                    </p>
                 </div>
                 <div class="mt-3">
-                    上記のいずれかの書類を郵送で取得する場合は、
+                    郵送で取得する場合は、
                     <span class="text-primary">こちら</span>
                     の用紙を使用して対象の役場に以下の書類と一緒に郵送してください。
                     <ul class="">
@@ -108,6 +59,8 @@
                         <li>・免許証等の身分証のコピー</li>
                     </ul>
                 </div>
+                <!-- 登記済証又は登記識別情報通知も提示したほうがいいかも？ -->
+                <!-- 不在住証明？ -->
             </div>
             <hr>
             <!-- 不在籍証明？ -->
@@ -160,6 +113,66 @@
                         <li>・小為替</li>
                         <li>・被相続人との続柄を示す戸籍謄本</li>
                         <li>・免許証等の身分証のコピー</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div id="realEstateInfoColumn" class="mt-3">
+                <div class="form-check">
+                    <div class="ps-2">
+                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbRealEstateInfo">
+                    </div>
+                    <label class="form-check-label fw-bold fs-5 ps-2" for="CbRealEstateInfo">
+                        登記対象の不動産の登記情報又は全部事項証明書
+                    </label>
+                </div>
+                <!-- 所有者が被相続人か要チェック -->
+                <!-- 住所のつながりチェック -->
+                <div class="mt-3">
+                    登記する全ての不動産の情報を取得するために、以下のサイトで登記情報を購入して
+                    <span class="fw-bold">
+                        PDFをダウンロード
+                    </span>
+                    してください。<br>
+                    <a class="text-decoration-none" href="https://www1.touki.or.jp/gateway.html">https://www1.touki.or.jp/gateway.html</a>
+                </div>
+                <div class="mt-3">
+                    不動産の情報を手入力で行う場合は、最寄りの法務局で全部事項証明書を取得するか以下のサイトからオンライン請求してください。<br>
+                    <a class="text-decoration-none" href="https://www.touki-kyoutaku-online.moj.go.jp/index.html">https://www.touki-kyoutaku-online.moj.go.jp/index.html</a>
+                </div>
+                <div class="mt-3 col-xl-8">
+                    ※古い登記情報又は全部事項証明書をお持ちの場合でも、内容に変更が生じていることがあり、そのときは法務局で訂正を指示されるため改めてご取得することをお薦めします。
+                </div>
+                <div class="mt-3">
+                    <div id="realEstateInfoUploader" class="col-lg-8 text-center border border-2 rounded-3 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5">
+                        クリックしてPDFファイルを選択又は<br>
+                        PDFファイルをドラッグ＆ドロップ<br>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.6 11.85H0v3.999h.791v-1.342h.803c.287 0 .531-.057.732-.173.203-.117.358-.275.463-.474a1.42 1.42 0 0 0 .161-.677c0-.25-.053-.476-.158-.677a1.176 1.176 0 0 0-.46-.477c-.2-.12-.443-.179-.732-.179Zm.545 1.333a.795.795 0 0 1-.085.38.574.574 0 0 1-.238.241.794.794 0 0 1-.375.082H.788V12.48h.66c.218 0 .389.06.512.181.123.122.185.296.185.522Zm1.217-1.333v3.999h1.46c.401 0 .734-.08.998-.237a1.45 1.45 0 0 0 .595-.689c.13-.3.196-.662.196-1.084 0-.42-.065-.778-.196-1.075a1.426 1.426 0 0 0-.589-.68c-.264-.156-.599-.234-1.005-.234H3.362Zm.791.645h.563c.248 0 .45.05.609.152a.89.89 0 0 1 .354.454c.079.201.118.452.118.753a2.3 2.3 0 0 1-.068.592 1.14 1.14 0 0 1-.196.422.8.8 0 0 1-.334.252 1.298 1.298 0 0 1-.483.082h-.563v-2.707Zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638H7.896Z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-3 fw-bold col-lg-10">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            アップロード済の登記情報
+                        </div>
+                        <div id="trash" class="cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                          <input class="form-check-input me-1" type="checkbox" value="" id="firstRealEstate">
+                          <label class="form-check-label stretched-link" for="firstRealEstate">（例１）</label>
+                        </li>
+                        <li class="list-group-item">
+                          <input class="form-check-input me-1" type="checkbox" value="" id="secondRealEstate">
+                          <label class="form-check-label stretched-link" for="secondRealEstate">（例２）</label>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -250,4 +263,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_two.js' %}"></script>
+    <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

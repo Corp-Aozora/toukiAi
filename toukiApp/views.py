@@ -126,6 +126,7 @@ def save_step_one_datas(user, forms, form_sets):
     
     decedent = forms[0].save(commit=False)
     Decedent.objects.filter(user=user).delete()
+    decedent.progress = 2
     decedent.user = user
     decedent.created_by = user
     decedent.updated_by = user
@@ -307,9 +308,11 @@ def step_one(request):
     child_heirs_data = []
     ascendant_data = []
     collateral_data = []
+    progress = 1
     
     if user.decedent.first():
         decedent = user.decedent.first()
+        progress = decedent.progress
         decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
         userDataScope.append("decedent")
         
@@ -402,7 +405,8 @@ def step_one(request):
         spouse_form = StepOneSpouseForm(prefix="spouse")
         child_common_form = StepOneDescendantCommonForm(prefix="child_common")
         collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
-        
+    
+    decedent_form_internal_field_name = ["user", "progress"]
     spouse_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
     common_form_internal_field_name = ["decedent"]
     child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
@@ -413,7 +417,9 @@ def step_one(request):
     context = {
         "title" : "１．" + Sections.STEP1,
         "user" : user,
+        "progress": progress,
         "decedent_form": decedent_form,
+        "decedent_form_internal_field_name": decedent_form_internal_field_name,
         "spouse_form": spouse_form,
         "spouse_form_internal_field_name": spouse_form_internal_field_name,
         "child_common_form" : child_common_form,
@@ -447,10 +453,15 @@ def step_two(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
+    decedent = user.decedent.first()
+    progress = decedent.progress
+    decedent_name = decedent.name
   
     context = {
         "title" : "２．必要書類一覧",
         "user" : user,
+        "progress": progress,
+        "decedent_name": decedent_name,
         "sections" : Sections.SECTIONS[Sections.STEP2],
         "service_content" : Sections.SERVICE_CONTENT,
     }

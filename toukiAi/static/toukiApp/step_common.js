@@ -5,45 +5,12 @@
 */
 let resizeFlg;
 
-const rootPath = "/toukiapp/";
-const steps = {
-    step1: "service-stepOne",
-    step2: "service-stepTwo",
-    step3: "service-stepThree",
-    step4: "service-stepFour",
-    step5: "service-stepFive",
-    step6: "service-stepSix",
-    step7: "service-inquiry",
-};
-const stepNumbers = ["One", "Two", "Three", "Four", "Five", "Six"];
-const username = document.getElementById("linkToAccount").innerHTML;
-
 /**
  * サイドバーを更新する
  */
 function updateSideBar(){
     setSideBarTop();
     setSidebarHeight();
-}
-
-/**s
- * 各進捗ボタンのアイコン、リンク、ボタンを設定する
- * @param {number} stepNumber 
- */
-function updateStep(stepNumber){
-
-    for(let i = 0; i < stepNumber; i++){
-        const arrow = document.getElementById(`step${stepNumbers[i]}Arrow`);
-        const done = document.getElementById(`step${stepNumbers[i]}Done`);
-        const btn = document.getElementById(`btnStep${stepNumbers[i]}`);
-        const link = document.getElementById(`step${stepNumbers[i]}Link`);
-
-        i === stepNumber - 1 ? arrow.style.display = "block": done.style.display = "block";
-
-        btn.disabled = false;
-        link.href = `${rootPath}service-step${stepNumbers[i]}`;
-        btn.classList.add("fw-bold");
-    }
 }
 
 /**
@@ -98,9 +65,6 @@ function setNavTogglerStyle(){
         logoArea.classList.add("mt-3", "fw-bold", "fs-5");
         logo.innerHTML = "トップページ";
 
-        //ユーザー名の要素を修正
-        linkToAccountArea.classList.add("mt-2", "fs-5");
-        linkToAccount.innerHTML = "登録情報確認"
 
         //進捗状況の要素を修正
         linkToProgressArea.classList.add("mt-2", "fs-5");
@@ -137,10 +101,6 @@ function setNavTogglerStyle(){
         logoArea.classList.add("navbar-brand");
         logoArea.classList.remove("mt-3", "fw-bold", "fs-5");
         logo.innerHTML = "（ロゴ）";
-
-        //ユーザー名の要素を修正
-        linkToAccountArea.classList.remove("mt-2", "fs-5");
-        linkToAccount.innerHTML = username;
 
         //進捗状況の要素を修正
         linkToProgressArea.classList.remove("mt-2", "fs-5");

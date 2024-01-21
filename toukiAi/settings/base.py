@@ -64,7 +64,7 @@ ROOT_URLCONF = 'toukiAi.urls'
 
 TEMPLATE_DIR = BASE_DIR / "toukiAi/templates"
 STATIC_DIR = BASE_DIR / "toukiAi/static"
-MEDIA_DIR = BASE_DIR / "toukiapp/media"
+MEDIA_DIR = BASE_DIR / "toukiAi/media"
 
 TEMPLATES = [
     {
@@ -77,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'toukiAi.context_processors.media',
             ],
         },
     },

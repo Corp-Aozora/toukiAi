@@ -72,16 +72,16 @@ class DecedentChangeForm(forms.ModelForm):
 
 class DecedentAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('user', 'name', 'domicile_prefecture', 'domicile_city', 'domicile_address', 'prefecture', 'city', 'address', 'bldg', 'resistry_prefecture', 'resistry_city', 'resistry_address', 'resistry_bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
+        (None, {'fields': ('user', 'progress', 'name', 'domicile_prefecture', 'domicile_city', 'domicile_address', 'prefecture', 'city', 'address', 'bldg', 'resistry_prefecture', 'resistry_city', 'resistry_address', 'resistry_bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', "created_at")}),
     )
     
     readonly_fields = ("updated_at", "created_at")
     
     form = DecedentChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'name', 'updated_by')
-    list_filter = ('updated_at', 'created_by', 'name', 'updated_by')
-    search_fields = ('updated_at', 'created_by', 'name', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'progress', 'name', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'progress', 'name', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'progress', 'name', 'updated_by')
     ordering = ["-updated_at"]
 
 admin.site.register(Decedent, DecedentAdmin)

@@ -86,8 +86,11 @@ class StepOneDecedentForm(BaseOneForm):
 
     def __init__(self, *args, **kwargs):
         for i, field in enumerate(self.base_fields.values()):
-            if field.label == "ユーザー":
+            if field.label in ["ユーザー", "進捗"]:
                 field.required = False
+            
+            if field.label in ["進捗"]:
+                continue
             
             else:
                 field.widget.attrs.update({"tabindex": str(i)})

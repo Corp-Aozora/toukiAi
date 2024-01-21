@@ -59,6 +59,7 @@ class Decedent(CommonModel):
         blank = False,
         related_name="decedent",
     )
+    progress = models.IntegerField(verbose_name="進捗", null=False, blank=False, default=1)
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     domicile_prefecture = models.CharField(verbose_name="本籍地の都道府県" ,max_length=20, choices=PREFECTURES, default=None, null=True)
     domicile_city = models.CharField(verbose_name="本籍地の市区町村", max_length=100, default=None, null=True)
@@ -94,7 +95,7 @@ class Decedent(CommonModel):
         related_name = "decedent_update_by",
     )
     
-    step_one_fields =["user", "name", "death_year", "death_month", "prefecture", "city", "domicile_prefecture", "domicile_city"]
+    step_one_fields =["progress", "user", "name", "death_year", "death_month", "prefecture", "city", "domicile_prefecture", "domicile_city"]
     
     class Meta:
         verbose_name = _("被相続人")
@@ -435,10 +436,61 @@ class UpdateArticle(CommonModel):
     class Meta:
         verbose_name = _("更新情報")
         verbose_name_plural = _("更新情報")
-        
-# 不動産
+
+# アップロードされるファイルを5MBかつpdf形式に制限する
+def validate_file(value):
+    filesize = value.size
+    if filesize > 5000000:
+        raise ValidationError("アップロード可能なサイズは5MBまでです。")
+    valid_extensions = ['pdf']
+    if not value.name.endswith(tuple(valid_extensions)):
+        raise ValidationError("無効なファイル形式です。PDFファイルのみアップロード可能です。")
+    return value
+
+# 登記情報
 # 親：被相続人
-# 子：土地、建物、区分建物
+class Register(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="register",
+    )
+    
+    title = models.CharField(verbose_name="タイトル", max_length=100, null=False, blank=False)
+    file = models.FileField(
+        verbose_name="ファイル",
+        upload_to='registers/',
+        validators=[validate_file],
+        null=False,
+        blank=False
+    )
+    file_size = models.IntegerField(verbose_name="サイズ",null=False, blank=False)
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "register_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "register_update_by"
+    )
+    
+    step_two_fields = []
+    
+    class Meta:
+        verbose_name = _("不動産登記簿")
+        verbose_name_plural = _("不動産登記簿")
 
 # 土地
 # 親：不動産

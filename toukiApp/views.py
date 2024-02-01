@@ -9,7 +9,6 @@ from django.forms import formset_factory
 from .models import *
 from accounts.models import User
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -31,6 +30,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.forms.models import model_to_dict
 from operator import itemgetter
 from django.db.models import Q
+from googleapiclient.http import MediaFileUpload
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+from googleapiclient.errors import HttpError
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+from django.core.files.storage import default_storage
+import os
+from django.conf import settings
+import gdown
+from urllib.parse import urlparse, parse_qs
 
 def index(request):
     is_inquiry = False
@@ -201,12 +211,12 @@ def save_step_one_datas(user, forms, form_sets):
     # 尊属
     ascendant_dict = {}
     for idx, form in enumerate(form_sets[3]):
-        print("00000")
+        
         if form.cleaned_data.get("name"):
             ascendant = form.save(commit=False)
             ascendant.decedent = decedent
             ascendant.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
-            print("11111")
+            
             if idx < 2:
                 ascendant.content_type = ContentType.objects.get_for_model(Decedent)
                 ascendant.object_id = decedent.id
@@ -218,7 +228,6 @@ def save_step_one_datas(user, forms, form_sets):
             ascendant.created_by = user
             ascendant.updated_by = user
             ascendant.save()
-            print("22222")
             ascendant_dict[form.cleaned_data.get("index")] = ascendant
             
     # 兄弟姉妹共通
@@ -258,7 +267,7 @@ def step_one(request):
     child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
     collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
     
-    if request.method == "POST":     
+    if request.method == "POST":
         forms = [
             StepOneDecedentForm(request.POST, prefix="decedent"),
             StepOneSpouseForm(request.POST, prefix="spouse"),
@@ -446,22 +455,205 @@ def step_one(request):
     
     return render(request, "toukiApp/step_one.html", context)
 
+# 死亡している相続人候補を取得する
+def get_deceased_persons(decedent):
+    deceased_persons = []
+    
+    spouse = Spouse.objects.filter(decedent=decedent).first()
+    if spouse and spouse.is_live is False:
+        deceased_persons.append(spouse)
+    
+    childs = Descendant.objects.filter(object_id1=decedent.id)
+    if childs.exists() and any(child for child in childs if child.is_live is False):
+        deceased_persons += [child for child in childs if child.is_live is False]
+        child_spouses = [spouse for spouse in Spouse.objects.filter(decedent=decedent)[1:] if spouse.is_live is False]
+        grand_childs = [descendant for descendant in Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id) if descendant.is_live is False]
+        child_heirs = child_spouses + grand_childs
+
+        if child_heirs:
+            # object_idまたはobject_id1を取得する関数
+            def get_id(obj):
+                return obj.object_id if isinstance(obj, Spouse) else obj.object_id1
+
+            # 同じIDがある場合に、child_spousesの要素が先に来るようにする関数
+            def compare(obj):
+                return (get_id(obj), isinstance(obj, Descendant))
+
+            # 比較関数に基づいてソート
+            child_heirs = sorted(child_heirs, key=compare)
+            deceased_persons += [child_heir for child_heir in child_heirs]
+            
+    ascendants = Ascendant.objects.filter(decedent=decedent)
+    if ascendants.exists():
+        deceased_persons += [ascendant for ascendant in ascendants if ascendant.is_live is False]
+        
+    collaterals = Collateral.objects.filter(decedent=decedent)
+    if collaterals.exists():
+        deceased_persons += [collateral for collateral in collaterals if collateral.is_live is False]
+    
+    return deceased_persons
+
+def get_heirs(decedent):
+    heirs = []
+    
+    spouse = Spouse.objects.filter(decedent=decedent).first()
+    if spouse and spouse.is_heir:
+        heirs.append(spouse)
+    
+    childs = Descendant.objects.filter(object_id1=decedent.id)
+    if childs.exists() and any(child for child in childs if child.is_heir):
+        heirs += [child for child in childs if child.is_heir]
+    
+    if childs.exists() and any(child for child in childs if child.is_live is False):
+        child_spouses = [spouse for spouse in Spouse.objects.filter(decedent=decedent)[1:] if spouse.is_heir]
+        grand_childs = [descendant for descendant in Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id) if descendant.is_heir]
+        child_heirs = child_spouses + grand_childs
+
+        if child_heirs:
+            # object_idまたはobject_id1を取得する関数
+            def get_id(obj):
+                return obj.object_id if isinstance(obj, Spouse) else obj.object_id1
+
+            # 同じIDがある場合に、child_spousesの要素が先に来るようにする関数
+            def compare(obj):
+                return (get_id(obj), isinstance(obj, Descendant))
+
+            # 比較関数に基づいてソート
+            child_heirs = sorted(child_heirs, key=compare)
+            heirs += [child_heir for child_heir in child_heirs]
+            
+    ascendants = Ascendant.objects.filter(decedent=decedent)
+    if ascendants.exists():
+        heirs += [ascendant for ascendant in ascendants if ascendant.is_heir]
+        
+    collaterals = Collateral.objects.filter(decedent=decedent)
+    if collaterals.exists():
+        heirs += [collateral for collateral in collaterals if collateral.is_heir]
+    
+    return heirs
+
+def get_prefecture_name(prefecture_code):
+    for code, name in PREFECTURES:
+        if code == prefecture_code:
+            return name
+    return '該当の都道府県番号がありません'  # キーが見つからない場合のデフォルト値
+
+#ステップ２のデータを登録する
+def save_step_two_datas(request):
+    pass
+
+# GoogleドライブのダウンロードリンクからファイルIDを抽出
+def extract_file_id_from_url(url):
+    query = urlparse(url).query
+    params = parse_qs(query)
+    return params['id'][0]
+
 #ステップ２
 #必要書類リスト
 def step_two(request):
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
-    
+
     user = User.objects.get(email = request.user)
     decedent = user.decedent.first()
+    registry_files = Register.objects.filter(decedent=decedent)
+    
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                decedent.progress = 3
+                decedent.save()
+                
+                gauth = GoogleAuth()
+                # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
+                drive = GoogleDrive(gauth)
+                
+                #不動産登記簿は常に全削除と全登録を行う
+                if registry_files.exists():
+                    for file in registry_files:
+                        # Googleドライブからファイルを削除
+                        file_id = extract_file_id_from_url(file.path)
+                        file_drive = drive.CreateFile({'id': file_id})  # file.file_idはGoogleドライブ上のファイルID
+                        file_drive.Delete()
+                    registry_files.delete()
+                    
+                for i in range(len(request.FILES)):
+                    pdf = request.FILES['pdf' + str(i)]
+                    relative_path = default_storage.save(os.path.join('tmp/', pdf.name), pdf)
+                    absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+                    file_drive = drive.CreateFile({'title': pdf.name, 'parents': [{'id': '1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl'}]})
+                    file_drive.SetContentFile(absolute_path)
+                    file_drive.Upload()
+                    # ファイルのアクセス権限を設定
+                    file_drive.InsertPermission({
+                        'type': 'anyone',
+                        'value': 'anyone',
+                        'role': 'reader'
+                    })
+                    # 新しいRegisterオブジェクトを作成し、属性に値を設定
+                    register = Register(
+                        decedent=decedent,
+                        title=file_drive['title'],
+                        path='https://drive.google.com/uc?export=download&id=' + file_drive['id'],  # Gドライブ上のファイルへのダウンロードリンク
+                        file_size=os.path.getsize(absolute_path),
+                        extension=os.path.splitext(file_drive['title'])[1][1:],  # 拡張子を取得
+                        created_by=user,
+                        updated_by=user
+                    )
+                    register.save()  # データベースに保存
+                    
+
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            messages.error(request, 'データの保存中にエラーが発生しました。')
+            return JsonResponse({'status': 'error'})
+        else:
+            return JsonResponse({'status': 'success'})
+    
+    # 不動産登記簿があるとき
+    file_server_file_name_and_file_path = []
+    if registry_files.exists():
+        for file in registry_files:
+            # ファイルの保存先のパスを追加
+            file_server_file_name_and_file_path.append({"name": file.title, "path": file.path})
+            
+    app_server_file_name_and_file_path = []
+    for file_name_and_file_path in file_server_file_name_and_file_path:
+        # ダウンロード先のパス
+        output = os.path.join(settings.MEDIA_ROOT, 'download_tmp', file_name_and_file_path["name"])
+
+        # ファイルをダウンロード
+        gdown.download(file_name_and_file_path["path"], output, quiet=True)
+
+        # ダウンロードしたファイルの名前とパスを配列に追加(ローカル起動用)
+        app_server_file_name_and_file_path.append({"name": file_name_and_file_path["name"], "path": settings.MEDIA_URL + 'download_tmp/' + file_name_and_file_path["name"]})
+
+    # 配列をJSON形式に変換
+    app_server_file_name_and_file_path = json.dumps(app_server_file_name_and_file_path)
+    
     progress = decedent.progress
-    decedent_name = decedent.name
-  
+    deceased_persons = get_deceased_persons(decedent)
+    heirs = get_heirs(decedent)
+    minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
+    overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
+    family_registry_search_word = "戸籍 郵送請求"
+    family_registry_query = f"{decedent.domicile_prefecture}{decedent.domicile_city} {family_registry_search_word}"
+    # response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={family_registry_query}")
+    # data = response.json()
+    # top_link = data["items"][0]["link"]
     context = {
         "title" : "２．必要書類一覧",
         "user" : user,
         "progress": progress,
-        "decedent_name": decedent_name,
+        "prefectures": PREFECTURES,
+        "decedent": decedent,
+        "app_server_file_name_and_file_path": app_server_file_name_and_file_path,
+        "file_server_file_name_and_file_path": file_server_file_name_and_file_path,
+        # "top_link": top_link,
+        "deceased_persons": deceased_persons,
+        "heirs": heirs,
+        "minors": minors,
+        "overseas": overseas,
         "sections" : Sections.SECTIONS[Sections.STEP2],
         "service_content" : Sections.SERVICE_CONTENT,
     }
@@ -474,7 +666,8 @@ def step_three(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
-    
+    decedent = user.decedent.first()
+    progress = decedent.progress
     prefectures = []
     for p in PREFECTURES:
         prefectures.append(p[1])
@@ -485,9 +678,11 @@ def step_three(request):
     
     context = {
         "title" : "３．データ入力",
+        "progress": progress,
         "prefectures" : prefectures,
         "landCategorys" : landCategorys,
         "user" : user,
+        "decedent": decedent,
         "sections" : Sections.SECTIONS[Sections.STEP3],
         "service_content" : Sections.SERVICE_CONTENT,
     }
@@ -667,3 +862,16 @@ def is_email(request):
     context = {"message":"",}
     
     return JsonResponse(context)
+
+def step_back(request):
+    user = User.objects.get(email = request.user)
+    decedent = Decedent.objects.filter(user=user).first()
+    data = json.loads(request.body)
+    progress = data.get('progress')
+    if progress is not None:
+        decedent.progress = int(progress)
+        decedent.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
+

@@ -217,3 +217,91 @@ class CollateralAdmin(admin.ModelAdmin):
     ordering = ['-updated_at']
 
 admin.site.register(Collateral, CollateralAdmin)
+
+# 不動産登記簿
+class RegisterChangeForm(forms.ModelForm):
+    class Meta:
+        model = Register
+        fields = '__all__'
+
+class RegisterAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('title', 'path', 'file_size', 'extension', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = RegisterChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'title', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'title', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'title', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(Register, RegisterAdmin)
+
+# 土地
+class LandChangeForm(forms.ModelForm):
+    class Meta:
+        model = Land
+        fields = '__all__'
+
+class LandAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('register', 'number', 'purparty', 'price', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = LandChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'number', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'number', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'number', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(Land, LandAdmin)
+
+# 建物
+class HouseChangeForm(forms.ModelForm):
+    class Meta:
+        model = House
+        fields = '__all__'
+
+class HouseAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('register', 'number', 'purparty', 'price', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = HouseChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'number', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'number', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'number', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(House, HouseAdmin)
+
+# 敷地
+class SiteChangeForm(forms.ModelForm):
+    class Meta:
+        model = Site
+        fields = '__all__'
+
+class SiteAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('building', "land_num", 'price', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = SiteChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'building', "land_num", 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'building', "land_num", 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'building', "land_num", 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(Site, SiteAdmin)

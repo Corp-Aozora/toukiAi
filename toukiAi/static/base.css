@@ -79,3 +79,39 @@ li{
     margin: 0 !important;
     -moz-appearance:textfield !important;
 }
+
+.modal-image {
+    max-width: 100%; /* 画像の最大幅をモーダルの幅に合わせる */
+    height: auto; /* 高さは自動的に調整 */
+}
+
+button {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+}
+
+.arrow-right::before {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-top: 2px solid var(--bs-primary);
+    border-right: 2px solid var(--bs-primary);
+    transform: rotate(45deg);
+    position:relative;
+    top:-2px;
+}
+
+.arrow-down::before {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-right: 2px solid var(--bs-primary);
+    border-bottom: 2px solid var(--bs-primary);
+    transform: rotate(45deg);
+    position:relative;
+    top:-2px;
+}

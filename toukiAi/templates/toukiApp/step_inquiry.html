@@ -2,7 +2,7 @@
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiAi/step_inquiry.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_inquiry.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -10,7 +10,7 @@
 
 {% block content %}
 <div id="thirdStepWrap" class="d-flex container-xxl">
-    {% include "toukiapp/sidebar.html" %}
+    {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
         <div>
             <h4>
@@ -77,5 +77,5 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiAi/step_inquiry.js' %}"></script>
+    <script src="{% static 'toukiApp/step_inquiry.js' %}"></script>
 {% endblock %}

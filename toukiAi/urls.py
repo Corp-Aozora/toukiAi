@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf import settings
 from accounts import views as accounts_view
+from django.conf.urls.static import static
 
 def has_permission(request):
     return request.user.is_staff
@@ -20,10 +21,12 @@ urlpatterns = [
     path("account/", include("allauth.urls")),
     path('account/', include('accounts.urls')),
     path('403/', accounts_view.error_403, name="error_403")
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
+    
     import debug_toolbar
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+    

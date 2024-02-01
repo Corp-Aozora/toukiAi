@@ -17,6 +17,7 @@ from .common_model import *
 from accounts.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # お問い合わせ内容
 # 質問者のメールアドレス/件名/質問内容/回答内容/回答者/質問日/回答日
@@ -59,25 +60,30 @@ class Decedent(CommonModel):
         blank = False,
         related_name="decedent",
     )
-    progress = models.IntegerField(verbose_name="進捗", null=False, blank=False, default=1)
+    progress = models.DecimalField(verbose_name="進捗", null=False, blank=False, default=1, max_digits=3, decimal_places=1, validators=[MinValueValidator(1.0), MaxValueValidator(6.0)])
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
-    domicile_prefecture = models.CharField(verbose_name="本籍地の都道府県" ,max_length=20, choices=PREFECTURES, default=None, null=True)
-    domicile_city = models.CharField(verbose_name="本籍地の市区町村", max_length=100, default=None, null=True)
-    domicile_address = models.CharField(verbose_name="本籍地の町域・番地", max_length=100, default="")
-    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True)
-    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default=None, null=True)
-    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
-    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
-    resistry_prefecture = models.CharField(verbose_name="登記上の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True)
-    resistry_city = models.CharField(verbose_name="登記上の市区町村", max_length=100, default=None, null=True)
-    resistry_address = models.CharField(verbose_name="登記上の町域・番地", max_length=100, default="")
-    resistry_bldg = models.CharField(verbose_name="登記上の建物", max_length=100, default="")
+    domicile_prefecture = models.CharField(verbose_name="本籍地の都道府県" ,max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    domicile_city = models.CharField(verbose_name="本籍地の市区町村", max_length=100, default=None, null=True, blank=True)
+    domicile_address = models.CharField(verbose_name="本籍地の町域・番地", max_length=100, default="", null=True, blank=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default=None, null=True, blank=True)
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="", null=True, blank=True)
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="", null=True, blank=True)
+    resistry_prefecture = models.CharField(verbose_name="登記上の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    resistry_city = models.CharField(verbose_name="登記上の市区町村", max_length=100, default=None, null=True, blank=True)
+    resistry_address = models.CharField(verbose_name="登記上の町域・番地", max_length=100, default="", null=True, blank=True)
+    resistry_bldg = models.CharField(verbose_name="登記上の建物", max_length=100, default="", null=True, blank=True)
     death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
     death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
     death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
     birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
     birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
     birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
+    TYPE_OF_DIVISION_CHOICES = [
+    ('通常', '通常'),
+    ('換価分割', '換価分割'),
+    ]
+    type_of_division = models.CharField(verbose_name="遺産分割協議書の種類", max_length=30, choices=TYPE_OF_DIVISION_CHOICES, default="通常")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -459,15 +465,10 @@ class Register(CommonModel):
         related_name="register",
     )
     
-    title = models.CharField(verbose_name="タイトル", max_length=100, null=False, blank=False)
-    file = models.FileField(
-        verbose_name="ファイル",
-        upload_to='registers/',
-        validators=[validate_file],
-        null=False,
-        blank=False
-    )
+    title = models.CharField(verbose_name="タイトル", max_length=100, null=False, blank=False, default="")
+    path = models.CharField(verbose_name="パス", max_length=100, null=False, blank=False, default="")
     file_size = models.IntegerField(verbose_name="サイズ",null=False, blank=False)
+    extension = models.CharField(verbose_name="拡張子", max_length=100 ,null=False, blank=False, default="pdf")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -493,20 +494,190 @@ class Register(CommonModel):
         verbose_name_plural = _("不動産登記簿")
 
 # 土地
-# 親：不動産
-# 子：
+# 親：被相続人
+class Land(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="land",
+    )
+    register = models.ForeignKey(
+        Decedent,
+        verbose_name="不動産登記簿",
+        on_delete=models.CASCADE,
+        null = True,
+        blank = True,
+        related_name="land_register",
+    )
+    number = models.CharField(verbose_name="不動産番号", max_length=100, null=False, blank=False, default="")
+    address = models.CharField(verbose_name="所在地", max_length=100, null=True, blank=True, default="")
+    type = models.CharField(verbose_name="地目", max_length=100, null=True, blank=True, default="")
+    size = models.CharField(verbose_name="地積", max_length=100, null=True, blank=True, default="")
+    purparty = models.CharField(verbose_name="持ち分", max_length=100 ,null=False, blank=False, default="")
+    price = models.IntegerField(verbose_name="固定資産評価額", null=False, blank=False, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "land_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "land_update_by"
+    )
+    
+    step_threefields = []
+    
+    class Meta:
+        verbose_name = _("土地")
+        verbose_name_plural = _("土地")
 
 # 建物
-# 親：不動産
-# 子：
+# 親：被相続人
+class House(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="house",
+    )
+    register = models.ForeignKey(
+        Decedent,
+        verbose_name="不動産登記簿",
+        on_delete=models.CASCADE,
+        null = True,
+        blank = True,
+        related_name="house_register",
+    )
+    number = models.CharField(verbose_name="不動産番号", max_length=100, null=False, blank=False, default="")
+    address = models.CharField(verbose_name="所在地", max_length=100, null=True, blank=True, default="")
+    purpose = models.CharField(verbose_name="種類", max_length=100, null=True, blank=True, default="")
+    type = models.CharField(verbose_name="構造", max_length=100, null=True, blank=True, default="")
+    first_floor_size = models.CharField(verbose_name="１階面積", max_length=100, null=True, blank=True, default="")
+    second_floor_size = models.CharField(verbose_name="２階面積", max_length=100, null=True, blank=True, default="")
+    third_floor_size = models.CharField(verbose_name="３階面積", max_length=100, null=True, blank=True, default="")
+    fourth_floor_size = models.CharField(verbose_name="４階面積", max_length=100, null=True, blank=True, default="")
+    fifth_floor_size = models.CharField(verbose_name="５階面積", max_length=100, null=True, blank=True, default="")
+    purparty = models.CharField(verbose_name="持ち分", max_length=100 ,null=False, blank=False, default="")
+    price = models.IntegerField(verbose_name="固定資産評価額", null=False, blank=False, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "house_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "house_update_by"
+    )
+    
+    step_threefields = []
+    
+    class Meta:
+        verbose_name = _("建物")
+        verbose_name_plural = _("建物")
 
-# 区分建物
-# 親：不動産
-# 子：敷地
+class Site(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="site",
+    )
+    building = models.ForeignKey(
+        Decedent,
+        verbose_name="建物",
+        on_delete=models.CASCADE,
+        null = True,
+        blank = True,
+        related_name="site_house",
+    )
+    land_num = models.IntegerField(verbose_name="土地の符号", null=True, blank=True, default="")
+    land_type = models.CharField(verbose_name="敷地権の種類", null=True, blank=True, default="")
+    land_purparty = models.CharField(verbose_name="敷地権の割合", null=True, blank=True, default="")
+    price = models.IntegerField(verbose_name="固定資産評価額" ,null=False, blank=False, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "site_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "site_update_by"
+    )
+    
+    step_threefields = []
+    
+    class Meta:
+        verbose_name = _("敷地")
+        verbose_name_plural = _("敷地")
 
-# 敷地
-# 親：区分建物
-# 子：
+# 関係者
+class RelatedIndividual(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="related_indivisual",
+    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="前配偶者又は子")
+    object_id = models.PositiveIntegerField(verbose_name="前配偶者又は子id")
+    content_object = GenericForeignKey('content_type', 'object_id')
+    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    Relationship = models.CharField(verbose_name="続柄", max_length=30, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "related_indivisual_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "related_indivisual_update_by"
+    )
+    
+    step_three_fields = []
+    
+    class Meta:
+        verbose_name = _("関係者")
+        verbose_name_plural = _("関係者")
 
 # 申請情報
 # 親：ユーザー

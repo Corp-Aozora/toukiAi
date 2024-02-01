@@ -5,3 +5,6 @@ __pycache__
 *.pyc
 .DS_Store
 .env
+toukiai-development-7bf1692a5215.json
+client_secrets.json
+credentials.json

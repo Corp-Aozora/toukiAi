@@ -13,7 +13,12 @@
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
         <div>
-            <h4>申請書類作成のために以下を入力してください。</h4>
+            <h4>
+                申請書類作成のために以下を入力してください。
+            </h4>
+            <div class="form-text">
+                ※この章では入力項目が5つあります（一般的な相続の場合、入力時間の目安は30分～1時間です）
+            </div>
         </div>
         <hr>
         <form action="{% url 'toukiApp:step_four' %}" method="POST" class="my-4" novalidate>
@@ -706,7 +711,30 @@
             </section>
             <div class="text-center my-5">
                 <h5 id="statusText">現在１／５項目</h5>
-                <button id="completeBtn" type="button" class="btn btn-primary mt-3" disabled="true">完了</button>
+            </div>
+            <div class="mt-5">
+                <div class="d-flex justify-content-evenly px-3 pb-3">
+                    <div>
+                        <button id="preBtn" type="button" class="btn btn-secondary">
+                            ２．必要書類一覧を修正する
+                            <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            </span>
+                        </button>
+                    </div>
+                    <div>
+                        <button id="submitBtn" type="submit" class="btn btn-primary nextBtn" disabled>
+                            ４．書類の作成に進む
+                        </button>
+                        <div id="spinner" class="spinner-border text-warning align-middle" role="status" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                <div class="m-auto text-center">
+                    <span class="fw-bold">
+                        ※修正するボタンを押すと、不動産情報の入力内容が初期化される場合があります。<br>
+                        他のページの入力を確認したいだけの場合は、左の進捗状況からクリックしてください。
+                    </span>
+                </div>
             </div>
         </form>
     </div>
@@ -720,4 +748,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_three.js' %}"></script>
+    <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

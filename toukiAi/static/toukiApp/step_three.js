@@ -89,6 +89,7 @@ const numberBtn = 3;
 const landBtn = 4;
 const bldgBtn = 5;
 const condominiumBtn = 6;
+const preBtn = document.getElementById("preBtn");
 
 const heir1InheritRbs = document.getElementsByName("heir1InheritRbs");
 const inheritYes = 0;
@@ -548,4 +549,32 @@ addBldgBtn.addEventListener("click", ()=>{
 
     //イベントを追加する
     addEventToFloorBtns(`addBldg${countBldg}SizeButton`, `removeBldg${countBldg}SizeButton`);
+})
+
+preBtn.addEventListener("click", ()=>{
+    document.getElementById("spinner").style.display = "";
+    preBtn.disabled = true;
+    const data = { "progress" : 2.5 };
+    fetch('step_back', {  // PythonビューのURL
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        mode: "same-origin"
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        if (response.status === 'success'){
+            window.location.href = 'step_two';
+        }else if(response.status === "error"){
+            window.location.href = 'step_three';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        window.location.href = 'step_three';
+
+    });
 })

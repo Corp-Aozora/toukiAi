@@ -6,8 +6,8 @@ $limit = (Get-Date).AddHours(-24)
 
 # 指定したパス内の各ファイルに対して処理を行う
 Get-ChildItem -Path $Path | ForEach-Object {
-    # ファイルの最終更新日時が24時間前よりも前であれば、そのファイルを削除
-    if ($_.LastWriteTime -lt $limit) {
+    # ファイルの作成日時が24時間前よりも前であれば、そのファイルを削除
+    if ($_.CreationTime -lt $limit) {
         Remove-Item $_.FullName
     }
 }

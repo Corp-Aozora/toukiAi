@@ -35,7 +35,7 @@ class CustomDate:
     ]
 
     months = list(map(str, [i for i in range(1, 13)]))
-    days = list(map(str, [i for i in range(1, 31)]))
+    days = list(map(str, [i for i in range(1, 32)]))
     
     #選択肢インプット用の今年までの年タプルを生成
     def min_to_now_year(self):

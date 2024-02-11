@@ -72,7 +72,7 @@ class DecedentChangeForm(forms.ModelForm):
 
 class DecedentAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('user', 'progress', 'name', 'domicile_prefecture', 'domicile_city', 'domicile_address', 'prefecture', 'city', 'address', 'bldg', 'resistry_prefecture', 'resistry_city', 'resistry_address', 'resistry_bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
+        (None, {'fields': ('user', 'progress', 'name', 'domicile_prefecture', 'domicile_city', 'domicile_address', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', "created_at")}),
     )
     
@@ -94,7 +94,7 @@ class SpouseChangeForm(forms.ModelForm):
 
 class SpouseAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', 'content_type', 'object_id', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', 'content_type', 'object_id', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'is_acquire', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
@@ -138,7 +138,7 @@ class DescendantChangeForm(forms.ModelForm):
 
 class DescendantAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', 'content_type1', 'object_id1', 'content_type2', 'object_id2', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'is_adult', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', 'content_type1', 'object_id1', 'content_type2', 'object_id2', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'is_adult', 'is_acquire', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
@@ -160,7 +160,7 @@ class AscendantChangeForm(forms.ModelForm):
 
 class AscendantAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', 'content_type', 'object_id', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', 'content_type', 'object_id', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'is_acquire', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
@@ -204,7 +204,7 @@ class CollateralChangeForm(forms.ModelForm):
 
 class CollateralAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', 'content_type1', 'object_id1', 'content_type2', 'object_id2', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'is_adult', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', 'content_type1', 'object_id1', 'content_type2', 'object_id2', 'name', 'is_heir', 'is_refuse', 'is_exist', 'is_live', 'is_japan', 'is_adult', 'is_acquire', 'prefecture', 'city', 'address', 'bldg', 'death_year', 'death_month', 'death_date', 'birth_year', 'birth_month', 'birth_date', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
@@ -305,3 +305,113 @@ class SiteAdmin(admin.ModelAdmin):
     ordering = ['-updated_at']
 
 admin.site.register(Site, SiteAdmin)
+
+#登記簿上の住所
+class RegistryNameAndAddressChangeForm(forms.ModelForm):
+    class Meta:
+        model = RegistryNameAndAddress
+        fields = '__all__'
+
+class RegistryNameAndAddressAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "prefecture", 'city', 'address', 'bldg','created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = RegistryNameAndAddressChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(RegistryNameAndAddress, RegistryNameAndAddressAdmin)
+
+#遺産分割の方法
+class TypeOfDivisionChangeForm(forms.ModelForm):
+    class Meta:
+        model = TypeOfDivision
+        fields = '__all__'
+
+class TypeOfDivisionAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "type_of_division", 'property_allocation', 'cash_allocation', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = TypeOfDivisionChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(TypeOfDivision, TypeOfDivisionAdmin)
+
+#不動産の数
+class NumberOfPropertiesChangeForm(forms.ModelForm):
+    class Meta:
+        model = NumberOfProperties
+        fields = '__all__'
+
+class NumberOfPropertiesAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "land", 'house', 'bldg', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = NumberOfPropertiesChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(NumberOfProperties, NumberOfPropertiesAdmin)
+
+#不動産の取得者
+class PropertyAcquirerChangeForm(forms.ModelForm):
+    class Meta:
+        model = PropertyAcquirer
+        fields = '__all__'
+
+class PropertyAcquirerAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "object_id1", 'object_id2', 'is_acquire', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = PropertyAcquirerChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(PropertyAcquirer, PropertyAcquirerAdmin)
+
+#金銭の取得者
+class CashAcquirerChangeForm(forms.ModelForm):
+    class Meta:
+        model = CashAcquirer
+        fields = '__all__'
+
+class CashAcquirerAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "object_id1", 'object_id2', 'is_acquire', 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = CashAcquirerChangeForm
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(CashAcquirer, CashAcquirerAdmin)

@@ -1,47 +1,50 @@
-.inheritCheckArea{
-    width: 250px!important;
+#decedent-section label, #heirs-section label{
+    width: 115px!important;
 }
 
-.heirColumn{
-    max-width: 550px!important;
+#id_decedent-0-fieldset > div, #statusArea, #heirsSectionToggleBtn, #type-of-division-section > fieldset > div{
+    width: 425px!important;
 }
 
-.divisionArea{
-    width: 310px!important;
+#type-of-division-section div.input-group-text{
+    display: block!important;
+    text-align: left!important;
 }
 
-#landOl, #bldgOl, #condominiumOl, #officeOl, #decendantResistryAddressList{
-    counter-reset: section 0;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;;
+.registry-name-and-address-div{
+    width: 425px!important;
 }
 
-#landOl li:before, #bldgOl li:before, #condominiumOl li:before, #officeOl li, #decendantResistryAddressList li:before{
-    counter-increment: section 1;
-    content: "(" counter(section) ")";
-    font: bold;
-    font-size: 1.25rem;
-    padding-right: 0.5rem;
+.heirsFieldset{
+    width: 500px!important;
 }
 
-#officeOl{
-    max-width:400px;
+.single-word-label{
+    width: 90px;
+    display: block!important;
+    font-weight: 700!important;
 }
 
-.numberArea, .landCategoryArea{
-    width: 230px!important;
+.emPosition{
+    top: -54px;
+    left: 150px;
 }
 
-.numberOfRealEstateArea{
-    width: 170px!important;
+.statusEmPosition{
+    top: -112px;
+    left: 210px;
 }
 
-.prefectureInput{
-    max-width: 140px;
-    width: 100%;
+.rbEmPosition{
+    top: -93px;
+    left: 30px;
 }
 
-#papersList{
-    max-width:260px!important;
+.cityEmPosition{
+    top: -93px;
+    left: 150px;
+}
+
+::placeholder{
+    text-align: center;
 }

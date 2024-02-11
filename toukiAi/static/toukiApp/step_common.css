@@ -1,39 +1,3 @@
-.nameArea{
-    width:300px;
-}
-
-.prefectureArea{
-    width: 230px;
-}
-
-.fromCityArea{
-    width: 450px;
-}
-
-.birthDateArea{
-    max-width: 534px;
-}
-
-.yearSelect{
-    width: 237px;
-}
-
-.dateSelect{
-    width: 68px;
-}
-
-.addressArea{
-    max-width: 450px;
-}
-
-.smallNumberWithTextArea{
-    width: 389px!important;
-}
-
-.smallNumberArea{
-    width: 180px!important;
-}
-
 /* 全角4文字程度のラベル */
 .mdLabel{
     max-width: 90px!important;

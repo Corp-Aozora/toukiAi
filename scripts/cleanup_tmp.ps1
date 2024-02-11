@@ -6,11 +6,11 @@ $now = Get-Date
 
 # ディレクトリ内の全てのファイルに対して処理を行う
 Get-ChildItem -Path $dir_path | ForEach-Object {
-    # ファイルの最終アクセス時間を取得
-    $file_time = $_.LastAccessTime
+    # ファイルの作成時間を取得
+    $file_time = $_.CreationTime
 
-    # 最終アクセス時間が3日以上前であれば、そのファイルを削除
-    if ($now - $file_time).TotalDays -gt 3 {
+    # ファイルの作成時間が3日以上前であれば、そのファイルを削除
+    if (($now - $file_time).TotalDays -gt 3) {
         Remove-Item $_.FullName
     }
 }

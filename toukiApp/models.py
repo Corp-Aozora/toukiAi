@@ -69,21 +69,12 @@ class Decedent(CommonModel):
     city = models.CharField(verbose_name="住所の市区町村", max_length=100, default=None, null=True, blank=True)
     address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="", null=True, blank=True)
     bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="", null=True, blank=True)
-    resistry_prefecture = models.CharField(verbose_name="登記上の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
-    resistry_city = models.CharField(verbose_name="登記上の市区町村", max_length=100, default=None, null=True, blank=True)
-    resistry_address = models.CharField(verbose_name="登記上の町域・番地", max_length=100, default="", null=True, blank=True)
-    resistry_bldg = models.CharField(verbose_name="登記上の建物", max_length=100, default="", null=True, blank=True)
-    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
-    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
-    TYPE_OF_DIVISION_CHOICES = [
-    ('通常', '通常'),
-    ('換価分割', '換価分割'),
-    ]
-    type_of_division = models.CharField(verbose_name="遺産分割協議書の種類", max_length=30, choices=TYPE_OF_DIVISION_CHOICES, default="通常")
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -101,11 +92,83 @@ class Decedent(CommonModel):
         related_name = "decedent_update_by",
     )
     
-    step_one_fields =["progress", "user", "name", "death_year", "death_month", "prefecture", "city", "domicile_prefecture", "domicile_city"]
+    step_one_fields =[
+        "progress", 
+        "user", 
+        "name", 
+        "death_year", 
+        "death_month", 
+        "prefecture", 
+        "city", 
+        "domicile_prefecture", 
+        "domicile_city"
+    ]
+    
+    step_three_fields =[
+        "progress",
+        "user",
+        "name",
+        "death_year",
+        "death_month",
+        "death_date",
+        "birth_year",
+        "birth_month",
+        "birth_date",
+        "prefecture",
+        "city",
+        "address",
+        "bldg",
+        "domicile_prefecture",
+        "domicile_city",
+        "domicile_address",
+    ]
     
     class Meta:
         verbose_name = _("被相続人")
         verbose_name_plural = _("被相続人")
+        
+class RegistryNameAndAddress(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="registry_name_and_address",
+    )
+    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    prefecture = models.CharField(verbose_name="登記上の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    city = models.CharField(verbose_name="登記上の市区町村", max_length=100, default=None, null=True, blank=True)
+    address = models.CharField(verbose_name="登記上の町域・番地", max_length=100, default="", null=True, blank=True)
+    bldg = models.CharField(verbose_name="登記上の建物", max_length=100, default="", null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "registry_name_and_address_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "registry_name_and_address_update_by",
+    )
+    
+    step_three_fields=[
+        "name",
+        "prefecture",
+        "city",
+        "address",
+        "bldg",
+    ]
+    
+    class Meta:
+        verbose_name = _("登記簿上の住所氏名")
+        verbose_name_plural = _("登記簿上の住所")
 
 # 配偶者
 # 外部キー：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとid
@@ -121,22 +184,23 @@ class Spouse(CommonModel):
     content_type = models.ForeignKey(ContentType, verbose_name="配偶者", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(verbose_name="配偶者id")
     content_object = GenericForeignKey('content_type', 'object_id')
-    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    name = models.CharField(verbose_name="氏名", max_length=30, default="", null=True, blank=True)
     is_heir = models.BooleanField(verbose_name="相続人", null=True, blank=True, default=None)
     is_refuse = models.BooleanField(verbose_name="相続放棄", null=True, blank=True, default=None)
     is_exist = models.BooleanField(verbose_name="死亡時存在", null=True, blank=True, default=None)
     is_live = models.BooleanField(verbose_name="手続時存在", null=True, blank=True, default=None)
     is_japan = models.BooleanField(verbose_name="日本在住", null=True, blank=True, default=None)
-    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True)
-    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
-    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
-    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
-    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
-    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="", null=True, blank=True)
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="", null=True, blank=True)
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="", null=True, blank=True)
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    is_acquire = models.BooleanField(verbose_name="不動産取得", null=True, blank=True, default=None)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -154,7 +218,40 @@ class Spouse(CommonModel):
         related_name = "spouse_update_by"
     )
     
-    step_one_fields = ["decedent", "content_type", "object_id", "name", "is_exist", "is_live", "is_heir", "is_refuse", "is_japan"]
+    step_one_fields = [
+        "decedent",
+        "content_type",
+        "object_id",
+        "name",
+        "is_exist",
+        "is_live",
+        "is_heir",
+        "is_refuse",
+        "is_japan"
+    ]
+    
+    step_three_fields = [
+        "decedent",
+        "name",
+        "death_year",
+        "death_month",
+        "death_date",
+        "birth_year",
+        "birth_month",
+        "birth_date",
+        "is_acquire",
+        "prefecture",
+        "city",
+        "address",
+        "bldg",
+        "is_refuse",
+        "is_japan",
+        "content_type",
+        "object_id",
+        "is_exist",
+        "is_live",
+        "is_heir",
+    ]
     
     class Meta:
         verbose_name = _("配偶者")
@@ -172,7 +269,7 @@ class DescendantCommon(CommonModel):
         related_name="descendant_common",
     )
     is_exist = models.BooleanField(verbose_name="死亡時存在", null=True, blank=True, default=None)
-    count = models.IntegerField(verbose_name="子の数", null=False, default=0)
+    count = models.IntegerField(verbose_name="子の数", default=0, null=True, blank=True)
     is_same_parents = models.BooleanField(verbose_name="同じ両親", null=True, blank=True, default=None)
     is_live = models.BooleanField(verbose_name="手続時存在", null=True, blank=True, default=None)
     is_refuse = models.BooleanField(verbose_name="相続放棄", null=True, blank=True, default=None)
@@ -213,29 +310,30 @@ class Descendant(CommonModel):
         blank = False,
         related_name="descendant",
     )
-    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant1", verbose_name="親1")
-    object_id1 = models.PositiveIntegerField(verbose_name="親1id")
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant1", verbose_name="親1", null=True, blank=True)
+    object_id1 = models.PositiveIntegerField(verbose_name="親1id", null=True, blank=True)
     content_object1 = GenericForeignKey('content_type1', 'object_id1')
-    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant2", verbose_name="親2", null=True)
-    object_id2 = models.PositiveIntegerField(verbose_name="親2id", null=True)
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="descendant2", verbose_name="親2", null=True, blank=True)
+    object_id2 = models.PositiveIntegerField(verbose_name="親2id", null=True, blank=True)
     content_object2 = GenericForeignKey('content_type2', 'object_id2')
-    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    name = models.CharField(verbose_name="氏名", max_length=30, default="", null=True, blank=True)
     is_heir = models.BooleanField(verbose_name="相続人", null=True, blank=True, default=None)
     is_refuse = models.BooleanField(verbose_name="相続放棄", null=True, blank=True, default=None)
     is_exist = models.BooleanField(verbose_name="死亡時存在", null=True, blank=True, default=None)
     is_live = models.BooleanField(verbose_name="手続時存在", null=True, blank=True, default=None)
     is_japan = models.BooleanField(verbose_name="日本在住", null=True, blank=True, default=None)
     is_adult = models.BooleanField(verbose_name="成人", null=True, blank=True, default=None)
-    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True)
-    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
-    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
-    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
-    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
-    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="", null=True, blank=True)
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="", null=True, blank=True)
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="", null=True, blank=True)
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    is_acquire = models.BooleanField(verbose_name="不動産取得", null=True, blank=True, default=None)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -254,7 +352,46 @@ class Descendant(CommonModel):
         
     )
     
-    step_one_fields = ["content_type1", "object_id1", "content_type2", "object_id2", "name", "decedent", "is_live", "is_exist", "is_refuse", "is_adult", "is_japan", "is_heir",]
+    step_one_fields = [
+        "content_type1",
+        "object_id1",
+        "content_type2",
+        "object_id2",
+        "name",
+        "decedent",
+        "is_live",
+        "is_exist",
+        "is_refuse",
+        "is_adult",
+        "is_japan",
+        "is_heir",
+    ]
+    
+    step_three_fields = [
+        "decedent",
+        "name",
+        "death_year",
+        "death_month",
+        "death_date",
+        "birth_year",
+        "birth_month",
+        "birth_date",
+        "is_acquire",
+        "prefecture",
+        "city",
+        "address",
+        "bldg",
+        "is_refuse",
+        "is_japan",
+        "is_adult",
+        "content_type1",
+        "object_id1",
+        "content_type2",
+        "object_id2",
+        "is_exist",
+        "is_live",
+        "is_heir",
+    ]
     
     class Meta:
         verbose_name = _("卑属")
@@ -271,25 +408,26 @@ class Ascendant(CommonModel):
         blank = False,
         related_name="ascendant",
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="子")
-    object_id = models.PositiveIntegerField(verbose_name="子id")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="子", null=True, blank=True)
+    object_id = models.PositiveIntegerField(verbose_name="子id", null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    name = models.CharField(verbose_name="氏名", max_length=30, default="", null=True, blank=True)
     is_heir = models.BooleanField(verbose_name="相続人", null=True, blank=True, default=None)
     is_refuse = models.BooleanField(verbose_name="相続放棄", null=True, blank=True, default=None)
     is_exist = models.BooleanField(verbose_name="死亡時存在", null=True, blank=True, default=None)
     is_live = models.BooleanField(verbose_name="手続時存在", null=True, blank=True, default=None)
     is_japan = models.BooleanField(verbose_name="日本在住", null=True, blank=True, default=None)
-    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True)
-    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
-    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
-    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
-    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
-    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="", null=True, blank=True)
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="", null=True, blank=True)
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="", null=True, blank=True)
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    is_acquire = models.BooleanField(verbose_name="不動産取得", null=True, blank=True, default=None)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -307,7 +445,40 @@ class Ascendant(CommonModel):
         related_name = "ascendant_update_by"
     )
     
-    step_one_fields = ["content_type", "object_id", "name", "decedent", "is_live", "is_exist", "is_refuse", "is_japan", "is_heir",]
+    step_one_fields = [
+        "content_type",
+        "object_id",
+        "name",
+        "decedent",
+        "is_live",
+        "is_exist",
+        "is_refuse",
+        "is_japan",
+        "is_heir",
+    ]
+    
+    step_three_fields = [
+        "decedent",
+        "name",
+        "death_year",
+        "death_month",
+        "death_date",
+        "birth_year",
+        "birth_month",
+        "birth_date",
+        "is_acquire",
+        "prefecture",
+        "city",
+        "address",
+        "bldg",
+        "is_refuse",
+        "is_japan",
+        "content_type",
+        "object_id",
+        "is_exist",
+        "is_live",
+        "is_heir",
+    ]
     
     class Meta:
         verbose_name = _("尊属")
@@ -366,29 +537,30 @@ class Collateral(CommonModel):
         blank = False,
         related_name="collateral",
     )
-    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1", verbose_name="親1", null=True)
-    object_id1 = models.PositiveIntegerField(verbose_name="親1id", null=True)
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral1", verbose_name="親1", null=True, blank=True)
+    object_id1 = models.PositiveIntegerField(verbose_name="親1id", null=True, blank=True)
     content_object1 = GenericForeignKey('content_type1', 'object_id1')
-    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral2", verbose_name="親2", null=True)
-    object_id2 = models.PositiveIntegerField(verbose_name="親2id", null=True)
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="collateral2", verbose_name="親2", null=True, blank=True)
+    object_id2 = models.PositiveIntegerField(verbose_name="親2id", null=True, blank=True)
     content_object2 = GenericForeignKey('content_type2', 'object_id2')
-    name = models.CharField(verbose_name="氏名", max_length=30, default="")
+    name = models.CharField(verbose_name="氏名", max_length=30, default="", null=True, blank=True)
     is_heir = models.BooleanField(verbose_name="相続人", null=True, blank=True, default=None)
     is_refuse = models.BooleanField(verbose_name="相続放棄", null=True, blank=True, default=None)
     is_exist = models.BooleanField(verbose_name="死亡時存在", null=True, blank=True, default=None)
     is_live = models.BooleanField(verbose_name="手続時存在", null=True, blank=True, default=None)
     is_japan = models.BooleanField(verbose_name="日本在住", null=True, blank=True, default=None)
     is_adult = models.BooleanField(verbose_name="成人", null=True, blank=True, default=None)
-    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True)
-    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="")
-    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="")
-    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="")
-    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
-    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True)
-    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True)
-    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True)
+    prefecture = models.CharField(verbose_name="住所の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
+    city = models.CharField(verbose_name="住所の市区町村", max_length=100, default="", null=True, blank=True)
+    address = models.CharField(verbose_name="住所の町域・番地", max_length=100, default="", null=True, blank=True)
+    bldg = models.CharField(verbose_name="住所の建物", max_length=100, default="", null=True, blank=True)
+    death_year = models.CharField(verbose_name="死亡年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    death_month = models.CharField(verbose_name="死亡月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    death_date = models.CharField(verbose_name="死亡日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    birth_year = models.CharField(verbose_name="誕生年", max_length=20, choices=CustomDateReturn.years_with_jc, default=None, null=True, blank=True)
+    birth_month = models.CharField(verbose_name="誕生月", max_length=2, choices=CustomDateReturn.months, default=None, null=True, blank=True)
+    birth_date = models.CharField(verbose_name="誕生日", max_length=2, choices=CustomDateReturn.days, default=None, null=True, blank=True)
+    is_acquire = models.BooleanField(verbose_name="不動産取得", null=True, blank=True, default=None)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -406,7 +578,46 @@ class Collateral(CommonModel):
         related_name = "collateral_update_by"
     )
     
-    step_one_fields = ["content_type1", "object_id1", "content_type2", "object_id2", "name", "decedent", "is_live", "is_exist", "is_refuse", "is_adult", "is_japan", "is_heir",]
+    step_one_fields = [
+        "content_type1", 
+        "object_id1", 
+        "content_type2", 
+        "object_id2", 
+        "name", 
+        "decedent",
+        "is_live",
+        "is_exist",
+        "is_refuse", 
+        "is_adult",
+        "is_japan",
+        "is_heir",
+    ]
+    
+    step_three_fields = [
+        "decedent",
+        "name",
+        "death_year",
+        "death_month",
+        "death_date",
+        "birth_year",
+        "birth_month",
+        "birth_date",
+        "is_acquire",
+        "prefecture",
+        "city",
+        "address",
+        "bldg",
+        "is_refuse",
+        "is_japan",
+        "is_adult",
+        "content_type1",
+        "object_id1",
+        "content_type2",
+        "object_id2",
+        "is_exist",
+        "is_live",
+        "is_heir",
+    ]
     
     class Meta:
         verbose_name = _("傍系")
@@ -492,6 +703,108 @@ class Register(CommonModel):
     class Meta:
         verbose_name = _("不動産登記簿")
         verbose_name_plural = _("不動産登記簿")
+
+# 遺産分割方法
+class TypeOfDivision(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="type_of_division",
+    )
+    TYPE_OF_DIVISION_CHOICES = [
+        ('通常', '通常'),
+        ('換価分割', '換価分割'),
+    ]
+    type_of_division = models.CharField(verbose_name="遺産分割協議書の種類", max_length=30, choices=TYPE_OF_DIVISION_CHOICES, null=True, blank=True)
+    PROPERTY_ALLOCATION_CHOICES = [
+        ('全て一人', '全て一人'),
+        ('全て法定相続', '全て法定相続'),
+        ('その他', 'その他'),
+    ]
+    property_allocation = models.CharField(verbose_name="不動産の分配方法", max_length=30, choices=PROPERTY_ALLOCATION_CHOICES, null=True, blank=True)
+    all_property_acquirer = models.CharField(verbose_name="全不動産の取得者", max_length=100, default="", null=True, blank=True)
+    CASH_ALLOCATION_CHOICES = [
+        ('全て一人', '全て一人'),
+        ('全て法定相続', '全て法定相続'),
+        ('その他', 'その他'),
+    ]
+    cash_allocation = models.CharField(verbose_name="換価した金銭の分配方法", max_length=30, choices=CASH_ALLOCATION_CHOICES, null=True, blank=True)
+    all_cash_acquirer = models.CharField(verbose_name="全金銭の取得者", max_length=100, default="", null=True, blank=True)
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "type_of_division_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "type_of_division_update_by"
+    )
+    
+    step_three_fields = [
+        "decedent",
+        "type_of_division",
+        "property_allocation",
+        "all_property_acquirer",
+        "cash_allocation",
+        "all_cash_acquirer",
+    ]
+    
+    class Meta:
+        verbose_name = _("遺産分割方法")
+        verbose_name_plural = _("遺産分割方法")
+
+# 不動産の数
+# 親：被相続人
+class NumberOfProperties(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="number_of_properties",
+    )
+    land = models.IntegerField(verbose_name="土地", null=True, blank=True, default=0)
+    house = models.IntegerField(verbose_name="建物", null=True, blank=True, default=0)
+    bldg = models.IntegerField(verbose_name="区分建物", null=True, blank=True, default=0)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "number_of_properties_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "number_of_properties_update_by"
+    )
+    
+    step_threefields = [
+        "decedent",
+        "land",
+        "house",
+        "bldg",
+    ]
+    
+    class Meta:
+        verbose_name = _("不動産の数")
+        verbose_name_plural = _("不動産の数")
 
 # 土地
 # 親：被相続人
@@ -655,7 +968,7 @@ class RelatedIndividual(CommonModel):
     object_id = models.PositiveIntegerField(verbose_name="前配偶者又は子id")
     content_object = GenericForeignKey('content_type', 'object_id')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
-    Relationship = models.CharField(verbose_name="続柄", max_length=30, default="")
+    relationship = models.CharField(verbose_name="続柄", max_length=30, default="")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -679,6 +992,88 @@ class RelatedIndividual(CommonModel):
         verbose_name = _("関係者")
         verbose_name_plural = _("関係者")
 
+# 不動産取得者
+class PropertyAcquirer(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="property_acquirer",
+    )
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="property_acquirer1", verbose_name="不動産", null=True, blank=True)
+    object_id1 = models.PositiveIntegerField(verbose_name="不動産id", null=True, blank=True)
+    content_object1 = GenericForeignKey('content_type1', 'object_id1')
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="property_acquirer2", verbose_name="相続人", null=True, blank=True)
+    object_id2 = models.PositiveIntegerField(verbose_name="相続人id", null=True, blank=True)
+    content_object2 = GenericForeignKey('content_type2', 'object_id2')
+    percentage = models.CharField(verbose_name="取得割合", max_length=100 ,null=False, blank=False, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "property_acquirer_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "property_acquirer_update_by"
+    )
+    
+    step_threefields = []
+    
+    class Meta:
+        verbose_name = _("不動産の取得者")
+        verbose_name_plural = _("不動産の取得者")
+
+#金銭取得者     
+class CashAcquirer(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="cash_acquirer",
+    )
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="cash_acquirer1", verbose_name="不動産", null=True, blank=True)
+    object_id1 = models.PositiveIntegerField(verbose_name="不動産id", null=True, blank=True)
+    content_object1 = GenericForeignKey('content_type1', 'object_id1')
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="cash_acquirer2", verbose_name="相続人", null=True, blank=True)
+    object_id2 = models.PositiveIntegerField(verbose_name="相続人id", null=True, blank=True)
+    content_object2 = GenericForeignKey('content_type2', 'object_id2')
+    percentage = models.CharField(verbose_name="取得割合", max_length=100 ,null=False, blank=False, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "cash_acquirer_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "cash_acquirer_update_by"
+    )
+    
+    step_threefields = []
+    
+    class Meta:
+        verbose_name = _("金銭の取得者")
+        verbose_name_plural = _("金銭の取得者")
+        
 # 申請情報
 # 親：ユーザー
 # 子：被相続人、相続人、不動産  

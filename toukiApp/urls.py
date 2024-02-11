@@ -21,7 +21,8 @@ urlpatterns = [
     path("step_option_select", views.step_option_select, name="step_option_select"),
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 
-    path("get_user_city_data", views.get_user_city_data, name="get_user_city_data"),
+    path("get_decedent_city_data", views.get_decedent_city_data, name="get_decedent_city_data"),
+    path("get_registry_name_and_address_city_data", views.get_registry_name_and_address_city_data, name="get_registry_name_and_address_city_data"),
     path("get_city", views.get_city, name="get_city"),
     path("is_email", views.is_email, name="is_email"),
     path("step_back", views.step_back, name="step_back"),

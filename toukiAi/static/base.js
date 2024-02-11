@@ -28,6 +28,7 @@ const errorlist = document.querySelector(".errorlist");
 //定数
 const yes = 0;
 const no = 1;
+const other = 2;
 
 /**
  * テキストを強調する
@@ -343,17 +344,16 @@ function toSingleLine(str, el){
 
 /**
  * 記号が含まれてないかチェック
- * @param {string} value チェック対象の文字列
  * @param {HTMLElement} el チェック対象の要素
- * @returns 記号が含まれてないときはtrue、含まれているときはfalse
+ * @returns 記号が含まれてないときはtrue、含まれているときはエラーメッセージ
  */
-function isSymbolIncluded(value, el){
-    const reg = new RegExp(/^[^!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・]+$/)
-    if(reg.test(value)){
+function isSymbolIncluded(el){
+    const reg = new RegExp(/^[^!-/:-@[-`{-~！-／：-＠［-｀｛-～”’・。、￥「」ー]+$/)
+    if(reg.test(el.value)){
         return true;
     }else{
         el.value = "";
-        return false
+        return "記号が含まれています"
     }
 }
 
@@ -418,7 +418,7 @@ const csrftoken = getCookie('csrftoken');
  * @param {string} val 
 */
 function isAlphaNumSymbolIncluded(val){
-    if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～、-〜”’・￥]*々*$/.test(val)){
+    if(/^[^0-9０-９A-ZＡ-Ｚa-zａ-ｚ!-/:-@[-`{-~！-／：-＠［-｀｛-～”’・。、￥「」ー]*$/.test(val)){
         return true;
     }else{
         return "英数記号は使用できません";
@@ -521,3 +521,40 @@ window.addEventListener("load", ()=>{
 window.addEventListener("resize", ()=>{
     removePx();
 })
+
+/**
+ * エンターキーに次の入力欄にフォーカスする処理を実装する
+ * @param {event} e イベント
+ * @param {HTMLElement} el 次にフォーカスする要素
+ */
+function setEnterKeyFocusNext(e, el){
+    //Enterで次の入力欄にフォーカス
+    if(e.key === "Enter"){
+        e.preventDefault();
+        el.focus();
+    }
+}
+
+/**
+ * 年月から日数を取得する
+ * @param {number} year 
+ * @param {number} month 
+ * @returns 日数（num）
+ */
+function getDaysInMonth(year, month) {
+    return new Date(year, month, 0).getDate();
+}
+
+/**
+ * フォーム内にあるinput要素でのEnterを無効化する
+ * submitされてしまうのを防ぐため
+ */
+function disableEnterKeyForInputs(){
+    const inputArr = document.getElementsByTagName("input");
+    for(let i = 0, len = inputArr.length; i < len; i++){
+        inputArr[i].addEventListener("keydown",(e)=>{
+            if(e.key === "Enter")
+                e.preventDefault();
+        })
+    }
+}

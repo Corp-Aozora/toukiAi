@@ -23,347 +23,1430 @@
         <hr>
         <form action="{% url 'toukiApp:step_four' %}" method="POST" class="my-4" novalidate>
             {% csrf_token %}
-            <section class="container" id="decendantColumn">
-                <fieldset id="decendantField">
-                    <h5 class="form-label" id="decendantColumnTitle">１．被相続人情報</h5>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="decendantNameSpan">氏名</span>
-                        <input type="text" class="form-control mdInput" id="decendantNameInput" aria-describedby="decendantNameSpan" placeholder="福岡太郎" aria-label="福岡太郎" required>                    
+            <section id="decedent-section" class="container">
+                <fieldset id="id_decedent-0-fieldset">
+                    <div style="width: 500px!important;">
+                        <h5 class="form-label">
+                            １．被相続人情報
+                        </h5>
+                        <span class="form-text">
+                            ※１．基本データ入力で入力した氏名などの一部はここで修正できます。
+                        </span>
                     </div>
                     <div>
-                        <span class="form-text mt-0">※死亡の記載がある戸籍謄本に記載された氏名のとおり入力してください。</span>
-                    </div>
-                    <div class="mt-3">
-                        <label for="decendantDeathYearSelect" class="form-label fs-5">死亡日</label>
-                        <div class="input-group">
-                            <span class="input-group-text" id="decendantDeathYearSpan">年</span>
-                            <div>
-                                <select name="decendantDeathYear" class="form-select text-center rounded-0 mdInput" id="decendantDeathYearSelect" aria-describedby="decendantDeathYearSpan" required>
-                                    {% for year in years reversed %}
-                                    <option value="{{year}}">{{year}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <span class="input-group-text" id="decendantDeathMonthSpan">月</span>
-                            <div class="dateSelect">
-                                <select name="decendantDeathMonth" class="form-select text-center rounded-0" id="decendantDeathMonthSelect" aria-describedby="decendantDeathMonthSpan" required>
-                                    {% for month in months %}
-                                    <option value="{{month}}">{{month}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <span class="input-group-text" id="decendantDeathDateSpan">日</span>
-                            <div class="dateSelect">
-                            <select name="decendantDeathDate" class="form-select text-center rounded-0 rounded-end" id="decendantDeathDateSelect" aria-describedby="decendantDeathDateSpan" required>
-                                {% for day in days %}
-                                    <option value="{{day}}">{{day}}</option>
-                                {% endfor %}
-                            </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-3 birthDateArea">
-                        <label for="decendantBirthYearSelect" class="form-label fs-5">生年月日</label>
-                        <div class="input-group">
-                            <span class="input-group-text" id="decendantBirthYearSpan">年</span>
-                            <div class="yearSelect">
-                                <select name="decendantBirthYear" class="form-select text-center rounded-0" id="decendantBirthYearSelect" aria-describedby="decendantBirthYearSpan" required>
-                                    {% for year in years reversed %}
-                                    <option value="{{year}}">{{year}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <span class="input-group-text" id="decendantBirthMonthSpan">月</span>
-                            <div class="dateSelect">
-                                <select name="decendantBirthMonth" class="form-select text-center rounded-0" id="decendantBirthMonthSelect" aria-describedby="decendantBirthMonthSpan" required>
-                                    {% for month in months %}
-                                    <option value="{{month}}">{{month}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <span class="input-group-text" id="decendantBirthDateSpan">日</span>
-                            <div class="dateSelect">
-                            <select name="decendantBirthDate" class="form-select text-center rounded-0 rounded-end" id="decendantBirthDateSelect" aria-describedby="decendantBirthDateSpan" required>
-                                {% for day in days %}
-                                    <option value="{{day}}">{{day}}</option>
-                                {% endfor %}
-                            </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="d-flex">
-                            <div>
-                                <label for="decendantPrefectureSelect" class="form-label fs-5">死亡時の住所</label>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <span class="form-text mt-0">※住民票のとおり入力してください。</span>
-                            </div>
-                        </div>
-                        <div class="input-group prefectureArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantPrefectureSpan">都道府県</span>
-                            <select name="decendantPrefecture" class="form-select" id="decendantPrefectureSelect" aria-describedby="decendantPrefectureSpan" required>
-                                <option ></option>
-                                {% for prefecture in prefectures %}
-                                <option value="{{prefecture}}">{{prefecture}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="input-group fromCityArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantCitySpan">市区町村</span>
-                            <input type="text" class="form-control" id="decendantCityInput" aria-describedby="decendantCitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
-                        </div>
-                        <div class="input-group fromCityArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantAreaAddressSpan">町域・番地</span>
-                            <input type="text" class="form-control" id="decendantAreaAddressInput" aria-describedby="decendantAreaAddressSpan" placeholder="天神１丁目１番１号" aria-label="天神１丁目１番１号" required>
-                        </div>
-                        <div class="input-group fromCityArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantBldgSpan">建物名・号室</span>
-                            <input type="text" class="form-control" id="decendantBldgInput" aria-describedby="decendantBldgSpan" placeholder="天神マンション１０１号室" aria-label="天神マンション１０１号室" required>
-                        </div>
-                    </div>  
-                    <div class="mt-3">
-                        <div class="d-flex">
-                            <div>
-                                <label for="decendantDomicilePrefectureSelect" class="form-label fs-5">死亡時の本籍地</label>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <span class="form-text mt-0">※死亡の記載がある戸籍謄本のとおり入力してください。</span>
-                            </div>
-                        </div>
-                        <div class="input-group prefectureArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantPrefectureSpan">都道府県</span>
-                            <select name="decendantDomicilePrefecture" class="form-select" id="decendantDomicilePrefectureSelect" aria-describedby="decendantPrefectureSpan" required>
-                                <option ></option>
-                                {% for prefecture in prefectures %}
-                                <option value="{{prefecture}}">{{prefecture}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="input-group fromCityArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantDomicileCitySpan">市区町村</span>
-                            <input type="text" class="form-control" id="decendantDomicileCityInput" aria-describedby="decendantDomicileCitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
-                        </div>
-                        <div class="input-group fromCityArea">
-                            <span class="input-group-text decendantColumnLabel text-evenly" id="decendantDomicileAreaAddressSpan">町域・番地</span>
-                            <input type="text" class="form-control" id="decendantDomicileAreaAddressInput" aria-describedby="decendantDomicileAreaAddressSpan" placeholder="天神１丁目１番" aria-label="天神１丁目１番" required>
-                        </div>
-                    </div>
-                    <!-- 登記情報をupしているときは、自動で取得するため非表示にする -->
-                    <!-- 住所を転記できるようにする -->
-                    <div id="decendantResistryAddressArea" class="mt-3">
-                        <div class="d-flex">
-                            <div>
-                                <span class="form-label fs-5">登記上の住所</label>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <span class="form-text mt-0">※土地・建物全部事項証明書のとおり入力してください。</span>
-                            </div>
-                        </div>
-                        <ol id="decendantResistryAddressList" class="list-group">
-                            <li id="decendantResistry1AddressArea" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
-                                <div class="me-auto">
-                                    <div class="input-group prefectureArea">
-                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1PrefectureSpan">都道府県</span>
-                                        <select name="decendantResistry1Prefecture" class="form-select" id="decendantResistry1PrefectureSelect" aria-describedby="decendantResistry1PrefectureSpan" required>
-                                            <option ></option>
-                                            {% for prefecture in prefectures %}
-                                            <option value="{{prefecture}}">{{prefecture}}</option>
-                                            {% endfor %}
-                                        </select>
+                        {% for field in decedent_form %}
+                            {% if field.name in decedent_form_internal_field_name %}
+                            {% elif field.name == "name" %}
+                                <div class="input-group mt-4 position-relative Q">
+                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    <span class="errorMessage emPosition" style="display: none;">
+                                    </span>
+                                    <span class="form-text mt-0">
+                                        ※死亡の記載がある戸籍謄本に記載された氏名のとおりに入力。
+                                    </span>
+                                </div>
+                            {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                <div class="mt-4">
+                                    <span class="form-label fs-5">
+                                        <span class="fw-bold">
+                                            {% if field.name == "death_year" %}
+                                                死亡した年月日
+                                            {% else %}
+                                                生年月日
+                                            {% endif %}
+                                        </span>
+                                    </span>
+                                    <div class="input-group mt-2 Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            年
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
                                     </div>
-                                    <div class="input-group fromCityArea">
-                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1CitySpan">市区町村</span>
-                                        <input type="text" class="form-control" id="decendantResistry1CityInput" aria-describedby="decendantResistry1CitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
-                                    </div>
-                                    <div class="input-group fromCityArea">
-                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1AreaAddressSpan">町域・番地</span>
-                                        <input type="text" class="form-control" id="decendantResistry1AreaAddressInput" aria-describedby="decendantResistry1AreaAddressSpan" placeholder="天神１丁目１番" aria-label="天神１丁目１番" required>
-                                    </div>
-                                    <div class="input-group fromCityArea">
-                                        <span class="input-group-text decendantColumnLabel text-evenly" id="decendantResistry1BldgSpan">建物名・号室</span>
-                                        <input type="text" class="form-control" id="decendantResistry1BldgInput" aria-describedby="decendantResistry1BldgSpan" placeholder="天神マンション１０１号室" aria-label="天神マンション１０１号室" required>
+                            {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                <div class="input-group Q">
+                                    <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                        月
+                                    </label>
+                                    {{field}}
+                                    <span class="errorMessage emPosition" style="display: none;">
+                                    </span>
+                                </div>
+                            {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            日
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
                                     </div>
                                 </div>
-                            </li>
-                        </ol>
-                    </div>
-                    <div class="mt-3 d-flex">
-                        <button type="button" id="addResistryAddressButton" class="btn btn-primary me-3">登記上の住所を追加</button>
-                        <button type="button" id="removeResistryAddressButton" class="btn btn-secondary ms-3" style="display: none;" disabled = "true">削除</button>
-                    </div>
-                    <span id="addResistryAddressButtonNote" class="form-text" style="display: none;">※登記上の住所は５つまでしか登録できません。</span>
-                </fieldset>
-                <div class="mt-5 d-flex justify-content-center">
-                    <button type="button" id="decendantOkBtn" class="btn btn-primary me-3">確定</button>
-                    <button type="button" id="decendantCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
-                </div>
-            </section>
-            <section id="heirsColumn" class="container" style="display: none;">
-                <hr>
-                <div>
-                    <h5 class="form-label d-inline cursor-pointer" id="heirsColumnTitle">２．相続人情報</h5>
-                    <span class="form-text">※クリックすると１で入力した相関図を確認できます。</span>
-                    <!-- １で入力した相関図を表示する -->
-                </div>
-                <fieldset id="heirsField">
-                    <div id="heir1Column" class="border rounded-3 container-md heirColumn mt-3 mx-0">
-                        <div class="mt-2">
-                            <!-- 1.で入力されたニックネームを表示する -->
-                            <span id="heir1Nickname" class="text-primary fw-bold fs-5">佐賀達也<!--（１．で入力されたニックネーム）--></span>
-                            <span>さん</span>
-                        </div>
-                        <div class="mt-2">
-                            <!-- 1.で入力された続柄を表示する -->
-                            <span id="heir1RelationShip" class="text-primary fw-bold fs-5">子１<!--（１．を元に続柄を表示する）--></span>
-                        </div>
-                        <div class="mt-3">
-                            <div class="input-group nameArea mt-3">
-                                <span class="input-group-text" id="heir1NameSpan">氏名</span>
-                                <input type="text" class="form-control" id="heir1NameInput" aria-describedby="heir1NameSpan" placeholder="福岡一郎" aria-label="福岡一郎" maxlength="25" type="text" required>                    
-                            </div>
-                            <span class="form-text mt-0">※印鑑証明書のとおり入力してください。</span>
-                        </div>
-                        <div class="mt-3 birthDateArea">
-                            <label for="heir1BirthYearSelect" class="form-label fs-5">生年月日</label>
-                            <div class="input-group">
-                                <span class="input-group-text" id="heir1BirthYearSpan">年</span>
-                                <div class="yearSelect">
-                                    <select name="heir1BirthYear" class="form-select text-center" id="heir1BirthYearSelect" aria-describedby="heir1BirthYearSpan" required>
-                                        {% for year in years reversed %}
-                                        <option value="{{year}}">{{year}}</option>
-                                        {% endfor %}
-                                    </select>
+                            {% elif field.name == "prefecture" or field.name == "domicile_prefecture" %}
+                                <div class="mt-4">
+                                    <span class="form-label fs-5 fw-bold">
+                                        {% if field.name == "prefecture" %}
+                                            死亡時の住所
+                                        {% else %}
+                                            死亡時の本籍
+                                        {% endif %}
+                                    </span>
+                                    <div class="form-text">
+                                        {% if field.name == "prefecture" %}
+                                            ※住民票の除票又は戸籍の附票のとおりに入力。
+                                        {% else %}
+                                            ※死亡の記載がある全部事項証明書（戸籍謄本）のとおりに入力。
+                                        {% endif %}
+                                    </div>
+                                    <div class="input-group mt-2 Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            都道府県
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                            {% elif field.name == "city" or field.name == "domicile_city" %}
+                                    <div class="input-group position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                            市区町村
+                                        </label>
+                                        {{ field }}
+                                        <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                            市区町村データの取得に失敗しました。<br>
+                                            ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                            恐れ入りますが、弊社までお問い合わせをお願いします。
+                                        </span>
+                                    </div>
+                            {% elif field.name == "address" or field.name == "domicile_address" %}
+                                    <div class="input-group position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            町域・番地
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                        </span>
+                                    </div>
+                            {% elif field.name == "bldg" %}
+                                    <div class="input-group position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            建物名・号室
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                        </span>
+                                    </div>
                                 </div>
-                                <span class="input-group-text" id="heir1BirthMonthSpan">月</span>
-                                <div class="dateSelect">
-                                    <select name="heir1BirthMonth" class="form-select text-center " id="heir1BirthMonthSelect" aria-describedby="heir1BirthMonthSpan" required>
-                                        {% for month in months %}
-                                        <option value="{{month}}">{{month}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <span class="input-group-text" id="heir1BirthDateSpan">日</span>
-                                <div class="dateSelect">
-                                <select name="heir1BirthDate" class="form-select text-center" id="heir1BirthDateSelect" aria-describedby="heir1BirthDateSpan" required>
-                                    {% for day in days %}
-                                        <option value="{{day}}">{{day}}</option>
-                                    {% endfor %}
-                                </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <div>
-                                <span class="fs-5">不動産を取得しますか？</span>
-                                <span class="form-text">※一部（持分）を取得する場合も含みます。</span>
-                            </div>
-                            <div class="d-flex justify-content-evenly mt-3 border rounded-3 twoRbs">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="heir1InheritRbs" id="heir1InheritRbsZero">
-                                    <label class="form-check-label" for="heir1InheritRbsZero">する</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="heir1InheritRbs" id="heir1InheritRbsOne">
-                                    <label class="form-check-label" for="heir1InheritRbsOne">しない</label>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 名義人になる相続人のみ表示する -->
-                        <div id="heir1AddressArea" class="mt-3 addressArera" style="display: none;">
-                            <div class="d-flex">
-                                <div>
-                                    <label for="heir1PrefectureSelect" class="form-label fs-5">住民票上の住所</label>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="form-text mt-0">※住民票と全く同じ表記をしてください。</span>
-                                </div>
-                            </div>
-                            <div class="input-group prefectureArea">
-                                <span class="input-group-text" id="heir1PrefectureSpan">都道府県</span>
-                                <select name="heir1Prefecture" class="form-select" id="heir1PrefectureSelect" aria-describedby="heir1PrefectureSpan" required>
-                                    <option ></option>
-                                    {% for prefecture in prefectures %}
-                                    <option value="{{prefecture}}">{{prefecture}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="input-group fromCityArea">
-                                <span class="input-group-text" id="heir1CitySpan">市区町村</span>
-                                <input type="text" class="form-control" id="heir1CityInput" aria-describedby="heir1CitySpan" placeholder="福岡市中央区" aria-label="福岡市中央区" required>
-                            </div>
-                            <div class="input-group fromCityArea">
-                                <span class="input-group-text" id="heir1AreaAddressSpan">町域・番地</span>
-                                <input type="text" class="form-control" id="heir1AreaAddressInput" aria-describedby="heir1AreaAddressSpan" placeholder="天神１丁目１番１号" aria-label="天神１丁目１番１号" required>
-                            </div>
-                            <div class="input-group fromCityArea">
-                                <span class="input-group-text" id="heir1BldgSpan">建物名・号室</span>
-                                <input type="text" class="form-control" id="heir1BldgInput" aria-describedby="heir1BldgSpan" placeholder="天神マンション１０１号室" aria-label="天神マンション１０１号室" required>
-                            </div>
-                        </div>  
-                        <!-- 前配偶者、異父母のとき以外は非表示 -->
-                        <div class="my-3">
-                            <label id="concernedPeopleNameLabel" for="concernedPeopleNameInput"  class="form-label fs-5">
-                                <span id="relationshipWithHeir" class="fs-5 fw-bold">（１．の続柄が表示される）</span>
-                                の氏名
-                            </label>
-                            <div class="input-group nameArea">
-                                <input type="text" class="form-control" id="concernedPeopleNameInput" placeholder="長崎太郎" aria-describedby="heirNameLabel" maxlength="25" type="text" required>
-                            </div>
-                        </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </fieldset>
-                <div class="mt-5 d-flex justify-content-center">
-                    <button type="button" id="heirsOkBtn" class="btn btn-primary me-3">確定</button>
-                    <button type="button" id="heirsCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
-                </div>
-            </section>
-            <section id="divisionColumn" class="container" style="display: none;">
-                <hr>
-                <div>
-                    <h5 class="form-label" id="divisionColumnTitle">３．遺産分割方法</h5>
-                </div>
-                <fieldset id="divisionField">
+                <fieldset>
                     <div class="mt-3">
                         <div>
-                            <span class="fs-5">不動産をどのように分配しますか？</span>
-                        </div>
-                        <div class="d-flex mt-3 divisionArea justify-content-between border rounded-3 px-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="divisionRbs" id="divisionRbsZero">
-                                <label class="form-check-label" for="divisionRbsZero">一人が取得</label>
+                            <div>
+                                <div>
+                                    <span class="form-label fs-5 fw-bold">
+                                        登記簿上の氏名と住所
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="form-text">
+                                        ※登記情報、全部事項証明書（登記簿謄本）のとおり入力。<br>
+                                        ※他の登記簿謄本と同じ氏名住所は１回のみの入力で大丈夫です。
+                                    </span>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="divisionRbs" id="divisionRbsOne">
-                                <label class="form-check-label" for="divisionRbsOne">法定相続</label>
+                            <div>
+                                <div>
+                                    {{ registry_name_and_address_forms.management_form }}
+                                    {% for form in registry_name_and_address_forms %}
+                                        <fieldset id="id_registry_name_and_address-0-fieldset"  class="registryNameAndAddressFieldset d-flex mt-4">
+                                            <div class="registry_name_and_address-numbering-div my-auto fw-bold">
+                                                （１）
+                                            </div>
+                                            <div class="registry-name-and-address-div ms-3">
+                                                {% for field in form %}
+                                                    {% if field.name == "name" %}
+                                                        <div class="input-group position-relative Q">
+                                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                                {{ field.label }}
+                                                            </label>
+                                                            {{ field }}
+                                                            <span class="errorMessage emPosition" style="display: none;">
+                                                            </span>
+                                                        </div>
+                                                    {% elif field.name == "prefecture" %}
+                                                        <div class="mt-4">
+                                                            <div class="input-group mt-2 Q">
+                                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                                    都道府県
+                                                                </label>
+                                                                {{ field }}
+                                                                <span class="errorMessage emPosition" style="display: none;">
+                                                                </span>
+                                                            </div>
+                                                    {% elif field.name == "city" %}
+                                                            <div class="input-group position-relative Q">
+                                                                <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                                    市区町村
+                                                                </label>
+                                                                {{ field }}
+                                                                <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                                    市区町村データの取得に失敗しました。<br>
+                                                                    ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                                    恐れ入りますが、弊社までお問い合わせをお願いします。
+                                                                </span>
+                                                            </div>
+                                                    {% elif field.name == "address" %}
+                                                            <div class="input-group position-relative Q">
+                                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                                    町域・番地
+                                                                </label>
+                                                                {{ field }}
+                                                                <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                                </span>
+                                                            </div>
+                                                    {% elif field.name == "bldg" %}
+                                                            <div class="input-group position-relative Q">
+                                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                                    建物名・号室
+                                                                </label>
+                                                                {{ field }}
+                                                                <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </fieldset>
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-3">
+                                    <div class="d-flex">
+                                        <button type="button" id="removeRegistryAddressButton" class="btn btn-secondary me-3" disabled = "true">
+                                            登記簿上の氏名と住所を削除
+                                        </button>
+                                        <button type="button" id="addRegistryAddressButton" class="btn btn-primary ms-3" disabled = "true">
+                                            登記簿上の氏名と住所を追加
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <span class="form-text text-danger" style="display: none;">
+                                            ※登記上の住所は１０個までしか登録できません。<br>
+                                            追加で必要な場合はサポートまでお問い合わせをお願いします。
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="divisionRbs" id="divisionRbsTwo">
-                                <label class="form-check-label" for="divisionRbsTwo">その他</label>
-                            </div>
-                        </div>
-                        <!-- 一人が取得のとき表示する -->
-                        <div id="divisionAquirerArea" class="input-group nameArea mt-3" style="display: none;">
-                            <span class="input-group-text text-evenly" id="divisionAllAquirerSpan">取得者</span>
-                            <select name="divisionAllAquirerCandidate" class="form-select" id="divisionAllAquirerSelect" aria-describedby="divisionAllAquirerSpan" required>
-                                <option ></option>
-                                {% for prefecture in prefectures %}
-                                <option value="{{prefecture}}">{{prefecture}}</option>
-                                {% endfor %}
-                            </select>
                         </div>
                     </div>
                 </fieldset>
-                <div class="mt-5 d-flex justify-content-center">
-                    <button type="button" id="divisionOkBtn" class="btn btn-primary me-3">確定</button>
-                    <button type="button" id="divisionCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+            </section>
+            <section id="heirs-section" class="container" style="display: none;">
+                <hr class="mt-5 mb-5">
+                <div>
+                    <h5>
+                        ２．相続人情報
+                    </h5>
+                </div>
+                {% if spouse_form.instance.pk %}
+                    <fieldset id="id_decedent_spouse-fieldset" class="heirsFieldset">
+                        <div class="border rounded-3 p-4 mt-3">
+                            <div>
+                                <div>
+                                    {% if spouse_form.is_live.value == False %}
+                                        故
+                                    {% endif %}
+                                    <span class="text-success fw-bold fs-5">
+                                        {{spouse_form.name.value}}
+                                    </span>
+                                    さん
+                                </div>
+                                <div>
+                                    <span class="text-success fw-bold fs-5">
+                                        被相続人との続柄：
+                                        {% if spouse_form.is_live.value == False %}
+                                            元
+                                        {% endif %}
+                                        配偶者
+                                    </span>
+                                </div>
+                            </div>
+                            {% for field in spouse_form %}
+                                {% if field.name == "name" %}
+                                    <div class="input-group mt-4 position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                        <span class="form-text mt-0">
+                                            ※住民票又は印鑑証明書に記載された氏名のとおりに入力。<br>
+                                            ※１．基本データ入力で入力した氏名は、ここで修正できます。
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                    <div class="mt-4 heirsDeathDateDiv"
+                                        {% if field.name == "death_year" %}
+                                            {% if spouse_form.is_heir.value == True or spouse_form.is_refuse.value == True %}
+                                                style="display:none;"
+                                            {% endif %}
+                                        {% endif %}>
+                                        <span class="form-label fs-5">
+                                            <span class="fw-bold">
+                                                {% if field.name == "death_year" %}
+                                                    死亡した年月日
+                                                {% else %}
+                                                    生年月日
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <div class="input-group mt-2 Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                年
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            月
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                        <div class="input-group Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                日
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_acquire" %}
+                                    <div class="mt-4" {% if spouse_form.is_heir.value == False %} style="display:none;"{% endif %}>
+                                        <div>
+                                            <div class="fs-5 fw-bold">
+                                                不動産を取得しますか？
+                                            </div>
+                                            <div class="form-text">
+                                                ※一部（持分）を取得する場合も含みます。<br>
+                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 border rounded-3">
+                                            <div class="d-flex justify-content-center p-2 input-group">
+                                                {% for choice in field %}
+                                                    <div class="form-check col">
+                                                        {% if forloop.counter == 1 %}
+                                                            <label class="form-check-label ms-5">
+                                                        {% else %}
+                                                            <label class="form-check-label">
+                                                        {% endif %}
+                                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                            </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                {% elif field.name == "prefecture" %}
+                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                        <span class="form-label fs-5 fw-bold">
+                                            住所
+                                        </span>
+                                        <div class="form-text">
+                                            {% if spouse_form.is_japan.value == True %}
+                                                ※住民票の除票又は戸籍の附票のとおりに入力。
+                                            {% elif spouse_form.is_japan.value == False %}
+                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                            {% endif %}
+                                        </div>
+                                        <div class="input-group mt-2 Q" {% if spouse_form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                都道府県
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "city" %}
+                                        <div class="input-group position-relative Q" {% if spouse_form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                市区町村
+                                            </label>
+                                            {{ field }}
+                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                市区町村データの取得に失敗しました。<br>
+                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            </span>
+                                        </div>
+                                {% elif field.name == "address" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {% if spouse_form.is_japan.value == True %}
+                                                    町域・番地
+                                                {% elif spouse_form.is_japan.value == False %}
+                                                    国名・市町村
+                                                {% endif %}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "bldg" %}
+                                            <div class="input-group position-relative Q">
+                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                    {% if spouse_form.is_japan.value == True %}
+                                                        建物名・号室
+                                                    {% elif spouse_form.is_japan.value == False %}
+                                                        番地
+                                                    {% endif %}
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_refuse" or field.name == "is_japan" or field.name == "object_id" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% endif %}
+                {{ child_forms.management_form }}
+                {% for form in child_forms %}
+                    <fieldset id="id_child-{{forloop.counter0}}-fieldset" class="heirsFieldset childFieldset">
+                        <div class="border rounded-3 p-4 mt-3">
+                            <div>
+                                <div>
+                                    {% if form.is_live.value == False %}
+                                        故
+                                    {% endif %}
+                                    <span class="text-success fw-bold fs-5">
+                                        {{form.name.value}}
+                                    </span>
+                                    さん
+                                </div>
+                                <div>
+                                    <span class="text-success fw-bold fs-5">
+                                        被相続人との続柄：子
+                                    </span>
+                                </div>
+                            </div>
+                            {% for field in form %}
+                                {% if field.name == "name" %}
+                                    <div class="input-group mt-4 position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                        <span class="form-text mt-0">
+                                            ※住民票又は印鑑証明書に記載された氏名のとおりに入力。<br>
+                                            ※１．基本データ入力で入力した氏名は、ここで修正できます。
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                    <div class="mt-4 heirsDeathDateDiv"
+                                        {% if field.name == "death_year" %}
+                                            {% if form.is_heir.value == True or form.is_refuse.value == True %}
+                                                style="display:none;"
+                                            {% endif %}
+                                        {% endif %}>
+                                        <span class="form-label fs-5">
+                                            <span class="fw-bold">
+                                                {% if field.name == "death_year" %}
+                                                    死亡した年月日
+                                                {% else %}
+                                                    生年月日
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <div class="input-group mt-2 Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                年
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            月
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                        <div class="input-group Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                日
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_acquire" %}
+                                    <div class="mt-4"{% if form.is_heir.value == False %} style="display:none;"{% endif %}>
+                                        <div>
+                                            <div class="fs-5 fw-bold">
+                                                不動産を取得しますか？
+                                            </div>
+                                            <div class="form-text">
+                                                ※一部（持分）を取得する場合も含みます。<br>
+                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 border rounded-3">
+                                            <div class="d-flex justify-content-center p-2 input-group">
+                                                {% for choice in field %}
+                                                    <div class="form-check col">
+                                                        {% if forloop.counter == 1 %}
+                                                            <label class="form-check-label ms-5">
+                                                        {% else %}
+                                                            <label class="form-check-label">
+                                                        {% endif %}
+                                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                            </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                {% elif field.name == "prefecture" %}
+                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                        <span class="form-label fs-5 fw-bold">
+                                            住所
+                                        </span>
+                                        <div class="form-text">
+                                            {% if form.is_japan.value == True %}
+                                                ※住民票の除票又は戸籍の附票のとおりに入力。
+                                            {% elif form.is_japan.value == False %}
+                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                            {% endif %}
+                                        </div>
+                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                都道府県
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "city" %}
+                                        <div class="input-group position-relative Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                市区町村
+                                            </label>
+                                            {{ field }}
+                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                市区町村データの取得に失敗しました。<br>
+                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            </span>
+                                        </div>
+                                {% elif field.name == "address" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {% if form.is_japan.value == True %}
+                                                    町域・番地
+                                                {% elif form.is_japan.value == False %}
+                                                    国名・市町村
+                                                {% endif %}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "bldg" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        {% if form.is_japan.value == True %}
+                                                            建物名・号室
+                                                        {% elif form.is_japan.value == False %}
+                                                            番地
+                                                        {% endif %}
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "other_parent_name" %}
+                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value %} style="display: none;"{% endif %}>
+                                        <span class="form-label fs-5 fw-bold">
+                                            被相続人の前配偶者
+                                        </span>
+                                        <div>
+                                            <div class="input-group position-relative Q mt-3">
+                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                    氏名
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition" style="display: none;">
+                                                </span>
+                                            </div>
+                                            <span class="form-text mt-0">
+                                                ※お持ちの戸籍謄本上から判明する最後の氏名で構いません。
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                {{ child_spouse_forms.management_form }}
+                {% for form in child_spouse_forms %}
+                    <fieldset id="id_child_spouse-{{forloop.counter0}}-fieldset" class="heirsFieldset childSpouseFieldset">
+                        <div class="border rounded-3 p-4 mt-3">
+                            <div>
+                                <div>
+                                    {% if form.is_live.value == False %}
+                                        故
+                                    {% endif %}
+                                    <span class="text-success fw-bold fs-5">
+                                        {{form.name.value}}
+                                    </span>
+                                    さん
+                                </div>
+                                <div>
+                                    <span class="text-success fw-bold fs-5">
+                                        被相続人との続柄：子の配偶者
+                                    </span>
+                                </div>
+                            </div>
+                            {% for field in form %}
+                                {% if field.name == "name" %}
+                                    <div class="input-group mt-4 position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                        <span class="form-text mt-0">
+                                            ※住民票又は印鑑証明書に記載された氏名のとおりに入力。<br>
+                                            ※１．基本データ入力で入力した氏名は、ここで修正できます。
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                    <div class="mt-4 heirsDeathDateDiv"
+                                        {% if field.name == "death_year" %}
+                                            {% if form.is_heir.value == True or form.is_refuse.value == True %}
+                                                style="display:none;"
+                                            {% endif %}
+                                        {% endif %}>
+                                        <span class="form-label fs-5">
+                                            <span class="fw-bold">
+                                                {% if field.name == "death_year" %}
+                                                    死亡した年月日
+                                                {% else %}
+                                                    生年月日
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <div class="input-group mt-2 Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                年
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            月
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                        <div class="input-group Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                日
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_acquire" %}
+                                    <div class="mt-4"{% if form.is_heir.value == False %} style="display:none;"{% endif %}>
+                                        <div>
+                                            <div class="fs-5 fw-bold">
+                                                不動産を取得しますか？
+                                            </div>
+                                            <div class="form-text">
+                                                ※一部（持分）を取得する場合も含みます。<br>
+                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 border rounded-3">
+                                            <div class="d-flex justify-content-center p-2 input-group">
+                                                {% for choice in field %}
+                                                    <div class="form-check col">
+                                                        {% if forloop.counter == 1 %}
+                                                            <label class="form-check-label ms-5">
+                                                        {% else %}
+                                                            <label class="form-check-label">
+                                                        {% endif %}
+                                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                            </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                {% elif field.name == "prefecture" %}
+                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                        <span class="form-label fs-5 fw-bold">
+                                            住所
+                                        </span>
+                                        <div class="form-text">
+                                            {% if form.is_japan.value == True %}
+                                                ※住民票の除票又は戸籍の附票のとおりに入力。
+                                            {% elif form.is_japan.value == False %}
+                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                            {% endif %}
+                                        </div>
+                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                都道府県
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "city" %}
+                                        <div class="input-group position-relative Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                市区町村
+                                            </label>
+                                            {{ field }}
+                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                市区町村データの取得に失敗しました。<br>
+                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            </span>
+                                        </div>
+                                {% elif field.name == "address" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {% if form.is_japan.value == True %}
+                                                    町域・番地
+                                                {% elif form.is_japan.value == False %}
+                                                    国名・市町村
+                                                {% endif %}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "bldg" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        {% if form.is_japan.value == True %}
+                                                            建物名・号室
+                                                        {% elif form.is_japan.value == False %}
+                                                            番地
+                                                        {% endif %}
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                {{ grand_child_forms.management_form }}
+                {% for form in grand_child_forms %}
+                    <fieldset id="id_grand_child-{{forloop.counter0}}-fieldset" class="heirsFieldset grandChildFieldset">
+                        <div class="border rounded-3 p-4 mt-3">
+                            <div>
+                                <div>
+                                    {% if form.is_live.value == False %}
+                                        故
+                                    {% endif %}
+                                    <span class="text-success fw-bold fs-5">
+                                        {{form.name.value}}
+                                    </span>
+                                    さん
+                                </div>
+                                <div>
+                                    <span class="text-success fw-bold fs-5">
+                                        被相続人との続柄：孫
+                                    </span>
+                                </div>
+                            </div>
+                            {% for field in form %}
+                                {% if field.name == "name" %}
+                                    <div class="input-group mt-4 position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                        <span class="form-text mt-0">
+                                            ※住民票又は印鑑証明書に記載された氏名のとおりに入力。<br>
+                                            ※１．基本データ入力で入力した氏名は、ここで修正できます。
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                    <div class="mt-4 heirsDeathDateDiv"
+                                        {% if field.name == "death_year" %}
+                                            {% if form.is_heir.value == True or form.is_refuse.value == True %}
+                                                style="display:none;"
+                                            {% endif %}
+                                        {% endif %}>
+                                        <span class="form-label fs-5">
+                                            <span class="fw-bold">
+                                                {% if field.name == "death_year" %}
+                                                    死亡した年月日
+                                                {% else %}
+                                                    生年月日
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <div class="input-group mt-2 Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                年
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            月
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                        <div class="input-group Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                日
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_acquire" %}
+                                    <div class="mt-4"{% if form.is_heir.value == False %} style="display:none;"{% endif %}>
+                                        <div>
+                                            <div class="fs-5 fw-bold">
+                                                不動産を取得しますか？
+                                            </div>
+                                            <div class="form-text">
+                                                ※一部（持分）を取得する場合も含みます。<br>
+                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 border rounded-3">
+                                            <div class="d-flex justify-content-center p-2 input-group">
+                                                {% for choice in field %}
+                                                    <div class="form-check col">
+                                                        {% if forloop.counter == 1 %}
+                                                            <label class="form-check-label ms-5">
+                                                        {% else %}
+                                                            <label class="form-check-label">
+                                                        {% endif %}
+                                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                            </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                {% elif field.name == "prefecture" %}
+                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                        <span class="form-label fs-5 fw-bold">
+                                            住所
+                                        </span>
+                                        <div class="form-text">
+                                            {% if form.is_japan.value == True %}
+                                                ※住民票の除票又は戸籍の附票のとおりに入力。
+                                            {% elif form.is_japan.value == False %}
+                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                            {% endif %}
+                                        </div>
+                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                都道府県
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "city" %}
+                                        <div class="input-group position-relative Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                市区町村
+                                            </label>
+                                            {{ field }}
+                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                市区町村データの取得に失敗しました。<br>
+                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            </span>
+                                        </div>
+                                {% elif field.name == "address" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {% if form.is_japan.value == True %}
+                                                    町域・番地
+                                                {% elif form.is_japan.value == False %}
+                                                    国名・市町村
+                                                {% endif %}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "bldg" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        {% if form.is_japan.value == True %}
+                                                            建物名・号室
+                                                        {% elif form.is_japan.value == False %}
+                                                            番地
+                                                        {% endif %}
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "other_parent_name" %}
+                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value %} style="display: none;"{% endif %}>
+                                        <span class="form-label fs-5 fw-bold">
+                                            子の前配偶者
+                                        </span>
+                                        <div>
+                                            <div class="input-group position-relative Q mt-3">
+                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                    氏名
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition" style="display: none;">
+                                                </span>
+                                            </div>
+                                            <span class="form-text mt-0">
+                                                ※お持ちの戸籍謄本上から判明する最後の氏名で構いません。
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                {{ ascendant_forms.management_form }}
+                {% for form in ascendant_forms %}
+                    <fieldset id="id_ascendant-{{forloop.counter0}}-fieldset" class="heirsFieldset ascendantFieldset">
+                        <div class="border rounded-3 p-4 mt-3">
+                            <div>
+                                <div>
+                                    {% if form.is_live.value == False %}
+                                        故
+                                    {% endif %}
+                                    <span class="text-success fw-bold fs-5">
+                                        {{form.name.value}}
+                                    </span>
+                                    さん
+                                </div>
+                                <div>
+                                    <span class="text-success fw-bold fs-5">
+                                        {% if forloop.counter0 == 0 %}
+                                            被相続人との続柄：父
+                                        {% elif forloop.counter0 == 1 %}
+                                            被相続人との続柄：母
+                                        {% elif forloop.counter0 == 2 and form.object_id.value == ascendant_forms.0.instance.id %}
+                                            被相続人との続柄：父方の祖父
+                                        {% elif forloop.counter0 == 2 and form.object_id.value == ascendant_forms.1.instance.id %}
+                                            被相続人との続柄：母方の祖父
+                                        {% elif forloop.counter0 == 3 and form.object_id.value == ascendant_forms.0.instance.id %}
+                                            被相続人との続柄：父方の祖母
+                                        {% elif forloop.counter0 == 3 and form.object_id.value == ascendant_forms.1.instance.id %}
+                                            被相続人との続柄：母方の祖母
+                                        {% elif forloop.counter0 == 4 %}
+                                            被相続人との続柄：母方の祖父
+                                        {% elif forloop.counter0 == 5 %}
+                                            被相続人との続柄：母方の祖母
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            {% for field in form %}
+                                {% if field.name == "name" %}
+                                    <div class="input-group mt-4 position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                        <span class="form-text mt-0">
+                                            ※住民票又は印鑑証明書に記載された氏名のとおりに入力。<br>
+                                            ※１．基本データ入力で入力した氏名は、ここで修正できます。
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                    <div class="mt-4 heirsDeathDateDiv"
+                                        {% if field.name == "death_year" %}
+                                            {% if form.is_heir.value == True or form.is_refuse.value == True %}
+                                                style="display:none;"
+                                            {% endif %}
+                                        {% endif %}>
+                                        <span class="form-label fs-5">
+                                            <span class="fw-bold">
+                                                {% if field.name == "death_year" %}
+                                                    死亡した年月日
+                                                {% else %}
+                                                    生年月日
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <div class="input-group mt-2 Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                年
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            月
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                        <div class="input-group Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                日
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_acquire" %}
+                                    <div class="mt-4"{% if form.is_heir.value == False %} style="display:none;"{% endif %}>
+                                        <div>
+                                            <div class="fs-5 fw-bold">
+                                                不動産を取得しますか？
+                                            </div>
+                                            <div class="form-text">
+                                                ※一部（持分）を取得する場合も含みます。<br>
+                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 border rounded-3">
+                                            <div class="d-flex justify-content-center p-2 input-group">
+                                                {% for choice in field %}
+                                                    <div class="form-check col">
+                                                        {% if forloop.counter == 1 %}
+                                                            <label class="form-check-label ms-5">
+                                                        {% else %}
+                                                            <label class="form-check-label">
+                                                        {% endif %}
+                                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                            </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                {% elif field.name == "prefecture" %}
+                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                        <span class="form-label fs-5 fw-bold">
+                                            住所
+                                        </span>
+                                        <div class="form-text">
+                                            {% if form.is_japan.value == True %}
+                                                ※住民票の除票又は戸籍の附票のとおりに入力。
+                                            {% elif form.is_japan.value == False %}
+                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                            {% endif %}
+                                        </div>
+                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                都道府県
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "city" %}
+                                        <div class="input-group position-relative Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                市区町村
+                                            </label>
+                                            {{ field }}
+                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                市区町村データの取得に失敗しました。<br>
+                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            </span>
+                                        </div>
+                                {% elif field.name == "address" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {% if form.is_japan.value == True %}
+                                                    町域・番地
+                                                {% elif form.is_japan.value == False %}
+                                                    国名・市町村
+                                                {% endif %}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "bldg" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        {% if form.is_japan.value == True %}
+                                                            建物名・号室
+                                                        {% elif form.is_japan.value == False %}
+                                                            番地
+                                                        {% endif %}
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                {{ collateral_forms.management_form }}
+                {% for form in collateral_forms %}
+                    <fieldset id="id_collateral-{{forloop.counter0}}-fieldset" class="heirsFieldset collateralFieldset">
+                        <div class="border rounded-3 p-4 mt-3">
+                            <div>
+                                <div>
+                                    {% if form.is_live.value == False %}
+                                        故
+                                    {% endif %}
+                                    <span class="text-success fw-bold fs-5">
+                                        {{form.name.value}}
+                                    </span>
+                                    さん
+                                </div>
+                                <div>
+                                    <span class="text-success fw-bold fs-5">
+                                        被相続人との続柄：兄弟姉妹
+                                    </span>
+                                </div>
+                            </div>
+                            {% for field in form %}
+                                {% if field.name == "name" %}
+                                    <div class="input-group mt-4 position-relative Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                        <span class="form-text mt-0">
+                                            ※住民票又は印鑑証明書に記載された氏名のとおりに入力。<br>
+                                            ※１．基本データ入力で入力した氏名は、ここで修正できます。
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_year" or field.name == "birth_year" %}
+                                    <div class="mt-4 heirsDeathDateDiv"
+                                        {% if field.name == "death_year" %}
+                                            {% if form.is_heir.value == True or form.is_refuse.value == True %}
+                                                style="display:none;"
+                                            {% endif %}
+                                        {% endif %}>
+                                        <span class="form-label fs-5">
+                                            <span class="fw-bold">
+                                                {% if field.name == "death_year" %}
+                                                    死亡した年月日
+                                                {% else %}
+                                                    生年月日
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                        <div class="input-group mt-2 Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                年
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            月
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                {% elif field.name == "death_date" or field.name == "birth_date" %}
+                                        <div class="input-group Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                                日
+                                            </label>
+                                            {{field}}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_acquire" %}
+                                    <div class="mt-4"{% if form.is_heir.value == False %} style="display:none;"{% endif %}>
+                                        <div>
+                                            <div class="fs-5 fw-bold">
+                                                不動産を取得しますか？
+                                            </div>
+                                            <div class="form-text">
+                                                ※一部（持分）を取得する場合も含みます。<br>
+                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 border rounded-3">
+                                            <div class="d-flex justify-content-center p-2 input-group">
+                                                {% for choice in field %}
+                                                    <div class="form-check col">
+                                                        {% if forloop.counter == 1 %}
+                                                            <label class="form-check-label ms-5">
+                                                        {% else %}
+                                                            <label class="form-check-label">
+                                                        {% endif %}
+                                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                            </label>
+                                                    </div>
+                                                    <span class="errorMessage rbEmPosition" style="display: none;">
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                {% elif field.name == "prefecture" %}
+                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                        <span class="form-label fs-5 fw-bold">
+                                            住所
+                                        </span>
+                                        <div class="form-text">
+                                            {% if form.is_japan.value == True %}
+                                                ※住民票の除票又は戸籍の附票のとおりに入力。
+                                            {% elif form.is_japan.value == False %}
+                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                            {% endif %}
+                                        </div>
+                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                都道府県
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "city" %}
+                                        <div class="input-group position-relative Q" {% if form.is_japan.value == False %} style="display: none;"{% endif %}>
+                                            <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
+                                                市区町村
+                                            </label>
+                                            {{ field }}
+                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
+                                                市区町村データの取得に失敗しました。<br>
+                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
+                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            </span>
+                                        </div>
+                                {% elif field.name == "address" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {% if form.is_japan.value == True %}
+                                                    町域・番地
+                                                {% elif form.is_japan.value == False %}
+                                                    国名・市町村
+                                                {% endif %}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                {% elif field.name == "bldg" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        {% if form.is_japan.value == True %}
+                                                            建物名・号室
+                                                        {% elif form.is_japan.value == False %}
+                                                            番地
+                                                        {% endif %}
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "other_parent_name" %}
+                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value %} style="display: none;"{% endif %}>
+                                        <span class="form-label fs-5 fw-bold">
+                                            被相続人と異父又は異母の方の氏名
+                                        </span>
+                                        <div>
+                                            <div class="input-group position-relative Q mt-3">
+                                                <label for="{{field.auto_id}}" class="input-group-text label">
+                                                    氏名
+                                                </label>
+                                                {{ field }}
+                                                <span class="errorMessage emPosition" style="display: none;">
+                                                </span>
+                                            </div>
+                                            <span class="form-text mt-0">
+                                                ※お持ちの戸籍謄本上から判明する最後の氏名で構いません。
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                {% endfor %}
+                <div id="heirsSectionToggleBtn" class="mt-5 d-flex justify-content-evenly">
+                    <button type="button" id="heirsCorrectBtn" class="btn btn-secondary" disabled="true">
+                        前の人を修正する
+                    </button>
+                    <button type="button" id="heirsOkBtn" class="btn btn-primary" disabled="true">
+                        次の人へ進む
+                    </button>
                 </div>
             </section>
-            <!-- PDFをupしてない場合のみ確認する -->
-            <section id="numberOfRealEstateColumn" class="container" style="display: none;">
+            <section id="type-of-division-section" class="container" style="display: none;">
                 <hr>
-                <h5>４．不動産情報</h5>
-                <fieldset id="numberOfRealEstateField">
+                <div>
+                    <h5 class="form-label">３．遺産分割の方法</h5>
+                </div>
+                <fieldset id="id_type_of_division-0-fieldset" class="mt-3">
+                    <div>
+                        {% for field in type_of_division_form %}
+                            {% if field.name == "type_of_division" or field.name == "property_allocation" or field.name == "cash_allocation" %}
+                                {% if field.name == "type_of_division" %}
+                                    <div class="Q">
+                                        <div class="input-group-text p-3">
+                                            <div class="fs-5 fw-bold">
+                                                換価分割をしますか？
+                                            </div>
+                                            <div class="form-text mt-0 text-wrap">
+                                                ※換価分割とは、不動産の相続後に、その不動産を売却して売却代金を相続人間で分けることをいいます。
+                                                一部の不動産でも換価分割する場合は、「する」にチェックしてください。
+                                            </div>
+                                        </div>
+                                {% elif field.name == "property_allocation" %}
+                                    <div class="Q" style="display: none;">
+                                        <div class="input-group-text p-3">
+                                            <div class="fs-5 fw-bold">
+                                                不動産はどのように取得しますか？
+                                            </div>
+                                        </div>
+                                {% elif field.name == "cash_allocation" %}
+                                    <div class="Q" style="display: none;">
+                                        <div class="input-group-text p-3">
+                                            <div class="fs-5 fw-bold">
+                                                換価した金銭はどのように取得しますか？
+                                            </div>
+                                        </div>
+                                {% endif %}
+                                    <div class="form-control input-group justify-content-evenly">
+                                        {% for choice in field %}
+                                            {% if forloop.counter != 1 %}
+                                                <div class="form-check">
+                                                    {% if forloop.counter == 2 %}
+                                                        <label class="form-check-label">
+                                                    {% else %}
+                                                        <label class="form-check-label">
+                                                    {% endif %}
+                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                        </label>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="errorMessage rbEmPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                </div>
+                            {% elif field.name == "all_property_acquirer" or field.name == "all_cash_acquirer" %}
+                                <div class="Q" style="display: none;">
+                                    <div class="input-group">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            取得者
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            </section>
+            <!-- PDFをupしてない場合のみ確認する -->
+            <section id="property-count-section" class="container" style="display: none;">
+                <hr>
+                <h5>
+                    ４．不動産情報
+                </h5>
+                <fieldset>
                     <div class="input-group mt-3 smallNumberWithTextArea">
                         <span class="input-group-text" id="numberOfLandLabel">土地の数</span>
                         <input type="text" class="form-control rounded-end" id="numberOfLandInput" aria-describedby="numberOfLandLabel" required>
@@ -709,9 +1792,22 @@
                     </div>
                 </fieldset>
             </section>
-            <div class="text-center my-5">
-                <h5 id="statusText">現在１／５項目</h5>
+            <div id="statusArea" class="my-5">
+                <div class="mt-5 d-flex position-relative justify-content-evenly">
+                    <button type="button" id="correctBtn" class="btn btn-secondary" disabled="true">
+                        前の項目を修正する
+                    </button>
+                    <button type="button" id="okBtn" class="btn btn-success" disabled="true">
+                        次の項目へ進む
+                    </button>
+                    <span class="errorMessage statusEmPosition" style="display: none;">
+                    </span>
+                </div>
+                <h5 id="statusText" class="mt-3 text-center">
+                    現在１／５項目
+                </h5>
             </div>
+            <hr>
             <div class="mt-5">
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
@@ -749,4 +1845,5 @@
     {% load static %}
     <script src="{% static 'toukiApp/step_three.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
+    <script> const user_data_scope = JSON.parse("{{user_data_scope|escapejs}}"); </script>
 {% endblock %}

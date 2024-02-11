@@ -336,3 +336,355 @@ class StepOneCollateralForm(BaseTwoForm):
                 })
             
         super().__init__(*args, **kwargs)
+        
+#
+# 以下、ステップ３関連
+# 
+
+# 被相続人情報
+class StepThreeDecedentForm(forms.ModelForm):
+    class Meta:
+        model = Decedent
+        fields = model.step_three_fields
+        widgets = {
+            "city": forms.Select(),
+            "domicile_city": forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            if field.label in ["ユーザー", "進捗"]:
+                field.required = False
+                continue
+            
+            if field.label in ["氏名", "本籍地の町域・番地", "住所の町域・番地", "住所の建物"]:
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                })
+                if field.label == "氏名":
+                    field.widget.attrs.update({
+                        "placeholder": "フルネームで姓名間にスペースなし",
+                        "maxlength": "30",
+                    })
+                elif field.label == "本籍地の町域・番地":
+                    field.widget.attrs.update({
+                        "placeholder": "天神１丁目１番",
+                        "maxlength": "100",
+                    })
+                elif field.label == "住所の町域・番地":
+                    field.widget.attrs.update({
+                        "placeholder": "天神１丁目１番１号",
+                        "maxlength": "100",
+                    })
+                elif field.label == "住所の建物":
+                    field.widget.attrs.update({
+                        "placeholder": "とうきマンション１０１号室",
+                        "maxlength": "100",
+                    })
+                
+            else:
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+                
+                if field.label in ["本籍地の市区町村", "住所の市区町村"]:
+                    field.widget.attrs['disabled'] = 'disabled'
+                elif field.label in ["本籍地の都道府県", "住所の都道府県"]:
+                    field.initial
+        super().__init__(*args, **kwargs)
+        
+#登記簿上の氏名住所情報
+class StepThreeRegistryNameAndAddressForm(forms.ModelForm):
+    class Meta:
+        model = RegistryNameAndAddress
+        fields = model.step_three_fields
+        widgets = {
+            "city": forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            if field.label in ["氏名", "登記上の町域・番地", "登記上の建物"]:
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                })
+                if field.label == "氏名":
+                    field.widget.attrs.update({
+                        "placeholder": "フルネームで姓名間にスペースなし",
+                        "maxlength": "30",
+                    })
+                elif field.label in ["登記上の町域・番地", "住所の町域・番地",]:
+                    field.widget.attrs.update({
+                        "placeholder": "天神１丁目１番１号",
+                        "maxlength": "100",
+                    })
+                elif field.label == "登記上の建物":
+                    field.widget.attrs.update({
+                        "placeholder": "とうきマンション１０１号室",
+                        "maxlength": "100",
+                    })
+                
+            else:
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+                
+                if field.label == "登記上の市区町村":
+                    field.widget.attrs['disabled'] = 'disabled'
+                elif field.label == "登記上の都道府県":
+                    field.initial
+        super().__init__(*args, **kwargs)
+        
+#相続人情報（配偶者）
+class StepThreeSpouseForm(forms.ModelForm):
+    class Meta:
+        model = Spouse
+        fields = model.step_three_fields
+        widgets = {
+            "city": forms.Select(),
+            "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in ["配偶者", "配偶者id", "相続人", "相続放棄", "死亡時存在", "手続時存在", "日本在住",]:
+                field.widget = forms.HiddenInput() 
+                continue
+            
+            if field.label in ["氏名", "住所の町域・番地", "住所の建物"]:
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                })
+                if field.label == "氏名":
+                    field.widget.attrs.update({
+                        "placeholder": "フルネームで姓名間にスペースなし",
+                        "maxlength": "30",
+                    })
+                elif field.label == "住所の町域・番地":
+                    field.widget.attrs.update({
+                        "placeholder": "天神１丁目１番１号",
+                        "maxlength": "100",
+                    })
+                elif field.label == "住所の建物":
+                    field.widget.attrs.update({
+                        "placeholder": "とうきマンション１０１号室",
+                        "maxlength": "100",
+                    })
+            elif field.label ==  "不動産取得":
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            else:
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+                
+                if field.label == "住所の市区町村":
+                    field.widget.attrs['disabled'] = 'disabled'
+                elif field.label == "住所の都道府県":
+                    field.initial
+        super().__init__(*args, **kwargs)
+        
+#相続人情報（子）
+class StepThreeDescendantForm(forms.ModelForm):
+    #前配偶者との子のとき用
+    other_parent_name = forms.CharField(label="前配偶者の氏名", required = False)
+    
+    class Meta:
+        model = Descendant
+        index = model.step_three_fields.index("is_refuse")
+        model.step_three_fields.insert(index, "other_parent_name")
+        fields = model.step_three_fields
+        widgets = {
+            "city": forms.Select(),
+            "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in ["親1", "親1id", "親2", "親2id", "相続人", "相続放棄", "死亡時存在", "手続時存在", "日本在住", "成人",]:
+                field.widget = forms.HiddenInput() 
+                continue 
+            
+            else:
+                if field.label in ["氏名", "住所の町域・番地", "住所の建物", "前配偶者の氏名"]:
+                    field.widget.attrs.update({
+                        "class": "form-control rounded-end",
+                    })
+                    if field.label in ["氏名", "前配偶者の氏名"]:
+                        field.widget.attrs.update({
+                            "placeholder": "フルネームで姓名間にスペースなし",
+                            "maxlength": "30",
+                        })
+                    elif field.label == "住所の町域・番地":
+                        field.widget.attrs.update({
+                            "placeholder": "天神１丁目１番１号",
+                            "maxlength": "100",
+                        })
+                    elif field.label == "住所の建物":
+                        field.widget.attrs.update({
+                            "placeholder": "とうきマンション１０１号室",
+                            "maxlength": "100",
+                        })
+                elif field.label ==  "不動産取得":
+                    field.widget.attrs.update({
+                        "class": "form-check-input",
+                    })    
+                else:
+                    field.widget.attrs.update({
+                        "class": "form-select text-center cursor-pointer rounded-end",
+                    })
+                    
+                    if field.label == "住所の市区町村":
+                        field.widget.attrs['disabled'] = 'disabled'
+                    elif field.label == "住所の都道府県":
+                        field.initial
+        super().__init__(*args, **kwargs)
+        
+#相続人情報（尊属）
+class StepThreeAscendantForm(forms.ModelForm):
+    class Meta:
+        model = Ascendant
+        fields = model.step_three_fields
+        widgets = {
+            "city": forms.Select(),
+            "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in ["子", "子id", "相続人", "相続放棄", "死亡時存在", "手続時存在", "日本在住",]:
+                field.widget = forms.HiddenInput() 
+                continue
+            
+            else:
+                if field.label in ["氏名", "住所の町域・番地", "住所の建物"]:
+                    field.widget.attrs.update({
+                        "class": "form-control rounded-end",
+                    })
+                    if field.label == "氏名":
+                        field.widget.attrs.update({
+                            "placeholder": "フルネームで姓名間にスペースなし",
+                            "maxlength": "30",
+                        })
+                    elif field.label == "住所の町域・番地":
+                        field.widget.attrs.update({
+                            "placeholder": "天神１丁目１番１号",
+                            "maxlength": "100",
+                        })
+                    elif field.label == "住所の建物":
+                        field.widget.attrs.update({
+                            "placeholder": "とうきマンション１０１号室",
+                            "maxlength": "100",
+                        })
+                elif field.label ==  "不動産取得":
+                    field.widget.attrs.update({
+                        "class": "form-check-input",
+                    })                        
+                else:
+                    field.widget.attrs.update({
+                        "class": "form-select text-center cursor-pointer rounded-end",
+                    })
+                    
+                    if field.label == "住所の市区町村":
+                        field.widget.attrs['disabled'] = 'disabled'
+                    elif field.label == "住所の都道府県":
+                        field.initial
+        super().__init__(*args, **kwargs)
+        
+#相続人情報（兄弟姉妹）
+class StepThreeCollateralForm(forms.ModelForm):
+    #異父母との子のとき用
+    other_parent_name = forms.CharField(label="異父母の氏名", required = False)
+    
+    class Meta:
+        model = Collateral
+        index = model.step_three_fields.index("is_refuse")
+        model.step_three_fields.insert(index, "other_parent_name")
+        fields = model.step_three_fields
+        widgets = {
+            "city": forms.Select(),
+            "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in ["親1", "親1id", "親2", "親2id", "相続人", "相続放棄", "死亡時存在", "手続時存在", "日本在住", "成人",]:
+                field.widget = forms.HiddenInput() 
+                continue 
+            
+            else:
+                if field.label in ["氏名", "住所の町域・番地", "住所の建物", "異父母の氏名"]:
+                    field.widget.attrs.update({
+                        "class": "form-control rounded-end",
+                    })
+                    if field.label in ["氏名", "異父母の氏名"]:
+                        field.widget.attrs.update({
+                            "placeholder": "フルネームで姓名間にスペースなし",
+                            "maxlength": "30",
+                        })
+                    elif field.label == "住所の町域・番地":
+                        field.widget.attrs.update({
+                            "placeholder": "天神１丁目１番１号",
+                            "maxlength": "100",
+                        })
+                    elif field.label == "住所の建物":
+                        field.widget.attrs.update({
+                            "placeholder": "とうきマンション１０１号室",
+                            "maxlength": "100",
+                        })
+                elif field.label ==  "不動産取得":
+                    field.widget.attrs.update({
+                        "class": "form-check-input",
+                    })                        
+                else:
+                    field.widget.attrs.update({
+                        "class": "form-select text-center cursor-pointer rounded-end",
+                    })
+                    
+                    if field.label == "住所の市区町村":
+                        field.widget.attrs['disabled'] = 'disabled'
+                    elif field.label == "住所の都道府県":
+                        field.initial
+        super().__init__(*args, **kwargs)
+        
+#遺産分割の方法
+class StepThreeTypeOfDivisionForm(forms.ModelForm):
+    class Meta:
+        model = TypeOfDivision
+        fields = model.step_three_fields
+        widgets = {
+            "type_of_division": forms.RadioSelect(choices=[("通常", "通常"), ("換価分割", "換価分割")]),
+            "property_allocation": forms.RadioSelect(choices=[('全て一人', '全て一人'),('全て法定相続', '全て法定相続'),('その他', 'その他'),]),
+            "all_property_acquirer": forms.Select(),
+            "cash_allocation": forms.RadioSelect(choices=[('全て一人', '全て一人'),('全て法定相続', '全て法定相続'),('その他', 'その他'),]),
+            "all_cash_acquirer": forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in  ["遺産分割協議書の種類", "不動産の分配方法", "換価した金銭の分配方法"]:
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            elif field.label in ["全不動産の取得者", "全金銭の取得者"]:
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+                    
+
+        super().__init__(*args, **kwargs)
+        
+#ステップ３の
+#ステップ３の
+#ステップ３の

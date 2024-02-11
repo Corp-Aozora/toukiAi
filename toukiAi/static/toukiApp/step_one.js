@@ -360,8 +360,8 @@ class UpdateTitle{
 /**
  * ユーザーに紐づく被相続人の市区町村データを取得する
  */
-function getUserCityData(){
-    const url = 'get_user_city_data';
+function getDecedentCityData(){
+    const url = 'get_decedent_city_data';
     fetch(url, {
         method: 'GET',
         headers: {
@@ -432,7 +432,7 @@ async function loadData(){
                     await getCityData(decedent.inputs[i].value, decedent.inputs[i + 1]);
                 }
                 if(i === Decedent.idxs.city || i === Decedent.idxs.domicileCity){
-                    getUserCityData();
+                    getDecedentCityData();
                 }
             }
             //indexとtargetは処理不要
@@ -1071,7 +1071,7 @@ function createChildOrCollateralGuide(relation, idx){
     //idを変更して非表示から表示に変更して最後の要素の次に挿入する
     clone.style.display = "block";
     clone.id = `id_${relation}-${idx}-guide`;
-    copyFrom.after(clone)
+    copyFrom.after(clone);
 }
 
 /**
@@ -2553,19 +2553,6 @@ function handleFullWidthInputChange(el, idx, person){
     //入力値のチェック結果を取得して結果に応じた処理をする
     isValid = isOnlyZenkaku(el);
     afterValidation(isValid, person.errMsgEls[idx], isValid, person.inputs[idx], person);
-}
-
-/**
- * エンターキーに次の入力欄にフォーカスする処理を実装する
- * @param {event} e イベント
- * @param {HTMLElement} el 次にフォーカスする要素
- */
-function setEnterKeyFocusNext(e, el){
-    //Enterで次の入力欄にフォーカス
-    if(e.key === "Enter"){
-        e.preventDefault();
-        el.focus();
-    }
 }
 
 /**
@@ -4065,13 +4052,7 @@ window.addEventListener("load",async ()=>{
     await initialize();
     
     //全input要素にenterを押したことによるPOSTが実行されないようにする
-    const inputArr = document.getElementsByTagName("input");
-    for(let i = 0, len = inputArr.length; i < len; i++){
-        inputArr[i].addEventListener("keydown",(e)=>{
-            if(e.key === "Enter")
-                e.preventDefault();
-        })
-    }
+    disableEnterKeyForInputs();
 
     //被相続人の入力欄にイベントを設定する
     for(let i = 0, len = decedent.inputs.length; i < len; i++){

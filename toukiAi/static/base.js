@@ -29,6 +29,7 @@ const errorlist = document.querySelector(".errorlist");
 const yes = 0;
 const no = 1;
 const other = 2;
+const other2 = 3;
 
 /**
  * テキストを強調する
@@ -524,7 +525,7 @@ window.addEventListener("resize", ()=>{
 
 /**
  * エンターキーに次の入力欄にフォーカスする処理を実装する
- * @param {event} e イベント
+ * @param {Event} e イベント
  * @param {HTMLElement} el 次にフォーカスする要素
  */
 function setEnterKeyFocusNext(e, el){
@@ -557,4 +558,35 @@ function disableEnterKeyForInputs(){
                 e.preventDefault();
         })
     }
+}
+
+/**
+ * コンマを追加する
+ * @param {number} num 
+ * @returns 
+ */
+function addCommas(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+/**
+ * コンマを削除する関数
+ * @param {string} str 
+ * @returns
+ */
+function removeCommas(str) {
+    return str.replace(/,/g, "");
+}
+
+/**
+ * セレクトに追加するオプションタグを生成する
+ * @param {string} val 
+ * @param {string} text 
+ * @returns 
+ */
+function createOption(val, text){
+    const option = document.createElement("option");
+    option.value = val;
+    option.text = text;
+    return option;
 }

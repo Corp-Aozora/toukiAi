@@ -505,7 +505,7 @@ def get_heirs(decedent):
         heirs += [child for child in childs if child.is_heir]
     
     if childs.exists() and any(child for child in childs if child.is_live is False):
-        child_spouses = [spouse for spouse in Spouse.objects.filter(decedent=decedent)[1:] if spouse.is_heir]
+        child_spouses = [spouse for spouse in Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id) if spouse.is_heir]
         grand_childs = [descendant for descendant in Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id) if descendant.is_heir]
         child_heirs = child_spouses + grand_childs
 
@@ -704,6 +704,16 @@ def step_three_input_status(data):
                 flg = False
                 break
         return flg
+    elif data.__class__ == Land:
+        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange]
+        if all(attr):
+            return True
+    elif data.__class__ in [PropertyAcquirer, CashAcquirer]:
+        attr = [data.content_type1, data.object_id1, data.content_object1, 
+                data.content_type2, data.object_id2, data.content_object2,
+                data.percentage]
+        if all(attr):
+            return True
 
     return False
     
@@ -728,6 +738,9 @@ def step_three(request):
     grand_child_form_set = formset_factory(form=StepThreeDescendantForm, extra=0, max_num=15)
     ascendant_form_set = formset_factory(form=StepThreeAscendantForm, extra=0, max_num=15)
     collateral_form_set = formset_factory(form=StepThreeCollateralForm, extra=0, max_num=15)
+    land_form_set = formset_factory(form=StepThreeLandForm, extra=1, max_num=20)
+    land_acquirer_form_set = formset_factory(form=StepThreeLandAcquirerForm, extra=1, max_num=20)
+    land_cash_acquirer_form_set = formset_factory(form=StepThreeLandCashAcquirerForm, extra=1, max_num=20)
     
     #フォームからデータがPOSTされたとき
     if request.method == "POST":
@@ -773,7 +786,7 @@ def step_three(request):
         #配偶者用フォームに配偶者データを初期値としてセットする
         spouse_form = StepThreeSpouseForm(prefix="spouse", instance=spouse_data)
         #配偶者の入力状況チェック
-        if step_three_input_status(spouse_data):   
+        if step_three_input_status(spouse_data):
             user_data_scope.append("spouse")
     #ないとき
     else:
@@ -807,6 +820,7 @@ def step_three(request):
                 "is_exist": c.is_exist,
                 "is_japan": c.is_japan,
                 "is_adult": c.is_adult,
+                "id_and_content_type": str(c.id) + "_" + str(ContentType.objects.get_for_model(c).id),
             }
             for c in childs_data
         ], prefix="child")
@@ -843,6 +857,7 @@ def step_three(request):
                 "is_refuse": c.is_refuse,
                 "is_exist": c.is_exist,
                 "is_japan": c.is_japan,
+                "id_and_content_type": str(c.id) + "_" + str(ContentType.objects.get_for_model(c).id),
             }
             for c in child_spouses_data
         ], prefix="child_spouse")
@@ -881,6 +896,7 @@ def step_three(request):
                 "is_exist": c.is_exist,
                 "is_japan": c.is_japan,
                 "is_adult": c.is_adult,
+                "id_and_content_type": str(c.id) + "_" + str(ContentType.objects.get_for_model(c).id),
             }
             for c in grand_childs_data
         ], prefix="grand_child")
@@ -916,6 +932,7 @@ def step_three(request):
                 "is_refuse": a.is_refuse,
                 "is_exist": a.is_exist,
                 "is_japan": a.is_japan,
+                "id_and_content_type": str(a.id) + "_" + str(ContentType.objects.get_for_model(a).id),
             }
             for a in ascendants_data
         ], prefix="ascendant")
@@ -954,6 +971,7 @@ def step_three(request):
                 "is_exist": c.is_exist,
                 "is_japan": c.is_japan,
                 "is_adult": c.is_adult,
+                "id_and_content_type": str(c.id) + "_" + str(ContentType.objects.get_for_model(c).id),
             }
             for c in collaterals_data
         ], prefix="collateral")
@@ -968,12 +986,96 @@ def step_three(request):
     type_of_division = TypeOfDivision.objects.filter(decedent=decedent).first()
     if type_of_division:
         type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division", instance=type_of_division)
-        if (type_of_division.type_of_division and type_of_division.property_allocation and type_of_division.cash_allocation and
-            type_of_division.property_allocation == "一人のみ" and type_of_division.all_property_acquirer != "" and
-            type_of_division.cash_allocation == "一人のみ" and type_of_division.all_cash_acquirer != ""):
-            user_data_scope.append("type_of_division")
+        if (type_of_division.type_of_division and type_of_division.property_allocation and type_of_division.cash_allocation):
+            if type_of_division.property_allocation == "一人のみ" and type_of_division.object_id1 != "":
+                if type_of_division.cash_allocation == "一人のみ" and type_of_division.object_id2 != "":
+                    user_data_scope.append("type_of_division")
     else:
         type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division")
+        
+    #不動産の数フォーム
+    number_of_properties = NumberOfProperties.objects.filter(decedent=decedent).first()
+    if number_of_properties:
+        number_of_properties_form = StepThreeNumberOfPropertiesForm(prefix="number_of_properties", instance=number_of_properties)
+        if number_of_properties.land and number_of_properties.house and number_of_properties.bldg :
+            user_data_scope.append("number_of_properties")
+    else:
+        number_of_properties_form = StepThreeNumberOfPropertiesForm(prefix="number_of_properties")
+
+    #土地のフォーム
+    lands_data = Land.objects.filter(decedent=decedent)
+    if lands_data.exists():
+        land_form_set = formset_factory(form=StepThreeLandForm, extra=0, max_num=20)
+        land_forms = land_form_set(initial=[
+            {
+                "decedent": l.decedent,
+                "register": l.register,
+                "number": l.number,
+                "address": l.address,
+                "land_number": l.land_number,
+                "type": l.type,
+                "size": l.size,
+                "purparty": l.purparty,
+                "price": l.price,
+                "is_exchange": l.is_exchange,
+            }
+            for l in lands_data
+        ], prefix="land")
+        #子の入力状況チェック
+        if step_three_input_status(collaterals_data):
+            user_data_scope.append("land")
+    #ないとき    
+    else:
+        land_forms = land_form_set(prefix="land")
+        
+    #土地取得者のフォーム
+    land_content_type = ContentType.objects.get_for_model(Land)
+    land_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=land_content_type)
+    if land_acquirer_data.exists():
+        land_acquirer_form_set = formset_factory(form=StepThreeLandAcquirerForm, extra=0, max_num=20)
+        land_acquirer_forms = land_acquirer_form_set(initial=[
+            {
+                "decedent": l.decedent,
+                "content_type1": l.content_type1,
+                "object_id1": l.object_id1,
+                "content_object1": l.content_object1,
+                "content_type2": l.content_type2,
+                "object_id2": l.object_id2,
+                "content_object2": l.content_object2,
+                "percentage": l.percentage,
+            }
+            for l in land_acquirer_data
+        ], prefix="land_acquirer")
+        #子の入力状況チェック
+        if step_three_input_status(land_acquirer_data):
+            user_data_scope.append("land_acquirer")
+    #ないとき    
+    else:
+        land_acquirer_forms = land_acquirer_form_set(prefix="land_acquirer")
+        
+    #土地金銭取得者のフォーム
+    land_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=land_content_type)
+    if land_cash_acquirer_data.exists():
+        land_cash_acquirer_form_set = formset_factory(form=StepThreeLandCashAcquirerForm, extra=0, max_num=20)
+        land_cash_acquirer_forms = land_cash_acquirer_form_set(initial=[
+            {
+                "decedent": l.decedent,
+                "content_type1": l.content_type1,
+                "object_id1": l.object_id1,
+                "content_object1": l.content_object1,
+                "content_type2": l.content_type2,
+                "object_id2": l.object_id2,
+                "content_object2": l.content_object2,
+                "percentage": l.percentage,
+            }
+            for l in land_cash_acquirer_data
+        ], prefix="land_cash_acquirer")
+        #子の入力状況チェック
+        if step_three_input_status(land_cash_acquirer_data):
+            user_data_scope.append("land_cash_acquirer")
+    #ないとき    
+    else:
+        land_cash_acquirer_forms = land_cash_acquirer_form_set(prefix="land_cash_acquirer")
         
     context = {
         "title" : "３．データ入力",
@@ -991,6 +1093,10 @@ def step_three(request):
         "ascendant_forms": ascendant_forms,
         "collateral_forms": collateral_forms,
         "type_of_division_form": type_of_division_form,
+        "number_of_properties_form": number_of_properties_form,
+        "land_forms": land_forms,
+        "land_acquirer_forms": land_acquirer_forms,
+        "land_cash_acquirer_forms": land_cash_acquirer_forms,
         "sections" : Sections.SECTIONS[Sections.STEP3],
         "service_content" : Sections.SERVICE_CONTENT,
     }

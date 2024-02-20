@@ -14,6 +14,7 @@ from django.conf import settings
 from .customDate import *
 from .prefectures import *
 from .common_model import *
+from .landCategorys import *
 from accounts.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -720,19 +721,22 @@ class TypeOfDivision(CommonModel):
     ]
     type_of_division = models.CharField(verbose_name="遺産分割協議書の種類", max_length=30, choices=TYPE_OF_DIVISION_CHOICES, null=True, blank=True)
     PROPERTY_ALLOCATION_CHOICES = [
-        ('全て一人', '全て一人'),
         ('全て法定相続', '全て法定相続'),
         ('その他', 'その他'),
     ]
     property_allocation = models.CharField(verbose_name="不動産の分配方法", max_length=30, choices=PROPERTY_ALLOCATION_CHOICES, null=True, blank=True)
-    all_property_acquirer = models.CharField(verbose_name="全不動産の取得者", max_length=100, default="", null=True, blank=True)
+    content_type1 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="type_of_division1", verbose_name="不動産全取得者", null=True, blank=True)
+    object_id1 = models.PositiveIntegerField(verbose_name="不動産全取得者id", null=True, blank=True)
+    content_object1 = GenericForeignKey('content_type1', 'object_id1')
     CASH_ALLOCATION_CHOICES = [
         ('全て一人', '全て一人'),
         ('全て法定相続', '全て法定相続'),
         ('その他', 'その他'),
     ]
     cash_allocation = models.CharField(verbose_name="換価した金銭の分配方法", max_length=30, choices=CASH_ALLOCATION_CHOICES, null=True, blank=True)
-    all_cash_acquirer = models.CharField(verbose_name="全金銭の取得者", max_length=100, default="", null=True, blank=True)
+    content_type2 = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="type_of_division2", verbose_name="金銭全取得者", null=True, blank=True)
+    object_id2 = models.PositiveIntegerField(verbose_name="金銭全取得者id", null=True, blank=True)
+    content_object2 = GenericForeignKey('content_type2', 'object_id2')
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -755,9 +759,11 @@ class TypeOfDivision(CommonModel):
         "decedent",
         "type_of_division",
         "property_allocation",
-        "all_property_acquirer",
+        "content_type1",
+        "object_id1",
         "cash_allocation",
-        "all_cash_acquirer",
+        "content_type2",
+        "object_id2",
     ]
     
     class Meta:
@@ -775,9 +781,9 @@ class NumberOfProperties(CommonModel):
         blank = False,
         related_name="number_of_properties",
     )
-    land = models.IntegerField(verbose_name="土地", null=True, blank=True, default=0)
-    house = models.IntegerField(verbose_name="建物", null=True, blank=True, default=0)
-    bldg = models.IntegerField(verbose_name="区分建物", null=True, blank=True, default=0)
+    land = models.IntegerField(verbose_name="土地の数", null=True, blank=True, default=0)
+    house = models.IntegerField(verbose_name="建物の数", null=True, blank=True, default=0)
+    bldg = models.IntegerField(verbose_name="区分建物の数", null=True, blank=True, default=0)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "作成者",
@@ -795,7 +801,7 @@ class NumberOfProperties(CommonModel):
         related_name = "number_of_properties_update_by"
     )
     
-    step_threefields = [
+    step_three_fields = [
         "decedent",
         "land",
         "house",
@@ -827,10 +833,12 @@ class Land(CommonModel):
     )
     number = models.CharField(verbose_name="不動産番号", max_length=100, null=False, blank=False, default="")
     address = models.CharField(verbose_name="所在地", max_length=100, null=True, blank=True, default="")
-    type = models.CharField(verbose_name="地目", max_length=100, null=True, blank=True, default="")
+    land_number = models.CharField(verbose_name="地番", max_length=100, null=True, blank=True, default="")
+    type = models.CharField(verbose_name="地目", max_length=100, choices=LANDCATEGORYS , null=True, blank=True, default="")
     size = models.CharField(verbose_name="地積", max_length=100, null=True, blank=True, default="")
-    purparty = models.CharField(verbose_name="持ち分", max_length=100 ,null=False, blank=False, default="")
-    price = models.IntegerField(verbose_name="固定資産評価額", null=False, blank=False, default="")
+    purparty = models.CharField(verbose_name="持ち分", max_length=100, null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
+    is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -849,7 +857,18 @@ class Land(CommonModel):
         related_name = "land_update_by"
     )
     
-    step_threefields = []
+    step_three_fields = [
+        "decedent",
+        "register",
+        "number",
+        "address",
+        "land_number",
+        "type",
+        "size",
+        "purparty",
+        "price",
+        "is_exchange"
+    ]
     
     class Meta:
         verbose_name = _("土地")
@@ -876,6 +895,7 @@ class House(CommonModel):
     )
     number = models.CharField(verbose_name="不動産番号", max_length=100, null=False, blank=False, default="")
     address = models.CharField(verbose_name="所在地", max_length=100, null=True, blank=True, default="")
+    house_number = models.CharField(verbose_name="家屋番号", max_length=100, null=True, blank=True, default="")
     purpose = models.CharField(verbose_name="種類", max_length=100, null=True, blank=True, default="")
     type = models.CharField(verbose_name="構造", max_length=100, null=True, blank=True, default="")
     first_floor_size = models.CharField(verbose_name="１階面積", max_length=100, null=True, blank=True, default="")
@@ -884,7 +904,8 @@ class House(CommonModel):
     fourth_floor_size = models.CharField(verbose_name="４階面積", max_length=100, null=True, blank=True, default="")
     fifth_floor_size = models.CharField(verbose_name="５階面積", max_length=100, null=True, blank=True, default="")
     purparty = models.CharField(verbose_name="持ち分", max_length=100 ,null=False, blank=False, default="")
-    price = models.IntegerField(verbose_name="固定資産評価額", null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
+    is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -903,12 +924,15 @@ class House(CommonModel):
         related_name = "house_update_by"
     )
     
-    step_threefields = []
+    step_three_fields = [
+        
+    ]
     
     class Meta:
         verbose_name = _("建物")
         verbose_name_plural = _("建物")
 
+#敷地権
 class Site(CommonModel):
     decedent = models.ForeignKey(
         Decedent,
@@ -918,7 +942,7 @@ class Site(CommonModel):
         blank = False,
         related_name="site",
     )
-    building = models.ForeignKey(
+    house = models.ForeignKey(
         Decedent,
         verbose_name="建物",
         on_delete=models.CASCADE,
@@ -929,7 +953,7 @@ class Site(CommonModel):
     land_num = models.IntegerField(verbose_name="土地の符号", null=True, blank=True, default="")
     land_type = models.CharField(verbose_name="敷地権の種類", null=True, blank=True, default="")
     land_purparty = models.CharField(verbose_name="敷地権の割合", null=True, blank=True, default="")
-    price = models.IntegerField(verbose_name="固定資産評価額" ,null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=13,null=False, blank=False, default="")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -948,7 +972,7 @@ class Site(CommonModel):
         related_name = "site_update_by"
     )
     
-    step_threefields = []
+    step_three_fields = []
     
     class Meta:
         verbose_name = _("敷地")
@@ -1027,7 +1051,14 @@ class PropertyAcquirer(CommonModel):
         related_name = "property_acquirer_update_by"
     )
     
-    step_threefields = []
+    step_three_fields = [
+        "decedent",
+        "content_type1",
+        "object_id1",
+        "content_type2",
+        "object_id2",
+        "percentage",
+    ]
     
     class Meta:
         verbose_name = _("不動産の取得者")
@@ -1068,7 +1099,14 @@ class CashAcquirer(CommonModel):
         related_name = "cash_acquirer_update_by"
     )
     
-    step_threefields = []
+    step_three_fields = [
+        "decedent",
+        "content_type1",
+        "object_id1",
+        "content_type2",
+        "object_id2",
+        "percentage",
+    ]
     
     class Meta:
         verbose_name = _("金銭の取得者")

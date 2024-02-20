@@ -11,6 +11,22 @@
     text-align: left!important;
 }
 
+#number-of-properties-section > fieldset > div{
+    width:200px
+}
+
+#land-section label{
+    width: 125px!important;
+}
+
+.landWrapper, .landBtnsDiv{
+    width:510px;
+}
+
+.fraction{
+    width: 85px;
+}
+
 .registry-name-and-address-div{
     width: 425px!important;
 }
@@ -47,4 +63,22 @@
 
 ::placeholder{
     text-align: center;
+}
+
+#number-of-properties-section .Q:first-of-type span{
+    border-bottom-right-radius: initial;
+    border-bottom-left-radius: initial;
+}
+
+#number-of-properties-section .Q:not(:first-of-type) span{
+    border-radius: initial;
+    border-radius: initial;
+}
+
+#number-of-properties-section .Q:last-of-type .decreaseBtn{
+    border-bottom-left-radius: var(--bs-border-radius)!important;
+}
+
+#number-of-properties-section .Q:last-of-type .increaseBtn{
+    border-bottom-right-radius: var(--bs-border-radius)!important;
 }

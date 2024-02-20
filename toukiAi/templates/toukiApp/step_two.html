@@ -560,12 +560,16 @@
                         相続人各自の住所がある市区町村の住民票などの証明書を発行する課で取得できます。<br>
                         取得には印鑑登録したときに発行されたカードが必要です。
                     </p>
-                    ※印鑑登録してない場合でも印鑑登録と同時に印鑑証明書を発行してもらうことができます。<br>
-                    ※登録した印鑑と登録先の市区町村が変わってない場合は古いものでも使用できます。
+                    <p>
+                        ※印鑑登録してない場合でも印鑑登録と同時に印鑑証明書を発行してもらうことができます。<br>
+                        ※登録した印鑑と登録先の市区町村が変わってない場合は古いものでも使用できます。
+                    </p>
                 </div>
                 {% if minors|length > 0 %}
                     <div>
-                        以下の方は未成年のため法定代理人の方のものが必要です。
+                        <span class="fw-bold border-bottom border-primary">
+                            以下の方は未成年のため法定代理人の方のものが必要です。
+                        </span>
                         <ul>
                             {% for minor in minors %}
                                 <li>
@@ -577,7 +581,9 @@
                 {% endif %}
                 {% if overseas|length > 0 %}
                     <div>
-                        以下の方は日本に住民票がないため「４書類の印刷」まで取得できません。
+                        <span class="fw-bold border-bottom border-primary">
+                            以下の方は日本に住民票がないため「４書類の印刷」まで取得できません。
+                        </span>
                         <ul>
                             {% for oversea in overseas %}
                                 <li>
@@ -593,9 +599,17 @@
                 <span class="mt-3 fw-bold fs-5">
                     全相続人の全部事項証明書　各１通
                 </span>
+                <div class="mt-3">
+                    <p class="mt-3">
+                        相続人各自の本籍がある市区町村の住民票などの証明書を発行する課で取得できます。<br>
+                        {{decedent.name}}さんがお亡くなりになった後に取得したものであれば使用できます。
+                    </p>
+                </div>
                 {% if minors|length > 0 %}
                     <div>
-                        以下の方は未成年のため法定代理人の方のものが必要です。
+                        <span class="fw-bold border-bottom border-primary">
+                            以下の方は未成年のため法定代理人の方のものが必要です。
+                        </span>
                         <ul>
                             {% for minor in minors %}
                                 <li>
@@ -605,12 +619,6 @@
                         </ul>
                     </div>
                 {% endif %}
-                <div class="mt-3">
-                    <p class="mt-3">
-                        相続人各自の本籍がある市区町村の住民票などの証明書を発行する課で取得できます。<br>
-                        {{decedent.name}}さんがお亡くなりになった後に取得したものであれば使用できます。
-                    </p>
-                </div>
             </div>
             <hr>
             <div class="mt-5">

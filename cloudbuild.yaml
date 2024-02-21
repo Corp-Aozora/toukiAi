@@ -1,0 +1,8 @@
+steps:
+  # (1) Dockerイメージのビルド
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/toukiai-development/toukiai", "."]
+
+  # (2) ビルドしたDockerイメージをArtifact Registryにプッシュ
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/toukiai-development/toukiai"]

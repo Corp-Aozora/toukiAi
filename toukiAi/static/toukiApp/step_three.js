@@ -1147,14 +1147,11 @@ function heirsValidation(el, instance){
             instance.noInputs = instance.noInputs.concat([inputs[Sidxs.prefecture], inputs[Sidxs.city], inputs[Sidxs.address]])
         return true;
     }else if(el === inputs[Sidxs.isAcquire[no]]){
-        //不動産取得が「いいえ」のとき、住所欄を非表示にして、住所欄をエラー要素から削除してtrueを返す
+        //不動産取得が「いいえ」のとき、住所欄を非表示・初期化にして、住所欄をエラー要素から削除してtrueを返す
         slideUp(instance.fieldset.getElementsByClassName("heirsAddressDiv")[0]);
-        [
-            inputs[Sidxs.prefecture],
-            inputs[Sidxs.city],
-            inputs[Sidxs.address],
-            inputs[Sidxs.bldg]
-        ].forEach(element => instance.noInputs = instance.noInputs.filter(item => item !== element));
+        const addressInputs = [inputs[Sidxs.prefecture], inputs[Sidxs.city], inputs[Sidxs.address], inputs[Sidxs.bldg]];
+        addressInputs.forEach(element => instance.noInputs = instance.noInputs.filter(item => item !== element));
+        addressInputs.forEach(input => input.value = "");
         return true;
     }
 
@@ -1169,19 +1166,19 @@ function heirsValidation(el, instance){
  */
 function setHeirsEvent(instance){
     const inputs = instance.inputs;
-    const Sidxs = SpouseOrAscendant.idxs;
-    const Didxs = DescendantOrCollateral.idxs;
+    const SIdxs = SpouseOrAscendant.idxs;
+    const DIdxs = DescendantOrCollateral.idxs;
     //インスタンスのinputにイベントを設定
     for(let i = 0, len = inputs.length; i < len; i++){
         //相続放棄、日本在住、成人情報はイベント設定不要
-        if((instance instanceof SpouseOrAscendant && i === Sidxs.isRefuse) ||
-        (instance instanceof DescendantOrCollateral && i === Didxs.isRefuse))
+        if((instance instanceof SpouseOrAscendant && i === SIdxs.isRefuse) ||
+        (instance instanceof DescendantOrCollateral && i === DIdxs.isRefuse))
             return;
         //氏名欄又は前配偶者又は異父母の氏名欄のとき
-        if([Sidxs.name, Didxs.otherParentsName].includes(i)){
+        if([SIdxs.name, DIdxs.otherParentsName].includes(i)){
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
-                if(i === Sidxs.name){
+                if(i === SIdxs.name){
                     //enterで死亡年欄又は生年（次の入力欄）にフォーカス移動するイベントを設定する
                     if(instance.fieldset.getElementsByClassName("heirsDeathDateDiv")[0].style.display === "none")
                         setEnterKeyFocusNext(e, inputs[i + 4]);
@@ -1196,7 +1193,7 @@ function setHeirsEvent(instance){
                 //入力文字によって
                 handleFullWidthInput(instance, inputs[i]);
             })
-        }else if(i === Sidxs.address || i === Sidxs.bldg){
+        }else if(i === SIdxs.address || i === SIdxs.bldg){
             //住所の町域・番地又は住所の建物名のとき
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
@@ -1211,14 +1208,14 @@ function setHeirsEvent(instance){
             const el = e.target;
             isValid = heirsValidation(el, instance);
             //不動産取得のラジオボタンではないとき
-            if(i !== Sidxs.isAcquire[yes] && i !== Sidxs.isAcquire[no]){
+            if(i !== SIdxs.isAcquire[yes] && i !== SIdxs.isAcquire[no]){
                 //チェック結果に応じて処理を分岐
                 afterValidation(isValid, instance.errMsgEls[i], isValid, el, instance);
                 //建物名のエラーメッセージを非表示にする
-                if(i !== Sidxs.bldg)
+                if(i !== SIdxs.bldg)
                     //建物名のエラーメッセージを非表示にする
-                    instance.errMsgEls[Sidxs.bldg].style.display = "none";
-                if(i === Sidxs.prefecture){
+                    instance.errMsgEls[SIdxs.bldg].style.display = "none";
+                if(i === SIdxs.prefecture){
                     //住所の都道府県のとき、市町村データを取得する
                     const val = el.value;
                     await getCityData(val, inputs[i + 1], instance);
@@ -1226,7 +1223,7 @@ function setHeirsEvent(instance){
             }else{
                 //不動産取得のラジオボタンのとき
                 //エラー要素から削除
-                instance.noInputs = instance.noInputs.filter(x => x.id !== inputs[Sidxs.isAcquire[yes]].id && x.id !== inputs[Sidxs.isAcquire[no]].id);
+                instance.noInputs = instance.noInputs.filter(x => x.id !== inputs[SIdxs.isAcquire[yes]].id && x.id !== inputs[SIdxs.isAcquire[no]].id);
                 //エラー要素がない、かつ、最後の相続人のとき次の項目へボタンを有効化する、次の人へボタンを無効化する
                 if(instance.noInputs.length === 0 && getLastElFromArray(heirs) === instance){
                     okBtn.disabled = false;
@@ -1301,6 +1298,8 @@ function handleHeirsOkBtnEvent(){
 function handleCorrectBtnEvent(){
     //全セクションタグを取得して最後の要素からループ処理
     const sections = document.getElementsByTagName("section");
+    const heirsSectionIdx = 1;
+    const typeOfDivisionSectionIdx = 2;
     for (let i = sections.length - 1; i >= 0; i--) {
         //表示されているとき
         if (window.getComputedStyle(sections[i]).display !== 'none') {
@@ -1316,12 +1315,19 @@ function handleCorrectBtnEvent(){
             const fieldsets = sections[i - 1].getElementsByTagName("fieldset");
             Array.from(fieldsets).forEach(fieldset => fieldset.disabled = false);
             okBtn.disabled = false;
-            const preNum = sections[i - 1].querySelector("h5").textContent.substring(0, 1);
+            const preNum = sections[i - 1].querySelector("h5").textContent.trim().substring(0, 1);
             statusText.textContent = `現在${preNum}／５項目`;
-            if(i === 1)
+            //被相続人情報に戻るとき、不動産取得者がいない旨のエラーメッセージを非表示にする、前の項目を修正するボタンを無効化する
+            if(i === heirsSectionIdx){  
+                okBtn.nextElementSibling.style.display = "none";
                 correctBtn.disabled = true;
+            }
+            //建物情報に戻るとき、４．進むボタンを無効化する
             if(i === sections.length - 1)
                 submitBtn.disabled = true;
+            //相続人情報に戻るとき、かつ相続人（故人を含む）が複数人いるとき
+            if(i === typeOfDivisionSectionIdx && heirs.length > 1)
+                heirsCorrectBtn.disabled = false;
             break;
         }
     }
@@ -1400,26 +1406,27 @@ function setHeirsSection(){
         //全フィールドセットを取得してループ処理
         const fieldsets = section.getElementsByTagName("fieldset");
         for(let i = 0, len = fieldsets.length; i < len; i++){
+            const id = fieldsets[i].id;
             //被相続人の配偶者のとき
-            if(fieldsets[i].id.includes("decedent_spouse")){
+            if(id.includes("decedent_spouse")){
                 new SpouseOrAscendant("id_decedent_spouse-fieldset");
-            }else if(fieldsets[i].id.includes("id_child-")){
+            }else if(id.includes("id_child-")){
                 //子のとき
                 const count = heirs.filter(item => item instanceof DescendantOrCollateral).length;
                 new DescendantOrCollateral(`id_child-${count}-fieldset`);
-            }else if(fieldsets[i].id.includes("id_child_spouse-")){
+            }else if(id.includes("id_child_spouse-")){
                 //子の配偶者のとき
                 const count = heirs.filter(item => item instanceof SpouseOrAscendant && item.fieldset.id.includes("id_child_spouse-")).length;
                 new SpouseOrAscendant(`id_child_spouse-${count}-fieldset`);
-            }else if(fieldsets[i].id.includes("id_grand_child-")){
+            }else if(id.includes("id_grand_child-")){
                 //孫のとき
                 const count = heirs.filter(item => item instanceof DescendantOrCollateral && item.fieldset.id.includes("id_grand_child-")).length;
                 new DescendantOrCollateral(`id_grand_child-${count}-fieldset`);
-            }else if(fieldsets[i].id.includes("id_ascendant-")){
+            }else if(id.includes("id_ascendant-")){
                 //尊属のとき
                 const count = heirs.filter(item => item instanceof SpouseOrAscendant && item.fieldset.id.includes("id_ascendant-")).length;
                 new SpouseOrAscendant(`id_ascendant-${count}-fieldset`);
-            }else if(fieldsets[i].id.includes("id_collateral-")){
+            }else if(id.includes("id_collateral-")){
                 //兄弟姉妹のとき
                 const count = heirs.filter(item => item instanceof DescendantOrCollateral && item.fieldset.id.includes("id_collateral-")).length;
                 new DescendantOrCollateral(`id_collateral-${count}-fieldset`);
@@ -1439,9 +1446,7 @@ function setHeirsSection(){
         okBtn.disabled = true;
     }else{
         //次の項目へボタンの有効化判別
-        const allNoInputsEmpty = heirs.every(heir => heir.noInputs.length === 0);
-        if (allNoInputsEmpty)
-            okBtn.disabled = false;
+        okBtn.disabled = getLastElFromArray(heirs).noInputs.length === 0 ? false: true;
     }
 }
 
@@ -1645,9 +1650,9 @@ function setTypeOfDivisionSection(){
         okBtn.disabled = true;
     }else{
         let newPattern;
-        if(heirs.filter(heir => heir[SIdxs.isAcquire[yes]].checked).length === 1)
+        if(heirs.filter(heir => heir.inputs[SIdxs.isAcquire[yes]].checked).length === 1)
             newPattern = yes;
-        else if(heirs.some(heir => heir[SIdxs.isAcquire[no]].checked))
+        else if(heirs.some(heir => heir.inputs[SIdxs.isAcquire[no]].checked))
             newPattern = no;
         else
             newPattern = other;

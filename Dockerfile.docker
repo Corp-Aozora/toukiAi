@@ -1,5 +1,6 @@
 # ベースイメージを指定
 FROM python:3.11
+ENV PYTHONUNBUFFERED 1
 # 作業ディレクトリを設定
 WORKDIR /toukiAi
 # requirements.txtをコピーして依存関係をインストール

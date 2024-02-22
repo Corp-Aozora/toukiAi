@@ -27,11 +27,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカル�
 # EMAIL_USE_TLS = True    
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'toukiaidev@gmail.com'
-# EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
-# EMAIL_USE_TLS = True 
+DEFAULT_FROM_EMAIL = 'そうぞくとうきくん <toukiaidev@gmail.com>'    #送信元のアドレスを指定
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'toukiaidev@gmail.com'
+EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
+EMAIL_USE_TLS = True 
 
 DATABASES = {
     'default':{

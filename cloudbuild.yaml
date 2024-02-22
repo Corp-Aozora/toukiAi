@@ -6,6 +6,17 @@ steps:
   # (2) ビルドしたDockerイメージをArtifact Registryにプッシュ
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-docker-repo/toukiai-image"]
+
+  # (3) Artifact RegistryのコンテナイメージをCloud Runにデプロイ
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "toukiai-service"  # Cloud Runサービス名を指定
+      - "--image"
+      - "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-image"
+      - "--region"
+      - "asia-northeast1"
 timeout: 600s
 
 options:

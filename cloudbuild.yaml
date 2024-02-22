@@ -1,11 +1,11 @@
 steps:
   # (1) Dockerイメージのビルド
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-docker-repo/toukiai-image", "-f", "Dockerfile.docker", "."]
+    args: ["build", "-t", "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-image", "-f", "Dockerfile.docker", "."]
 
   # (2) ビルドしたDockerイメージをArtifact Registryにプッシュ
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-docker-repo/toukiai-image"]
+    args: ["push", "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-image"]
 timeout: 600s
 
 options:

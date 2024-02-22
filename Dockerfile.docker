@@ -1,0 +1,14 @@
+# ベースイメージを指定
+FROM python:3.11
+# 作業ディレクトリを設定
+WORKDIR /toukiAi
+# requirements.txtをコピーして依存関係をインストール
+COPY requirements.txt .
+# Djangoをインストール
+RUN pip install -r requirements.txt
+# アプリケーションのコードをコピー
+COPY . .
+# ポートを公開
+EXPOSE 8000
+# アプリケーションを実行
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

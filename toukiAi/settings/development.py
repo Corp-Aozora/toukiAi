@@ -4,16 +4,16 @@ DEBUG = False
 
 SECRET_KEY=env("DEV_SECRET_KEY")
 
-INSTALLED_APPS += [
-    "debug_toolbar",
-]
+# INSTALLED_APPS += [
+#     "debug_toolbar",
+# ]
 
-MIDDLEWARE += [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-]
+# MIDDLEWARE += [
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+# ]
 
 ALLOWED_HOSTS = [
-    "django-render-6agw.onrender.com"
+    "0.0.0.0"
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -31,13 +31,13 @@ EMAIL_HOST_USER = 'toukiaidev@gmail.com'
 EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
 EMAIL_USE_TLS = True 
 
-DATABASES = {
-    'default':{
-        'ENGINE':'django.db.backends.postgresql',
-        'NAME':'django_render_db_63qk',
-        'USER':'django_user',
-        'PASSWORD':'wmWQekZ8WodiGi2g5fdjZ5J0orMqUWMi',
-        'HOST':'dpg-cjv53lh5mpss7397ds40-a',
-        'PORT':'5432',
-    }
-}
+# DATABASES = {
+#     'default':{
+#         'ENGINE':'django.db.backends.postgresql',
+#         'NAME':'django_render_db_63qk',
+#         'USER':'django_user',
+#         'PASSWORD':'wmWQekZ8WodiGi2g5fdjZ5J0orMqUWMi',
+#         'HOST':'dpg-cjv53lh5mpss7397ds40-a',
+#         'PORT':'5432',
+#     }
+# }

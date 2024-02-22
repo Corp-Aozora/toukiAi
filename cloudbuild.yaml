@@ -14,7 +14,7 @@ steps:
       - "deploy"
       - "toukiai-service"  # Cloud Runサービス名を指定
       - "--image"
-      - "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-image"
+      - "asia-northeast1-docker.pkg.dev/${PROJECT_ID}/toukiai-docker-repo/toukiai-image"
       - "--region"
       - "asia-northeast1"
 timeout: 600s

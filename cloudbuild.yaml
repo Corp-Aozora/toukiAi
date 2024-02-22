@@ -6,7 +6,7 @@ timeout: 600s
 
   # (2) ビルドしたDockerイメージをArtifact Registryにプッシュ
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/${PROJECT_ID}/toukiai/toukiai-image"]
+    args: ["push", "gcr.io/${PROJECT_ID}/toukiai-image"]
 
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET

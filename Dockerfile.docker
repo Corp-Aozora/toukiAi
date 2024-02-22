@@ -11,6 +11,6 @@ RUN pip install -r requirements.txt
 # アプリケーションのコードをコピー
 COPY . .
 # ポートを公開
-EXPOSE 80
+EXPOSE 8080
 # アプリケーションを実行
-CMD ["python", "manage.py", "runserver", "0.0.0.0:80"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]

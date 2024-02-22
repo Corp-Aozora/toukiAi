@@ -31,6 +31,16 @@ EMAIL_HOST_USER = 'toukiaidev@gmail.com'
 EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
 EMAIL_USE_TLS = True 
 
+DATABASES = {
+    'default':{
+        'ENGINE':'django.db.backends.postgresql',
+        'NAME':'toukiai',
+        'USER':'tatsuyasaga',
+        'PASSWORD':'saga2497',
+        'HOST':'localhost',
+        'PORT':'5432',
+    }
+}
 # DATABASES = {
 #     'default':{
 #         'ENGINE':'django.db.backends.postgresql',

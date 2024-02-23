@@ -34,10 +34,10 @@ EMAIL_USE_TLS = True
 DATABASES = {
     'default':{
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'toukikun-database',
-        'USER':'bnnvhifeob',
+        'NAME':'postgres',
+        'USER':'souzokutoukikun',
         'PASSWORD':'BDOPTXBQ46O7L3SU',
-        'HOST':'toukikun-server.postgres.database.azure.com',
+        'HOST':'souzokutoukikun.postgres.database.azure.com',
         'PORT':'5432',
     }
 }

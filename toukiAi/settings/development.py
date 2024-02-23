@@ -13,7 +13,7 @@ SECRET_KEY=env("DEV_SECRET_KEY")
 # ]
 
 ALLOWED_HOSTS = [
-    "0.0.0.0"
+    "toukikun.azurewebsites.net"
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -34,24 +34,15 @@ EMAIL_USE_TLS = True
 DATABASES = {
     'default':{
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'toukiai',
-        'USER':'tatsuyasaga',
-        'PASSWORD':'saga2497',
-        'HOST':'localhost',
+        'NAME':'toukikun-database',
+        'USER':'bnnvhifeob',
+        'PASSWORD':'BDOPTXBQ46O7L3SU',
+        'HOST':'toukikun-server.postgres.database.azure.com',
         'PORT':'5432',
     }
 }
-# DATABASES = {
-#     'default':{
-#         'ENGINE':'django.db.backends.postgresql',
-#         'NAME':'django_render_db_63qk',
-#         'USER':'django_user',
-#         'PASSWORD':'wmWQekZ8WodiGi2g5fdjZ5J0orMqUWMi',
-#         'HOST':'dpg-cjv53lh5mpss7397ds40-a',
-#         'PORT':'5432',
-#     }
-# }
 
+# 以下、GCP用に生成したものの
 # データベース情報
 # instance_name: toukiai
 # project: toukiai-development

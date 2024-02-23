@@ -2,11 +2,17 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+import os
+from pathlib import Path
+import environ
 
 def main():
+    BASE_DIR = Path(__file__).resolve().parent
+    env = environ.Env()
+    env_file = BASE_DIR / ".env"
+    env.read_env(env_file)
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'toukiAi.settings.local')
+    os.environ.setdefault(env('DJANGO_SETTINGS_MODULE'), 'toukiAi.settings.local')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

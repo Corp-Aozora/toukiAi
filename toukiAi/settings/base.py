@@ -22,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env = environ.Env()
 env_file = BASE_DIR / ".env"
 env.read_env(env_file)
-
 # DJANGO_SETTINGS_MODULE = env("DJANGO_SETTINGS_MODULE")
 
 # Quick-start development settings - unsuitable for production

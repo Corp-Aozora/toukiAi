@@ -16,14 +16,14 @@ import environ
 from decouple import config
 from dj_database_url import parse as dburl
 
-env = environ.Env()
-env.read_env(".env")
-
-# DJANGO_SETTINGS_MODULE = env("DJANGO_SETTINGS_MODULE")
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+env = environ.Env()
+env_file = str(BASE_DIR.path(".env"))
+env.read_env(env_file)
+
+# DJANGO_SETTINGS_MODULE = env("DJANGO_SETTINGS_MODULE")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/

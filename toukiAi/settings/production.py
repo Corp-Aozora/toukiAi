@@ -5,7 +5,6 @@ DEBUG = False
 SECRET_KEY=env("PRO_SECRET_KEY")
 
 ALLOWED_HOSTS = [
-    "django-render-6agw.onrender.com"
 ]
 
 SESSION_COOKIE_SECURE = True

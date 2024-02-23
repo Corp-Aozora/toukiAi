@@ -24,7 +24,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 # EMAIL_USE_SSL = True   
 
-DEFAULT_FROM_EMAIL = 'toukiaidev@gmail.com'
+DEFAULT_FROM_EMAIL = 'そうぞくとうきくん <toukiaidev@gmail.com>'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'toukiaidev@gmail.com'
@@ -41,6 +41,9 @@ DATABASES = {
         'PORT':'5432',
     }
 }
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # 以下、GCP用に生成したものの
 # データベース情報

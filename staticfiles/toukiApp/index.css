@@ -1,0 +1,50 @@
+.toInquiry:hover, .toSupport:hover, .toCharge:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+
+@media(min-width: 992px){
+    #introSubtitle{
+        display: flex!important;
+        justify-content: center!important;
+    }
+}
+
+.supportStep::before,
+.supportStep::after {
+    content: "";
+    border: solid transparent;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+.supportStep::before {
+    border-width: 22px;
+    border-top-color: var(--bs-card-border-color);
+}
+
+.supportStep::after {
+    border-width: 20px;
+    border-top-color: #fff;
+}
+
+.custom-tooltip{
+    --bs-tooltip-max-width: 100%;
+    --bs-tooltip-bg: var(--bs-primary);
+}
+
+.card, .accordion{
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
+}
+
+label{
+    width: 110px;
+}
+
+.emPosition{
+    top: -55px;
+    left: 110px;
+}

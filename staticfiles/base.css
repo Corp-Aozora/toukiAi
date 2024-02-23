@@ -1,0 +1,117 @@
+.cursor-pointer:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+
+.twoRbs{
+    width: 280px!important;
+}
+
+li{
+    list-style: none!important;
+}
+
+.inputError::placeholder{
+    /* color:#f1aeb5; */
+    color:red!important;
+}
+
+.errorMessage {
+    position: absolute;
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.6em;
+    color: #fff;
+    border-radius: 5px;
+    background: var(--bs-danger);
+    background-image: var(--bs-gradient)!important;
+    border-radius: var(--bs-border-radius-lg)!important;
+}
+
+.errorMessage:before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    border: 15px solid transparent;
+    border-top: 15px solid var(--bs-danger);
+    margin-left: -15px;
+    background-image: var(--bs-gradient)!important;
+}
+
+.verifying {
+    position: absolute;
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.6em;
+    color: #fff;
+    border-radius: 5px;
+    background: var(--bs-warning);
+    background-image: var(--bs-gradient)!important;
+    border-radius: var(--bs-border-radius-lg)!important;
+}
+
+.verifying:before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    border: 15px solid transparent;
+    border-top: 15px solid var(--bs-warning);
+    margin-left: -15px;
+    background-image: var(--bs-gradient)!important;
+}
+
+.label{
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+    font-weight: 700!important;
+}
+
+.shadow-sm-above {
+    box-shadow: 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.no-spin::-webkit-inner-spin-button,
+.no-spin::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+    -moz-appearance:textfield !important;
+}
+
+.modal-image {
+    max-width: 100%; /* 画像の最大幅をモーダルの幅に合わせる */
+    height: auto; /* 高さは自動的に調整 */
+}
+
+button {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+}
+
+.arrow-right::before {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-top: 2px solid var(--bs-primary);
+    border-right: 2px solid var(--bs-primary);
+    transform: rotate(45deg);
+    position:relative;
+    top:-2px;
+}
+
+.arrow-down::before {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    border-right: 2px solid var(--bs-primary);
+    border-bottom: 2px solid var(--bs-primary);
+    transform: rotate(45deg);
+    position:relative;
+    top:-2px;
+}

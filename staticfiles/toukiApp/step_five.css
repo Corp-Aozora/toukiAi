@@ -1,0 +1,22 @@
+#stepList, #papersOrderList, #stampList{
+    counter-reset: section 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;;
+}
+
+#stepList li > h5:before{
+    counter-increment: section 1;
+    content: counter(section);
+    font: bold;
+    font-size: 1.25rem;
+    padding-right: 1rem;
+}
+
+#papersOrderList li:before, #stampList li:before{
+    counter-increment: section 1;
+    content: "("counter(section)")";
+    font: bold;
+    font-size: 1rem;
+    padding-right: 0.5rem;
+}

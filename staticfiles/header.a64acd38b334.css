@@ -1,0 +1,32 @@
+@media (max-width: 575px){
+    #accountLink .signupBtn{
+        display: none!important;
+    }
+    #menuList .signupBtn{
+        display: initial!important;
+    }
+}
+
+@media (min-width: 576px){
+    #accountLink .signupBtn{
+        display: initial!important;
+    }
+    #menuList .signupBtn{
+        display: none!important;
+    }
+}
+
+@media (max-width: 991px){
+    #menuList li:first-child{
+        margin-left: 1rem;
+    }
+    #menuList li{
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width:767px){
+    #offcanvasMenus{
+        width: 240px;
+    }
+}

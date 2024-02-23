@@ -1,0 +1,8 @@
+.sidebar-height{
+    height: var(--vh);
+}
+
+#sidebar{
+    top: var(--top);
+    position: sticky;
+}

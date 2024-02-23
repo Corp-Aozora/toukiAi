@@ -1,0 +1,22 @@
+#updateScheduleList{
+    counter-reset: section 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;;
+}
+
+#updateScheduleList li:before{
+    counter-increment: section 1;
+    content: counter(section);
+    font-weight: bold;
+    font-size: 1rem;
+    padding-right: 1rem;
+}
+
+#updateScheduleList li{
+    font-weight: bold;
+}
+
+#updateScheduleList li:not(:first-child){
+    margin-top: 1rem;
+}

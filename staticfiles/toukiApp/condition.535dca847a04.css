@@ -1,0 +1,110 @@
+.card-title{
+    font-weight:700!important;
+}
+
+.modal-content{
+    width: 700px!important;
+}
+
+.grandfather::after{
+    content: "";
+    height: 2.7rem;
+    top:105%;
+    left: 70%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+.grandmother::after{
+    content: "";
+    height: 2.7rem;
+    top:105%;
+    right: 70%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+.parents::before{
+    content: "";
+    height: 3rem;
+    top:105%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+    transform: rotate(45deg);
+}
+
+.parents::after{
+    content: "";
+    height: 2.7rem;
+    top:105%;
+    right: 50%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+#decendant::after{
+    content: "";
+    height: 1px;
+    top:50%;
+    left: 102.5%;
+    background-color: gray;
+    position: absolute;
+    width: 95px;
+    display: block;
+}
+
+#spouse::before{
+    content: "";
+    height: calc(2.7rem + 60px);
+    top:50%;
+    right: 133%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+#childSpouse::after{
+    content: "";
+    height: 1px;
+    top:50%;
+    left: 101.5%;
+    background-color: gray;
+    position: absolute;
+    width: 65px;
+    display: block;
+}
+
+#child::before{
+    content: "";
+    height: calc(2.7rem + 60px);
+    top:50%;
+    right: 115%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+div .card-title{
+    text-align: center!important;
+}
+.sameGeneration{
+    width: 155px;
+}
+
+.childGeneraton{
+    width: 230px;
+}
+
+.form-text{
+    margin-left: 55px;
+}

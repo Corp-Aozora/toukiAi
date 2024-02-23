@@ -1,0 +1,27 @@
+#wrap{
+    counter-reset: section 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;;
+}
+
+#wrap li > h5:before{
+    counter-increment: section 1;
+    content: counter(section);
+    font: bold;
+    font-size: 1.25rem;
+    padding-right: 1rem;
+}
+
+
+
+ul > li{
+    padding-left: 0!important;
+}
+
+#corrections > li:not(:first-child)::before{
+    content:"";
+    display: inline-block;
+    width: 40px!important;
+}
+

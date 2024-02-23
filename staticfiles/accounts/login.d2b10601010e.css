@@ -1,0 +1,17 @@
+label{
+    width: 110px;
+}
+
+label[for="id_remember"]{
+    width: 135px;
+}
+
+#passDisplayToggle{
+    top: 10px;
+    left: 102%;
+}
+
+.emPosition {
+    left: 110px;
+    top: -55px;
+}

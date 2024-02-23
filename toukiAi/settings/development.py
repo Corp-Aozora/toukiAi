@@ -51,3 +51,18 @@ DATABASES = {
 #         'PORT':'5432',
 #     }
 # }
+
+# データベース情報
+# instance_name: toukiai
+# project: toukiai-development
+# database-version: POSTGRES_15
+# tier: db-f1-micro
+# region: asia-northeast1
+# name: toukiai-development
+# https://sqladmin.googleapis.com/sql/v1beta4/projects/toukiai-development/instances/toukiai
+# users: toukiai-development_tatsuyasaga
+# password: saga2497
+
+# Cloud Storageバケット情報
+# region:asia-northeast1
+# gs://toukiai-development_souzokutoukikun

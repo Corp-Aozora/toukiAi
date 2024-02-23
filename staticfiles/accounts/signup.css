@@ -1,0 +1,17 @@
+label{
+    width: 145px;
+}
+
+.cbErrMesX{
+    left: -52px!important;
+}
+
+.emPosition {
+    left: 145px;
+    top: -55px;
+}
+
+#passDisplayToggle{
+    top: 10px;
+    left: 102%;
+}

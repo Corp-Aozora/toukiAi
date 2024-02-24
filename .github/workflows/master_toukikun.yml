@@ -44,7 +44,7 @@ jobs:
           done 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: Collect static
-        run: python manage.py collectstatic
+        run: python manage.py collectstatic --noinput
 
       - name: Run tests
         run: python manage.py test
@@ -59,7 +59,10 @@ jobs:
           path: |
             release.zip
             !venv/
-
+      
+      - name: unzip for check
+        run: unzip -l release.zip
+        
   deploy:
     runs-on: ubuntu-latest
     needs: build

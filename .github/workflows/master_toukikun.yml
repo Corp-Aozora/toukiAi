@@ -34,14 +34,14 @@ jobs:
       
       - name: Install dependencies
         run: pip install -r requirements.txt
-        
+
       - name: Get details of installed packages
         run: |
-        echo "Getting details of installed packages:"
-        for module in $(pip freeze | awk -F== '{print $1}'); do
-            echo "Details for $module"
-            pip show $module
-        done 
+          echo "Getting details of installed packages:"
+          for module in $(pip freeze | awk -F== '{print $1}'); do
+              echo "Details for $module"
+              pip show $module
+          done 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: Collect static
         run: python manage.py collectstatic

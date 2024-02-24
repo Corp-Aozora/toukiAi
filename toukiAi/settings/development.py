@@ -13,6 +13,7 @@ SECRET_KEY=env("DEV_SECRET_KEY")
 # ]
 
 ALLOWED_HOSTS = [
+    # os.environ['WEBSITE_HOSTNAME']
     "toukikun.azurewebsites.net"
 ]
 
@@ -37,7 +38,8 @@ DATABASES = {
         'NAME':'postgres',
         'USER':'souzokutoukikun',
         'PASSWORD':'111111a;',
-        'HOST':'souzokutoukikun.postgres.database.azure.com',
+        'HOST':'74.226.146.171',
+        # 'HOST':'souzokutoukikun.postgres.database.azure.com',
         'PORT':'5432',
     }
 }

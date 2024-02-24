@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          
+
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
@@ -35,8 +35,20 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
+      - name: Get details of installed packages
+        run: |
+        echo "Getting details of installed packages:"
+        for module in $(pip freeze | awk -F== '{print $1}'); do
+            echo "Details for $module"
+            pip show $module
+        done 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+      - name: Collect static
+        run: python manage.py collectstatic
 
+      - name: Run tests
+        run: python manage.py test
+        
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 

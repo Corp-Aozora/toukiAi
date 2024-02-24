@@ -36,7 +36,7 @@ DATABASES = {
         'ENGINE':'django.db.backends.postgresql',
         'NAME':'postgres',
         'USER':'souzokutoukikun',
-        'PASSWORD':'BDOPTXBQ46O7L3SU',
+        'PASSWORD':'111111a;',
         'HOST':'souzokutoukikun.postgres.database.azure.com',
         'PORT':'5432',
     }

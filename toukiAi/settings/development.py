@@ -13,8 +13,7 @@ SECRET_KEY=env("DEV_SECRET_KEY")
 # ]
 
 ALLOWED_HOSTS = [
-    # os.environ['WEBSITE_HOSTNAME']
-    "toukikun.azurewebsites.net"
+    "https://django-render-6agw.onrender.com"
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -35,11 +34,11 @@ EMAIL_USE_TLS = True
 DATABASES = {
     'default':{
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'postgres',
+        'NAME':'souzokutoukikun',
         'USER':'souzokutoukikun',
-        'PASSWORD':'111111a;',
-        'HOST':'74.226.146.171',
-        # 'HOST':'souzokutoukikun.postgres.database.azure.com',
+        'PASSWORD':'FYamYIRWv3826xBsE1w9NIY0yXQ9kuwF;',
+        'HOST':'dpg-cndci6f79t8c738dmkl0-a',
+        # 'HOST':'dpg-cndci6f79t8c738dmkl0-a.singapore-postgres.render.com',
         'PORT':'5432',
     }
 }

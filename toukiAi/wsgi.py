@@ -9,8 +9,8 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
 
 import os
 from pathlib import Path
-from django.core.wsgi import get_wsgi_application
 import environ
+from django.core.wsgi import get_wsgi_application
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 

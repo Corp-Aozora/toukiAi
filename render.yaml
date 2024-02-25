@@ -12,7 +12,7 @@ services:
     region: singapore
     buildCommand: './build.sh'
     startCommand: 'gunicorn toukiAi.wsgi:application'
-    plan: starter
+    plan: Free
     branch: master
     healthCheckPath: /
     envVars:

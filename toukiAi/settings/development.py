@@ -4,13 +4,13 @@ DEBUG = False
 
 SECRET_KEY=env("DEV_SECRET_KEY")
 
-# INSTALLED_APPS += [
-#     "debug_toolbar",
-# ]
+INSTALLED_APPS += [
+    "debug_toolbar",
+]
 
-# MIDDLEWARE += [
-#     'debug_toolbar.middleware.DebugToolbarMiddleware',
-# ]
+MIDDLEWARE += [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
 
 ALLOWED_HOSTS = [
     "django-render-6agw.onrender.com"

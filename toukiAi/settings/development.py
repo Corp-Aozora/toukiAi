@@ -4,14 +4,6 @@ DEBUG = False
 
 SECRET_KEY=env("DEV_SECRET_KEY")
 
-INSTALLED_APPS += [
-    "debug_toolbar",
-]
-
-MIDDLEWARE += [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-]
-
 ALLOWED_HOSTS = [
     "django-render-6agw.onrender.com"
 ]
@@ -43,8 +35,8 @@ DATABASES = {
     }
 }
 
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # 以下、GCP用に生成したものの
 # データベース情報

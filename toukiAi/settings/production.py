@@ -5,15 +5,28 @@ DEBUG = False
 SECRET_KEY=env("PRO_SECRET_KEY")
 
 ALLOWED_HOSTS = [
+    "django-render-6agw.onrender.com"
 ]
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-DEFAULT_FROM_EMAIL = 't.saga@yahoo.ne.jp'    #送信元のアドレスを指定
-EMAIL_HOST = 'ymobilesmtp.mail.yahoo.ne.jp' 
-EMAIL_PORT = 465                            
-EMAIL_HOST_USER = 't.saga@yahoo.ne.jp'   
-EMAIL_HOST_PASSWORD = 'saga2497'           
-EMAIL_USE_TLS = True    
+DEFAULT_FROM_EMAIL = 'そうぞくとうきくん <toukiaidev@gmail.com>'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'toukiaidev@gmail.com'
+EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
+EMAIL_USE_TLS = True   
+
+DATABASES = {
+    'default':{
+        'ENGINE':'django.db.backends.postgresql',
+        'NAME':'souzokutoukikun',
+        'USER':'souzokutoukikun',
+        'PASSWORD':'FYamYIRWv3826xBsE1w9NIY0yXQ9kuwF',
+        'HOST':'dpg-cndci6f79t8c738dmkl0-a',
+        # 'HOST':'dpg-cndci6f79t8c738dmkl0-a.singapore-postgres.render.com',
+        'PORT':'5432',
+    }
+}

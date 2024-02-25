@@ -23,9 +23,9 @@ urlpatterns = [
     path('403/', accounts_view.error_403, name="error_403")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# if settings.DEBUG:
+if settings.DEBUG:
     
-import debug_toolbar
-urlpatterns = [
-    path('__debug__/', include(debug_toolbar.urls)),
-] + urlpatterns
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

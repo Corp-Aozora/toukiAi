@@ -43,8 +43,8 @@ DATABASES = {
     }
 }
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # 以下、GCP用に生成したものの
 # データベース情報

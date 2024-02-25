@@ -22,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env = environ.Env()
 env_file = BASE_DIR / ".env"
 env.read_env(env_file)
-# DJANGO_SETTINGS_MODULE = env("DJANGO_SETTINGS_MODULE")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -208,3 +207,21 @@ ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 0
 # AXES_LOCKOUT_URL = "/toukiapp/signin"
 
 # HANDLER_403 = 'accounts.views.error_403'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': './logfile.log',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}

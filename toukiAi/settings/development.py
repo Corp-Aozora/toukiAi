@@ -13,7 +13,7 @@ SECRET_KEY=env("DEV_SECRET_KEY")
 # ]
 
 ALLOWED_HOSTS = [
-    "https://django-render-6agw.onrender.com"
+    "django-render-6agw.onrender.com"
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

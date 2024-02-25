@@ -40,7 +40,6 @@ DATABASES = {
         'HOST':'dpg-cndci6f79t8c738dmkl0-a',
         # 'HOST':'dpg-cndci6f79t8c738dmkl0-a.singapore-postgres.render.com',
         'PORT':'5432',
-        'ssl': 'true',
     }
 }
 

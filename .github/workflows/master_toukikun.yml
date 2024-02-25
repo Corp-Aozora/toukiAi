@@ -53,7 +53,7 @@ jobs:
       - name: Zip artifact for deployment
         run: |
           zip release1.zip ./* -r
-          zip release2.zip /opt/hostedtoolcache/Python/3.8/x64/lib/python3.11/site-packages/* -r
+          zip release2.zip /opt/hostedtoolcache/Python/3.8/x64/lib/python3.8/site-packages/* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4.3.1

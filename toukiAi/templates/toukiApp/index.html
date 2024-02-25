@@ -1040,7 +1040,7 @@
             ご不明な点がありましたらお気軽にお問い合わせください<br>
             サービス向上のためご意見・ご要望もいただけると嬉しいです<br>
         </h4>
-        <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
+        <form method="POST" action="{% url 'toukiApp:step_one' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
             {% csrf_token %}
             {% for field in forms %}
                 {% if not field.html_name == "content" %}

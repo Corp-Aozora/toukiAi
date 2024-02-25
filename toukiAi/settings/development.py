@@ -36,7 +36,7 @@ DATABASES = {
         'ENGINE':'django.db.backends.postgresql',
         'NAME':'souzokutoukikun',
         'USER':'souzokutoukikun',
-        'PASSWORD':'FYamYIRWv3826xBsE1w9NIY0yXQ9kuwF;',
+        'PASSWORD':'FYamYIRWv3826xBsE1w9NIY0yXQ9kuwF',
         'HOST':'dpg-cndci6f79t8c738dmkl0-a',
         # 'HOST':'dpg-cndci6f79t8c738dmkl0-a.singapore-postgres.render.com',
         'PORT':'5432',

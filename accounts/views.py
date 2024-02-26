@@ -24,7 +24,7 @@ import socket
 from toukiApp.company_data import *
 import secrets
 from datetime import datetime, timedelta
-
+        
 #djangoのメール形式チェック
 def is_valid_email_pattern(request):
     input_email = request.POST.get("email")

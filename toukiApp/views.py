@@ -125,6 +125,7 @@ def index(request):
         "forms": forms,
         "company_app_name": CompanyData.APP_NAME,
         "company_mail_address": CompanyData.MAIL_ADDRESS,
+        "company_service": Service,
         "is_inquiry": is_inquiry,
     }
     

@@ -110,22 +110,50 @@
 <div class="mx-md-auto">
     <div id="intro" class="my-5">
         <h3 class="text-center">
-            <span class="border-start border-5 border-primary ps-3">{{company_app_name}}とは？</span>
+            <span class="border-start border-5 border-primary ps-3">
+                {{company_app_name}}とは？
+            </span>
         </h3>
         <h4 id="introSubtitle" class="py-3 mt-4">
             <div class="text-center fw-bold">
                 相続登記のお悩みを一緒に解決します！
             </div>
             <div class="d-flex align-items-center justify-content-center">
-                <span class="fs-6 ms-lg-2 fw-bold text-dark border border-dark p-1 rounded-1">司法書士監修</span> 
+                <span class="fs-6 ms-lg-2 fw-bold text-dark border border-dark p-1 rounded-1">
+                    司法書士監修
+                </span> 
             </div>
         </h4>
-        <div class="text-center">
-            <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:condition' %}">
-                アカウント登録してみる！
-            </a>
+        <div class="justify-content-center d-flex">
+            <div class="col-lg-7 p-3 border rounded-3 border-success">
+                <p class="text-center fw-bold text-success">
+                    <span class="bg-success bg-gradient bg-opacity-75 rounded-3 text-white p-2">
+                        お知らせ
+                    </span><br>
+                </p>
+                <p>
+                    令和６年３月１日から戸籍法の一部改正により
+                    <span class="fw-bold">
+                        配偶者、直系卑属（子、孫など）、直系尊属（父母、祖父母など）の方が相続人になる場合は、
+                    </span>
+                    亡くなった方の本籍に関係なく、
+                    <span class="fw-bold">
+                        相続人の最寄りの役所で
+                    </span>
+                    亡くなった方の戸籍謄本を取得できるようになりました。<br>
+                    ※ごく一部の戸籍謄本や兄弟姉妹の方が相続人になる場合は、従来どおり亡くなった方の本籍がある役所でしか取得できません。
+                </p>
+                <p>
+                    相続登記を相続人自身で行う敷居がだいぶ低くなりましたので、本システムを利用して手続きしてみませんか？
+                </p>
+            </div>
         </div>
-        <div class="container d-lg-flex g-0 mt-3">
+        <p class="text-center mt-3">
+            <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:condition' %}">
+                利用条件を確認する
+            </a>
+        </p>
+        <div class="container d-lg-flex g-0">
             <div class="col-lg-4 p-3">
                 <div class="card">
                     <div class="card-header pt-3 bg-secondary-subtle bg-gradient bg-opacity-75">
@@ -142,8 +170,8 @@
                             <span class="bg-primary bg-gradient bg-opacity-75 rounded-3 text-white ps-1 me-1">
                                 提示される項目を入力するだけ
                             </span><br>
-                            必要書類のリストや申請書類はシステムが作成しますので、手続について調べることはありません！<br>
-                            画像を使った詳細な説明もありますので、自分で手続きしてみたいけど難しそう...と悩まれている方にもオススメできます。
+                            必要書類の一覧や申請書類はシステムが作成しますので、手続について調べることはありません！<br>
+                            画像を使った詳細な説明もありますので、自分で手続きしたいけど難しそう...と悩まれている方にもオススメできます。
                             <div class="mt-2 text-end">
                                 <span class="text-primary fw-bold border-bottom border-dark toSupport">
                                     詳細なサポート内容へ
@@ -166,14 +194,13 @@
                     <div class="card-body">
                         <div class="card-text fs-6 fw-bold">
                             <span class="bg-primary bg-gradient bg-opacity-75 rounded-3 text-white ps-1 me-1">
-                                システムの利用料は無料
+                                システムの利用料は4万9000円（税込）
                             </span><br>
-                            司法書士に依頼すると8万円以上の報酬が発生することが多いため大幅な節約になります！<br>
-                            システムの使用感の確認だけでもしてみませんか？<br>
-                            ※丸投げしたい作業を専門家に依頼できる有料のオプションもご用意してます。
+                            司法書士に依頼すると10万円以上の報酬が発生することが多いため出費の節約になります！<br>
+                            もう少し楽したいという場合は、別途のオプションもご用意してます。<br>
                             <div class="text-end mt-2">
                                 <span class="border-bottom border-dark fw-bold text-primary toCharge">
-                                    オプションの料金表へ
+                                    料金表へ
                                 </span>
                             </div>
                         </div>
@@ -195,8 +222,7 @@
                             <span class="bg-primary bg-gradient bg-opacity-75 rounded-3 text-white ps-1 me-1">
                                 明瞭なサービス内容と料金表を提示
                             </span><br>
-                            司法書士事務所によって対応に差があることが多く、安心して頼める事務所を探すのは大変ですが、弊社では、ご安心してシステムを利用していただけるよう心がけてます。<br>
-                            少しでも気になることがありましたらお気軽ににお問い合わせください。
+                            司法書士事務所によってサービス内容に差があることが多く、安心して頼める事務所を探すのは大変ですが、本システムではサービス内容と料金を明示してますので、利用開始後にニーズとの齟齬が生じにくいです！
                             <div class="text-end mt-2">
                                 <span class="border-bottom border-dark fw-bold text-primary toInquiry">
                                     お問い合わせフォームへ
@@ -244,7 +270,7 @@
     <hr>
     <div id="support" class="my-5">
         <h3 class="text-center">
-            <span class="border-start border-5 border-primary ps-3">サポート内容（全て無料）</span>
+            <span class="border-start border-5 border-primary ps-3">サポート内容</span>
         </h3>
         <h4 class="py-3 mt-4 fw-bold text-center">
             ５つのステップで相続登記が完了します
@@ -258,7 +284,7 @@
                             <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#firstStepModal">
                                 STEP1
                                 <span class="ms-3">
-                                    データ入力
+                                    相続関係を入力
                                 </span>
                             </button>
                         </h5>
@@ -276,7 +302,8 @@
                             </div>
                         </div>
                         <div class="card-text fw-bold">
-                            必要書類を確定させるための項目が提示されますのでご入力ください。
+                            相続人を確定させるための質問が提示されます。<br>
+                            質問は配偶者の有無や氏名など簡単な内容です。
                         </div>
                     </div>
                 </li>
@@ -286,7 +313,7 @@
                             <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#secondStepModal">
                                 STEP2
                                 <span class="ms-3">
-                                    必要書類取得
+                                    必要書類を取得
                                 </span>
                             </button>
                         </h5>
@@ -304,8 +331,8 @@
                             </div>
                         </div>
                         <div class="card-text fw-bold">
-                            表示された必要書類一覧をご取得ください。書類の取得場所や方法なども記載されてます。<br>
-                            書類取得代行又は書類をご取得いただいた後の不足がないかをチェックするオプションをご利用いただけます。<br>
+                            必要書類が一覧表示されます。各書類について取得場所や方法などの説明もあります。<br>
+                            ご面倒な場合は、書類取得代行のオプションをご利用ください。<br>
                             ※一部ご本人様しか取得できない書類もあります。
                         </div>
                     </div>
@@ -316,7 +343,7 @@
                             <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#thirdStepModal">
                                 STEP3
                                 <span class="ms-3">
-                                    データ入力
+                                    申請情報を入力
                                 </span>
                             </button>
                         </h5>
@@ -334,8 +361,8 @@
                             </div>
                         </div>
                         <div class="card-text fw-bold">
-                            申請書類の作成に必要な項目が提示されますので、ご取得された書類を確認しながらご入力ください。<br>
-                            書類のどこを確認するのかひと目でわかる画像もつけてますので、簡単に入力が進みます。
+                            申請書類の作成に必要な項目が提示されますので、２．で取得した書類を確認しながらご入力ください。<br>
+                            書類のどこを確認すればいいのかすぐにわかるよう参考画像もありますので、簡単に入力できます。
                         </div>
                     </div>
                 </li>
@@ -345,7 +372,7 @@
                             <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#fourthStepModal">
                                 STEP4
                                 <span class="ms-3">
-                                    書類の印刷と署名押印
+                                    申請書類の印刷と署名押印
                                 </span>
                             </button>
                         </h5>
@@ -365,7 +392,8 @@
                         <div class="card-text fw-bold">
                             申請書類ができあがりますので、印刷してご署名押印ください。<br>
                             相続人皆様の署名押印が必要な書類もあります。<br>
-                            ※遺産分割協議証明書は、代償分割、換価分割にも対応してます。
+                            遺産分割は、換価分割にも対応してます。<br>
+                            ※換価分割とは、不動産を売却して金銭による分配を前提とした遺産分割方法のことです。
                         </div>
                     </div>
                 </li>
@@ -393,7 +421,7 @@
                             </div>
                         </div>
                         <div class="card-text fw-bold">
-                            書類が全て揃ったら整理して法務局に郵送または持参していただきます。<br>
+                            揃った書類を整理して管轄の法務局に郵送または持参していただきます。<br>
                             申請にご不安がある場合は、提携の司法書士が代理で申請するオプションをご利用いただけます。
                         </div>
                     </div>
@@ -419,9 +447,10 @@
                             </div>
                         </div>
                         <div class="card-text fw-bold">
-                            本システムを使用するにあたっての不明点については随時チャット又はメールによるお問い合わせを受け付けてます。<br>
+                            本システムを使用するにあたっての不明点については随時LINE又はメールによるお問い合わせを受け付けてます。<br>
                             原則24時間以内にご返信します。<br>
-                            ※法的な判断を含むご相談を受けることはご対応できません。
+                            ※電話対応はしておりません。<br>
+                            ※即時に回答できる事項であれば法的な判断を含むご相談も受け付けてます。
                         </div>
                     </div>
                 </li>
@@ -431,57 +460,25 @@
     <hr>
     <div id="charge" class="my-5">
         <h3 class="text-center">
-            <span class="border-start border-5 border-primary ps-3">オプション料金（全て税込価格）</span>
+            <span class="border-start border-5 border-primary ps-3">料金表（全て税込価格）</span>
         </h3>
         <h4 class="py-3 mt-4 fw-bold text-center">
+            上記サポート内容の料金は{{company_service.BASIC_PRICE}}です。<br>
             一部だけ司法書士にご依頼いただくこともできます。
         </h4>
         <div class="container">
-            <div class="d-flex">
-                <div class="col-lg-4 p-3">
-                    <div class="card">
-                        <div class="card-header pt-3 bg-gradient">
-                            <h5 class="text-center">
-                                必要証明書のチェック
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title text-center">
-                                <span class="border-bottom border-dark border-2 px-2">
-                                    11,000円
-                                </span>
-                            </h5>
-                            <p class="card-text text-center mt-3 fw-bold">
-                                <span class="d-inline-block text-start">
-                                    ・ご取得された証明書の不足チェック<br>
-                                    ・不足している書類のリストを作成
-                                </span>
-                            </p>
-                            <p>
-                                自分で取得してみたものの大丈夫かな？というご不安を解消します。
-                            </p>
-                            <div class="d-flex">
-                                <span>
-                                    ※
-                                </span>
-                                <span>
-                                    チェックする書類が15通を超える場合、超過1通ごとに550円が加算されます。
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="d-flex justify-content-center">
                 <div class="col-lg-4 p-3">
                     <div class="card">
                         <div class="card-header pt-3 bg-primary bg-gradient bg-opacity-75 text-white">
                             <h5 class="text-center">
-                                必要証明書の代理取得
+                                {{company_service.OPTION1_NAME}}
                             </h5>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title text-center">
                                 <span class="border-bottom border-dark border-2 px-2">
-                                    22,000円
+                                    {{company_service.OPTION1_PRICE}}
                                 </span>
                             </h5>
                             <p class="card-text text-center mt-3 fw-bold">
@@ -506,78 +503,15 @@
                 </div>
                 <div class="col-lg-4 p-3">
                     <div class="card">
-                        <div class="card-header pt-3 bg-gradient">
-                            <h5 class="text-center" data-bs-toggle="tooltip" data-bs-title="かさばる戸籍謄本等の代わりになる証明書です。" data-bs-custom-class="custom-tooltip">
-                                法定相続証明情報の代理取得
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title text-center">
-                                <span class="border-bottom border-dark border-2 px-2">
-                                    16,500円
-                                </span>
-                            </h5>
-                            <p class="card-text text-center mt-3 fw-bold">
-                                <span class="d-inline-block text-start">
-                                    ・オプションの必要証明書のチェック<br>
-                                    ・法定相続証明情報の代理取得
-                                </span>
-                            </p>
-                            <p>
-                                相続登記以外にも使用できる公的な相続関係図です。
-                            </p>
-                            <div class="d-flex">
-                                <span>
-                                    ※
-                                </span>
-                                <span>
-                                    必要証明書の代理取得と併用いただく場合は11,000円になります。
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="d-flex justify-content-center">
-                <div class="col-lg-4 p-3">
-                    <div class="card">
-                        <div class="card-header pt-3 bg-gradient">
-                            <h5 class="text-center">
-                                法務局での代理申請
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title text-center">
-                                <span class="border-bottom border-dark border-2 px-2">
-                                    44,000円
-                                </span>
-                            </h5>
-                            <p class="card-text text-center mt-3 fw-bold">
-                                <span class="d-inline-block text-start">
-                                    ・オプションの必要証明書のチェック<br>
-                                    ・不動産漏れの確認<br>
-                                    ・申請書類のチェック<br>
-                                    ・法務局への申請<br>
-                                    ・手続完了後の書類整理
-                                </span>
-                            </p>
-                            <p>
-                                司法書士が責任を持って申請書類の確認と法務局とのやり取りを行います。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 p-3">
-                    <div class="card">
                         <div class="card-header pt-3 bg-gradient bg-success bg-opacity-75 text-white">
                             <h5 class="text-center">
-                                全ておまかせ
+                                {{company_service.OPTION2_NAME}}
                             </h5>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title text-center">
                                 <span class="border-bottom border-dark border-2 px-2">
-                                    88,000円
+                                    {{company_service.OPTION2_PRICE}}
                                 </span>
                             </h5>
                             <p class="card-text text-center mt-3 fw-bold">
@@ -587,7 +521,7 @@
                                 本システムを制作した者が面識ある司法書士を自信をもってご紹介いたします
                             </p>
                             <p>
-                                自分でやろうと思ったけどやっぱり面倒だな、なかなかいい司法書士が見つからないときにご検討されてはいかがでしょうか？
+                                どの司法書士に依頼しようか迷われてる場合にご検討されてはいかがでしょうか？
                             </p>
                         </div>
                     </div>
@@ -598,7 +532,7 @@
                     ※必要書類の取得にかかる役所の手数料や法務局に支払う登録免許税などの実費は、上記料金とは別にご負担が必要です。
                 </span><br>
                 <span>
-                    ・登録免許税は、不動産の固定資産評価額の0.4%です。
+                    ※登録免許税は、不動産の固定資産評価額の0.4%です。
                 </span>
             </div>
         </div>
@@ -609,7 +543,7 @@
             <span class="border-start border-5 border-primary ps-3">他社比較</span>
         </h3>
         <h4 class="py-3 mt-4 fw-bold text-center">
-            他社のサービスとの比較表です。
+            他社が提供する類似サービスとの比較表です。
         </h4>
         <div class="container">
             <div class="d-flex">
@@ -657,11 +591,32 @@
                                         長所
                                     </span>
                                 </h5>
-                                <p class="card-text mt-3 fw-bold">
-                                    ・不動産が何件でも、相続人が何人でも定額<br>
-                                    ・証明書類の取得費用も含まれている<br>
-                                    ・電話対応によるサポートが有る
-                                </p>
+                                <ul class="card-text mt-3 fw-bold ps-0">
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            不動産が何件でも、相続人が何人でも利用料が定額
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            必要書類を取得してもらえる
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            電話対応あり
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                             <div class="mt-4 p-2 bg-danger-subtle bg-gradient rounded-3">
                                 <h5 class="card-title text-center">
@@ -669,10 +624,32 @@
                                         短所
                                     </span>
                                 </h5>
-                                <p class="card-text mt-3 fw-bold">
-                                    ・93,500円以下で受任する司法書士は意外といるため、実は節約にあまりならない<br>
-                                    ・登記申請を代理してくれるわけではないため、ミスがあれば結局自己責任になる
-                                </p>
+                                <ul class="card-text mt-3 fw-bold ps-0">
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            報酬が93,500円ほどで受任する司法書士は結構いる
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            登記申請の代理ではないため、同様の料金で司法書士に依頼したほうが安全
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            申込書や委任状など書類のやりとりがある
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -681,7 +658,7 @@
                     <div class="card">
                         <div class="card-header pt-3 bg-secondary bg-gradient bg-opacity-75 text-white">
                             <h5 class="text-center">
-                                Ｂ社
+                                司法書士
                             </h5>
                         </div>
                         <div class="card-body">
@@ -689,8 +666,8 @@
                                 <h5 class="card-title text-center">
                                     <span class="border-bottom border-dark border-2 px-2">
                                         最低料金：
-                                        <span class="text-success">
-                                            無料
+                                        <span class="text-danger">
+                                            10万円～
                                         </span>
                                     </span>
                                 </h5>
@@ -699,8 +676,8 @@
                                 <h5 class="card-title text-center">
                                     <span class="border-bottom border-dark border-2 px-2">
                                         オプション：
-                                        <span class="text-danger">
-                                            なし
+                                        <span class="">
+                                            司法書士による
                                         </span>
                                     </span>
                                 </h5>
@@ -712,7 +689,7 @@
                                     </span>
                                 </h5>
                                 <p class="card-text mt-3 fw-bold">
-                                    資料請求すると無料で相続登記を自分でする方法が書かれた冊子が届く。
+                                    専門家が相談内容に応じて代理で手続きをしてくれる。
                                 </p>
                             </div>
                             <div class="mt-4 p-2 bg-success-subtle bg-gradient rounded-3">
@@ -721,9 +698,32 @@
                                         長所
                                     </span>
                                 </h5>
-                                <p class="card-text mt-3 fw-bold">
-                                    ・無料で相続登記の方法がわかる
-                                </p>
+                                <ul class="card-text mt-3 fw-bold ps-0">
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            丸投げできる
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            各種相談も可能
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            専門家による処理のため正確
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                             <div class="mt-4 p-2 bg-danger-subtle bg-gradient rounded-3">
                                 <h5 class="card-title text-center">
@@ -731,10 +731,32 @@
                                         短所
                                     </span>
                                 </h5>
-                                <p class="card-text mt-3 fw-bold">
-                                    ・冊子を読むのが面倒<br>
-                                    ・手作業が多く面倒
-                                </p>
+                                <ul class="card-text mt-3 fw-bold ps-0">
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            報酬が高額になることが多い
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            報酬がいくらになるか不明瞭なことが多い
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            どこまで対応してもらえるか差がある
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -752,7 +774,7 @@
                                     <span class="border-bottom border-dark border-2 px-2">
                                         最低料金：
                                         <span class="text-success">
-                                            無料
+                                            49,000円
                                         </span>
                                     </span>
                                 </h5>
@@ -783,12 +805,40 @@
                                         長所
                                     </span>
                                 </h5>
-                                <p class="card-text mt-3 fw-bold">
-                                    ・無料でシステムを利用できる<br>
-                                    ・必要があるときだけオプションを利用できる<br>
-                                    ・オプションを利用しても他社より安く済ませることができる<br>
-                                    ・元司法書士が制作し、現役の司法書士が監修したシステム
-                                </p>
+                                <ul class="card-text mt-3 fw-bold ps-0">
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            弊社とのやりとりはweb上で完結する
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            元司法書士が制作し、現役の司法書士が監修したシステム
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            一部法的相談を受け付けている
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            ＋
+                                        </div>
+                                        <div>
+                                            利用期限なし
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                             <div class="mt-4 p-2 bg-danger-subtle bg-gradient rounded-3">
                                 <h5 class="card-title text-center">
@@ -796,10 +846,32 @@
                                         短所
                                     </span>
                                 </h5>
-                                <p class="card-text mt-3 fw-bold">
-                                    ・預貯金の払い戻しに対応していない<br>
-                                    ・お問い合わせ対応はメールのみ
-                                </p>
+                                <ul class="card-text mt-3 fw-bold ps-0">
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            預貯金の払い戻しに対応していない
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            書類の取得は自分でしなければならない
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div>
+                                            －
+                                        </div>
+                                        <div>
+                                            電話対応なし
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -819,7 +891,7 @@
                         <div class="accordion-header" id="q1">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a1" aria-expanded="false" aria-controls="a1">
                                 <h5 class="mb-0">
-                                    Q.遺産分割の内容をどう決めるべきかなど
+                                    Q.遺産の分割内容をどう決めるべきかなど
                                     <span class="text-primary">
                                         法的な内容を含む相談
                                     </span>
@@ -830,22 +902,8 @@
                         <div id="a1" class="accordion-collapse collapse" aria-labelledby="q1">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.法的な内容を含むご相談への対応は司法書士や弁護士などの専門家の独占業務のためご対応できません。
+                                    A.複雑な内容のものでなければ対応できます。
                                 </p>
-                                <div class="ps-3">
-                                    <p>
-                                        提携の司法書士にご依頼いただいた場合は、その司法書士にご相談いただくことができます。
-                                    </p>
-                                    以下、専門家以外は
-                                    <span class="fw-bold border-bottom border-dark">
-                                        ご対応できない相談例
-                                    </span>
-                                    です<br>
-                                    ・遺産分割の内容をどうすべきか<br>
-                                    ・他の相続人への遺産分割の交渉<br>
-                                    ・相続税額の計算や相続税対策<br>
-                                    ・訴訟、調停の可否、など
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -858,45 +916,48 @@
                         <div id="a2" class="accordion-collapse collapse" aria-labelledby="q2">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.本システムのSTEP1をご利用いただくことで確認することができます。
+                                    A.被相続人の死亡時を基準に以下のように判定します。
                                 </p>
                                 <div class="ps-3">
-                                    <p>
-                                        <span class="fw-bold border-bottom border-dark">
-                                            被相続人の死亡時を基準に
-                                        </span>
-                                        <span class="bg-primary-subtle rounded-3">
-                                            直系卑属※がいたら直系卑属
-                                        </span>
-                                        、
-                                        <span class="bg-success-subtle rounded-3">
-                                            いない場合は直系尊属※
-                                        </span>
-                                        、
-                                        <span class="bg-warning-subtle rounded-3">
-                                            直系尊属がいない場合は兄弟姉妹
-                                        </span>
-                                        の順番で相続人となり、
-                                        <span class="bg-danger-subtle rounded-3">
-                                            配偶者はこれらの相続人と一緒に相続人
-                                        </span>
-                                        になります。<br>
-                                        相続後に亡くなった相続人がいる場合は、その方についても同様の判定を行います。<br>
-                                    </p>
+                                    <ul class="ps-0">
+                                        <li>
+                                            <span class="bg-primary-subtle rounded-3">
+                                                １，直系卑属※がいる場合は、直系卑属。
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span class="bg-success-subtle rounded-3">
+                                                ２，直系卑属がいない場合は、直系尊属※。
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span class="bg-warning-subtle rounded-3">
+                                                ３，直系尊属がいない場合は、兄弟姉妹。
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span class="bg-danger-subtle rounded-3">
+                                                ４，配偶者は上記相続人と一緒に相続人。上記相続人がいないときは配偶者のみ。
+                                            </span>
+                                        </li>
+                                    </ul>
                                     <p>
                                         <span class="bg-primary-subtle rounded-3">
                                             ※直系卑属：
                                         </span>
-                                        被相続人より後の世代（子、孫、ひ孫...）の続柄のこと（養子を含みます）。<br>
+                                        被相続人の子、孫、ひ孫...のこと（養子を含む）。<br>
                                         <span class="bg-success-subtle rounded-3">
                                             ※直系尊属：
                                         </span>
-                                        被相続人より前の世代（父母、祖父母...）の続柄のこと（養親を含みます）。<br>
+                                        被相続人の父母、祖父母...のこと（養親を含む）。<br>
                                     </p>
-                                    例）被相続人が亡くなったとき配偶者と子1人がいたが、子がその後に亡くなって、その子に配偶者と子が2人いたとき<br>
+                                    <p>
+                                        被相続人が亡くなった後に亡くなった相続人がいる場合は、その方について同様の判定を行います。<br>
+                                    </p>
+                                    例）被相続人が亡くなったとき配偶者と子1人がいたが、子がその後に亡くなって、その子に配偶者と子2人がいたとき<br>
                                     <span class="ps-3">
-                                        相続人は、➀被相続人の配偶者➁子の配偶者➂➃子の子2人、の計4名になります。<br>
-                                        ※子が被相続人より先に亡くなっているときは子の配偶者は相続人になりません。
+                                        相続人は、被相続人の配偶者、子の配偶者、子の子（孫）2人、の計4名になります。<br>
+                                        ※子が被相続人より先に亡くなっていた場合は、子の配偶者は相続人になりません。
                                     </span>
                                 </div>
                             </div>
@@ -905,28 +966,26 @@
                     <div class="accordion-item">
                         <div class="accordion-header" id="q3">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a3" aria-expanded="false" aria-controls="a3">
-                                <h5 class="mb-0">Q.登記が何かもよくわからないけど大丈夫？</h5>
+                                <h5 class="mb-0">Q.登記が何かもよくわかってないけど大丈夫？</h5>
                             </button>
                         </div>
                         <div id="a3" class="accordion-collapse collapse" aria-labelledby="q3">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.お時間があってやる気がある方であれば大丈夫です。
+                                    A.やる気があれば全く問題ないです。
                                 </p>
                                 <div class="ps-3">
-                                    相続登記はお亡くなりになった方が所有していた不動産の名義変更手続きのことです。<br>
-                                    本システムを使用すると手続きをどう進めればいいか明確なので
-                                    <span class="fw-bold border-bottom border-dark">
-                                        難しいことはない
-                                    </span>
-                                    です。<br>
-                                    ただ、何をすべきかわかっても役所で証明書を取得したり書類を整理したりする労力は省くことはできないため、
-                                    <span class="fw-bold border-bottom border-dark">
-                                        時間とやる気は必要
-                                    </span>
-                                    になります。<br>
-                                    もし途中で丸投げしたくなった場合はオプションを利用することもできますので、お急ぎでなければ、まずはご自身で
-                                    されてみるのもいいかと思います。
+                                    <p>
+                                        本システムが手順をご案内しますので、それに従っていただくだけで完了します。<br>
+                                        ただ、役所で証明書を取得したり書類を整理したりする労力は省くことはできないため、
+                                        <span class="fw-bold border-bottom border-dark">
+                                            時間とやる気は必要
+                                        </span>
+                                        になります。
+                                    </p>
+                                    <p>
+                                        原則24時間以内回答のお問い合わせ対応もありますので、不明点があってもすぐに解決できます。
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -934,29 +993,37 @@
                     <div class="accordion-item">
                         <div class="accordion-header" id="q4">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a4" aria-expanded="false" aria-controls="a4">
-                                <h5 class="mb-0">Q.実費はいくらぐらいかかる？</h5>
+                                <h5 class="mb-0">Q.実費はいくらぐらいかかるの？</h5>
                             </button>
                         </div>
                         <div id="a4" class="accordion-collapse collapse" aria-labelledby="q4">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.相続人が何人いるか、不動産の評価額がいくらかによるため一概にお答えできませんが以下に一例を挙げます。
+                                    A.相続人が何人いるか、不動産の評価額がいくらかによるため一概にお答えできませんが、以下に一例を挙げます。
                                 </p>
                                 <div class="ps-3">
                                     <p>
-                                        例）相続人が配偶者と子3人／不動産が土地1筆、建物1棟で固定資産評価額の合計が3000万円の場合
+                                        例）相続人が配偶者と子3人で不動産が土地1筆、建物1棟で固定資産評価額の合計が３，０００万円の場合<br>
                                         <span class="form-text">
-                                            ※固定資産評価額は毎年4月頃に届く固定資産税の納税通知書と一緒に同封されている課税明細書に記載されてます。
-                                        </span><br>
-                                    </p>
-                                    <div class="ps-3">
-                                        ・必要書類の取得費：約6000円（郵送で取得する場合は別途郵送費）<br>
-                                        ・登録免許税：12万円<br>
-                                        ・法務局へ郵送：1040円（レターパックプラス2通）<br>
-                                        <span class="fw-bold border-bottom border-dark">
-                                            計約12万7040円
+                                            ※固定資産評価額は毎年４月頃に届く固定資産税の納税通知書と一緒に同封されている課税明細書に記載されてます。
                                         </span>
-                                    </div>
+                                    </p>
+                                    <ul class="ps-3">
+                                        <li>
+                                            －必要書類の取得費：約６，０００円（郵送で取得する場合は別途郵送費）
+                                        </li>
+                                        <li>
+                                            －登録免許税：１２万円（固定資産評価額の０．４％）
+                                        </li>
+                                        <li>
+                                            －相続人や法務局への郵便費：約１，５００円
+                                        </li>
+                                        <li>
+                                            <span  class="fw-bold border-bottom border-dark">
+                                                計約１２万７，５００円
+                                            </span>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -970,11 +1037,11 @@
                         <div id="a5" class="accordion-collapse collapse" aria-labelledby="q5">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.google chrome、FireFox、Safari、microsoft edgeのいずれを推奨します。<br>
+                                    A.google chrome、microsoft edgeのどちらかを推奨します。
                                 </p>
-                                <div class="ps-3">
+                                <p class="ps-3">
                                     その他のブラウザでは使用状況を検証してません。
-                                </div>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -995,35 +1062,35 @@
                     <div class="accordion-item">
                         <div class="accordion-header" id="q7">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a7" aria-expanded="false" aria-controls="a7">
-                                <h5 class="mb-0">Q.結局他社と比べてどっちがいいかわからない？</h5>
+                                <h5 class="mb-0">Q.自分の場合は、どのサービスがいいのか判断がつかない</h5>
                             </button>
                         </div>
                         <div id="a7" class="accordion-collapse collapse" aria-labelledby="q7">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.候補となっている他社様のサービスのホームページのURLを教えてください
+                                    A.亡くなった方の死亡時期、相続人の数、不動産の数、遺産をどのように分配したいかお問い合わせでお知らせください。
                                 </p>
-                                <div class="ps-3">
-                                    中立的にサービスを比較してどれがお客様に合っているか提案させていただきます。<br>
+                                <p class="ps-3">
+                                    中立的に司法書士に依頼したほうがいいか、ご自身でもできるのかご提案させていただきます。<br>
                                     必ず自社のサービスを提案するという営業は絶対にしません。
-                                </div>
+                                </p>
                             </div>
                         </div>
                     </div>
                     <div class="accordion-item">
                         <div class="accordion-header" id="q8">
                             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#a8" aria-expanded="false" aria-controls="a8">
-                                <h5 class="mb-0">Q.無料で使ってても問い合わせは何回してもいいの？</h5>
+                                <h5 class="mb-0">Q.問い合わせは何回してもいいの？</h5>
                             </button>
                         </div>
                         <div id="a8" class="accordion-collapse collapse" aria-labelledby="q8">
                             <div class="accordion-body ps-5 fs-5">
                                 <p class="fw-bold">
-                                    A.法的な判断が必要なお問い合わせ以外であれば何回でもご回答いたします。
+                                    A.何回お問い合わせいただいても大丈夫です。
                                 </p>
-                                <div class="ps-3">
-                                    簡単にご利用いただけるように随所に説明文や画像を挿入しておりますので、そちらもぜひご活用ください
-                                </div>
+                                <p class="ps-3">
+                                    疑問が解消されるまで是非ご活用ください。
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1038,7 +1105,7 @@
         </h3>
         <h4 class="py-3 my-4 fw-bold text-center">
             ご不明な点がありましたらお気軽にお問い合わせください<br>
-            サービス向上のためご意見・ご要望もいただけると嬉しいです<br>
+            サービス向上のためご意見・ご要望もいただけますと幸いです<br>
         </h4>
         <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
             {% csrf_token %}

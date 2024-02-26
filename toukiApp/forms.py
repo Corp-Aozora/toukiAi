@@ -31,7 +31,7 @@ class OpenInquiryForm(forms.ModelForm):
         
         self.base_fields['content'].widget.attrs.update({
             'class': 'form-control rounded-end',
-            "placeholder": "問い合わせは何回しても対応してくれるの？\n(※300文字まで)\n\n※何回でも対応します。",
+            "placeholder": "300文字まで",
             "style":"resize:none;"
         })
         

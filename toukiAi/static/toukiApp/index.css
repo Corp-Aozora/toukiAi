@@ -48,3 +48,7 @@ label{
     top: -55px;
     left: 110px;
 }
+
+#compare li{
+    display: flex!important;
+}

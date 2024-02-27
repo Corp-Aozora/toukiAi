@@ -587,8 +587,8 @@ async function loadData(){
     idxs = RegistryNameAndAddress.idxs;
     for(let i = 0; i < registryNameAndAddressesCount; i++){
         const instance = registryNameAndAddresses[i];
-        const input = instance.inputs[j];
         for(let j = 0, len = instance.inputs.length; j < len; j++){
+            const input = instance.inputs[j];
             if(input.value != ""){
                 //都道府県のとき、市区町村データを取得する
                 if(j === idxs.prefecture)
@@ -608,9 +608,7 @@ async function loadData(){
     })
     //全て入力されているとき、相続人情報欄を表示する
     if(decedents.concat(registryNameAndAddresses).some(item => item.noInputs.length !== 0) === false){
-        const fieldsets = Array.from(document.getElementById("decedent-section").getElementsByTagName("fieldset"));
-        fieldsets.forEach(fieldset => fieldset.disabled = true);
-        slideDownIfHidden(document.getElementById("heirs-section"));
+        handleOkBtnEvent();
     }else{
         return;
     }
@@ -1412,6 +1410,38 @@ function sortChildHeirsFieldset(section){
 }
 
 /**
+ * 相続人のインスタンスを生成する
+ * @param {HTMLElement} fieldset 
+ */
+function createHeirsInstance(fieldset){
+    const id = fieldset.id;
+    //被相続人の配偶者のとき
+    if(id.includes("decedent_spouse")){
+        new SpouseOrAscendant("id_decedent_spouse-fieldset");
+    }else if(id.includes("id_child-")){
+        //子のとき
+        const count = heirs.filter(item => item instanceof DescendantOrCollateral).length;
+        new DescendantOrCollateral(`id_child-${count}-fieldset`);
+    }else if(id.includes("id_child_spouse-")){
+        //子の配偶者のとき
+        const count = heirs.filter(item => item instanceof SpouseOrAscendant && item.fieldset.id.includes("id_child_spouse-")).length;
+        new SpouseOrAscendant(`id_child_spouse-${count}-fieldset`);
+    }else if(id.includes("id_grand_child-")){
+        //孫のとき
+        const count = heirs.filter(item => item instanceof DescendantOrCollateral && item.fieldset.id.includes("id_grand_child-")).length;
+        new DescendantOrCollateral(`id_grand_child-${count}-fieldset`);
+    }else if(id.includes("id_ascendant-")){
+        //尊属のとき
+        const count = heirs.filter(item => item instanceof SpouseOrAscendant && item.fieldset.id.includes("id_ascendant-")).length;
+        new SpouseOrAscendant(`id_ascendant-${count}-fieldset`);
+    }else if(id.includes("id_collateral-")){
+        //兄弟姉妹のとき
+        const count = heirs.filter(item => item instanceof DescendantOrCollateral && item.fieldset.id.includes("id_collateral-")).length;
+        new DescendantOrCollateral(`id_collateral-${count}-fieldset`);
+    }
+}
+
+/**
  * 相続人情報セクションを表示する処理
  */
 function setHeirsSection(){
@@ -1428,33 +1458,10 @@ function setHeirsSection(){
         //全フィールドセットを取得してループ処理
         const fieldsets = section.getElementsByTagName("fieldset");
         for(let i = 0, len = fieldsets.length; i < len; i++){
-            const id = fieldsets[i].id;
-            //被相続人の配偶者のとき
-            if(id.includes("decedent_spouse")){
-                new SpouseOrAscendant("id_decedent_spouse-fieldset");
-            }else if(id.includes("id_child-")){
-                //子のとき
-                const count = heirs.filter(item => item instanceof DescendantOrCollateral).length;
-                new DescendantOrCollateral(`id_child-${count}-fieldset`);
-            }else if(id.includes("id_child_spouse-")){
-                //子の配偶者のとき
-                const count = heirs.filter(item => item instanceof SpouseOrAscendant && item.fieldset.id.includes("id_child_spouse-")).length;
-                new SpouseOrAscendant(`id_child_spouse-${count}-fieldset`);
-            }else if(id.includes("id_grand_child-")){
-                //孫のとき
-                const count = heirs.filter(item => item instanceof DescendantOrCollateral && item.fieldset.id.includes("id_grand_child-")).length;
-                new DescendantOrCollateral(`id_grand_child-${count}-fieldset`);
-            }else if(id.includes("id_ascendant-")){
-                //尊属のとき
-                const count = heirs.filter(item => item instanceof SpouseOrAscendant && item.fieldset.id.includes("id_ascendant-")).length;
-                new SpouseOrAscendant(`id_ascendant-${count}-fieldset`);
-            }else if(id.includes("id_collateral-")){
-                //兄弟姉妹のとき
-                const count = heirs.filter(item => item instanceof DescendantOrCollateral && item.fieldset.id.includes("id_collateral-")).length;
-                new DescendantOrCollateral(`id_collateral-${count}-fieldset`);
-            }
+            //相続人インスタンス生成
+            createHeirsInstance(fieldsets[i]);
+            //イベント設定
             setHeirsEvent(heirs[i]);
-
             //最初の人以外は非表示にする
             if(i > 0) fieldsets[i].style.display = "none";
         }

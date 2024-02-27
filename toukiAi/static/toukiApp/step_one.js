@@ -2570,12 +2570,15 @@ function handleFullWidthInputChange(el, idx, person){
  * @param {ChildCommon|Collateral} person 
  */
 function commonCountFormHandler(person){
-    const count = person.inputs[person.constructor.idxs.count.input].value;
-    if(count === "1"){
+    const count = parseInt(person.inputs[person.constructor.idxs.count.input].value);
+    if(count === NaN)
+        return;
+
+    if(count === 1){
         //１人のときは初期値入力を無効化する
         const rbIdxs = getSequentialNumArr(person.constructor.idxs.isSameParents.input[yes], person.constructor.idxs.isJapan.input[no]);
         breakQ(null, person, person.Qs, person.constructor.idxs.isSameParents.form, person.constructor.idxs.isJapan.form, rbIdxs);
-    }else if(count > "1"){
+    }else if(count > 1){
         //２人以上のとき配偶者確認欄を表示する
         if(person.Qs[person.constructor.idxs.isSameParents.form].style.display === "none"){
             pushInvalidEl(person.constructor.idxs.isJapan.input[yes]);

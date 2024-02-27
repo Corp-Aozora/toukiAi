@@ -3137,6 +3137,16 @@ function setIniData(nextPerson){
             reflectData(iniData, Child.idxs, childs);
         //初期値があるときは、そのイベントを発生させる。チェックが連続しているときだけループを続ける
         dispatchIniChangeEvent(nextPerson, iniData);
+        //配偶者がいないとき、配偶者確認欄を非表示にしていいえにチェックを入れておく
+        if(spouse.inputs[Spouse.idxs.isExist.input[no]].checked){
+            childs.forEach(child => {
+                const inputs = child.inputs;
+                const isSameParentsIdxs = Child.idxs.isSameParents.input;
+                inputOrCheckAndDispatchChangeEvent(inputs[isSameParentsIdxs[no]]);
+                inputs[isSameParentsIdxs[yes]].disabled = true;
+                inputs[isSameParentsIdxs[no]].disabled = true;
+            })
+        }
     }else if(fieldset.id === "id_collateral_common-0-fieldset"){
         //兄弟姉妹共通欄のとき、兄弟姉妹がいないボタンが押されていたらchangeイベントを発生させる
         dispatchSingleRbEvent(inputs[CollateralCommon.idxs.isExist.input[no]]);

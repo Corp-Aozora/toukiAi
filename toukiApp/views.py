@@ -84,7 +84,6 @@ def index(request):
                     ''').format(
                         subject=form.cleaned_data["subject"],
                         content=form.cleaned_data["content"],
-                        company_sub_name=CompanyData.SUB_NAME,                        
                         company_name=CompanyData.NAME,
                         company_post_number=CompanyData.POST_NUMBER,
                         company_address=CompanyData.ADDRESS,

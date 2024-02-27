@@ -1598,6 +1598,10 @@ class SpouseRbHandler extends CommonRbHandler{
                     inputs[Spouse.idxs.name.input].disabled = false;
                     pushInvalidEl(spouse, inputs[Spouse.idxs.name.input]);
                 }
+                //子共通の子の人数欄が２以上のとき、配偶者確認欄を表示状態にする
+                if(countChild > 1){
+                    childCommon.Qs[ChildCommon.idxs.isSameParents.form].style.display = "";
+                }
             },
             ()=>{
                 //noAction
@@ -1610,6 +1614,12 @@ class SpouseRbHandler extends CommonRbHandler{
                 //3問目以降の質問を全て非表示にして値を初期化する
                 const rbIdxs = getSequentialNumArr(Spouse.idxs.isLive.input[yes], Spouse.idxs.isJapan.input[no])
                 iniQs(Qs, Spouse.idxs.isLive.form, Spouse.idxs.isJapan.form, rbIdxs);
+                //子が２人以上のとき、子共通の配偶者の子確認欄を非表示/「いいえ」にチェックを入れる/健在確認欄を表示する（子共通のイベント設定がまだのためdispatchEventは不可）
+                if(countChild > 1){
+                    childCommon.inputs[ChildCommon.idxs.isSameParents.input[no]].checked = true;
+                    childCommon.Qs[ChildCommon.idxs.isSameParents.form].style.display = "none";
+                    childCommon.Qs[ChildCommon.idxs.isLive.form].style.display ="";
+                }
             }
         )
     }
@@ -1744,7 +1754,7 @@ class ChildRbHandler extends CommonRbHandler{
                 if(spouse.inputs[Spouse.idxs.isExist.input[yes]].checked)
                     inputs[Child.idxs.target2.input].value = spouse.inputs[Spouse.idxs.index.input].value.trim();
                 if(childCommons[0].inputs[ChildCommon.idxs.isSameParents.input[no]].checked && childs.every(child => child.inputs[Child.idxs.isSameParents.input[yes]].checked))
-                    alert("子供についてで「全員配偶者との子ですか？」に「いいえ」にチェックがされてますが、子全員について「配偶者との子ですか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
+                    alert("３．子供についてで「全員配偶者との子ですか？」に「いいえ」にチェックがされてますが、４．の子全員について「配偶者との子ですか？」に「はい」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             },
             ()=>{
                 //noAction
@@ -2556,6 +2566,24 @@ function handleFullWidthInputChange(el, idx, person){
 }
 
 /**
+ * 共通フォームの人数欄用イベント
+ * @param {ChildCommon|Collateral} person 
+ */
+function commonCountFormHandler(person){
+    const count = person.inputs[person.constructor.idxs.count.input].value;
+    if(count === "1"){
+        //１人のときは初期値入力を無効化する
+        const rbIdxs = getSequentialNumArr(person.constructor.idxs.isSameParents.input[yes], person.constructor.idxs.isJapan.input[no]);
+        breakQ(null, person, person.Qs, person.constructor.idxs.isSameParents.form, person.constructor.idxs.isJapan.form, rbIdxs);
+    }else if(count > "1"){
+        //２人以上のとき配偶者確認欄を表示する
+        if(person.Qs[person.constructor.idxs.isSameParents.form].style.display === "none"){
+            slideDown(person.Qs[person.constructor.idxs.isSameParents.form]);
+        }
+    }
+}
+
+/**
  * 増減ボタンのイベントハンドラー
  * @param {boolean} isIncrease 増加ボタンフラグ
  * @param {EveryPerson} person  カウント欄を持つ人
@@ -2569,6 +2597,9 @@ function countBtnHandler(isIncrease, person, plusBtn, minusBtn, minCount, maxCou
     adjustChildCount(isIncrease, person, (isIncrease ? maxCount : minCount));
     countCheck(countInput, person);
     toggleCountBtn(plusBtn, minusBtn, countInput.value, minCount, maxCount);
+    if(person instanceof ChildCommon || person instanceof CollateralCommon){
+        commonCountFormHandler(person);
+    }
 }
 
 /**
@@ -2588,6 +2619,10 @@ function countFormHandler(person){
     inputs[idx].addEventListener("change", (e)=>{
         countCheck(e.target, person);
         toggleCountBtn(plusBtn, minusBtn, parseInt(e.target.value), minCount, maxCount);
+        //子共通又は兄弟姉妹共通のとき（子共通と兄弟姉妹共通のidxsは同じ）
+        if(person instanceof ChildCommon || person instanceof CollateralCommon){
+            commonCountFormHandler(person);
+        }
     })
     inputs[idx].addEventListener("keydown",(e)=>{
         handleNumInputKeyDown(e, (idx === 2 ? inputs[idx + 1] : nextBtn));
@@ -2701,10 +2736,9 @@ class ChildCommonRbHandler extends CommonRbHandler{
                 //エラー要素を初期化する
                 person.noInputs = person.noInputs.filter(x => x.id === inputs[ChildCommon.idxs.isJapan.input[yes]].id)
                 pushInvalidEl(person, inputs[ChildCommon.idxs.isJapan.input[yes]]);
-                //人数入力欄を表示する
+                //人数の初期値を１にして人数入力欄と配偶者の子確認欄を表示する
                 inputs[ChildCommon.idxs.count.input].value = "1";
                 slideDownAndScroll(Qs[ChildCommon.idxs.count.form]);
-                slideDown(Qs[ChildCommon.idxs.isSameParents.form]);
             },
             //noAction
             ()=>{
@@ -3003,7 +3037,7 @@ function childCommonToChild(childCount){
         iniIndivisualFieldsets(ascendants);
         ascendants.length = 0;
     }
-    //すべての子のフィールドセットを初期化して子１を返す
+    //すべての子のフィールドセットを初期化する
     iniIndivisualFieldsets(childs);
     //エラー要素を初期化する
     iniNoInputs(childs);

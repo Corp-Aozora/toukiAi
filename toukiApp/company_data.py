@@ -1,7 +1,6 @@
 class CompanyData:
     APP_NAME = "そうぞくとうきくん"
-    SUB_NAME = "～みんなの登記をサポートする～"
-    NAME = "株式会社登記促進委員会"
+    NAME = "株式会社あおぞら"
     POST_NUMBER = "100-1000"
     ADDRESS = "福岡県福岡市天神1丁目1番1号"
     CEO = "砂川宏太"

@@ -248,6 +248,20 @@ function removeSpecificPatternClass(el, pattern){
     return el;
 }
 
+/**
+ * インプット要素に入力してchangeイベントを発火させる
+ * @param {HTMLElement} el 
+ */
+function inputOrCheckAndDispatchChangeEvent(el, text = null){
+    if(el.type === "text")
+        el.value = text;
+    else if(el.type === "radio")
+        el.checked = true;
+    else
+        return;
+
+    el.dispatchEvent(new Event("change"));
+}
 
 /*
     イベント

@@ -743,7 +743,7 @@
                                     {% for field in form %}
                                         {% if field.name in child_form_internal_field_name %}
                                         {% elif field.name == "name" %}
-                                            <div class="input-group Q">
+                                            <div class="input-group Q mb-3">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
                                                     氏名
                                                 </label>
@@ -751,7 +751,7 @@
                                                 <span class="errorMessage emPosition" style="display: none;">
                                                 </span>
                                             </div>
-                                            <div class="Q mt-3">
+                                            <div class="Q">
                                                 <div>
                                                     <span class="input-group-text fw-bold rounded-top">
                                                         配偶者との子ですか？

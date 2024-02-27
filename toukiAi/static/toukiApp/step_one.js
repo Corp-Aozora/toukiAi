@@ -3147,6 +3147,13 @@ function setIniData(nextPerson){
                 inputs[isSameParentsIdxs[no]].disabled = true;
             })
         }
+    }else if(fieldset.classList.contains("grandChildFieldset")){
+        //孫個人の欄のとき
+        //対象の子の配偶者欄がいいえのとき、配偶者確認欄にいいえをチェックして非表示にして健在確認欄を表示する
+        if(nextPerson.successFrom.inputs[Child.idxs.isSpouse.input[no]].checked){
+            nextPerson.Qs[GrandChild.idxs.isSameParents.form].style.display = "none";
+            inputOrCheckAndDispatchChangeEvent(nextPerson.inputs[GrandChild.idxs.isSameParents.input[no]]);
+        }
     }else if(fieldset.id === "id_collateral_common-0-fieldset"){
         //兄弟姉妹共通欄のとき、兄弟姉妹がいないボタンが押されていたらchangeイベントを発生させる
         dispatchSingleRbEvent(inputs[CollateralCommon.idxs.isExist.input[no]]);
@@ -3979,6 +3986,7 @@ function adjustFieldsetsAndInstance(fromPerson, nextPerson){
     }else if(nextFieldset.classList.contains("grandChildFieldset")){
         //孫のとき
         setEventToIndivisualFieldset(nextPerson);
+        setIniData(nextPerson);
     }else if(nextFieldset.classList.contains("ascendantFieldset")){
         /**
          * 尊属欄のとき

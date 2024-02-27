@@ -1530,11 +1530,11 @@
                                                         地番
                                                     </label>
                                                     <div class="form-control rounded-end d-flex justify-content-evenly">
-                                                        <input class="p-0 fraction form-control text-center" type="number" min="0" id="id_land-{{forloop.counter0}}-land_number_top" name="land-{{forloop.counter0}}-land_number_top">
+                                                        <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.counter0}}-land_number_top" name="land-{{forloop.counter0}}-land_number_top">
                                                         <span >
                                                             番
                                                         </span>
-                                                        <input class="p-0 fraction form-control text-center" type="number" min="0" id="id_land-{{forloop.counter0}}-land_number_bottom" name="land-{{forloop.counter0}}-land_number_bottom">
+                                                        <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.counter0}}-land_number_bottom" name="land-{{forloop.counter0}}-land_number_bottom">
                                                         {{ field }}
                                                     </div>
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
@@ -1550,11 +1550,11 @@
                                                         <label class="ms-1" for="id_land-{{forloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
                                                             所有者
                                                         </label>
-                                                        <input class="mx-1 p-0 fraction form-control text-center" type="number" min="0" id="id_land-{{forloop.counter0}}-purparty_top" name="land-{{forloop.counter0}}-purparty_top">
+                                                        <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.counter0}}-purparty_top" name="land-{{forloop.counter0}}-purparty_top">
                                                         <span class="mx-1">
                                                             分の
                                                         </span>
-                                                        <input class="ms-1 p-0 fraction form-control text-center" type="number" min="0" id="id_land-{{forloop.counter0}}-purparty_bottom" name="land-{{forloop.counter0}}-purparty_bottom">
+                                                        <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.counter0}}-purparty_bottom" name="land-{{forloop.counter0}}-purparty_bottom">
                                                         {{ field }}
                                                     </div>
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">

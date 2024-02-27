@@ -1298,6 +1298,7 @@ def step_back(request):
     decedent = Decedent.objects.filter(user=user).first()
     data = json.loads(request.body)
     progress = data.get('progress')
+    print(progress)
     if progress is not None:
         decedent.progress = int(progress)
         decedent.save()

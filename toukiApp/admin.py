@@ -314,7 +314,7 @@ class RegistryNameAndAddressChangeForm(forms.ModelForm):
 
 class RegistryNameAndAddressAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', "prefecture", 'city', 'address', 'bldg','created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', "name", "prefecture", 'city', 'address', 'bldg','created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     

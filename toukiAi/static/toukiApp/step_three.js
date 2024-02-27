@@ -561,22 +561,20 @@ function getRegistryNameAndAddressCityData(){
  */
 async function loadData(){
     //被相続人データを反映
+    let idxs = Decedent.idxs;
     for(let i = 0, len = decedent.inputs.length; i < len; i++){
+        const input = decedent.inputs[i];
         //データがあるとき
-        if(decedent.inputs[i].value !== ""){
+        if(input.value !== ""){
             //エラー要素から削除する
-            decedent.noInputs = decedent.noInputs.filter(x => x.id !== decedent.inputs[i].id)
+            decedent.noInputs = decedent.noInputs.filter(x => x.id !== input.id)
             //都道府県のとき、市区町村データを取得する
-            if(i === Decedent.idxs.prefecture || i === Decedent.idxs.domicilePrefecture){
-                await getCityData(decedent.inputs[i].value, decedent.inputs[i + 1], decedent);
-            }
-            else if(i === Decedent.idxs.city || i === Decedent.idxs.domicileCity){
+            if([idxs.prefecture, idxs.domicilePrefecture].includes(i)){
+                await getCityData(input.value, decedent.inputs[i + 1], decedent);
+            }else if([idxs.city, idxs.domicileCity].includes(i)){
                 getDecedentCityData();
             }
         }
-        //indexとtargetは処理不要
-        if(i === Decedent.idxs.domicileCity)
-            break;
     }
 
     //登記簿上の氏名住所のデータを反映する
@@ -586,26 +584,44 @@ async function loadData(){
         new RegistryNameAndAddress(`id_registry_name_and_address-${i}-fieldset`);
     }
     //市区町村データ以外を反映させる
+    idxs = RegistryNameAndAddress.idxs;
     for(let i = 0; i < registryNameAndAddressesCount; i++){
-        for(let j = 0, len = registryNameAndAddresses[i].inputs.length; j < len; j++){
-            //都道府県のとき、市区町村データを取得する
-            if(j === RegistryNameAndAddress.idxs.prefecture && registryNameAndAddresses[i].inputs[RegistryNameAndAddress.idxs.prefecture].value !== "")
-                await getCityData(registryNameAndAddresses[i].inputs[RegistryNameAndAddress.idxs.prefecture].value, registryNameAndAddresses[i].inputs[RegistryNameAndAddress.idxs.city], registryNameAndAddresses[i]);
-            //入力データがあるとき、エラー要素から削除する
-            if(registryNameAndAddresses[i].inputs[j].value !== "")
-                registryNameAndAddresses[i].noInputs = registryNameAndAddresses[i].noInputs.filter(x => x.id !== registryNameAndAddresses[i].inputs[j].id)
+        const instance = registryNameAndAddresses[i];
+        const input = instance.inputs[j];
+        for(let j = 0, len = instance.inputs.length; j < len; j++){
+            if(input.value != ""){
+                //都道府県のとき、市区町村データを取得する
+                if(j === idxs.prefecture)
+                    await getCityData(input.value, instance.inputs[idxs.city], instance);
+                //入力データがあるとき、エラー要素から削除する
+                instance.noInputs = instance.noInputs.filter(x => x.id !== input.id)
+            }
         }
     }
     //市区町村データを反映させる
     getRegistryNameAndAddressCityData().then(data => {
         if(data.length > 0){
             for(let i = 0, len = data.length; i < len; i++){
-                registryNameAndAddresses[i].inputs[RegistryNameAndAddress.idxs.city].value = data[i];
+                registryNameAndAddresses[i].inputs[idxs.city].value = data[i];
             }
-            //次へボタンの表示判別
-            okBtn.disabled = decedents.concat(registryNameAndAddresses).some(item => item.noInputs.length !== 0);
         }
     })
+    //全て入力されているとき、相続人情報欄を表示する
+    if(decedents.concat(registryNameAndAddresses).some(item => item.noInputs.length !== 0) === false){
+        const fieldsets = Array.from(document.getElementById("decedent-section").getElementsByTagName("fieldset"));
+        fieldsets.forEach(fieldset => fieldset.disabled = true);
+        slideDownIfHidden(document.getElementById("heirs-section"));
+    }else{
+        return;
+    }
+
+    //相続人情報を反映する
+    //遺産分割方法を反映する
+    //不動産の数を反映する
+    //土地情報を反映する
+    //建物情報を反映する
+    //区分建物情報を反映する
+    //申請情報を反映する
 }
 
 /**
@@ -1326,8 +1342,14 @@ function handleCorrectBtnEvent(){
             if(i === sections.length - 1)
                 submitBtn.disabled = true;
             //相続人情報に戻るとき、かつ相続人（故人を含む）が複数人いるとき
-            if(i === typeOfDivisionSectionIdx && heirs.length > 1)
+            if(i === typeOfDivisionSectionIdx && heirs.length > 1){
                 heirsCorrectBtn.disabled = false;
+                heirs.forEach(heir =>{
+                    if(heir != getLastElFromArray(heirs)){
+                        heir.fieldset.disabled = true;
+                    }
+                })
+            }
             break;
         }
     }
@@ -1741,7 +1763,7 @@ function toggleCountBtn(plusBtn, minusBtn, val, min, max){
  * @param {Event} e キーダウンイベント
  */
 function handleNumInputKeyDown(e){
-    if(!/\d|Backspace|Delete|Tab/.test(e.key)){
+    if(!/\d|Backspace|Delete|Tab|ArrowUp|ArrowDown|ArrowLeft|ArrowRight/.test(e.key)){
         //数字又はバックスペースとデリート以外は使用不可
         e.preventDefault()
     }
@@ -1875,7 +1897,6 @@ function landValidation(input, idx){
         if(result !== false)
             return result;
     }else if([idxs.landNumber.input[yes], idxs.landNumber.input[no], idxs.purparty.input[no], idxs.purparty.input[other], idxs.price.input].includes(idx)){
-        
         //地番、所有権・持分、評価額のとき空欄チェック、整数チェック
         const result = isBlank(input);
         if(result !== false)
@@ -1961,8 +1982,9 @@ function setLandEvent(){
 
                     const result = landValidation(inputs[inputIdx], inputIdx);
                     afterValidation(result, lands[i].errMsgEls[formIdx], result, inputs[inputIdx], lands[i]);
-                    if(result && inputIdx !== idxs.price.input)
+                    if(result && inputIdx !== idxs.price.input){
                         inputs[inputIdx].value = hankakuToZenkaku(inputs[inputIdx].value);
+                    }
 
                     //地番のとき
                     if([landNumberInputIdxs[yes], landNumberInputIdxs[no]].includes(inputIdx)){

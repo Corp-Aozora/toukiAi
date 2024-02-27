@@ -2578,6 +2578,7 @@ function commonCountFormHandler(person){
     }else if(count > "1"){
         //２人以上のとき配偶者確認欄を表示する
         if(person.Qs[person.constructor.idxs.isSameParents.form].style.display === "none"){
+            pushInvalidEl(person.constructor.idxs.isJapan.input[yes]);
             slideDown(person.Qs[person.constructor.idxs.isSameParents.form]);
         }
     }
@@ -2733,9 +2734,9 @@ class ChildCommonRbHandler extends CommonRbHandler{
         this.handleYesNo(rbIdx, ChildCommon.idxs.isExist.input[yes],
             //yesAction
             ()=>{
-                //エラー要素を初期化する
-                person.noInputs = person.noInputs.filter(x => x.id === inputs[ChildCommon.idxs.isJapan.input[yes]].id)
-                pushInvalidEl(person, inputs[ChildCommon.idxs.isJapan.input[yes]]);
+                //次へボタンを有効にする
+                person.noInputs.length = 0;
+                person.nextBtn.disabled = false;
                 //人数の初期値を１にして人数入力欄と配偶者の子確認欄を表示する
                 inputs[ChildCommon.idxs.count.input].value = "1";
                 slideDownAndScroll(Qs[ChildCommon.idxs.count.form]);
@@ -2799,12 +2800,11 @@ class CollateralCommonRbHandler extends ChildCommonRbHandler{
             //yesAction
             ()=>{
                 //エラー要素を初期化する
-                person.noInputs = person.noInputs.filter(x => x.id === inputs[CollateralCommon.idxs.isJapan.input[yes]].id)
-                pushInvalidEl(person, inputs[CollateralCommon.idxs.isJapan.input[yes]]);
+                person.noInputs.length = 0;
+                person.nextBtn.disabled = false;
                 //人数入力欄を表示する
                 inputs[CollateralCommon.idxs.count.input].value = "1";
                 slideDownAndScroll(Qs[CollateralCommon.idxs.count.form]);
-                slideDown(Qs[CollateralCommon.idxs.isSameParents.form]);
                 iniErrMsgEls(errMsgEls[CollateralCommon.idxs.isExist.form]);
             },
             //noAction

@@ -1588,19 +1588,23 @@ class SpouseRbHandler extends CommonRbHandler{
     //相続時存在
     static isExist(rbIdx, spouse){
         const {inputs, Qs, nextBtn, errMsgEls, noInputs} = personDataToVariable(spouse);
+        const nameInput = inputs[Spouse.idxs.name.input];
+        const childCommonQs = childCommon.Qs;
+        const childCommonIdxs = ChildCommon.idxs;
+        const childCount = countChild();
         this.handleYesNo(rbIdx, Spouse.idxs.isExist.input[yes],
             ()=>{
                 //yesAction
                 //エラー要素に日本在住を追加して次へボタンを無効にする、手続時存在を表示する
                 pushInvalidElAndSDIfHidden(spouse, inputs[Spouse.idxs.isJapan.input[yes]], Qs[Spouse.idxs.isLive.form]);
                 //氏名欄が無効なとき、氏名欄を有効にしてエラー要素に氏名欄を追加する
-                if(inputs[Spouse.idxs.name.input].disabled){
-                    inputs[Spouse.idxs.name.input].disabled = false;
-                    pushInvalidEl(spouse, inputs[Spouse.idxs.name.input]);
+                if(nameInput.disabled){
+                    nameInput.disabled = false;
+                    pushInvalidEl(spouse, nameInput);
                 }
-                //子共通の子の人数欄が２以上のとき、配偶者確認欄を表示状態にする
-                if(countChild > 1){
-                    childCommon.Qs[ChildCommon.idxs.isSameParents.form].style.display = "";
+                //子共通の子の人数欄が２以上のとき、配偶者確認欄を表示する
+                if(childCount > 1){
+                    childCommonQs[childCommonIdxs.isSameParents.form].style.display = "";
                 }
             },
             ()=>{
@@ -1608,17 +1612,17 @@ class SpouseRbHandler extends CommonRbHandler{
                 //エラー要素を全て削除する/次へボタンを有効にする/氏名欄を初期化して無効にする
                 noInputs.length = 0;
                 nextBtn.disabled = false;
-                inputs[Spouse.idxs.name.input].value = "";
-                inputs[Spouse.idxs.name.input].disabled = true;
+                nameInput.value = "";
+                nameInput.disabled = true;
                 iniErrMsgEls(errMsgEls[Spouse.idxs.name.input]);
                 //3問目以降の質問を全て非表示にして値を初期化する
                 const rbIdxs = getSequentialNumArr(Spouse.idxs.isLive.input[yes], Spouse.idxs.isJapan.input[no])
                 iniQs(Qs, Spouse.idxs.isLive.form, Spouse.idxs.isJapan.form, rbIdxs);
                 //子が２人以上のとき、子共通の配偶者の子確認欄を非表示/「いいえ」にチェックを入れる/健在確認欄を表示する（子共通のイベント設定がまだのためdispatchEventは不可）
-                if(countChild > 1){
-                    childCommon.inputs[ChildCommon.idxs.isSameParents.input[no]].checked = true;
-                    childCommon.Qs[ChildCommon.idxs.isSameParents.form].style.display = "none";
-                    childCommon.Qs[ChildCommon.idxs.isLive.form].style.display ="";
+                if(childCount > 1){
+                    childCommon.inputs[childCommonIdxs.isSameParents.input[no]].checked = true;
+                    childCommonQs[childCommonIdxs.isSameParents.form].style.display = "none";
+                    childCommonQs[childCommonIdxs.isLive.form].style.display ="";
                 }
             }
         )
@@ -2579,10 +2583,15 @@ function commonCountFormHandler(person){
         const rbIdxs = getSequentialNumArr(person.constructor.idxs.isSameParents.input[yes], person.constructor.idxs.isJapan.input[no]);
         breakQ(null, person, person.Qs, person.constructor.idxs.isSameParents.form, person.constructor.idxs.isJapan.form, rbIdxs);
     }else if(count > 1){
-        //２人以上のとき配偶者確認欄を表示する
-        if(person.Qs[person.constructor.idxs.isSameParents.form].style.display === "none"){
-            pushInvalidEl(person.constructor.idxs.isJapan.input[yes]);
+        //２人以上のとき
+        //エラー要素を追加
+        pushInvalidEl(person, person.inputs[person.constructor.idxs.isJapan.input[yes]]);
+        //配偶者がいるかつ、配偶者確認欄は非表示のとき配偶者確認欄を表示する
+        if(spouse.inputs[Spouse.idxs.isExist.input[yes]].checked && person.Qs[person.constructor.idxs.isSameParents.form].style.display === "none"){
             slideDown(person.Qs[person.constructor.idxs.isSameParents.form]);
+        }else if(spouse.inputs[Spouse.idxs.isExist.input[no]].checked && person.Qs[person.constructor.idxs.isLive.form].style.display === "none"){
+            //配偶者がいないかつ健在確認欄が非表示のとき、配偶者確認欄をいいえにチェックして非表示にして健在確認欄を表示する
+            inputOrCheckAndDispatchChangeEvent(person.inputs[person.constructor.idxs.isSameParents.input[no]]);
         }
     }
 }

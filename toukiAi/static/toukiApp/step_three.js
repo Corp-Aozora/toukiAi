@@ -321,6 +321,7 @@ class Land extends Fieldset{
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input")).filter(
             (_, i) =>
             i !== Land.idxs.landNumber.input[other] &&
+            i !== Land.idxs.landNumber.input[no] &&
             i !== Land.idxs.purparty.input[yes] &&
             i !== Land.idxs.purparty.input[other2]
         );
@@ -904,14 +905,16 @@ function afterValidation(isValid, errMsgEl, message, el, instance){
         errMsgEl.innerHTML = message;
         errMsgEl.style.display = "block";
         //建物名以外の要素のとき
-        if(!el.id.includes("bldg")){
+        if(!el.id.includes("bldg") || !el.id.includes("land_number_bottom")){
             //配列に取得
             instance.noInputs.push(el);
             //相続人情報のとき
-            if(instance instanceof SpouseOrAscendant || instance instanceof DescendantOrCollateral)
+            if(instance instanceof SpouseOrAscendant || instance instanceof DescendantOrCollateral){
                 heirsOkBtn.disabled = true;
-            else if(instance instanceof Land)
+
+            }else if(instance instanceof Land){
                 landOkBtn.disabled = true;
+            }
             //次へのボタンを無効化
             okBtn.disabled = true;
         }
@@ -1905,11 +1908,15 @@ function landValidation(input, idx){
             return result;
     }else if([idxs.landNumber.input[yes], idxs.landNumber.input[no], idxs.purparty.input[no], idxs.purparty.input[other], idxs.price.input].includes(idx)){
         //地番、所有権・持分、評価額のとき空欄チェック、整数チェック
-        const result = isBlank(input);
+        let result = false;
+        if(idx !== idxs.landNumber.input[no])
+            result = isBlank(input);
+
         if(result !== false)
             return result;
+
         //評価額のとき、コンマを削除する
-        if(idxs === idxs.price.input)
+        if(idx === idxs.price.input)
             input.value = removeCommas(input.value);
 
         if(!isNumber(input.value, input))
@@ -1948,6 +1955,8 @@ function setLandEvent(){
             //changeイベントの内容
             const changeEventHandler = (inputIdx, formIdx) => {
                 inputs[inputIdx].addEventListener("change", () => {
+                    //地番の枝番に対するエラーを非表示にする
+                    lands[i].errMsgEls[idxs.landNumber.form].style.display = "none";
                     //所有者CBのとき
                     if(inputIdx === purpartyInputIdxs[yes]){
                         if(inputs[inputIdx].checked){
@@ -1971,7 +1980,7 @@ function setLandEvent(){
                     }
                     //換価確認のラジオボタンのとき
                     if(isExchangeInputIdxs.includes(inputIdx)){
-                        lands[i].noinputs = lands[i].noinputs.filter(x => !inputs[isExchangeInputIdxs].includes(x));
+                        lands[i].noinputs = lands[i].noInputs.filter(x => x !== inputs[isExchangeInputIdxs[yes]] && x !== inputs[isExchangeInputIdxs[no]]);
                         //換価するとき
                         if(inputIdx === isExchangeInputIdxs[yes]){
                             //金銭取得者の欄を表示してエラー要素から換価する、しない両方のinputを削除する
@@ -1979,9 +1988,20 @@ function setLandEvent(){
                             lands[i].tempLandCashAcquirers[0].noinputs = Array.from(lands[i].tempLandCashAcquirers[0].fieldset.querySelectorAll("input, select"));
                         }else{
                             //換価しないとき
-                            //金銭取得者の欄を非表示にして初期化してエラー要素から換価する、しない両方のinputを削除する
+                            //金銭取得者の欄を非表示にして初期化する、インスタンスも最初の１のみにする
                             slideUp(lands[i].tempLandCashAcquirers[0].fieldset.parentNode);
-                            lands[i].tempLandCashAcquirers[0].noInputs.length = 0;
+
+                            for(let k = 0, len = lands[i].tempLandCashAcquirers.length; k < len; k++){
+                                if(k === 0){
+                                    lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.acquirer.input].value = "";
+                                    lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.percentage.input[yes]].checked = false;
+                                    lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.percentage.input[no]].value = false;
+                                    lands[i].tempLandCashAcquirers[k].noInputs = 0;
+                                }else{
+                                    lands[i].tempLandCashAcquirers[k].fieldset.remove();
+                                }
+                            }
+                            lands[i].tempLandCashAcquirers.length = 1;
                         }
                         isActivateOkBtn(lands[i]);
                         return;

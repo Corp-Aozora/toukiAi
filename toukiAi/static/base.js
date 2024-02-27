@@ -575,7 +575,7 @@ function addCommas(num) {
  * @returns
  */
 function removeCommas(str) {
-    return str.replace(/,/g, "");
+    return str.replace(/,|，/g, "");
 }
 
 /**

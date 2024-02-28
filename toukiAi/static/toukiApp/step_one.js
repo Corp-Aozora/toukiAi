@@ -830,7 +830,7 @@ function checkPrefecture(val, el){
             el.removeChild(el.firstChild);
         }
         el.disabled = true;
-        document.getElementById(`${el.id}_verifyingEl`).remove();
+        // document.getElementById(`${el.id}_verifyingEl`).remove();
         return false;
     }
     return true;

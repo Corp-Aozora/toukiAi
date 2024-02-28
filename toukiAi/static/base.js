@@ -198,7 +198,7 @@ function scrollToTarget(el, duration = 250) {
 }
 
 /**
- * 整数チェック
+ * 数字チェック
  * @param {string|number} val チェック対象の値（文字列｜数字）
  * @param {HTMLElement} el 対象の要素（数字以外があるときは、空文字を入力する。全角数字があるときは半角数字に変換する）
  * @returns {boolean} 整数のときはtrue、違うときはfalse
@@ -208,15 +208,34 @@ function isNumber(val, el){
     val = String(val);
     if(val === "") return false;
 
-    //全角を半角にする
+    //全角、半角の数字のみかチェック
     const reg = new RegExp(/^[0-9０-９]*$/);
     const result = reg.test(val);
     if(result === false){
-        el.val = "";
+        el.value = "";
         return false;
     } 
+    
+    //全角を半角にする
+    el.value = ZenkakuToHankaku(val)
+    return true;
+}
 
-    el.val = ZenkakuToHankaku(val)
+/**
+ * 整数チェック
+ * @param {HTMLElement} el 
+ */
+function validateIntInput(el){
+    //入力値がないときは、何もしない
+    let val = el.value;
+    if(val === "") return false;
+
+    const regex = /^(?!0\d)(?!0$)\d+$/;
+
+    if (!regex.test(val)) {
+        el.value = "";
+        return "先頭が０でない数字を入力してください"; // 不正な文字を削除
+    }
     return true;
 }
 

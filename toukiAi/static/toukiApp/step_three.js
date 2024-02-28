@@ -414,7 +414,6 @@ function checkPrefecture(val, el){
             el.removeChild(el.firstChild);
         }
         el.disabled = true;
-        document.getElementById(`${el.id}_verifyingEl`).remove();
         return false;
     }
     return true;
@@ -1368,7 +1367,7 @@ function handleHeirsOkBtnEvent(){
             //前の人を修正するボタンが無効化されているときは、有効化する
             heirsCorrectBtn.disabled = false;
 
-            return;
+            break;
         }
     }
 }
@@ -1951,10 +1950,11 @@ function cloneLandAcquirerHiddenInput(id, idx){
 
 /**
  * 土地情報のバリデーション
- * @param {HTMLElement} input チェック対象のinput要素
+ * @param {HTMLCollection} inputs 対象のインスタンスの全input要素
  * @param {number} idx チェック対象のinput要素のインデックス
  */
-function landValidation(input, idx){
+function landValidation(inputs, idx){
+    const input = inputs[idx];
     const idxs = Land.idxs;
     //不動産番号のとき、空欄、整数、１３桁チェック
     if(idx === idxs.number.input){
@@ -1973,18 +1973,35 @@ function landValidation(input, idx){
     }else if([idxs.landNumber.input[yes], idxs.landNumber.input[no], idxs.purparty.input[no], idxs.purparty.input[other], idxs.price.input].includes(idx)){
         //地番、所有権・持分、評価額のとき空欄チェック、整数チェック
         let result = false;
+        //地番の枝番は空欄チェック不要
         if(idx !== idxs.landNumber.input[no])
             result = isBlank(input);
 
         if(result !== false)
             return result;
-
+        
         //評価額のとき、コンマを削除する
         if(idx === idxs.price.input)
-            input.value = removeCommas(input.value);
-
+        input.value = removeCommas(input.value);
+    
+        //数字のみチェック
         if(!isNumber(input.value, input))
-            return "数字で入力してください";
+            return "数字のみで入力してください";
+        
+        //先頭が０にならないようにする
+        result = validateIntInput(input);
+
+        if(typeof result === "string")
+            return result;
+
+        //所有権・持分のときかつ分母分子両方入力されているとき
+        const top = ZenkakuToHankaku(inputs[idxs.purparty.input[no]].value);
+        const bottom = ZenkakuToHankaku(inputs[idxs.purparty.input[other]].value);
+        if([idxs.purparty.input[no], idxs.purparty.input[other]].includes(idx) && top !== "" && bottom !== ""){
+            if(parseInt(top) > parseInt(bottom)){
+                return "分子は分母以下の数字にしてください";
+            }
+        }
     }
 
     return true;
@@ -2071,7 +2088,7 @@ function setLandEvent(){
                         return;
                     }
 
-                    const result = landValidation(inputs[inputIdx], inputIdx);
+                    const result = landValidation(inputs, inputIdx);
                     afterValidation(result, lands[i].errMsgEls[formIdx], result, inputs[inputIdx], lands[i]);
                     if(result && inputIdx !== idxs.price.input){
                         inputs[inputIdx].value = hankakuToZenkaku(inputs[inputIdx].value);
@@ -2166,17 +2183,34 @@ function addAcquirerCandidate(){
 
 /**
  * 土地取得者の仮フォームのバリデーション
- * @param {HTMLElement} input 
+ * @param {HTMLCollection} inputs
  * @param {number} idx 
  */
-function tempLandValidation(input, idx){
+function tempLandValidation(inputs, idx){
+    const input = inputs[idx];
     const result = isBlank(input);
     if(result !== false)
         return result;
 
-    if(TempAcquirer.idxs.percentage.input.includes(idx)){
+    const percentageIdxs = TempAcquirer.idxs.percentage.input;
+    if(percentageIdxs.includes(idx)){
         if(!isNumber(input.value, input))
             return "数字で入力してください";
+
+        //先頭が０にならないようにする
+        result = validateIntInput(input);
+
+        if(typeof result === "string")
+            return result;
+
+        //所有権・持分のときかつ分母分子両方入力されているとき
+        const top = ZenkakuToHankaku(inputs[percentageIdxs[yes]].value);
+        const bottom = ZenkakuToHankaku(inputs[percentageIdxs[no]].value);
+        if(top !== "" && bottom !== ""){
+            if(parseInt(top) > parseInt(bottom)){
+                return "分子は分母以下の数字にしてください";
+            }
+        }
     }
     return true;
 }
@@ -2184,10 +2218,10 @@ function tempLandValidation(input, idx){
 /**
  * 土地取得者の仮フォームに対するイベント設定
  */
-function setTempLandAcquirerEvent(){
+function setTempLandAndCashAcquirerEvent(){
     const TIdxs = TempAcquirer.idxs;
     const AIdxs = Acquirer.idxs;
-    //各土地の各仮フォームに対してループ処理
+    //各土地の各土地取得者仮フォームに対してループ処理
     lands.forEach(land =>{
         const tempLandAcquirer = land.tempLandAcquirers[0];
         const inputs = tempLandAcquirer.inputs;
@@ -2206,14 +2240,14 @@ function setTempLandAcquirerEvent(){
             inputs[i].addEventListener("change", ()=>{
                 //取得者のとき
                 if(i === TIdxs.acquirer.input){
-                    const result = tempLandValidation(inputs[i], i);
+                    const result = tempLandValidation(inputs, i);
                     afterValidation(result, tempLandAcquirer.errMsgEls[TIdxs.acquirer.form], result, inputs[i], tempLandAcquirer);
                     const parts = inputs[i].value.split("_");
                     land.landAcquirers[0].inputs[AIdxs.contentType2].value = parts[0];
                     land.landAcquirers[0].inputs[AIdxs.objectId2].value = parts[1];
                 }else if(TIdxs.percentage.input.includes(i)){
                     //取得割合のとき
-                    const result = tempLandValidation(inputs[i], i);
+                    const result = tempLandValidation(inputs, i);
                     afterValidation(result, tempLandAcquirer.errMsgEls[TIdxs.percentage.form], result, inputs[i], tempLandAcquirer);
                     inputs[i].value = hankakuToZenkaku(inputs[i].value);
                     const regex = i === TIdxs.percentage.input[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
@@ -2226,6 +2260,62 @@ function setTempLandAcquirerEvent(){
             })
         }
     })
+    //各土地の各金銭取得者仮フォームに対してループ処理
+    lands.forEach(land =>{
+        const tempLandCashAcquirer = land.tempLandCashAcquirers[0];
+        const inputs = tempLandCashAcquirer.inputs;
+        for(let i = 0, len = inputs.length; i < len; i++){
+            //取得割合のとき
+            if(TIdxs.percentage.input.includes(i)){
+                //keydownイベント
+                inputs[i].addEventListener("keydown", (e)=>{
+                    //数字のみの入力制限
+                    handleNumInputKeyDown(e);
+                    //分母のときは分子へ、分子のときは追加ボタンにフォーカスを移す
+                    setEnterKeyFocusNext(e, (TIdxs.percentage.input[yes] ? inputs[i + 1]: addAcquirerBtn[0]));
+                })
+            }
+            //changeイベント
+            inputs[i].addEventListener("change", ()=>{
+                //取得者のとき
+                if(i === TIdxs.acquirer.input){
+                    const result = tempLandValidation(inputs, i);
+                    afterValidation(result, tempLandCashAcquirer.errMsgEls[TIdxs.acquirer.form], result, inputs[i], tempLandCashAcquirer);
+                    const parts = inputs[i].value.split("_");
+                    land.landCashAcquirers[0].inputs[AIdxs.contentType2].value = parts[0];
+                    land.landCashAcquirers[0].inputs[AIdxs.objectId2].value = parts[1];
+                }else if(TIdxs.percentage.input.includes(i)){
+                    //取得割合のとき
+                    const result = tempLandValidation(inputs, i);
+                    afterValidation(result, tempLandCashAcquirer.errMsgEls[TIdxs.percentage.form], result, inputs[i], tempLandCashAcquirer);
+                    inputs[i].value = hankakuToZenkaku(inputs[i].value);
+                    const regex = i === TIdxs.percentage.input[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
+                    land.landCashAcquirers[0].inputs[AIdxs.percentage].value = land.landCashAcquirers[0].inputs[AIdxs.percentage].value.replace(regex, "");
+                    if(i === TIdxs.percentage.input[yes])
+                        land.landCashAcquirers[0].inputs[AIdxs.percentage].value = inputs[i].value + land.landCashAcquirers[0].inputs[AIdxs.percentage].value;
+                    else
+                        land.landCashAcquirers[0].inputs[AIdxs.percentage].value += inputs[i].value;
+                }
+            })
+        }
+    })
+}
+
+/**
+ * 不動産取得者の追加ボタンのイベント設定
+ */
+function setAddTempAcquirerBtnEvent(){
+    const btns = document.getElementById("land-section")[0].getElementsByClassName("addTempLandAcquirerBtn");
+    for(let i = 0, len = btns.length; i < len; i++){
+        btns[i].addEventListener("click", ()=>{
+            //仮フォームを追加
+            
+            //仮フォームのインスタンスを追加
+            //取得者のフォームを追加
+            //取得者のインスタンスを追加
+    
+        })
+    }
 }
 
 /**
@@ -2279,9 +2369,13 @@ function setLandSection(){
         addAcquirerCandidate();
         //土地情報の各入力欄のイベントを設定
         setLandEvent();
-        //土地取得者の仮フォームの各入力欄のイベントを設定
-        setTempLandAcquirerEvent();
-        //金銭取得者の仮フォームの各入力欄のイベントを設定
+        //土地又は金銭取得者の仮フォームの各入力欄のイベントを設定
+        setTempLandAndCashAcquirerEvent();
+        //不動産取得者を追加ボタンのイベント設定
+        setAddTempAcquirerBtnEvent();
+        //不動産取得者を削除ボタンのイベント設定
+        //前の土地を修正するボタンのイベント設定
+        //次の土地へ進むボタンのイベント設定
     }else{
         //土地情報を入力したことがあるとき
     }

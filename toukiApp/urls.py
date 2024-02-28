@@ -23,6 +23,7 @@ urlpatterns = [
 
     path("get_decedent_city_data", views.get_decedent_city_data, name="get_decedent_city_data"),
     path("get_registry_name_and_address_city_data", views.get_registry_name_and_address_city_data, name="get_registry_name_and_address_city_data"),
+    path("get_heirs_city_data", views.get_heirs_city_data, name="get_heirs_city_data"),
     path("get_city", views.get_city, name="get_city"),
     path("is_email", views.is_email, name="is_email"),
     path("step_back", views.step_back, name="step_back"),

@@ -494,6 +494,9 @@ class StepThreeSpouseForm(forms.ModelForm):
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
+        for field in ["is_acquire"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
         
         
 #相続人情報（子）
@@ -559,6 +562,9 @@ class StepThreeDescendantForm(forms.ModelForm):
                 
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
+        for field in ["is_acquire"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
 
         
 #相続人情報（尊属）
@@ -619,6 +625,9 @@ class StepThreeAscendantForm(forms.ModelForm):
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
+        for field in ["is_acquire"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
 
         
 #相続人情報（兄弟姉妹）
@@ -683,6 +692,9 @@ class StepThreeCollateralForm(forms.ModelForm):
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
+        for field in ["is_acquire"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
         
 #遺産分割の方法
 class StepThreeTypeOfDivisionForm(forms.ModelForm):

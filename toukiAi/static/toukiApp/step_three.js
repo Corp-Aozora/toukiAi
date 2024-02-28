@@ -540,6 +540,7 @@ function getDecedentCityData(){
 
 /**
  * ユーザーに紐づく被相続人の市区町村データを取得する
+ * @returns 登記簿上の住所が格納された配列
  */
 function getRegistryNameAndAddressCityData(){
     const url = 'get_registry_name_and_address_city_data';
@@ -555,6 +556,67 @@ function getRegistryNameAndAddressCityData(){
     }).catch(error => {
         console.log(error);
     });
+}
+
+/**
+ * 全相続人の住所データを取得する
+ * @returns 相続人の住所が格納された配列
+ */
+function getHeirsCityData(){
+    const url = 'get_heirs_city_data';
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        return response.datas;
+    }).catch(error => {
+        console.log(error);
+    });
+}
+
+/**
+ * 相続人情報のデータを復元する
+ */
+async function loadHeirsData(){
+    const heirsCityDatas = await getHeirsCityData();
+    console.log(heirsCityDatas);
+    //各相続人のインスタンスをループ処理
+    for(const heir of heirs){
+        //各インプット要素の入力状況に応じてエラー要素を削除する
+        for(let i = 0, len = heir.inputs.length; i < len; i++){
+            //隠しインプット以降の処理は不要
+            if(i === heir.constructor.idxs.isRefuse)
+                break;
+
+            //不動産を取得するラジオボタン
+            if(heir.constructor.idxs.isAcquire.includes(i)){
+                if(heir.inputs[i].checked)
+                    heir.inputs[i].dispatchEvent(new Event("change"));
+            }else if(i === heir.constructor.idxs.city){
+                const cityData = heirsCityDatas.find(x => String(x[0]) + "_" + x[1] === heir.inputs[heir.constructor.idxs.idAndContentType].value);
+                //市区町村
+                if(cityData){
+                    heir.inputs[i].value = cityData[2];
+                }
+            }else{
+                //それ以外の欄
+                //値があればエラー要素から削除する
+                if(heir.inputs[i].value !== "")
+                    heir.noInputs = heir.noInputs.filter(noInput => noInput !== heir.inputs[i]);
+                if(i === heir.constructor.idxs.prefecture)
+                    await getCityData(heir.inputs[i].value, heir.inputs[i + 1], heir);
+            }
+        }
+        isActivateOkBtn(heir);
+        if(okBtn.disabled === false)
+            handleOkBtnEvent();
+        if(heirsOkBtn.disabled === false)
+            handleHeirsOkBtnEvent();
+    }
 }
 
 /**
@@ -615,6 +677,8 @@ async function loadData(){
     }
 
     //相続人情報を反映する
+    await loadHeirsData();
+
     //遺産分割方法を反映する
     //不動産の数を反映する
     //土地情報を反映する
@@ -2059,14 +2123,13 @@ function setLandEvent(){
  */
 function addAcquirerCandidate(){
     //候補者を格納した配列
-    const candidates = [];
+    const tempLandAquireCandidates = [];
+    const tempLandCashAquireCandidates = [];
     heirs.forEach(heir =>{
-        if(heir instanceof SpouseOrAscendant){
+        if(heir.inputs[heir.constructor.idxs.isAcquire[yes]].checked || heir.inputs[heir.constructor.idxs.isAcquire[no]].checked){
+            tempLandCashAquireCandidates.push(heir);
             if(heir.inputs[SpouseOrAscendant.idxs.isAcquire[yes]].checked)
-                candidates.push(heir);
-        }else{
-            if(heir.inputs[DescendantOrCollateral.idxs.isAcquire[yes]].checked)
-                candidates.push(heir);
+                tempLandAquireCandidates.push(heir);
         }
     })
 
@@ -2078,13 +2141,26 @@ function addAcquirerCandidate(){
             option.text = "選択してください";
             option.value = "";
             select.add(option);
-            candidates.forEach(candidate =>{
+            tempLandAquireCandidates.forEach(candidate =>{
                 const option = document.createElement("option");
-                option.text = candidate instanceof SpouseOrAscendant ? candidate.inputs[SpouseOrAscendant.idxs.name].value: candidate.inputs[DescendantOrCollateral.idxs.name].value;
-                option.value = candidate instanceof SpouseOrAscendant ? candidate.inputs[SpouseOrAscendant.idxs.idAndContentType].value: candidate.inputs[DescendantOrCollateral.idxs.idAndContentType].value;
+                option.text = candidate.inputs[candidate.constructor.idxs.name].value;
+                option.value = candidate.inputs[candidate.constructor.idxs.idAndContentType].value;
                 select.add(option);
-            })
-        })
+            });
+        });
+        land.tempLandCashAcquirers.forEach(tempLandCashAcquirer =>{
+            const select = tempLandCashAcquirer.inputs[TempAcquirer.idxs.acquirer.input];
+            const option = document.createElement("option");
+            option.text = "選択してください";
+            option.value = "";
+            select.add(option);
+            tempLandCashAquireCandidates.forEach(candidate =>{
+                const option = document.createElement("option");
+                option.text = candidate.inputs[candidate.constructor.idxs.name].value;
+                option.value = candidate.inputs[candidate.constructor.idxs.idAndContentType].value;
+                select.add(option);
+            });
+        });
     })
 }
 
@@ -2094,12 +2170,11 @@ function addAcquirerCandidate(){
  * @param {number} idx 
  */
 function tempLandValidation(input, idx){
-    
     const result = isBlank(input);
     if(result !== false)
         return result;
 
-    if([TempAcquirer.idxs.percentage.input].includes(idx)){
+    if(TempAcquirer.idxs.percentage.input.includes(idx)){
         if(!isNumber(input.value, input))
             return "数字で入力してください";
     }
@@ -2130,7 +2205,7 @@ function setTempLandAcquirerEvent(){
             //changeイベント
             inputs[i].addEventListener("change", ()=>{
                 //取得者のとき
-                if(TIdxs.acquirer.input){
+                if(i === TIdxs.acquirer.input){
                     const result = tempLandValidation(inputs[i], i);
                     afterValidation(result, tempLandAcquirer.errMsgEls[TIdxs.acquirer.form], result, inputs[i], tempLandAcquirer);
                     const parts = inputs[i].value.split("_");

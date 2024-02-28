@@ -147,7 +147,7 @@ def save_step_one_datas(user, forms, form_sets):
     spouse.decedent = decedent
     spouse.content_type = ContentType.objects.get_for_model(Decedent)
     spouse.object_id = decedent.id
-    spouse.is_heir = forms[1].cleaned_data.get("is_live") and not forms[1].cleaned_data.get("is_refuse")
+    spouse.is_heir = forms[1].cleaned_data.get("is_live") and forms[1].cleaned_data.get("is_refuse") == False
     spouse.created_by = user
     spouse.updated_by = user
     spouse.save()
@@ -170,7 +170,7 @@ def save_step_one_datas(user, forms, form_sets):
             if(form.cleaned_data.get("target2") != ""):
                 child.content_type2 = ContentType.objects.get_for_model(Spouse)
                 child.object_id2 = spouse.id
-            child.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+            child.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
             child.created_by = user
             child.updated_by = user
             child.save()
@@ -185,7 +185,7 @@ def save_step_one_datas(user, forms, form_sets):
             if form.cleaned_data.get("target") in child_dict:
                 child_spouse.content_type = ContentType.objects.get_for_model(Descendant)
                 child_spouse.object_id = child_dict[form.cleaned_data.get("target")].id
-            child_spouse.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+            child_spouse.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
             child_spouse.created_by = user
             child_spouse.updated_by = user
             child_spouse.save()
@@ -203,7 +203,7 @@ def save_step_one_datas(user, forms, form_sets):
             if form.cleaned_data.get("target2") in child_spouse_dict:
                 grand_child.content_type2 = ContentType.objects.get_for_model(Spouse)
                 grand_child.object_id2 = child_spouse_dict[form.cleaned_data.get("target2")].id
-            grand_child.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+            grand_child.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
             grand_child.created_by = user
             grand_child.updated_by = user
             grand_child.save()
@@ -215,7 +215,7 @@ def save_step_one_datas(user, forms, form_sets):
         if form.cleaned_data.get("name"):
             ascendant = form.save(commit=False)
             ascendant.decedent = decedent
-            ascendant.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+            ascendant.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
             
             if idx < 2:
                 ascendant.content_type = ContentType.objects.get_for_model(Decedent)
@@ -249,7 +249,7 @@ def save_step_one_datas(user, forms, form_sets):
             if form.cleaned_data.get("target2") != "":
                 collateral.content_type2 = ContentType.objects.get_for_model(Ascendant)
                 collateral.object_id2 = ascendant_dict[form.cleaned_data.get("target2")].id
-            collateral.is_heir = form.cleaned_data.get("is_live") and not form.cleaned_data.get("is_refuse")
+            collateral.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False
             collateral.created_by = user
             collateral.updated_by = user
             collateral.save()
@@ -1255,8 +1255,44 @@ def get_registry_name_and_address_city_data(request):
     }
     return JsonResponse(repsonse_data)
 
+# ユーザーに紐づく相続人の住所の市区町村データリストを取得する
+def get_heirs_city_data(request):
+    user = User.objects.get(email = request.user)
+    decedent = Decedent.objects.filter(user=user).first()
+    spouse_datas = Spouse.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+    is_ascendant = True
+    datas = []
+    if spouse_datas.exists():
+        contentType = str(ContentType.objects.get_for_model(Spouse).id)
+        for d in spouse_datas:
+            datas.append([d.id, contentType, d.city])
+            if d.object_id != decedent.id:
+                is_ascendant = False
+                            
+    descendant_datas = Descendant.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+    if descendant_datas.exists():
+        contentType = str(ContentType.objects.get_for_model(Descendant).id)
+        is_ascendant = False
+        for d in descendant_datas:
+            datas.append([d.id, contentType, d.city])
 
-
+    if is_ascendant:
+        ascendant_datas = Ascendant.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+        if ascendant_datas.exists():
+            contentType = str(ContentType.objects.get_for_model(Ascendant).id)
+            for d in ascendant_datas:
+                datas.append([d.id, contentType, d.city])
+        else:
+            collateral_datas = Collateral.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+            if collateral_datas.exists():
+                contentType = str(ContentType.objects.get_for_model(Collateral).id)
+                for d in collateral_datas:
+                    datas.append([d.id, contentType, d.city])
+    
+    repsonse_data = {
+        'datas': datas,
+    }
+    return JsonResponse(repsonse_data)
 
 # 選択された都道府県から市区町村データを取得する
 def get_city(request):

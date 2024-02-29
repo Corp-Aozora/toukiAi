@@ -323,7 +323,8 @@ class Land extends Fieldset{
             i !== Land.idxs.landNumber.input[other] &&
             i !== Land.idxs.landNumber.input[no] &&
             i !== Land.idxs.purparty.input[yes] &&
-            i !== Land.idxs.purparty.input[other2]
+            i !== Land.idxs.purparty.input[other2] &&
+            i !== Land.idxs.index.input
         );
         lands.push(this);
         this.tempLandAcquirers = [];
@@ -354,10 +355,11 @@ class TempAcquirer extends Fieldset{
         percentage:{form:1, input:[1, 2]},
     }
     //fieldset、入力欄、ボタン
-    constructor(fieldsetId){
+    constructor(fieldsetId, instance){
         super(fieldsetId);
         this.inputs = Array.from(this.fieldset.querySelectorAll("input, select"));
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select"));
+        this.belongsTo = instance;
     }
 }
 
@@ -376,9 +378,6 @@ class Acquirer{
     }
 }
 
-//不動産取得者（インデックス０）又は金銭取得者（インデックス１）を追加するボタンと削除ボタン
-const addAcquirerBtn = document.getElementById("id_land-0-wrapper").getElementsByClassName("addBtn");
-const removeAcquirerBtn = document.getElementById("id_land-0-wrapper").getElementsByClassName("removeBtn");
 //金銭取得者を追加するボタンと削除ボタン
 //前の土地に戻るボタンと次の土地へ進むボタン
 const landCorrectBtn = document.getElementById("landCorrectBtn");
@@ -424,27 +423,40 @@ function checkPrefecture(val, el){
  * @param {Fieldset} instance 
  */
 function isActivateOkBtn(instance){
+    const instanceVerified = instance.noInputs.length === 0;
     if(instance instanceof Decedent || instance instanceof RegistryNameAndAddress){
-        //両方のエラー要素がないとき次の項目へボタンを有効化する
+        //被相続人情報のとき、被相続人と登記簿上の氏名・住所の両方のエラー要素がないとき次の項目へボタンを有効化する
         okBtn.disabled = decedents.concat(registryNameAndAddresses).some(item => item.noInputs.length !== 0);
     }else if(instance instanceof SpouseOrAscendant || instance instanceof DescendantOrCollateral){
-        //被相続人欄又は登記簿上の氏名と住所欄以外のとき
-        //エラー要素がない、かつ、最後の相続人のとき次の項目へボタンを有効化する、次の人へボタンを無効化する
-        if(getLastElFromArray(heirs) === instance && instance.noInputs.length === 0){
+        //相続人情報のとき、最後の相続人でエラー要素がないとき次の項目へボタンを有効化する、他の相続人のエラー要素がないときは次の人へボタンを無効化する
+        if(getLastElFromArray(heirs) === instance && instanceVerified){
             okBtn.disabled = false;
-        }else if(instance.noInputs.length === 0){
+        }else if(instanceVerified){
             heirsOkBtn.disabled = false;
         }
-    }else if(instance instanceof Land){
-        if(getLastElFromArray(lands) === instance && instance.noInputs.length === 0 && instance.tempLandAcquirers.noInputs.length === 0 &&
-        instance.tempLandCashAcquirers.noInputs.length === 0){
-            landOkBtn.disabled = true;
-            okBtn.disabled = false;
-        }else if(instance.noInputs.length === 0 && instance.tempLandAcquirers.noInputs.length === 0 && instance.tempLandCashAcquirers.noInputs.length === 0){
-            landOkBtn.disabled = false;
+    }else if(instance instanceof Land || instance instanceof TempAcquirer){
+        //土地情報のとき、最後の土地情報でエラー要素がないとき次へボタンを有効化して次の土地へボタンを無効化する、他の土地情報でエラー要素がないときは次の土地へボタンを有効化する
+        function verifyLandSection(land){
+            const tempLandAcquirersVerified = getLastElFromArray(land.tempLandAcquirers).noInputs.length === 0;
+            const tempLandCashAcquirersVerified = getLastElFromArray(land.tempLandCashAcquirers).noInputs.length === 0;
+            if(getLastElFromArray(lands) === land && instanceVerified && tempLandAcquirersVerified && tempLandCashAcquirersVerified){
+                landOkBtn.disabled = true;
+                okBtn.disabled = false;
+            }else if(instanceVerified && tempLandAcquirersVerified && tempLandCashAcquirersVerified){
+                landOkBtn.disabled = false;
+            }
+        }
+        if(instance instanceof Land){
+            verifyLandSection(instance);
+        }else{
+            const belongsTo = instance.belongsTo;
+            verifyLandSection(belongsTo);
+            if(instance.noInputs.length === 0){
+                instance.fieldset.nextElementSibling.getElementsByClassName("btn")[1].disabled = false;
+            }
         }
     }else{
-        if(instance.noInputs.length === 0)
+        if(instanceVerified)
             okBtn.disabled = false;
     }
 }
@@ -975,7 +987,7 @@ function afterValidation(isValid, errMsgEl, message, el, instance){
             if(instance instanceof SpouseOrAscendant || instance instanceof DescendantOrCollateral){
                 heirsOkBtn.disabled = true;
 
-            }else if(instance instanceof Land){
+            }else if(instance instanceof Land || instance instanceof TempAcquirer){
                 landOkBtn.disabled = true;
             }
             //次へのボタンを無効化
@@ -1918,8 +1930,8 @@ function setNumberOfPropertiesSection(){
  * @param {number} num 
  */
 function addLandAcquirerInstance(instance, num){
-    instance.addTempLandAcquirer(new TempAcquirer(`id_land_${num}_temp_land_acquirer-0-fieldset`));
-    instance.addTempLandCashAcquirer(new TempAcquirer(`id_land_${num}_temp_land_cash_acquirer-0-fieldset`));
+    instance.addTempLandAcquirer(new TempAcquirer(`id_land_${num}_temp_land_acquirer-0-fieldset`, instance));
+    instance.addTempLandCashAcquirer(new TempAcquirer(`id_land_${num}_temp_land_cash_acquirer-0-fieldset`, instance));
     instance.tempLandCashAcquirers[0].noInputs.length = 0
     instance.addLandAcquirer(new Acquirer(`id_land_acquirer-${num}-fieldset`));
     instance.landAcquirers[0].inputs[Acquirer.idxs.target].value = instance.inputs[Land.idxs.index.input].value;
@@ -2061,12 +2073,12 @@ function setLandEvent(){
                     }
                     //換価確認のラジオボタンのとき
                     if(isExchangeInputIdxs.includes(inputIdx)){
-                        lands[i].noinputs = lands[i].noInputs.filter(x => x !== inputs[isExchangeInputIdxs[yes]] && x !== inputs[isExchangeInputIdxs[no]]);
+                        lands[i].noInputs = lands[i].noInputs.filter(x => x !== inputs[isExchangeInputIdxs[yes]] && x !== inputs[isExchangeInputIdxs[no]]);
                         //換価するとき
                         if(inputIdx === isExchangeInputIdxs[yes]){
                             //金銭取得者の欄を表示してエラー要素から換価する、しない両方のinputを削除する
                             slideDownAndScroll(lands[i].tempLandCashAcquirers[0].fieldset.parentNode);
-                            lands[i].tempLandCashAcquirers[0].noinputs = Array.from(lands[i].tempLandCashAcquirers[0].fieldset.querySelectorAll("input, select"));
+                            lands[i].tempLandCashAcquirers[0].noInputs = Array.from(lands[i].tempLandCashAcquirers[0].fieldset.querySelectorAll("input, select"));
                         }else{
                             //換価しないとき
                             //金銭取得者の欄を非表示にして初期化する、インスタンスも最初の１のみにする
@@ -2076,8 +2088,8 @@ function setLandEvent(){
                                 if(k === 0){
                                     lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.acquirer.input].value = "";
                                     lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.percentage.input[yes]].checked = false;
-                                    lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.percentage.input[no]].value = false;
-                                    lands[i].tempLandCashAcquirers[k].noInputs = 0;
+                                    lands[i].tempLandCashAcquirers[k].inputs[TempAcquirer.idxs.percentage.input[no]].checked = false;
+                                    lands[i].tempLandCashAcquirers[k].noInputs.length = 0;
                                 }else{
                                     lands[i].tempLandCashAcquirers[k].fieldset.remove();
                                 }
@@ -2139,45 +2151,40 @@ function setLandEvent(){
  * 取得者候補をselectタグのoptionに追加する
  */
 function addAcquirerCandidate(){
-    //候補者を格納した配列
+    //土地候補者（不動産を取得するで「はい」がチェックされた人）、金銭取得者（相続人全員）を格納した配列
     const tempLandAquireCandidates = [];
     const tempLandCashAquireCandidates = [];
     heirs.forEach(heir =>{
-        if(heir.inputs[heir.constructor.idxs.isAcquire[yes]].checked || heir.inputs[heir.constructor.idxs.isAcquire[no]].checked){
+        const idxs = heir.constructor.idxs.isAcquire;
+        const inputs = heir.inputs;
+        if(inputs[idxs[yes]].checked || inputs[idxs[no]].checked){
             tempLandCashAquireCandidates.push(heir);
-            if(heir.inputs[SpouseOrAscendant.idxs.isAcquire[yes]].checked)
+            if(inputs[idxs[yes]].checked)
                 tempLandAquireCandidates.push(heir);
         }
     })
 
+    //候補者optionをselectに追加
+    function addOption(tempAcquires, candidates){
+        tempAcquires.forEach(tempAcquirer =>{
+            const select = tempAcquirer.inputs[TempAcquirer.idxs.acquirer.input];
+            const option = document.createElement("option");
+            option.text = "選択してください";
+            option.value = "";
+            select.add(option);
+            candidates.forEach(candidate =>{
+                const inputs = candidate.inputs;
+                const idxs = candidate.constructor.idxs;
+                const option = document.createElement("option");
+                option.text = inputs[idxs.name].value;
+                option.value = inputs[idxs.idAndContentType].value;
+                select.add(option);
+            });
+        });
+    }
     lands.forEach(land =>{
-        //select要素
-        land.tempLandAcquirers.forEach(tempLandAcquirer =>{
-            const select = tempLandAcquirer.inputs[TempAcquirer.idxs.acquirer.input];
-            const option = document.createElement("option");
-            option.text = "選択してください";
-            option.value = "";
-            select.add(option);
-            tempLandAquireCandidates.forEach(candidate =>{
-                const option = document.createElement("option");
-                option.text = candidate.inputs[candidate.constructor.idxs.name].value;
-                option.value = candidate.inputs[candidate.constructor.idxs.idAndContentType].value;
-                select.add(option);
-            });
-        });
-        land.tempLandCashAcquirers.forEach(tempLandCashAcquirer =>{
-            const select = tempLandCashAcquirer.inputs[TempAcquirer.idxs.acquirer.input];
-            const option = document.createElement("option");
-            option.text = "選択してください";
-            option.value = "";
-            select.add(option);
-            tempLandCashAquireCandidates.forEach(candidate =>{
-                const option = document.createElement("option");
-                option.text = candidate.inputs[candidate.constructor.idxs.name].value;
-                option.value = candidate.inputs[candidate.constructor.idxs.idAndContentType].value;
-                select.add(option);
-            });
-        });
+        addOption(land.tempLandAcquirers, tempLandAquireCandidates);
+        addOption(land.tempLandCashAcquirers, tempLandCashAquireCandidates);
     })
 }
 
@@ -2188,7 +2195,7 @@ function addAcquirerCandidate(){
  */
 function tempLandValidation(inputs, idx){
     const input = inputs[idx];
-    const result = isBlank(input);
+    let result = isBlank(input);
     if(result !== false)
         return result;
 
@@ -2218,85 +2225,56 @@ function tempLandValidation(inputs, idx){
 /**
  * 土地取得者の仮フォームに対するイベント設定
  */
-function setTempLandAndCashAcquirerEvent(){
+function setLandTempAcquiresEvent(){
     const TIdxs = TempAcquirer.idxs;
     const AIdxs = Acquirer.idxs;
-    //各土地の各土地取得者仮フォームに対してループ処理
+    const addBtn = document.getElementById("land-section").getElementsByClassName("addTempLandAcquirerBtn")[0];
+    //各土地に対してループ処理
     lands.forEach(land =>{
+        //土地取得者仮フォーム
         const tempLandAcquirer = land.tempLandAcquirers[0];
-        const inputs = tempLandAcquirer.inputs;
-        for(let i = 0, len = inputs.length; i < len; i++){
-            //取得割合のとき
-            if(TIdxs.percentage.input.includes(i)){
-                //keydownイベント
-                inputs[i].addEventListener("keydown", (e)=>{
-                    //数字のみの入力制限
-                    handleNumInputKeyDown(e);
-                    //分母のときは分子へ、分子のときは追加ボタンにフォーカスを移す
-                    setEnterKeyFocusNext(e, (TIdxs.percentage.input[yes] ? inputs[i + 1]: addAcquirerBtn[0]));
-                })
-            }
-            //changeイベント
-            inputs[i].addEventListener("change", ()=>{
-                //取得者のとき
-                if(i === TIdxs.acquirer.input){
-                    const result = tempLandValidation(inputs, i);
-                    afterValidation(result, tempLandAcquirer.errMsgEls[TIdxs.acquirer.form], result, inputs[i], tempLandAcquirer);
-                    const parts = inputs[i].value.split("_");
-                    land.landAcquirers[0].inputs[AIdxs.contentType2].value = parts[0];
-                    land.landAcquirers[0].inputs[AIdxs.objectId2].value = parts[1];
-                }else if(TIdxs.percentage.input.includes(i)){
-                    //取得割合のとき
-                    const result = tempLandValidation(inputs, i);
-                    afterValidation(result, tempLandAcquirer.errMsgEls[TIdxs.percentage.form], result, inputs[i], tempLandAcquirer);
-                    inputs[i].value = hankakuToZenkaku(inputs[i].value);
-                    const regex = i === TIdxs.percentage.input[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
-                    land.landAcquirers[0].inputs[AIdxs.percentage].value = land.landAcquirers[0].inputs[AIdxs.percentage].value.replace(regex, "");
-                    if(i === TIdxs.percentage.input[yes])
-                        land.landAcquirers[0].inputs[AIdxs.percentage].value = inputs[i].value + land.landAcquirers[0].inputs[AIdxs.percentage].value;
-                    else
-                        land.landAcquirers[0].inputs[AIdxs.percentage].value += inputs[i].value;
-                }
-            })
-        }
-    })
-    //各土地の各金銭取得者仮フォームに対してループ処理
-    lands.forEach(land =>{
+        const tempLandAcquirerInputs = tempLandAcquirer.inputs;
+        //金銭取得者仮フォーム
         const tempLandCashAcquirer = land.tempLandCashAcquirers[0];
-        const inputs = tempLandCashAcquirer.inputs;
-        for(let i = 0, len = inputs.length; i < len; i++){
+        const tempLandCashAcquirerInputs = tempLandCashAcquirer.inputs;
+        //土地取得者仮フォームと金銭取得者仮フォームは、同一のフォーム形式のためイベント設定
+        for(let i = 0, len = tempLandAcquirerInputs.length; i < len; i++){
+            const TPercentageInputIdxs = TIdxs.percentage.input;
             //取得割合のとき
-            if(TIdxs.percentage.input.includes(i)){
-                //keydownイベント
-                inputs[i].addEventListener("keydown", (e)=>{
-                    //数字のみの入力制限
+            if(TPercentageInputIdxs.includes(i)){
+                function keyDownHandler(e, inputs){
                     handleNumInputKeyDown(e);
-                    //分母のときは分子へ、分子のときは追加ボタンにフォーカスを移す
-                    setEnterKeyFocusNext(e, (TIdxs.percentage.input[yes] ? inputs[i + 1]: addAcquirerBtn[0]));
-                })
-            }
-            //changeイベント
-            inputs[i].addEventListener("change", ()=>{
-                //取得者のとき
-                if(i === TIdxs.acquirer.input){
-                    const result = tempLandValidation(inputs, i);
-                    afterValidation(result, tempLandCashAcquirer.errMsgEls[TIdxs.acquirer.form], result, inputs[i], tempLandCashAcquirer);
-                    const parts = inputs[i].value.split("_");
-                    land.landCashAcquirers[0].inputs[AIdxs.contentType2].value = parts[0];
-                    land.landCashAcquirers[0].inputs[AIdxs.objectId2].value = parts[1];
-                }else if(TIdxs.percentage.input.includes(i)){
-                    //取得割合のとき
-                    const result = tempLandValidation(inputs, i);
-                    afterValidation(result, tempLandCashAcquirer.errMsgEls[TIdxs.percentage.form], result, inputs[i], tempLandCashAcquirer);
-                    inputs[i].value = hankakuToZenkaku(inputs[i].value);
-                    const regex = i === TIdxs.percentage.input[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
-                    land.landCashAcquirers[0].inputs[AIdxs.percentage].value = land.landCashAcquirers[0].inputs[AIdxs.percentage].value.replace(regex, "");
-                    if(i === TIdxs.percentage.input[yes])
-                        land.landCashAcquirers[0].inputs[AIdxs.percentage].value = inputs[i].value + land.landCashAcquirers[0].inputs[AIdxs.percentage].value;
-                    else
-                        land.landCashAcquirers[0].inputs[AIdxs.percentage].value += inputs[i].value;
+                    setEnterKeyFocusNext(e, (TPercentageInputIdxs[yes] ? inputs[i + 1]: addBtn));
                 }
-            })
+                //keydownイベント、数字のみの入力制限とフォーカス移動処理
+                tempLandAcquirerInputs[i].addEventListener("keydown", (e)=> keyDownHandler(e, tempLandAcquirerInputs));
+                tempLandCashAcquirerInputs[i].addEventListener("keydown", (e)=> keyDownHandler(e, tempLandCashAcquirerInputs));
+            }
+            //全インプットに対してchangeイベントを設定
+            function changeEventHandler(acquirer, tempAcquirer){
+                const acquirerInputs = acquirer.inputs;
+                const tempAcquirerInputs = tempAcquirer.inputs;
+                const result = tempLandValidation(tempAcquirerInputs, i);
+                //取得者のとき、hidden取得者に転記する
+                if(i === TIdxs.acquirer.input){
+                    afterValidation(result, tempAcquirer.errMsgEls[TIdxs.acquirer.form], result, tempAcquirerInputs[i], tempAcquirer);
+                    const parts = tempAcquirerInputs[i].value.split("_");
+                    acquirerInputs[AIdxs.contentType2].value = parts[0];
+                    acquirerInputs[AIdxs.objectId2].value = parts[1];
+                }else if(TPercentageInputIdxs.includes(i)){
+                    //取得割合のとき、hidden取得者に転記する
+                    afterValidation(result, tempAcquirer.errMsgEls[TIdxs.percentage.form], result, tempAcquirerInputs[i], tempAcquirer);
+                    tempAcquirerInputs[i].value = hankakuToZenkaku(tempAcquirerInputs[i].value);
+                    const regex = i === TPercentageInputIdxs[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
+                    acquirerInputs[AIdxs.percentage].value = acquirerInputs[AIdxs.percentage].value.replace(regex, "");
+                    if(i === TPercentageInputIdxs[yes])
+                        acquirerInputs[AIdxs.percentage].value = tempAcquirerInputs[i].value + acquirerInputs[AIdxs.percentage].value;
+                    else
+                        acquirerInputs[AIdxs.percentage].value += tempAcquirerInputs[i].value;
+                }
+            }
+            tempLandAcquirerInputs[i].addEventListener("change", ()=>changeEventHandler(land.landAcquirers[0], tempLandAcquirer));
+            tempLandCashAcquirerInputs[i].addEventListener("change", ()=>changeEventHandler(land.landCashAcquirers[0], tempLandCashAcquirer));
         }
     })
 }
@@ -2305,7 +2283,7 @@ function setTempLandAndCashAcquirerEvent(){
  * 不動産取得者の追加ボタンのイベント設定
  */
 function setAddTempAcquirerBtnEvent(){
-    const btns = document.getElementById("land-section")[0].getElementsByClassName("addTempLandAcquirerBtn");
+    const btns = document.getElementById("land-section").getElementsByClassName("addTempLandAcquirerBtn")[0];
     for(let i = 0, len = btns.length; i < len; i++){
         btns[i].addEventListener("click", ()=>{
             //仮フォームを追加
@@ -2370,7 +2348,7 @@ function setLandSection(){
         //土地情報の各入力欄のイベントを設定
         setLandEvent();
         //土地又は金銭取得者の仮フォームの各入力欄のイベントを設定
-        setTempLandAndCashAcquirerEvent();
+        setLandTempAcquiresEvent();
         //不動産取得者を追加ボタンのイベント設定
         setAddTempAcquirerBtnEvent();
         //不動産取得者を削除ボタンのイベント設定

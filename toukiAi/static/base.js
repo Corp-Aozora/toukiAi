@@ -232,7 +232,7 @@ function validateIntInput(el){
 
     const regex = /^(?!0\d)(?!0$)\d+$/;
 
-    if (!regex.test(val)) {
+    if(!regex.test(val)){
         el.value = "";
         return "先頭が０でない数字を入力してください"; // 不正な文字を削除
     }

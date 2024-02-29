@@ -8,7 +8,6 @@ from .forms import *
 from django.forms import formset_factory
 from .models import *
 from accounts.models import User
-from django.http import JsonResponse
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -41,6 +40,8 @@ from django.core.files.storage import default_storage
 import os
 from django.conf import settings
 from urllib.parse import urlparse, parse_qs
+from django.db import OperationalError
+from django.core.exceptions import ObjectDoesNotExist
 
 def index(request):
     is_inquiry = False
@@ -1257,42 +1258,49 @@ def get_registry_name_and_address_city_data(request):
 
 # ユーザーに紐づく相続人の住所の市区町村データリストを取得する
 def get_heirs_city_data(request):
-    user = User.objects.get(email = request.user)
-    decedent = Decedent.objects.filter(user=user).first()
-    spouse_datas = Spouse.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
-    is_ascendant = True
-    datas = []
-    if spouse_datas.exists():
-        contentType = str(ContentType.objects.get_for_model(Spouse).id)
-        for d in spouse_datas:
-            datas.append([d.id, contentType, d.city])
-            if d.object_id != decedent.id:
-                is_ascendant = False
-                            
-    descendant_datas = Descendant.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
-    if descendant_datas.exists():
-        contentType = str(ContentType.objects.get_for_model(Descendant).id)
-        is_ascendant = False
-        for d in descendant_datas:
-            datas.append([d.id, contentType, d.city])
-
-    if is_ascendant:
-        ascendant_datas = Ascendant.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
-        if ascendant_datas.exists():
-            contentType = str(ContentType.objects.get_for_model(Ascendant).id)
-            for d in ascendant_datas:
+    try:
+        user = User.objects.get(email = request.user)
+        decedent = Decedent.objects.filter(user=user).first()
+        spouse_datas = Spouse.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+        is_ascendant = True
+        datas = []
+        if spouse_datas.exists():
+            contentType = str(ContentType.objects.get_for_model(Spouse).id)
+            for d in spouse_datas:
                 datas.append([d.id, contentType, d.city])
-        else:
-            collateral_datas = Collateral.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
-            if collateral_datas.exists():
-                contentType = str(ContentType.objects.get_for_model(Collateral).id)
-                for d in collateral_datas:
+                if d.object_id != decedent.id:
+                    is_ascendant = False
+                                
+        descendant_datas = Descendant.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+        if descendant_datas.exists():
+            contentType = str(ContentType.objects.get_for_model(Descendant).id)
+            is_ascendant = False
+            for d in descendant_datas:
+                datas.append([d.id, contentType, d.city])
+
+        if is_ascendant:
+            ascendant_datas = Ascendant.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+            if ascendant_datas.exists():
+                contentType = str(ContentType.objects.get_for_model(Ascendant).id)
+                for d in ascendant_datas:
                     datas.append([d.id, contentType, d.city])
-    
-    repsonse_data = {
-        'datas': datas,
-    }
-    return JsonResponse(repsonse_data)
+            else:
+                collateral_datas = Collateral.objects.filter(Q(decedent=decedent) & Q(is_heir=True) & ~Q(city__isnull=True) & ~Q(city=""))
+                if collateral_datas.exists():
+                    contentType = str(ContentType.objects.get_for_model(Collateral).id)
+                    for d in collateral_datas:
+                        datas.append([d.id, contentType, d.city])
+        
+        repsonse_data = {
+            'datas': datas,
+        }
+        return JsonResponse(repsonse_data)
+    except (OperationalError, ConnectionError) as e:
+        return JsonResponse({'error': 'ネットワークエラーが発生しました', 'details': str(e)}, status=500)
+    except ObjectDoesNotExist:
+        return JsonResponse({'error': 'データがありません'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': 'エラーが発生しました', 'details': str(e)}, status=500)
 
 # 選択された都道府県から市区町村データを取得する
 def get_city(request):

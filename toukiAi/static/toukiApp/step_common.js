@@ -263,6 +263,30 @@ function inputOrCheckAndDispatchChangeEvent(el, text = null){
     el.dispatchEvent(new Event("change"));
 }
 
+/**
+ * copyFromをクローンして属性を更新してcopyFromの弟要素として挿入する
+ * @param {HTMLElement} copyFrom 
+ * @param {string} att セレクタ形式で書くこと
+ * @param {string} regex リテラル
+ * @param {number|string} newIdx 
+ */
+function copyAndPasteEl(copyFrom, att, regex, newIdx){
+    const clone = copyFrom.cloneNode(true);
+    //属性更新
+    clone.id = clone.id.replace(regex, `$1${newIdx}`);
+    const els = clone.querySelectorAll(att);
+    els.forEach(el => {
+        if(el.id){
+            el.id = el.id.replace(regex, `$1${newIdx}`);
+        }
+        if(el.name){
+            el.name = el.name.replace(regex, `$1${newIdx}`);
+        }
+        if(el.htmlFor)
+            el.htmlFor = el.htmlFor.replace(regex, `$1${newIdx}`);
+    });
+    copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
+}
 /*
     イベント
 */

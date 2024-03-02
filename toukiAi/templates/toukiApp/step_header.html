@@ -1,3 +1,8 @@
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
+{% endblock %}
+
 {% for message in messages %}
 {% endfor %}
 
@@ -6,11 +11,14 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#headerMenus" aria-controls="headerMenus" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+        <div class="me-3">
+            <a style="text-decoration: none;" href="{% url 'toukiApp:index' %}">
+                <div class="btn-shogi btn btn-primary bg-gradient bg-opacity-50 shadow text-white">
+                </div>
+            </a>
+        </div>
         <div id="headerMenus" class="collapse navbar-collapse">
             <ul class="navbar-nav py-md-0 justify-content-start">
-                <li class="navbar-brand nav-item">
-                    <a id="logo" class="text-dark" style="text-decoration: none;" href="{% url 'toukiApp:index' %}">（ロゴ）</a>
-                </li>
                 <li class="nav-item mx-3">
                     <a class="fw-bold text-decoration-none text-dark" href="{% url 'toukiApp:step_option_select' %}">
                         <button class="btn btn-outline-primary p-2 fw-bold">

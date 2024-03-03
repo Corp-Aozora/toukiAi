@@ -564,9 +564,25 @@ def step_two(request):
             with transaction.atomic():
                 decedent.progress = 3
                 decedent.save()
-                
-                gauth = GoogleAuth()
-                # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
+
+                if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
+                    # Secret File のパス
+                    secrets_file_path = '/toukiAi/client_secrets.json'
+                    
+                    # GoogleAuth オブジェクトの初期化
+                    gauth = GoogleAuth()
+                    
+                    # client_secrets.json のパスを指定
+                    gauth.LoadClientConfigFile(secrets_file_path)
+                    
+                    # 認証を実行
+                    gauth.LocalWebserverAuth()
+                else:
+                    # ローカル環境や他の環境での処理
+                    # 例: ローカルの認証情報ファイルを使用する
+                    gauth = GoogleAuth()
+                    # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
+
                 drive = GoogleDrive(gauth)
                 
                 #不動産登記簿は常に全削除と全登録を行う

@@ -2168,6 +2168,72 @@ function setLandEvent(){
 }
 
 /**
+ * 相続人の法定相続分を算出して返す
+ * @param {[SpouseOrAscendant|DescendantOrCollateral]} heirs 法定相続人
+ * @param {SpouseOrAscendant|DescendantOrCollateral} heir 算出する対象の相続人
+ * @returns
+ */
+function getLegalPercentage(heirs, heir){
+    //相続人が配偶者のとき、２分の１を返す
+    if(heir.fieldset.id.includes === ("id_decedent_spouse-")){
+        return "２分の１";
+    }else{
+        const isDecedentSpouse = heirs.some(heir => heir instanceof SpouseOrAscendant && heir.fieldset.id.includes("id_decedent_spouse-"));
+        if(heir.fieldset.id.includes("id_child-")){
+            //相続人が子のとき、この数を数える
+            const heirsFieldsets = document.getElementById("heirs-section").getElementsByTagName("fieldset");
+            const allChildCount = Array.from(heirsFieldsets.querySelectorAll('[id]')).filter(el => el.id.includes('id_child-')).length;
+            //配偶者がいるとき、子の数に２をかけた値が相続分の分母になる
+            if(isDecedentSpouse){
+                const denominator = hankakuToZenkaku(allChildCount * 2);
+                return denominator + "分の１";
+            }else{
+                //配偶者がいないとき、子の数が相続分の分母になる
+                const denominator = hankakuToZenkaku(allChildCount);
+                return denominator + "分の１";
+            }
+        }else if(heir.fieldset.id.includes("id_child_spouse-")){
+            //相続人が子の配偶者のとき
+            //配偶者がいるとき
+            if(isDecedentSpouse){
+                //孫がいるとき
+                
+                //孫がいないとき
+
+            }else{
+                //配偶者がいないとき
+                //孫がいるとき
+                //孫がいないとき
+
+            }
+        }else if(heir.fieldset.id.includes("id_grand_child-")){
+            //相続人が孫のとき
+            //配偶者がいるとき
+            //子の配偶者がいるとき
+            //子の配偶者がいないとき
+            //配偶者がいないとき
+            //子の配偶者がいるとき
+            //子の配偶者がいないとき
+        }else if(heir.fieldset.id.includes("id_ascendant-")){
+            //相続人が尊属のとき
+            //配偶者がいるとき
+            //配偶者がいないとき
+        }else if(heir.fieldset.id.includes("id_collateral-")){
+            //相続人が兄弟姉妹のとき
+            //配偶者がいるとき
+            //異父母の兄弟姉妹がいるとき
+            //異父母の兄弟姉妹がいないとき
+            //配偶者がいないとき
+            //異父母の兄弟姉妹がいるとき
+            //異父母の兄弟姉妹がいないとき
+        }else{
+            //該当がないとき
+            return false;
+        }
+    }    
+}
+
+/**
  * 取得者候補をselectタグのoptionに追加する
  */
 function addAcquirerCandidate(){
@@ -2206,6 +2272,54 @@ function addAcquirerCandidate(){
         addOption(land.tempLandAcquirers, tempLandAquireCandidates);
         addOption(land.tempLandCashAcquirers, tempLandCashAquireCandidates);
     })
+
+    //遺産分割方法の全取得者欄が入力されているとき
+    if(typeOfDivisions[0].inputs[TypeOfDivision.idxs.contentType1.input].value !== ""){
+        //土地欄全てに対してループ処理
+        lands.forEach(land => {
+            //隠し取得者欄全てに対してループ処理
+            land.landAcquirers.forEach(landAcquirer =>{
+                //候補者欄はその人を入力して、割合に１/１を入力する
+                landAcquirer.inputs[Acquirer.idxs.contentType2].value = typeOfDivisions[0].inputs[TypeOfDivision.idxs.contentType1.input].value;
+                landAcquirer.inputs[Acquirer.idxs.objectId2].value = typeOfDivisions[0].inputs[TypeOfDivision.idxs.objectId1.input].value;
+                landAcquirer.inputs[Acquirer.idxs.percentage].value = "１分の１";
+            })
+        })
+        //全ての不動産取得者欄を非表示にする
+        const tempLandAcquirerWrappers = document.getElementById("land-section").getElementsByClassName("tempLandAcquirerWrapper");
+        tempLandAcquirerWrappers.forEach(tempLandAcquirerWrapper => tempLandAcquirerWrapper.style.display = "none");
+    }else if(typeOfDivisions[0].inputs[TypeOfDivision.idxs.propertyAllocation.input[yes].checked]){
+        //取得者が法定相続のとき
+        //取得者欄のフォーム数を更新する
+        const landAcquirerTotalForm = document.getElementById("id_land_acquirer-TOTAL_FORMS");
+        landAcquirerTotalForm.value = String(tempLandAquireCandidates.length * lands.length);
+        //土地欄全てに対してループ処理
+        lands.forEach(land => {
+            for(let i = 0, len = tempLandAquireCandidates.length; i < len; i++){
+                if(i === 0){
+                    const idAndContentType = tempLandAquireCandidates[i].inputs[tempLandAquireCandidates[i].constructor.idxs.idAndContentType].value;
+                    const parts = idAndContentType.split("_");
+                    land.landAcquirers[i].inputs[Acquirer.idxs.contentType2].value = parts[1];
+                    land.landAcquirers[i].inputs[Acquirer.idxs.objectId2].value = parts[0];
+                    land.landAcquirers[i].inputs[Acquirer.idxs.percentage].value = getLegalPercentage(tempLandAquireCandidates, tempLandAquireCandidates[i]);
+                }else{
+                    //法定相続人分の隠し取得者欄を生成する
+                    const newIdx = i + 1;
+                    const copyFrom = land.landAcquirers[i].fieldset;
+                    const att = "[id],[name]";
+                    const regex = /(acquirer-)\d+/;
+                    copyAndPasteEl(copyFrom, att, regex, newIdx);
+                    //法定相続人分の隠し取得者インスタンスを生成する
+                    const newId = copyFrom.id.replace(regex, `$1${newIdx}`);
+                    const newLandAcquirer = new Acquirer(newId);
+                    newLandAcquirer.inputs[Acquirer.idxs.contentType2].value = 
+                    newLandAcquirer.inputs[Acquirer.idxs.objectId2].value =
+                    newLandAcquirer.inputs[Acquirer.idxs.percentage].value =
+                    land.addLandAcquirer(newLandAcquirer);
+                }
+            }
+        })
+    }
 }
 
 /**

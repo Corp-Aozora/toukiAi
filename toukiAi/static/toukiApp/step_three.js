@@ -2169,36 +2169,42 @@ function setLandEvent(){
 
 /**
  * 相続人の法定相続分を算出して返す
- * @param {[SpouseOrAscendant|DescendantOrCollateral]} heirs 法定相続人
+ * @param {[SpouseOrAscendant|DescendantOrCollateral]} candidates 法定相続人
  * @param {SpouseOrAscendant|DescendantOrCollateral} heir 算出する対象の相続人
  * @returns
  */
-function getLegalPercentage(heirs, heir){
+function getLegalPercentage(candidates, heir){
     //相続人が配偶者のとき、２分の１を返す
     if(heir.fieldset.id.includes === ("id_decedent_spouse-")){
         return "２分の１";
     }else{
-        const isDecedentSpouse = heirs.some(heir => heir instanceof SpouseOrAscendant && heir.fieldset.id.includes("id_decedent_spouse-"));
+        const isDecedentSpouse = candidates.some(heir => heir instanceof SpouseOrAscendant && heir.fieldset.id.includes("id_decedent_spouse-"));
         if(heir.fieldset.id.includes("id_child-")){
-            //相続人が子のとき、この数を数える
-            const heirsFieldsets = document.getElementById("heirs-section").getElementsByTagName("fieldset");
-            const allChildCount = Array.from(heirsFieldsets.querySelectorAll('[id]')).filter(el => el.id.includes('id_child-')).length;
+            //相続人が子のとき、子を数える
+            const childs = heirs.filter(x => x.fieldset.id.includes('id_child-'));
+            // const childHeirs = heirs.filter(x => x.fieldset.)
             //配偶者がいるとき、子の数に２をかけた値が相続分の分母になる
             if(isDecedentSpouse){
-                const denominator = hankakuToZenkaku(allChildCount * 2);
+                const denominator = hankakuToZenkaku(childCount * 2);
                 return denominator + "分の１";
             }else{
                 //配偶者がいないとき、子の数が相続分の分母になる
-                const denominator = hankakuToZenkaku(allChildCount);
+                const denominator = hankakuToZenkaku(childCount);
                 return denominator + "分の１";
             }
         }else if(heir.fieldset.id.includes("id_child_spouse-")){
             //相続人が子の配偶者のとき
             //配偶者がいるとき
             if(isDecedentSpouse){
+                const grandChildCount = candidates.filter(x => x instanceof DescendantOrCollateral && x.objectId1 === heir.inputs[SpouseOrAscendant.idxs.objectId]).length;
+                
                 //孫がいるとき
-                // if(heirs.some(heir => ))
-                //孫がいないとき
+                if(grandChildCount > 0){
+                    const denominator = hankakuToZenkaku()
+                }else{
+                    //孫がいないとき
+
+                }
 
             }else{
                 //配偶者がいないとき

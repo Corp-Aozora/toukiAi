@@ -2182,7 +2182,7 @@ function getLegalPercentage(candidates, heir){
         if(heir.fieldset.id.includes("id_child-")){
             //相続人が子のとき、子を数える
             const childs = heirs.filter(x => x.fieldset.id.includes('id_child-'));
-            // const childHeirs = heirs.filter(x => x.fieldset.)
+            const childHeirs = heirs.filter(x => x.fieldset.querySelectorAll('.grandChildFieldset, .childSpouseFieldset').length > 0);
             //配偶者がいるとき、子の数に２をかけた値が相続分の分母になる
             if(isDecedentSpouse){
                 const denominator = hankakuToZenkaku(childCount * 2);

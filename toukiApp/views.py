@@ -570,13 +570,17 @@ def step_two(request):
                     # secrets_file_path = '/app/client_secrets.json'
                     
                     # GoogleAuth オブジェクトの初期化
+                    print("aaaaaaaaaaaaaaaaaaaaaaaa")
                     gauth = GoogleAuth()
+                    print("bbbbbbbbbbbbbbbbbbbbbbbb")
                     
                     # client_secrets.json のパスを指定
                     # gauth.LoadClientConfigFile(secrets_file_path)
                     
                     # 認証を実行
                     gauth.LocalWebserverAuth()
+                    print("cccccccccccccccccccccc")
+                    
                 else:
                     # ローカル環境や他の環境での処理
                     # 例: ローカルの認証情報ファイルを使用する
@@ -584,6 +588,7 @@ def step_two(request):
                     # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
 
                 drive = GoogleDrive(gauth)
+                print("BBBBBBBBBBBBBBBBBBBBBBB")
                 
                 #不動産登記簿は常に全削除と全登録を行う
                 if registry_files.exists():

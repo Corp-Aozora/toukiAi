@@ -2197,7 +2197,7 @@ function getLegalPercentage(heirs, heir){
             //配偶者がいるとき
             if(isDecedentSpouse){
                 //孫がいるとき
-                
+                // if(heirs.some(heir => ))
                 //孫がいないとき
 
             }else{

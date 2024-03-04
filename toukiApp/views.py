@@ -30,6 +30,7 @@ from django.forms.models import model_to_dict
 from django.db.models import Q
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 import googleapiclient.errors 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
@@ -563,17 +564,20 @@ def step_two(request):
                 decedent.progress = 3
                 decedent.save()
 
-                if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
+                # if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
                     
-                    # サービスアカウントの認証情報ファイルのパス
-                    SERVICE_ACCOUNT_FILE = 'toukiai-development-7bf1692a5215.json'
-                    
-                    # サービスアカウント認証情報をロード
-                    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/drive'])
-                    
-                    # GoogleAuth オブジェクトの初期化
-                    gauth = GoogleAuth()
-                    gauth.credentials = credentials
+                # サービスアカウントの認証情報ファイルのパス
+                SERVICE_ACCOUNT_FILE = 'toukiai-development-7bf1692a5215.json'
+                
+                # サービスアカウント認証情報をロード
+                credentials = service_account.Credentials.from_service_account_file(
+                    SERVICE_ACCOUNT_FILE,
+                    scopes=['https://www.googleapis.com/auth/drive'])
+                
+                # GoogleAuth オブジェクトの初期化
+                gauth = GoogleAuth()
+                gauth.credentials = credentials
+                service = build('drive', 'v3', credentials=credentials)
                     # GoogleAuth オブジェクトの初期化
                     # gauth = GoogleAuth()
                     
@@ -583,48 +587,87 @@ def step_two(request):
                     # 認証を実行
                     # gauth.LocalWebserverAuth()
                     
-                else:
+                # else:
                     # ローカル環境や他の環境での処理
                     # 例: ローカルの認証情報ファイルを使用する
-                    gauth = GoogleAuth()
+                    # gauth = GoogleAuth()
                     # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
+                    # drive = GoogleDrive(gauth)
 
-                drive = GoogleDrive(gauth)
                 
+                #不動産登記簿は常に全削除と全登録を行う
+                # if registry_files.exists():
+                #     for file in registry_files:
+                #         # Googleドライブからファイルを削除
+                #         file_id = extract_file_id_from_url(file.path)
+                #         file_drive = drive.CreateFile({'id': file_id})  # file.file_idはGoogleドライブ上のファイルID
+                #         file_drive.Delete()
+                #     registry_files.delete()
+                    
+                # for i in range(len(request.FILES)):
+                #     pdf = request.FILES['pdf' + str(i)]
+                #     relative_path = default_storage.save(os.path.join('tmp/', pdf.name), pdf)
+                #     absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+                #     file_drive = drive.CreateFile({'title': pdf.name, 'parents': [{'id': '1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl'}]})
+                #     file_drive.SetContentFile(absolute_path)
+                #     file_drive.Upload()
+                #     # ファイルのアクセス権限を設定
+                #     file_drive.InsertPermission({
+                #         'type': 'anyone',
+                #         'value': 'anyone',
+                #         'role': 'reader'
+                #     })
+                #     # 新しいRegisterオブジェクトを作成し、属性に値を設定
+                #     register = Register(
+                #         decedent=decedent,
+                #         title=file_drive['title'],
+                #         path='https://drive.google.com/uc?export=download&id=' + file_drive['id'],  # Gドライブ上のファイルへのダウンロードリンク
+                #         file_size=os.path.getsize(absolute_path),
+                #         extension=os.path.splitext(file_drive['title'])[1][1:],  # 拡張子を取得
+                #         created_by=user,
+                #         updated_by=user
+                #     )
+                #     register.save()  # データベースに保存
+                    
                 #不動産登記簿は常に全削除と全登録を行う
                 if registry_files.exists():
                     for file in registry_files:
                         # Googleドライブからファイルを削除
                         file_id = extract_file_id_from_url(file.path)
-                        file_drive = drive.CreateFile({'id': file_id})  # file.file_idはGoogleドライブ上のファイルID
-                        file_drive.Delete()
+                        service.files().delete(fileId=file_id).execute()
                     registry_files.delete()
                     
                 for i in range(len(request.FILES)):
                     pdf = request.FILES['pdf' + str(i)]
+                    if not pdf:
+                        continue
                     relative_path = default_storage.save(os.path.join('tmp/', pdf.name), pdf)
                     absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
-                    file_drive = drive.CreateFile({'title': pdf.name, 'parents': [{'id': '1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl'}]})
-                    file_drive.SetContentFile(absolute_path)
-                    file_drive.Upload()
+                    # ファイルのメタデータ
+                    file_metadata = {
+                        'name': pdf.name,
+                        'parents': ['1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl']  # 親フォルダのID
+                    }
+                    # ファイルのアップロードを実行
+                    media = MediaFileUpload(absolute_path, mimetype='application/pdf')
+                    file_drive = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
                     # ファイルのアクセス権限を設定
-                    file_drive.InsertPermission({
-                        'type': 'anyone',
-                        'value': 'anyone',
-                        'role': 'reader'
-                    })
+                    service.permissions().create(
+                                fileId=file_drive['id'],
+                                body={'type': 'anyone', 'role': 'reader'},
+                                fields='id'
+                            ).execute()
                     # 新しいRegisterオブジェクトを作成し、属性に値を設定
                     register = Register(
                         decedent=decedent,
-                        title=file_drive['title'],
-                        path='https://drive.google.com/uc?export=download&id=' + file_drive['id'],  # Gドライブ上のファイルへのダウンロードリンク
+                        title=pdf.name,
+                        path=f'https://drive.google.com/uc?export=download&id={file_drive["id"]}',  # Gドライブ上のファイルへのダウンロードリンク
                         file_size=os.path.getsize(absolute_path),
-                        extension=os.path.splitext(file_drive['title'])[1][1:],  # 拡張子を取得
+                        extension=os.path.splitext(pdf.name)[1][1:],  # 拡張子を取得
                         created_by=user,
                         updated_by=user
                     )
                     register.save()  # データベースに保存
-                    
         except googleapiclient.errors.HttpError as e:
             print(f'Error occurred: {e}')
         except Exception as e:
@@ -649,7 +692,7 @@ def step_two(request):
         # ファイルをダウンロード
         gdown.download(file_name_and_file_path["path"], output, quiet=True)
 
-        # ダウンロードしたファイルの名前とパスを配列に追加(ローカル起動用)
+        # ダウンロードしたファイルの名前とパスを配列に追加
         app_server_file_name_and_file_path.append({"name": file_name_and_file_path["name"], "path": settings.MEDIA_URL + 'download_tmp/' + file_name_and_file_path["name"]})
 
     # 配列をJSON形式に変換

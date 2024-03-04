@@ -2180,7 +2180,8 @@ function getLegalPercentage(candidates, heir){
     }else{
         const isDecedentSpouse = candidates.some(heir => heir instanceof SpouseOrAscendant && heir.fieldset.id.includes("id_decedent_spouse-"));
         if(heir.fieldset.id.includes("id_child-")){
-            //相続人が子のとき、子を数える
+            //相続人が子のとき
+            //子全員を数える
             const childs = heirs.filter(x => x.fieldset.id.includes('id_child-'));
             const childHeirs = heirs.filter(x => x.fieldset.querySelectorAll('.grandChildFieldset, .childSpouseFieldset').length > 0);
             // childs 配列から特定の要素を除外する新しい配列を生成

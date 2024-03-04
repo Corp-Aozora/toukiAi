@@ -2187,8 +2187,12 @@ function getLegalPercentage(candidates, heir){
             const filteredChilds = childs.filter(x => {
                 // childHeirs 配列に一致する要素が存在するかどうかをチェック
                 const isMatch = childHeirs.some(y => {
+                    //子の配偶者のとき
                     if(y instanceof SpouseOrAscendant){
                         return x.inputs[DescendantOrCollateral.idxs.idAndContentType].value.split("_")[0] === y.inputs[SpouseOrAscendant.idxs.objectId].value;
+                    }else{
+                        //子の子（孫）のとき
+                        return x.inputs[DescendantOrCollateral.idxs.idAndContentType].value.split("_")[0] === y.inputs[DescendantOrCollateral.idxs.objectId1].value;
                     }
                 });
                 

@@ -566,7 +566,7 @@ def step_two(request):
                 if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
                     
                     # サービスアカウントの認証情報ファイルのパス
-                    SERVICE_ACCOUNT_FILE = 'service-account-file.json'
+                    SERVICE_ACCOUNT_FILE = 'toukiai-development-7bf1692a5215.json'
                     
                     # サービスアカウント認証情報をロード
                     credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/drive'])

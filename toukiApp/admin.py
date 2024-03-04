@@ -226,7 +226,7 @@ class RegisterChangeForm(forms.ModelForm):
 
 class RegisterAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('title', 'path', 'file_size', 'extension', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', 'title', 'path', 'file_size', 'extension', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     

@@ -2183,6 +2183,18 @@ function getLegalPercentage(candidates, heir){
             //相続人が子のとき、子を数える
             const childs = heirs.filter(x => x.fieldset.id.includes('id_child-'));
             const childHeirs = heirs.filter(x => x.fieldset.querySelectorAll('.grandChildFieldset, .childSpouseFieldset').length > 0);
+            // childs 配列から特定の要素を除外する新しい配列を生成
+            const filteredChilds = childs.filter(x => {
+                // childHeirs 配列に一致する要素が存在するかどうかをチェック
+                const isMatch = childHeirs.some(y => {
+                    if(y instanceof SpouseOrAscendant){
+                        return x.inputs[DescendantOrCollateral.idxs.idAndContentType].value.split("_")[0] === y.inputs[SpouseOrAscendant.idxs.objectId].value;
+                    }
+                });
+                
+                // childHeirs に一致する要素がない場合に true を返し、配列に含める
+                return !isMatch;
+            });
             //配偶者がいるとき、子の数に２をかけた値が相続分の分母になる
             if(isDecedentSpouse){
                 const denominator = hankakuToZenkaku(childCount * 2);

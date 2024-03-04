@@ -27,12 +27,10 @@ import socket
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import model_to_dict
-from operator import itemgetter
 from django.db.models import Q
-from googleapiclient.http import MediaFileUpload
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from google.oauth2.credentials import Credentials
-from googleapiclient.errors import HttpError
+import googleapiclient.errors 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 import gdown
@@ -566,20 +564,24 @@ def step_two(request):
                 decedent.save()
 
                 if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
-                    # Secret File のパス
-                    # secrets_file_path = '/app/client_secrets.json'
+                    
+                    # サービスアカウントの認証情報ファイルのパス
+                    SERVICE_ACCOUNT_FILE = 'service-account-file.json'
+                    
+                    # サービスアカウント認証情報をロード
+                    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/drive'])
                     
                     # GoogleAuth オブジェクトの初期化
-                    print("aaaaaaaaaaaaaaaaaaaaaaaa")
                     gauth = GoogleAuth()
-                    print("bbbbbbbbbbbbbbbbbbbbbbbb")
+                    gauth.credentials = credentials
+                    # GoogleAuth オブジェクトの初期化
+                    # gauth = GoogleAuth()
                     
                     # client_secrets.json のパスを指定
                     # gauth.LoadClientConfigFile(secrets_file_path)
                     
                     # 認証を実行
-                    gauth.LocalWebserverAuth()
-                    print("cccccccccccccccccccccc")
+                    # gauth.LocalWebserverAuth()
                     
                 else:
                     # ローカル環境や他の環境での処理
@@ -588,7 +590,6 @@ def step_two(request):
                     # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
 
                 drive = GoogleDrive(gauth)
-                print("BBBBBBBBBBBBBBBBBBBBBBB")
                 
                 #不動産登記簿は常に全削除と全登録を行う
                 if registry_files.exists():
@@ -624,7 +625,8 @@ def step_two(request):
                     )
                     register.save()  # データベースに保存
                     
-
+        except googleapiclient.errors.HttpError as e:
+            print(f'Error occurred: {e}')
         except Exception as e:
             print(f"Error occurred: {e}")
             messages.error(request, 'データの保存中にエラーが発生しました。')

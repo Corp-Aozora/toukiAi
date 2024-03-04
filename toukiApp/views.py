@@ -567,7 +567,7 @@ def step_two(request):
 
                 if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
                     # Secret File のパス
-                    secrets_file_path = '/toukiAi/client_secrets.json'
+                    secrets_file_path = '/app/client_secrets.json'
                     
                     # GoogleAuth オブジェクトの初期化
                     gauth = GoogleAuth()

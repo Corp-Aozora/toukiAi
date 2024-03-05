@@ -988,8 +988,8 @@ class RelatedIndividual(CommonModel):
         blank = False,
         related_name="related_indivisual",
     )
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="前配偶者又は子")
-    object_id = models.PositiveIntegerField(verbose_name="前配偶者又は子id")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, verbose_name="卑属又は傍系")
+    object_id = models.PositiveIntegerField(verbose_name="卑属又は傍系のid")
     content_object = GenericForeignKey('content_type', 'object_id')
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     relationship = models.CharField(verbose_name="続柄", max_length=30, default="")

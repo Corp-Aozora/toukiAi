@@ -958,7 +958,7 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value %} style="display: none;"{% endif %}>
+                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value and form.content_type2.value != 27 %} style="display: none;"{% endif %}>
                                         <span class="form-label fs-5 fw-bold">
                                             子の前配偶者
                                         </span>
@@ -1612,14 +1612,17 @@
                                                 取得割合
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
-                                                <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_top" name="land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_top">
+                                                <input class="p-0 fraction form-control text-center" type="text" id="id_land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_top" name="land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_top">
                                                 <span>
                                                     分の
                                                 </span>
-                                                <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_bottom" name="land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_bottom">
+                                                <input class="p-0 fraction form-control text-center" type="text" id="id_land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_bottom" name="land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_bottom">
                                             </div>
                                             <span class="errorMessage emPosition rounded-3" style="display: none;">
                                             </span>
+                                        </div>
+                                        <div class="form-text">
+                                            ※取得割合は、選択した取得者全員の合計が１になるように入力してください
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
@@ -1990,4 +1993,5 @@
     <script src="{% static 'toukiApp/step_three.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
     <script> const user_data_scope = JSON.parse("{{user_data_scope|escapejs}}"); </script>
+    <script> const decedentId = JSON.parse("{{decedent_form.instance.id|escapejs}}"); </script>
 {% endblock %}

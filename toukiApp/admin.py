@@ -415,3 +415,29 @@ class CashAcquirerAdmin(admin.ModelAdmin):
     ordering = ['-updated_at']
 
 admin.site.register(CashAcquirer, CashAcquirerAdmin)
+
+#関係者
+class RelatedIndividualChangeForm(forms.ModelForm):
+    class Meta:
+        model = RelatedIndividual
+        fields = '__all__'
+
+class RelatedIndividualAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "content_type", 'object_id', 'name', "relationship", 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = RelatedIndividualChangeForm
+    list_display = ("id", 'get_decedent_name', "name", "relationship", 'created_by', 'updated_at', 'updated_by')
+    def get_decedent_name(self, obj):
+        return obj.decedent.name
+    get_decedent_name.short_description = '被相続人の氏名'
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ('updated_at', 'created_at', "decedent__name", "name")
+    ordering = ['-updated_at']
+
+admin.site.register(RelatedIndividual, RelatedIndividualAdmin)
+

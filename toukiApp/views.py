@@ -578,56 +578,6 @@ def step_two(request):
                 gauth = GoogleAuth()
                 gauth.credentials = credentials
                 service = build('drive', 'v3', credentials=credentials)
-                    # GoogleAuth オブジェクトの初期化
-                    # gauth = GoogleAuth()
-                    
-                    # client_secrets.json のパスを指定
-                    # gauth.LoadClientConfigFile(secrets_file_path)
-                    
-                    # 認証を実行
-                    # gauth.LocalWebserverAuth()
-                    
-                # else:
-                    # ローカル環境や他の環境での処理
-                    # 例: ローカルの認証情報ファイルを使用する
-                    # gauth = GoogleAuth()
-                    # gauth.LocalWebserverAuth() #毎回認証画面を出さないようにコメントアウト
-                    # drive = GoogleDrive(gauth)
-
-                
-                #不動産登記簿は常に全削除と全登録を行う
-                # if registry_files.exists():
-                #     for file in registry_files:
-                #         # Googleドライブからファイルを削除
-                #         file_id = extract_file_id_from_url(file.path)
-                #         file_drive = drive.CreateFile({'id': file_id})  # file.file_idはGoogleドライブ上のファイルID
-                #         file_drive.Delete()
-                #     registry_files.delete()
-                    
-                # for i in range(len(request.FILES)):
-                #     pdf = request.FILES['pdf' + str(i)]
-                #     relative_path = default_storage.save(os.path.join('tmp/', pdf.name), pdf)
-                #     absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
-                #     file_drive = drive.CreateFile({'title': pdf.name, 'parents': [{'id': '1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl'}]})
-                #     file_drive.SetContentFile(absolute_path)
-                #     file_drive.Upload()
-                #     # ファイルのアクセス権限を設定
-                #     file_drive.InsertPermission({
-                #         'type': 'anyone',
-                #         'value': 'anyone',
-                #         'role': 'reader'
-                #     })
-                #     # 新しいRegisterオブジェクトを作成し、属性に値を設定
-                #     register = Register(
-                #         decedent=decedent,
-                #         title=file_drive['title'],
-                #         path='https://drive.google.com/uc?export=download&id=' + file_drive['id'],  # Gドライブ上のファイルへのダウンロードリンク
-                #         file_size=os.path.getsize(absolute_path),
-                #         extension=os.path.splitext(file_drive['title'])[1][1:],  # 拡張子を取得
-                #         created_by=user,
-                #         updated_by=user
-                #     )
-                #     register.save()  # データベースに保存
                     
                 #不動産登記簿は常に全削除と全登録を行う
                 if registry_files.exists():
@@ -863,6 +813,8 @@ def step_three(request):
     childs_data = Descendant.objects.filter(object_id1=decedent.id)
     if childs_data.exists():
         #余分なフォームを消すためにextraを0に変更して、初期値を与える
+        descendant_content_type = ContentType.objects.get_for_model(Descendant)
+        related_individual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
         child_forms = child_form_set(initial=[
             {
                 "name": c.name,
@@ -881,6 +833,15 @@ def step_three(request):
                 "object_id1": c.object_id1,
                 "content_type2": c.content_type2,
                 "object_id2": c.object_id2,
+                "other_parent_name": (
+                    RelatedIndividual.objects.filter(
+                        id=c.object_id2,
+                        object_id=c.id,
+                        content_type=descendant_content_type
+                        ).first().name if c.content_type2 == related_individual_content_type and 
+                        RelatedIndividual.objects.filter(id=c.object_id2, object_id=c.id, content_type=descendant_content_type).exists() 
+                        else None
+                ),
                 "is_live": c.is_live,
                 "is_heir": c.is_heir,
                 "is_refuse": c.is_refuse,
@@ -957,6 +918,15 @@ def step_three(request):
                 "object_id1": c.object_id1,
                 "content_type2": c.content_type2,
                 "object_id2": c.object_id2,
+                "other_parent_name": (
+                    RelatedIndividual.objects.filter(
+                        id=c.object_id2,
+                        object_id=c.id,
+                        content_type=descendant_content_type
+                        ).first().name if c.content_type2 == related_individual_content_type and 
+                        RelatedIndividual.objects.filter(id=c.object_id2, object_id=c.id, content_type=descendant_content_type).exists() 
+                        else None
+                ),
                 "is_live": c.is_live,
                 "is_heir": c.is_heir,
                 "is_refuse": c.is_refuse,

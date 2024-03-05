@@ -285,7 +285,7 @@ function copyAndPasteEl(copyFrom, att, regex, newIdx){
         if(el.htmlFor)
             el.htmlFor = el.htmlFor.replace(regex, `$1${newIdx}`);
     });
-    copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
+    slideDownAndScroll(copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling));
 }
 /*
     イベント

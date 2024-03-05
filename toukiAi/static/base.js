@@ -89,7 +89,7 @@ const slideUp = (el, duration = 250) => {
     el.style.marginTop = 0;
     el.style.marginBottom = 0;
     setTimeout(() => {
-      el.style.display = "none";
+      el.style.setProperty("display", "none", "important");
       el.style.removeProperty("height");
       el.style.removeProperty("padding-top");
       el.style.removeProperty("padding-bottom");

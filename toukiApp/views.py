@@ -262,6 +262,24 @@ def step_one(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
+    def import_legal_offices(html_file_path):
+        with open(html_file_path, 'r', encoding='utf-8') as file:
+            soup = BeautifulSoup(file, 'html.parser')
+            
+        for row in soup.find_all('tr'):
+            cols = row.find_all('td')
+            if cols and not cols[0].has_attr('class'):
+                code = cols[0].text.strip()
+                name = cols[1].text.strip()
+                try:
+                    with transaction.atomic():
+                        Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
+                except Exception as e:
+                    # ログにエラーメッセージを記録します
+                    print(f"Error occurred: {e}")
+
+    # HTMLファイルのパスを指定して実行
+    import_legal_offices('toukiApp/登記所選択.html')
     child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)

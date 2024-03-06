@@ -841,3 +841,51 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
 #申請情報
+class StepThreeApplicationForm(forms.ModelForm):
+    index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+    
+    class Meta:
+        model = Land
+        fields = model.step_three_fields
+        widgets = {
+            "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "purparty": forms.HiddenInput(),
+            "land_number": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in ["不動産番号", "所在地", "地積"]:
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                })
+                if field.label == "不動産番号":
+                    field.widget.attrs.update({
+                        "placeholder": "１３桁の数字",
+                        "maxlength": "13",
+                    })
+                elif field.label == "所在地":
+                    field.widget.attrs.update({
+                        "placeholder": "福岡県福岡市中央区天神１丁目",
+                        "maxlength": "100",
+                    })
+            elif field.label == "固定資産評価額":
+                field.widget.attrs.update({
+                    "class": "form-control text-center rounded-end",
+                })
+            elif field.label == "地目":
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+            elif field.label ==  "換価対象":
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            elif field.label == "持ち分":
+                field.initial = "分の"
+            elif field.label == "地番":
+                field.initial = "番"
+
+        super().__init__(*args, **kwargs)

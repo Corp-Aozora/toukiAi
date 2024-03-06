@@ -1150,7 +1150,15 @@ class Application(CommonModel):
     )
     
     step_three_fields = [
-
+        "decedent",
+        "content_type",
+        "object_id",
+        "is_agent",
+        "agent_name",
+        "agent_address",
+        "agent_phone_number",
+        "is_return",
+        "is_mail",
     ]
     
     class Meta:

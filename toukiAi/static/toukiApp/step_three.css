@@ -1,4 +1,4 @@
-#decedent-section label, #heirs-section label{
+#decedent-section label, #heirs-section label, #appication-section label{
     width: 115px!important;
 }
 
@@ -27,7 +27,7 @@
     width: 85px;
 }
 
-.registry-name-and-address-div{
+.registry-name-and-address-div, .destination-office-div{
     width: 425px!important;
 }
 

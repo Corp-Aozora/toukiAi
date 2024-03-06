@@ -41,6 +41,7 @@ from django.conf import settings
 from urllib.parse import urlparse, parse_qs
 from django.db import OperationalError
 from django.core.exceptions import ObjectDoesNotExist
+from bs4 import BeautifulSoup
 
 def index(request):
     is_inquiry = False
@@ -731,7 +732,19 @@ def step_three_input_status(data):
                 data.percentage]
         if all(attr):
             return True
-
+    elif data.__class__ == Application:
+        if data.is_agent is not None:
+            attr = []
+            if data.is_agent == True:
+                attr = [data.content_type, data.object_id,
+                        data.agent_name, data.agent_address, data.agent_phone_number,
+                        data.is_return, data.is_mail]
+            else:
+                attr = [data.content_type, data.object_id,
+                        data.is_return, data.is_mail]
+            if all(attr):
+                return True        
+            
     return False
     
 #メイン
@@ -748,7 +761,7 @@ def step_three(request):
     if not decedent:
         redirect(to='/toukiApp/step_one/')
     
-    #登記簿上の氏名住所のフォームセット
+    #フォームセット
     registry_name_and_address_form_set = formset_factory(form=StepThreeRegistryNameAndAddressForm, extra=1, max_num=10)
     child_form_set = formset_factory(form=StepThreeDescendantForm, extra=0, max_num=15)
     child_spouse_form_set = formset_factory(form=StepThreeSpouseForm, extra=0, max_num=15)
@@ -1053,6 +1066,7 @@ def step_three(request):
                 "type": l.type,
                 "size": l.size,
                 "purparty": l.purparty,
+                "office": l.office,
                 "price": l.price,
                 "is_exchange": l.is_exchange,
             }
@@ -1113,6 +1127,16 @@ def step_three(request):
     #ないとき    
     else:
         land_cash_acquirer_forms = land_cash_acquirer_form_set(prefix="land_cash_acquirer")
+            
+    #申請情報
+    application_data = Application.objects.filter(decedent=decedent).first()
+    if application_data:
+        application_form = StepThreeApplicationForm(prefix="application", instance=application_data)
+        if step_three_input_status(application_data):
+            user_data_scope.append("application")
+    #ないとき
+    else:
+        application_form = StepThreeSpouseForm(prefix="application")
         
     context = {
         "title" : "３．データ入力",
@@ -1134,6 +1158,7 @@ def step_three(request):
         "land_forms": land_forms,
         "land_acquirer_forms": land_acquirer_forms,
         "land_cash_acquirer_forms": land_cash_acquirer_forms,
+        "application_form": application_form,
         "sections" : Sections.SECTIONS[Sections.STEP3],
         "service_content" : Sections.SERVICE_CONTENT,
     }

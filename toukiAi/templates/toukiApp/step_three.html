@@ -166,7 +166,7 @@
                                     {{ registry_name_and_address_forms.management_form }}
                                     {% for form in registry_name_and_address_forms %}
                                         <fieldset id="id_registry_name_and_address-0-fieldset"  class="registryNameAndAddressFieldset d-flex mt-4">
-                                            <div class="registry_name_and_address-numbering-div my-auto fw-bold">
+                                            <div class="my-auto fw-bold">
                                                 （１）
                                             </div>
                                             <div class="registry-name-and-address-div ms-3">
@@ -1560,6 +1560,15 @@
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
                                                     </span>
                                                 </div>
+                                            {% elif field.name == "address" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        法務局
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
                                             {% elif field.name == "price" %}
                                                 <div class="input-group position-relative Q">
                                                     <label for="{{field.auto_id}}" class="input-group-text label">
@@ -1902,24 +1911,6 @@
                                     <label class="form-check-label" for="returnPaperRbsOne">不要</label>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mt-3">
-                            <div>
-                                <span class="fs-5">管轄法務局一覧</span>
-                            </div>
-                            <ol id="officeOl" class="list-group">
-                                <li id="office1" class="list-group-item d-flex align-items-center border-0 ps-0">
-                                    <!-- 取得した又は入力された不動産情報に基づいて法務局を自動で調べて表示する -->
-                                    <div class="text-start text-wrap">
-                                        <div>
-                                            ○○法務局
-                                        </div>
-                                        <div>
-                                            住所：
-                                        </div>
-                                    </div>
-                                </li>
-                            </ol>
                         </div>
                         <div class="mt-3">
                             <div>

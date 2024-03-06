@@ -479,27 +479,23 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 admin.site.register(Application, ApplicationAdmin)
 
-#申請先法務局
-class DestinationOfficeChangeForm(forms.ModelForm):
+#法務局
+class OfficeChangeForm(forms.ModelForm):
     class Meta:
-        model = DestinationOffice
+        model = Office
         fields = '__all__'
 
-class DestinationOfficeAdmin(admin.ModelAdmin):
+class OfficeAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', "application", 'code', 'name', "post_number", "address", 'created_by', 'updated_by')}),
+        (None, {'fields': ("code", "name", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
-
-    def get_decedent_name(self, obj):
-        return obj.decedent.name
-    get_decedent_name.short_description = '被相続人の氏名'
     
     readonly_fields = ('updated_at', 'created_at')
-    form = DestinationOfficeChangeForm
-    list_display = ("id", 'get_decedent_name', "application", "name", 'created_by', 'updated_at', 'updated_by')
+    form = OfficeChangeForm
+    list_display = ("code", "name", 'created_by', 'updated_at', 'updated_by')
     list_filter = ('updated_at', 'created_at')
     search_fields = ('updated_at', 'created_at', "decedent__name", "name")
     ordering = ['-updated_at']
 
-admin.site.register(DestinationOffice, DestinationOfficeAdmin)
+admin.site.register(Office, OfficeAdmin)

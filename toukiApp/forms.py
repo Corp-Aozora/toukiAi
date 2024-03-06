@@ -763,7 +763,7 @@ class StepThreeLandForm(forms.ModelForm):
         for field in self.base_fields.values():
             field.required = False
             
-            if field.label in ["不動産番号", "所在地", "地積"]:
+            if field.label in ["不動産番号", "所在地", "地積", "法務局"]:
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
                 })
@@ -776,6 +776,11 @@ class StepThreeLandForm(forms.ModelForm):
                     field.widget.attrs.update({
                         "placeholder": "福岡県福岡市中央区天神１丁目",
                         "maxlength": "100",
+                    })
+                elif field.label == "法務局":
+                    field.widget.attrs.update({
+                        "placeholder": "福岡法務局西新出張所",
+                        "maxlength": "30",
                     })
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
@@ -842,50 +847,51 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
         
 #申請情報
 class StepThreeApplicationForm(forms.ModelForm):
-    index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+    applicant = forms.ChoiceField(choices=[("", "選択してください")], widget=forms.Select())
     
     class Meta:
-        model = Land
+        model = Application
+        index = model.step_three_fields.index("is_agent")
+        model.step_three_fields.insert(index, "applicant")
+        # decedent, content_type, object_id, (applicant), is_agent, agent_name, agent_address, agent_phone_number, is_return, is_mail,
         fields = model.step_three_fields
         widgets = {
-            "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
-            "purparty": forms.HiddenInput(),
-            "land_number": forms.HiddenInput(),
+            "is_agent": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
+            "is_return": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "is_mail": forms.RadioSelect(choices=[("true", "郵送する"), ("false", "持参する")]),
         }
 
     def __init__(self, *args, **kwargs):
         for field in self.base_fields.values():
             field.required = False
-            
-            if field.label in ["不動産番号", "所在地", "地積"]:
+            if field.label in ["被相続人", "申請人", "申請人id",]:
+                continue
+            elif field.label in ["代理人氏名", "代理人住所", "代理人電話番号"]:
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
                 })
-                if field.label == "不動産番号":
+                if field.label == "代理人氏名":
                     field.widget.attrs.update({
-                        "placeholder": "１３桁の数字",
-                        "maxlength": "13",
+                        "placeholder": "フルネームで姓名間にスペースなし",
+                        "maxlength": "30",
                     })
-                elif field.label == "所在地":
+                elif field.label == "代理人住所":
                     field.widget.attrs.update({
-                        "placeholder": "福岡県福岡市中央区天神１丁目",
+                        "placeholder": "福岡県福岡市中央区天神１丁目１番１号",
                         "maxlength": "100",
                     })
-            elif field.label == "固定資産評価額":
-                field.widget.attrs.update({
-                    "class": "form-control text-center rounded-end",
-                })
-            elif field.label == "地目":
-                field.widget.attrs.update({
-                    "class": "form-select text-center cursor-pointer rounded-end",
-                })
-            elif field.label ==  "換価対象":
+                elif field.label == "代理人電話番号":
+                    field.widget.attrs.update({
+                        "placeholder": "例）０９０－ＸＸＸＸ－ＸＸＸＸ",
+                        "maxlength": "13",
+                    })
+            elif field.label in ["代理人の有無", "原本還付の有無", "郵送の有無"]:
                 field.widget.attrs.update({
                     "class": "form-check-input",
                 })
-            elif field.label == "持ち分":
-                field.initial = "分の"
-            elif field.label == "地番":
-                field.initial = "番"
+            else:
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
 
         super().__init__(*args, **kwargs)

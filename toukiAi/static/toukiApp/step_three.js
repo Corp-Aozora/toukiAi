@@ -310,9 +310,10 @@ class Land extends Fieldset{
         address:{form: 1, input: 1},
         landNumber:{form: 2, input: [2,3,4]},
         purparty:{form: 3, input: [5,6,7,8]},
-        price:{form: 4, input: 9},
-        isExchange:{form:5, input: [10, 11]},
-        index:{form:6, input:12},
+        office:{form: 4, input: 9},
+        price:{form: 5, input: 10},
+        isExchange:{form:6, input: [11, 12]},
+        index:{form:7, input:13},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -2040,8 +2041,8 @@ function landValidation(inputs, idx){
             return "数字で入力してください";
         if(input.value.length !== 13)
             return "１３桁の数字で入力してください";
-    }else if(idx === idxs.address.input){
-        //所在地のとき、空欄チェック
+    }else if([idxs.address.input, idxs.office.input].includes(idx)){
+        //所在地、法務局のとき、空欄チェック
         const result = isBlank(input);
         if(result !== false)
             return result;
@@ -2087,9 +2088,11 @@ function landValidation(inputs, idx){
  */
 function setLandEvent(){
     const idxs = Land.idxs;
+    const numberInputIdx = idxs.number.input;
     const addressInputIdx = idxs.address.input;
     const landNumberInputIdxs = idxs.landNumber.input;
     const purpartyInputIdxs = idxs.purparty.input;
+    const officeInputIdx = idxs.office.input;
     const isExchangeInputIdxs = idxs.isExchange.input;
 
     //各土地インスタンスに対してループ処理
@@ -2168,9 +2171,15 @@ function setLandEvent(){
                     if(result && inputIdx !== idxs.price.input){
                         inputs[inputIdx].value = hankakuToZenkaku(inputs[inputIdx].value);
                     }
+                    //不動産番号のとき
+                    if(inputIdx === numberInputIdx){
+                        //１３桁入力されているとき
+                        if(result){
+                            const officeCode = ZenkakuToHankaku(inputs[numberInputIdx].value.slice(0, 4));
+                        }
 
-                    //地番のとき
-                    if([landNumberInputIdxs[yes], landNumberInputIdxs[no]].includes(inputIdx)){
+                    }else if([landNumberInputIdxs[yes], landNumberInputIdxs[no]].includes(inputIdx)){
+                        //地番のとき
                         const regex = inputIdx === landNumberInputIdxs[yes] ? /.*(?=番)/ : /(?<=番).*/;
                         inputs[landNumberInputIdxs[other]].value = inputs[landNumberInputIdxs[other]].value.replace(regex, "");
                         if(inputIdx === landNumberInputIdxs[yes])
@@ -2200,6 +2209,8 @@ function setLandEvent(){
                 changeEventHandler(j, idxs.address.form);
             else if([landNumberInputIdxs[yes], landNumberInputIdxs[no]].includes(j))
                 changeEventHandler(j, idxs.landNumber.form);
+            else if(j === officeInputIdx)
+                changeEventHandler(j, idxs.office.form);
             else if([purpartyInputIdxs[yes], purpartyInputIdxs[no], purpartyInputIdxs[other]].includes(j))
                 changeEventHandler(j, idxs.purparty.form);
             else if(j === idxs.price.input)

@@ -497,7 +497,7 @@ class CollateralCommon(CommonModel):
         related_name="collateral_common",
     )
     is_exist = models.BooleanField(verbose_name="死亡時存在", null=True, blank=True, default=None)
-    count = models.IntegerField(verbose_name="兄弟姉妹の数", null=False, default=0)
+    count = models.IntegerField(verbose_name="兄弟姉妹の数", null=True, blank=True, default=0)
     is_same_parents = models.BooleanField(verbose_name="同じ両親", null=True, blank=True, default=None)
     is_live = models.BooleanField(verbose_name="手続時存在", null=True, blank=True, default=None)
     is_refuse = models.BooleanField(verbose_name="相続放棄", null=True, blank=True, default=None)
@@ -839,6 +839,7 @@ class Land(CommonModel):
     purparty = models.CharField(verbose_name="持ち分", max_length=100, null=False, blank=False, default="")
     price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
     is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
+    office = models.CharField(verbose_name="法務局", max_length=30, null=True, blank=True, default="")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -866,8 +867,9 @@ class Land(CommonModel):
         "type",
         "size",
         "purparty",
+        "office",
         "price",
-        "is_exchange"
+        "is_exchange",
     ]
     
     class Meta:
@@ -906,6 +908,7 @@ class House(CommonModel):
     purparty = models.CharField(verbose_name="持ち分", max_length=100 ,null=False, blank=False, default="")
     price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
     is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
+    office = models.CharField(verbose_name="法務局", max_length=30, null=True, blank=True, default="")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -1126,9 +1129,9 @@ class Application(CommonModel):
     object_id = models.PositiveIntegerField(verbose_name="申請人id", null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
     is_agent = models.BooleanField(verbose_name="代理人の有無", null=True, blank=True, default=None)
-    agent_name = models.CharField(verbose_name="代理人氏名", max_length=100 ,null=False, blank=False, default="")
-    agent_address = models.CharField(verbose_name="代理人住所", max_length=100 ,null=False, blank=False, default="")
-    agent_phone_number = models.CharField(verbose_name="代理人電話番号", max_length=100 ,null=False, blank=False, default="")
+    agent_name = models.CharField(verbose_name="代理人氏名", max_length=30 ,null=True, blank=True, default="")
+    agent_address = models.CharField(verbose_name="代理人住所", max_length=100 ,null=True, blank=True, default="")
+    agent_phone_number = models.CharField(verbose_name="代理人電話番号", max_length=13 ,null=True, blank=True, default="")
     is_return = models.BooleanField(verbose_name="原本還付の有無", null=True, blank=True, default=None)
     is_mail = models.BooleanField(verbose_name="郵送の有無", null=True, blank=True, default=None) 
     
@@ -1164,29 +1167,11 @@ class Application(CommonModel):
     class Meta:
         verbose_name = _("申請情報")
         verbose_name_plural = _("申請情報")
-
-# 申請先法務局
-class DestinationOffice(CommonModel):
-    decedent = models.ForeignKey(
-        Decedent,
-        verbose_name="被相続人",
-        on_delete=models.CASCADE,
-        null = False,
-        blank = False,
-        related_name="destination_office",
-    )
-    application = models.ForeignKey(
-        Application,
-        verbose_name="申請情報",
-        on_delete=models.CASCADE,
-        null = False,
-        blank = False,
-        related_name="destination_office_application",
-    )
-    code = models.BooleanField(verbose_name="法務局コード", null=True, blank=True, default=None)
-    name = models.CharField(verbose_name="名称", max_length=100 ,null=False, blank=False, default="")
-    post_number = models.CharField(verbose_name="郵便番号", max_length=100 ,null=False, blank=False, default="")
-    address = models.CharField(verbose_name="住所", max_length=100 ,null=False, blank=False, default="")
+        
+# 法務局
+class Office(CommonModel):
+    code = models.CharField(verbose_name="コード", max_length=4 ,null=False, blank=False, default="")
+    name = models.CharField(verbose_name="名称", max_length=30 ,null=False, blank=False, default="")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -1194,7 +1179,7 @@ class DestinationOffice(CommonModel):
         on_delete = models.CASCADE,
         null = False,
         blank = False,
-        related_name = "destination_office_created_by",
+        related_name = "office_created_by",
     )
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -1202,14 +1187,9 @@ class DestinationOffice(CommonModel):
         on_delete = models.CASCADE,
         null = False,
         blank = False,
-        related_name = "destination_office_update_by"
+        related_name = "office_update_by"
     )
     
-    step_three_fields = [
-
-    ]
-    
     class Meta:
-        verbose_name = _("申請先法務局")
-        verbose_name_plural = _("申請先法務局")
-    
+        verbose_name = _("法務局")
+        verbose_name_plural = _("法務局")

@@ -441,3 +441,65 @@ class RelatedIndividualAdmin(admin.ModelAdmin):
 
 admin.site.register(RelatedIndividual, RelatedIndividualAdmin)
 
+#申請情報
+class ApplicationChangeForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = '__all__'
+
+class ApplicationAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "content_type", 'object_id', 'is_agent', "agent_name", "agent_address", "agent_phone_number", "is_return", "is_mail", 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    def get_related_object_name(self, obj):
+        """
+        申請人の氏名を取得する
+        content_typeとobject_idから関連するオブジェクトのname属性を取得します。
+        """
+        # ContentTypeを使用して関連するモデルクラスを取得
+        model = obj.content_type.model_class()
+        # modelとobject_idから関連するオブジェクトを取得
+        related_object = model.objects.filter(id=obj.object_id).first()
+        # 関連するオブジェクトが存在し、name属性を持っている場合、その値を返す
+        return related_object.name if related_object else None
+    get_related_object_name.short_description = '関連オブジェクトの名前'
+
+    def get_decedent_name(self, obj):
+        return obj.decedent.name
+    get_decedent_name.short_description = '被相続人の氏名'
+    
+    readonly_fields = ('updated_at', 'created_at')
+    form = ApplicationChangeForm
+    list_display = ("id", 'get_decedent_name', "get_related_object_name", 'created_by', 'updated_at', 'updated_by')
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ('updated_at', 'created_at', "decedent__name", "name")
+    ordering = ['-updated_at']
+
+admin.site.register(Application, ApplicationAdmin)
+
+#申請先法務局
+class DestinationOfficeChangeForm(forms.ModelForm):
+    class Meta:
+        model = DestinationOffice
+        fields = '__all__'
+
+class DestinationOfficeAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('decedent', "application", 'code', 'name', "post_number", "address", 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+
+    def get_decedent_name(self, obj):
+        return obj.decedent.name
+    get_decedent_name.short_description = '被相続人の氏名'
+    
+    readonly_fields = ('updated_at', 'created_at')
+    form = DestinationOfficeChangeForm
+    list_display = ("id", 'get_decedent_name', "application", "name", 'created_by', 'updated_at', 'updated_by')
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ('updated_at', 'created_at', "decedent__name", "name")
+    ordering = ['-updated_at']
+
+admin.site.register(DestinationOffice, DestinationOfficeAdmin)

@@ -1113,6 +1113,95 @@ class CashAcquirer(CommonModel):
         verbose_name_plural = _("金銭の取得者")
         
 # 申請情報
-# 親：ユーザー
-# 子：被相続人、相続人、不動産  
+class Application(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="application",
+    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="application_content_type", verbose_name="申請人", null=True, blank=True)
+    object_id = models.PositiveIntegerField(verbose_name="申請人id", null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+    is_agent = models.BooleanField(verbose_name="代理人の有無", null=True, blank=True, default=None)
+    agent_name = models.CharField(verbose_name="代理人氏名", max_length=100 ,null=False, blank=False, default="")
+    agent_address = models.CharField(verbose_name="代理人住所", max_length=100 ,null=False, blank=False, default="")
+    agent_phone_number = models.CharField(verbose_name="代理人電話番号", max_length=100 ,null=False, blank=False, default="")
+    is_return = models.BooleanField(verbose_name="原本還付の有無", null=True, blank=True, default=None)
+    is_mail = models.BooleanField(verbose_name="郵送の有無", null=True, blank=True, default=None) 
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "application_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "application_update_by"
+    )
+    
+    step_three_fields = [
+
+    ]
+    
+    class Meta:
+        verbose_name = _("申請情報")
+        verbose_name_plural = _("申請情報")
+
+# 申請先法務局
+class DestinationOffice(CommonModel):
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="destination_office",
+    )
+    application = models.ForeignKey(
+        Application,
+        verbose_name="申請情報",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="destination_office_application",
+    )
+    code = models.BooleanField(verbose_name="法務局コード", null=True, blank=True, default=None)
+    name = models.CharField(verbose_name="名称", max_length=100 ,null=False, blank=False, default="")
+    post_number = models.CharField(verbose_name="郵便番号", max_length=100 ,null=False, blank=False, default="")
+    address = models.CharField(verbose_name="住所", max_length=100 ,null=False, blank=False, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "destination_office_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "destination_office_update_by"
+    )
+    
+    step_three_fields = [
+
+    ]
+    
+    class Meta:
+        verbose_name = _("申請先法務局")
+        verbose_name_plural = _("申請先法務局")
     

@@ -177,7 +177,7 @@ function removeAllExceptFirst(els){
 
 /**
  * ボタン要素のチェックを全てfalseにする
- * @param {element array} els 配列に格納されたボタン要素
+ * @param {element array} els 配列に格納されたinput要素
  * @param {num} idxs 初期化するボタン要素のインデックス
  */
 function uncheckTargetElements(els, idxs){

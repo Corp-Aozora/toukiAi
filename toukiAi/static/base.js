@@ -76,7 +76,7 @@ function hankakuToZenkaku(val) {
  * @param {HTMLElement} el 
  * @param {number} duration 
  */
-const slideUp = (el, duration = 250) => {
+const slideUp = (el, duration = 250, callback = null) => {
     el.style.height = el.offsetHeight + "px";
     el.offsetHeight;
     el.style.transitionProperty = "height, margin, padding";
@@ -89,16 +89,19 @@ const slideUp = (el, duration = 250) => {
     el.style.marginTop = 0;
     el.style.marginBottom = 0;
     setTimeout(() => {
-      el.style.setProperty("display", "none", "important");
-      el.style.removeProperty("height");
-      el.style.removeProperty("padding-top");
-      el.style.removeProperty("padding-bottom");
-      el.style.removeProperty("margin-top");
-      el.style.removeProperty("margin-bottom");
-      el.style.removeProperty("overflow");
-      el.style.removeProperty("transition-duration");
-      el.style.removeProperty("transition-property");
-      el.style.removeProperty("transition-timing-function");
+        el.style.setProperty("display", "none", "important");
+        el.style.removeProperty("height");
+        el.style.removeProperty("padding-top");
+        el.style.removeProperty("padding-bottom");
+        el.style.removeProperty("margin-top");
+        el.style.removeProperty("margin-bottom");
+        el.style.removeProperty("overflow");
+        el.style.removeProperty("transition-duration");
+        el.style.removeProperty("transition-property");
+        el.style.removeProperty("transition-timing-function");
+        if (callback && typeof callback === "function") {
+            callback();
+        }
     }, duration);
 };
 

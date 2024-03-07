@@ -474,7 +474,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     form = ApplicationChangeForm
     list_display = ("id", 'get_decedent_name', "get_related_object_name", 'created_by', 'updated_at', 'updated_by')
     list_filter = ('updated_at', 'created_at')
-    search_fields = ('updated_at', 'created_at', "decedent__name", "name")
+    search_fields = ('updated_at', 'created_at', "decedent__name")
     ordering = ['-updated_at']
 
 admin.site.register(Application, ApplicationAdmin)
@@ -487,15 +487,15 @@ class OfficeChangeForm(forms.ModelForm):
 
 class OfficeAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ("code", "name", 'created_by', 'updated_by')}),
+        (None, {'fields': ("code", "office_name", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     form = OfficeChangeForm
-    list_display = ("code", "name", 'created_by', 'updated_at', 'updated_by')
+    list_display = ("code", "office_name", 'created_by', 'updated_at', 'updated_by')
     list_filter = ('updated_at', 'created_at')
-    search_fields = ('updated_at', 'created_at', "decedent__name", "name")
+    search_fields = ('updated_at', 'created_at', "decedent__name", "office_name")
     ordering = ['-updated_at']
 
 admin.site.register(Office, OfficeAdmin)

@@ -262,24 +262,6 @@ def step_one(request):
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
-    def import_legal_offices(html_file_path):
-        with open(html_file_path, 'r', encoding='utf-8') as file:
-            soup = BeautifulSoup(file, 'html.parser')
-            
-        for row in soup.find_all('tr'):
-            cols = row.find_all('td')
-            if cols and not cols[0].has_attr('class'):
-                code = cols[0].text.strip()
-                name = cols[1].text.strip()
-                try:
-                    with transaction.atomic():
-                        Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
-                except Exception as e:
-                    # ログにエラーメッセージを記録します
-                    print(f"Error occurred: {e}")
-
-    # HTMLファイルのパスを指定して実行
-    import_legal_offices('toukiApp/登記所選択.html')
     child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
@@ -741,7 +723,7 @@ def step_three_input_status(data):
                 break
         return flg
     elif data.__class__ == Land:
-        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange]
+        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data_office]
         if all(attr):
             return True
     elif data.__class__ in [PropertyAcquirer, CashAcquirer]:
@@ -1402,6 +1384,29 @@ def get_city(request):
         
     return JsonResponse(context)
 
+# 入力された不動産番号から法務局データを取得する
+def get_office(request):
+    try:
+        data = json.loads(request.body)
+        officeCode = data["officeCode"]
+        office_data = Office.objects.filter(code=officeCode).first()
+
+        if office_data:
+            office = office_data.office_name
+        else:
+            office = ""
+
+        repsonse_data = {
+            'office': office,
+        }
+        return JsonResponse(repsonse_data)
+    except (OperationalError, ConnectionError) as e:
+        return JsonResponse({'error': 'ネットワークエラーが発生しました', 'details': str(e)}, status=500)
+    except ObjectDoesNotExist:
+        return JsonResponse({'error': 'データがありません'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': 'エラーが発生しました', 'details': str(e)}, status=500)
+
 #djangoのメール形式チェック
 def is_email(request):
     input_email = request.POST.get("email")
@@ -1429,3 +1434,21 @@ def step_back(request):
     else:
         return JsonResponse({'status': 'error'})
 
+# 法務局データスクレイピング用（どこかのstep内に配置してデータを更新する）
+# def import_offices(html_file_path):
+#     with open(html_file_path, 'r', encoding='utf-8') as file:
+#         soup = BeautifulSoup(file, 'html.parser')
+        
+#     for row in soup.find_all('tr'):
+#         cols = row.find_all('td')
+#         if cols and not cols[0].has_attr('class'):
+#             code = cols[0].text.strip()
+#             name = cols[1].text.strip()
+#             try:
+#                 with transaction.atomic():
+#                     Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
+#             except Exception as e:
+#                 # ログにエラーメッセージを記録します
+#                 print(f"Error occurred: {e}")
+# HTMLファイルのパスを指定して実行
+# import_offices('toukiApp/登記所選択.html')

@@ -82,3 +82,7 @@
 #number-of-properties-section .Q:last-of-type .increaseBtn{
     border-bottom-right-radius: var(--bs-border-radius)!important;
 }
+
+.swal2-html-container{
+    text-align: left !important;
+}

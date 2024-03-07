@@ -1171,7 +1171,7 @@ class Application(CommonModel):
 # 法務局
 class Office(CommonModel):
     code = models.CharField(verbose_name="コード", max_length=4 ,null=False, blank=False, default="")
-    name = models.CharField(verbose_name="名称", max_length=30 ,null=False, blank=False, default="")
+    office_name = models.CharField(verbose_name="名称", max_length=30 ,null=False, blank=False, default="")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

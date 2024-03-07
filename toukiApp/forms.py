@@ -779,9 +779,14 @@ class StepThreeLandForm(forms.ModelForm):
                     })
                 elif field.label == "法務局":
                     field.widget.attrs.update({
-                        "placeholder": "福岡法務局西新出張所",
+                        "placeholder": "不動産番号を入力すると自動で表示されます",
                         "maxlength": "30",
+                        "disabled": "true",
                     })
+                    # ここで "法務局" のフィールドに対して追加のクラスを加える
+                    existing_classes = field.widget.attrs.get("class", "")
+                    new_classes = f"{existing_classes} text-center"
+                    field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
                     "class": "form-control text-center rounded-end",

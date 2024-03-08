@@ -847,6 +847,9 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         for field in self.base_fields.values():
             field.required = False
+                        
+            if field.label == "取得割合":
+                field.initial = "分の"
             
         super().__init__(*args, **kwargs)
         

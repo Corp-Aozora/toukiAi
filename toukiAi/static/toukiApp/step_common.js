@@ -287,6 +287,7 @@ function copyAndPasteEl(copyFrom, att, regex, newIdx){
     });
     slideDownAndScroll(copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling));
 }
+
 /*
     イベント
 */

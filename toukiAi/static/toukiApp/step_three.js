@@ -302,7 +302,7 @@ class NumberOfProperties extends Fieldset{
         numberOfProperties.push(this);
     }
 }
-const NOPIdxs = NumberOfProperties.Idxs;
+const NOPIdxs = NumberOfProperties.idxs;
 
 //土地情報
 const lands = [];
@@ -476,8 +476,8 @@ function isActivateOkBtn(instance){
             const inputs = x.inputs;
             const bottom = parseInt(ZenkakuToHankaku(inputs[percentageIdxs[yes]].value), 10);
             const top = parseInt(ZenkakuToHankaku(inputs[percentageIdxs[no]].value), 10);
-            const currentFraction = new Fraction(top, bottom);
-            totalFraction = totalFraction.add(currentFraction);
+            if(bottom && top)
+                totalFraction = totalFraction.add(new Fraction(top, bottom));
         })
 
         //取得割合が１を超えるとき、分子を空欄にしてエラーメッセージを表示する
@@ -488,7 +488,7 @@ function isActivateOkBtn(instance){
             afterValidation("false", instance.errMsgEls[TAIdxs.percentage.form], msg, top, instance);
             return false;
         }else
-            return percentage === 1;
+            return totalFraction.equals(1);
     }
 
     /**
@@ -501,7 +501,7 @@ function isActivateOkBtn(instance){
         const TLAsPurpartyVerified = isHundredPercent(TLAs);
         const TLAVerified = getLastElFromArray(TLAs).noInputs.length === 0;
         const TLCAs = land.tempLandCashAcquirers;
-        const TLCAsPurpartyVerified = land.inputs[NOPIdxs.isExchange.input[yes]].checked ? isHundredPercent(TLCAs): true;
+        const TLCAsPurpartyVerified = land.inputs[LIdxs.isExchange.input[yes]].checked ? isHundredPercent(TLCAs): true;
         const TLCAVerified = getLastElFromArray(TLCAs).noInputs.length === 0;
         //最後の土地情報、かつ土地のエラーなし、かつ土地取得者仮フォームと金銭取得者仮フォームのエラーと取得割合が１分の１になっているとき
         if(getLastElFromArray(lands) === land && landVerified && TLAVerified && TLAsPurpartyVerified && TLCAVerified && TLCAsPurpartyVerified){
@@ -2687,7 +2687,7 @@ function setLandTAEvent(){
         const tempLandCashAcquirerInputs = tempLandCashAcquirer.inputs;
         //土地取得者仮フォームと金銭取得者仮フォームは、同一のフォーム形式のためイベント設定
         for(let i = 0, len = tempLandAcquirerInputs.length; i < len; i++){
-            const TPercentageInputIdxs = TIdxs.percentage.input;
+            const TPercentageInputIdxs = TAIdxs.percentage.input;
             //取得割合のとき
             if(TPercentageInputIdxs.includes(i)){
                 function keyDownHandler(e, inputs){
@@ -2704,14 +2704,14 @@ function setLandTAEvent(){
                 const tempAcquirerInputs = tempAcquirer.inputs;
                 const result = tempLandValidation(tempAcquirerInputs, i);
                 //取得者のとき、hidden取得者に転記する
-                if(i === TIdxs.acquirer.input){
-                    afterValidation(result, tempAcquirer.errMsgEls[TIdxs.acquirer.form], result, tempAcquirerInputs[i], tempAcquirer);
+                if(i === TAIdxs.acquirer.input){
+                    afterValidation(result, tempAcquirer.errMsgEls[TAIdxs.acquirer.form], result, tempAcquirerInputs[i], tempAcquirer);
                     const parts = tempAcquirerInputs[i].value.split("_");
                     acquirerInputs[AIdxs.contentType2].value = parts[1] ? parts[1]: "";
                     acquirerInputs[AIdxs.objectId2].value = parts[0];
                 }else if(TPercentageInputIdxs.includes(i)){
                     //取得割合のとき、hidden取得者に転記する
-                    afterValidation(result, tempAcquirer.errMsgEls[TIdxs.percentage.form], result, tempAcquirerInputs[i], tempAcquirer);
+                    afterValidation(result, tempAcquirer.errMsgEls[TAIdxs.percentage.form], result, tempAcquirerInputs[i], tempAcquirer);
                     tempAcquirerInputs[i].value = hankakuToZenkaku(tempAcquirerInputs[i].value);
                     const regex = i === TPercentageInputIdxs[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
                     acquirerInputs[AIdxs.percentage].value = acquirerInputs[AIdxs.percentage].value.replace(regex, "");
@@ -2736,8 +2736,8 @@ function setAddTABtnEvent(){
     const removeTLABtns = landSection.getElementsByClassName("removeTempLandAcquirerBtn");
     const addTLCABtns = landSection.getElementsByClassName("addTempLandCashAcquirerBtn");
     const removeTLCABtns = landSection.getElementsByClassName("removeTempLandCashAcquirerBtn");
-    const TAcquirerInputIdx = TIdxs.acquirer.input;
-    const TPercentageInputIdxs = TIdxs.percentage.input;
+    const TAcquirerInputIdx = TAIdxs.acquirer.input;
+    const TPercentageInputIdxs = TAIdxs.percentage.input;
     const APercentageIdx = AIdxs.percentage;
     //土地の数と追加ボタンの数は同じ
     for(let i = 0, len = addTLABtns.length; i < len; i++){
@@ -2938,7 +2938,7 @@ function setAddTABtnEvent(){
     //取得者欄のchangeイベント設定
     function TAcquirerChangeEventHandler(result, TAInstance, AInputs){
         const TAInputs = TAInstance.inputs;
-        afterValidation(result, TAInstance.errMsgEls[TIdxs.acquirer.form], result, TAInputs[TAcquirerInputIdx], TAInstance);
+        afterValidation(result, TAInstance.errMsgEls[TAIdxs.acquirer.form], result, TAInputs[TAcquirerInputIdx], TAInstance);
         const parts = TAInputs[TAcquirerInputIdx].value.split("_");
         AInputs[AIdxs.contentType2].value = parts[0];
         AInputs[AIdxs.objectId2].value = parts[1] ? parts[1]: "";
@@ -2946,7 +2946,7 @@ function setAddTABtnEvent(){
     //取得割合（分子、分母）欄のchangeイベント設定
     function TPercentageChangeEventHandler(result, TAInstance, AInputs, inputIdx){
         const TAInputs = TAInstance.inputs;
-        afterValidation(result, TAInstance.errMsgEls[TIdxs.percentage.form], result, TAInputs[inputIdx], TAInstance);
+        afterValidation(result, TAInstance.errMsgEls[TAIdxs.percentage.form], result, TAInputs[inputIdx], TAInstance);
         TAInputs[inputIdx].value = hankakuToZenkaku(TAInputs[inputIdx].value);
         const regex = inputIdx === TPercentageInputIdxs[yes] ? /.*(?=分の)/ : /(?<=分の).*/;
         AInputs[APercentageIdx].value = AInputs[APercentageIdx].value.replace(regex, "");
@@ -3114,10 +3114,20 @@ function setLandSection(){
         }else if(landCount < lands.length){
             //土地の数が減ったとき
             //土地情報を最後から削除する
-            for(let i = lands.length - 1; landCount <= i; i++){
-                
+            const landWrappers = document.getElementById("land-section").getElementsByClassName("landWrapper");
+            for(let i = landWrappers.length - 1; landCount <= i; i--){
+                landWrappers[i].remove();
+                lands[i].landAcquirers.forEach(x => x.fieldset.remove());
+                lands[i].landCashAcquirers.forEach(x => x.fieldset.remove());
+                lands.pop()
             }
-            //土地インスタンスを削除する
+            document.getElementById("id_land-TOTAL_FORMS").value = String(landCount);
+            document.getElementById("id_land_acquirer-TOTAL_FORMS").value = String(lands.reduce((sum, x) => {
+                return sum + x.landAcquirers.length;
+            }, 0));
+            document.getElementById("id_land_cash_acquirer-TOTAL_FORMS").value = String(lands.reduce((sum, x) =>{
+                return sum + x.landCashAcquirers.length;
+            }, 0));
         }
 
         const land = lands[0];

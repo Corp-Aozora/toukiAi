@@ -61,6 +61,11 @@
     left: 150px;
 }
 
+.officeEmPosition{
+    top: -75px;
+    left: 150px;
+}
+
 ::placeholder{
     text-align: center;
 }

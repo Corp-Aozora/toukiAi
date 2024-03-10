@@ -189,7 +189,7 @@ function slideDownAfterDelay(el, time = 250){
  */
 function scrollToTarget(el, duration = 250) {
     let rect = el.getBoundingClientRect();
-    let gap = header.clientHeight + 40;
+    let gap = header.clientHeight + 40; // `header`が事前に定義されていると仮定
     let targetPosition = rect.top + window.scrollY - gap;
 
     setTimeout(() => {

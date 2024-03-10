@@ -264,6 +264,36 @@ function inputOrCheckAndDispatchChangeEvent(el, text = null){
 }
 
 /**
+ * input要素とselect要素の値を初期化する
+ * @param {(HTMLElement|HTMLElement[])} els 
+ */
+function iniInputsAndSelectValue(els){
+    if(!Array.isArray(els))
+        els = [els];
+    for(let i = 0, len = els.length; i < len; i++){
+        const el = els[i];
+        let isDisable = false;
+        if(el.disabled){
+            el.disabled = false;
+            isDisable = true;
+        }
+        const tagName = el.tagName;
+        if(tagName === "INPUT"){
+            if(el.type === "text" || el.type === "number"){
+                el.value = "";
+            }else if(el.type === "checkbox" || el.type === "radio"){
+                el.checked = false;
+            }
+        }else if(tagName === "SELECT"){
+            el.value = "";
+        }
+
+        if(isDisable)
+            el.disabled = true;
+    }
+}
+
+/**
  * copyFromをクローンして属性を更新してcopyFromの弟要素として挿入する
  * @param {HTMLElement} copyFrom 
  * @param {string} att セレクタ形式で書くこと

@@ -928,7 +928,22 @@ class House(CommonModel):
     )
     
     step_three_fields = [
-        
+        "decedent",
+        "register",
+        "number",
+        "address",
+        "house_number",
+        "purpose",
+        "type",
+        "first_floor_size",
+        "second_floor_size",
+        "third_floor_size",
+        "fourth_floor_size",
+        "fifth_floor_size",
+        "purparty",
+        "office",
+        "price",
+        "is_exchange",        
     ]
     
     class Meta:

@@ -15,11 +15,11 @@
     width:200px
 }
 
-#land-section label{
+#land-section label, #house-section label{
     width: 125px!important;
 }
 
-.landWrapper, .landBtnsDiv{
+.landWrapper, .landBtnsDiv, .houseWrapper, .houseBtnsDiv{
     width:510px;
 }
 

@@ -79,7 +79,8 @@ def index(request):
                         {company_name}
                         {company_post_number}
                         {company_address}
-                        TEL {company_phone_number}
+                        受信専用電話番号 {company_receiving_phone_number}
+                        発信専用電話番号 {company_calling_phone_number}
                         営業時間 {company_opening_hours}
                         ホームページ {company_url}
                     ''').format(
@@ -88,7 +89,8 @@ def index(request):
                         company_name=CompanyData.NAME,
                         company_post_number=CompanyData.POST_NUMBER,
                         company_address=CompanyData.ADDRESS,
-                        company_phone_number=CompanyData.PHONE_NUMBER,
+                        company_receiving_phone_number=CompanyData.RECEIVING_PHONE_NUMBER,
+                        company_calling_phone_number=CompanyData.CALLING_PHONE_NUMBER,
                         company_opening_hours=CompanyData.OPENING_HOURS,
                         company_url=CompanyData.URL,
                     )
@@ -641,6 +643,7 @@ def step_two(request):
         output = os.path.join(settings.MEDIA_ROOT, 'download_tmp', file_name_and_file_path["name"])
 
         # ファイルをダウンロード
+        print("aaaaa" + file_name_and_file_path["path"])
         gdown.download(file_name_and_file_path["path"], output, quiet=True)
 
         # ダウンロードしたファイルの名前とパスを配列に追加
@@ -678,6 +681,33 @@ def step_two(request):
     return render(request, "toukiApp/step_two.html", context)
 
 #ステップ３関連
+def check_type_of_division_conditions(data):
+    # data.property_allocationの値が存在するかどうか
+    condition1 = bool(data.get('property_allocation'))
+    
+    # data.content_type1 と data.object_id1 の両方の値が存在するかどうか
+    condition2 = bool(data.get('content_type1')) and bool(data.get('object_id1'))
+    
+    # data.cash_allocationの値が存在するかどうか
+    condition3 = bool(data.get('cash_allocation'))
+    
+    # data.content_type2 と data.object_id2 の両方の値が存在するかどうか
+    condition4 = bool(data.get('content_type2')) and bool(data.get('object_id2'))
+    
+    # data.type_of_divisionが存在するかどうか
+    condition5 = bool(data.get('type_of_division'))
+
+    # 組み合わせた条件
+    # data.property_allocationが存在する または data.content_type1 と data.object_id1 の両方が存在する
+    combined_condition1 = condition1 or condition2
+
+    # data.cash_allocationが存在する または data.content_type2 と data.object_id2 の両方が存在する
+    combined_condition2 = condition3 or condition4
+
+    # 最終的な条件：上記の条件とdata.type_of_divisionが存在する
+    final_condition = combined_condition1 and combined_condition2 and condition5
+
+    return final_condition
 
 #user_data_scopeへの追加処理（各情報の入力状況チェック）
 def step_three_input_status(data):
@@ -722,8 +752,16 @@ def step_three_input_status(data):
                 flg = False
                 break
         return flg
-    elif data.__class__ == Land:
-        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data_office]
+    elif data.__class__ == TypeOfDivision:
+        attr = [data.type_of_division, data.property_allocation, data.content_type1, data.object_id1,
+                data.cash_allocation, data.content_type2, data.object_id2]
+        return check_type_of_division_conditions(attr)
+    elif data.__class__ == NumberOfProperties:
+        attr = [data.land, data.house, data.bldg]
+        if any(x > 0 for x in attr):
+            return True
+    elif data.__class__ in [Land, House]:
+        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data.office]
         if all(attr):
             return True
     elif data.__class__ in [PropertyAcquirer, CashAcquirer]:
@@ -771,7 +809,9 @@ def step_three(request):
     land_form_set = formset_factory(form=StepThreeLandForm, extra=1, max_num=20)
     land_acquirer_form_set = formset_factory(form=StepThreeLandAcquirerForm, extra=1, max_num=20)
     land_cash_acquirer_form_set = formset_factory(form=StepThreeLandCashAcquirerForm, extra=1, max_num=20)
-    
+    house_form_set = formset_factory(form=StepThreeHouseForm, extra=1, max_num=20)
+    house_acquirer_form_set = formset_factory(form=StepThreeHouseAcquirerForm, extra=1, max_num=20)
+    house_cash_acquirer_form_set = formset_factory(form=StepThreeHouseCashAcquirerForm, extra=1, max_num=20)
     #フォームからデータがPOSTされたとき
     if request.method == "POST":
         pass
@@ -1073,7 +1113,7 @@ def step_three(request):
             for l in lands_data
         ], prefix="land")
         #子の入力状況チェック
-        if step_three_input_status(collaterals_data):
+        if step_three_input_status(lands_data):
             user_data_scope.append("land")
     #ないとき    
     else:
@@ -1127,7 +1167,88 @@ def step_three(request):
     #ないとき    
     else:
         land_cash_acquirer_forms = land_cash_acquirer_form_set(prefix="land_cash_acquirer")
-            
+        
+    #建物のフォーム
+    houses_data = House.objects.filter(decedent=decedent)
+    if houses_data.exists():
+        house_form_set = formset_factory(form=StepThreeHouseForm, extra=0, max_num=20)
+        house_forms = house_form_set(initial=[
+            {
+                "decedent": l.decedent,
+                "register": l.register,
+                "number": l.number,
+                "address": l.address,
+                "house_number": l.house_number,
+                "purpose": l.purpose,
+                "type": l.type,
+                "first_floor_size": l.first_floor_size,
+                "second_floor_size": l.second_floor_size,
+                "third_floor_size": l.third_floor_size,
+                "fourth_floor_size": l.fourth_floor_size,
+                "fifth_floor_size": l.fifth_floor_size,
+                "purparty": l.purparty,
+                "office": l.office,
+                "price": l.price,
+                "is_exchange": l.is_exchange,
+            }
+            for l in houses_data
+        ], prefix="house")
+        #子の入力状況チェック
+        if step_three_input_status(houses_data):
+            user_data_scope.append("house")
+    #ないとき    
+    else:
+        house_forms = house_form_set(prefix="house")
+        
+    #建物取得者のフォーム
+    house_content_type = ContentType.objects.get_for_model(House)
+    house_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=house_content_type)
+    if house_acquirer_data.exists():
+        house_acquirer_form_set = formset_factory(form=StepThreeHouseAcquirerForm, extra=0, max_num=20)
+        house_acquirer_forms = house_acquirer_form_set(initial=[
+            {
+                "decedent": l.decedent,
+                "content_type1": l.content_type1,
+                "object_id1": l.object_id1,
+                "content_object1": l.content_object1,
+                "content_type2": l.content_type2,
+                "object_id2": l.object_id2,
+                "content_object2": l.content_object2,
+                "percentage": l.percentage,
+            }
+            for l in house_acquirer_data
+        ], prefix="house_acquirer")
+        #子の入力状況チェック
+        if step_three_input_status(house_acquirer_data):
+            user_data_scope.append("house_acquirer")
+    #ないとき    
+    else:
+        house_acquirer_forms = house_acquirer_form_set(prefix="house_acquirer")
+        
+    #建物金銭取得者のフォーム
+    house_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=house_content_type)
+    if house_cash_acquirer_data.exists():
+        house_cash_acquirer_form_set = formset_factory(form=StepThreeHouseCashAcquirerForm, extra=0, max_num=20)
+        house_cash_acquirer_forms = house_cash_acquirer_form_set(initial=[
+            {
+                "decedent": l.decedent,
+                "content_type1": l.content_type1,
+                "object_id1": l.object_id1,
+                "content_object1": l.content_object1,
+                "content_type2": l.content_type2,
+                "object_id2": l.object_id2,
+                "content_object2": l.content_object2,
+                "percentage": l.percentage,
+            }
+            for l in house_cash_acquirer_data
+        ], prefix="house_cash_acquirer")
+        #子の入力状況チェック
+        if step_three_input_status(house_cash_acquirer_data):
+            user_data_scope.append("house_cash_acquirer")
+    #ないとき    
+    else:
+        house_cash_acquirer_forms = house_cash_acquirer_form_set(prefix="house_cash_acquirer")
+                    
     #申請情報
     application_data = Application.objects.filter(decedent=decedent).first()
     if application_data:
@@ -1158,6 +1279,9 @@ def step_three(request):
         "land_forms": land_forms,
         "land_acquirer_forms": land_acquirer_forms,
         "land_cash_acquirer_forms": land_cash_acquirer_forms,
+        "house_forms": house_forms,
+        "house_acquirer_forms": house_acquirer_forms,
+        "house_cash_acquirer_forms": house_cash_acquirer_forms,
         "application_form": application_form,
         "sections" : Sections.SECTIONS[Sections.STEP3],
         "service_content" : Sections.SERVICE_CONTENT,

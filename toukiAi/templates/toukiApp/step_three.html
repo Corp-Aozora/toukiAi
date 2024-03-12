@@ -1477,10 +1477,10 @@
                 <div>
                     <div>
                         <h5 class="form-label">
-                            ４－１．土地情報
+                            ４－土地情報
                         </h5>
                         <button type="button" class="form-text text-primary" data-bs-toggle="modal" data-bs-target="#landInfoModal">
-                            ※土地の登記情報又は全部事項証明書（登記簿謄本）のとおりに入力。
+                            ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力。
                         </button>
                         <div class="modal fade" id="landInfoModal" tabindex="-1">
                             <div class="modal-dialog">
@@ -1719,109 +1719,257 @@
             <section id="house-section" class="container" style="display: none;">
                 <hr>
                 <div>
-                    <h5 class="form-label">４－２．建物情報</h5>
-                </div>
-                <fieldset>
-                    <div class="mt-3">
-                        <ol id="bldgOl" class="list-group">
-                            <li id="bldg1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
-                                <div class="me-auto">
-                                    <!-- PDFをUpしているときは、所在地と家屋番号を自動入力して評価額以外（追加ボタンも）は非表示にする -->
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1PrefectureSpan">都道府県</span>
-                                        <select name="bldg1Prefectures" class="form-select smInput" id="bldg1Prefecture" aria-describedby="bldg1PrefectureSpan" required>
-                                            <option ></option>
-                                            {% for prefecture in prefectures %}
-                                            <option value="{{prefecture}}">{{prefecture}}</option>
-                                            {% endfor %}
-                                        </select>
+                    <div>
+                        <h5 class="form-label">
+                            ４－建物情報
+                        </h5>
+                        <button type="button" class="form-text text-primary" data-bs-toggle="modal" data-bs-target="#houseInfoModal">
+                            ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力。
+                        </button>
+                        <div class="modal fade" id="houseInfoModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">登記簿の見方</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1LocationLabel">所在地</span>
-                                        <input type="text" class="form-control lgInput" id="bldg1locationInput" aria-describedby="bldg1LocationLabel" placeholder="福岡市中央区天神１丁目１番地１" aria-label="福岡市中央区天神１丁目１番地１" required>
-                                    </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1NumberLabel">家屋番号</span>
-                                        <input type="text" class="form-control smInput" id="bldg1NumberInput" aria-describedby="bldg1NumberLabel" placeholder="１番１" aria-label="１番１" required>
-                                    </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1CategoryLabel">種類</span>
-                                        <input type="text" class="form-control smInput" id="bldg1CategoryInput" aria-describedby="bldg1CategoryLabel" placeholder="居宅" aria-label="居宅" required>
-                                    </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1ArchitectureLabel">構造</span>
-                                        <input type="text" class="form-control lgInput" id="bldg1ArchitectureInput" aria-describedby="bldg1ArchitectureLabel" placeholder="木造かわら葺平屋建" aria-label="木造かわら葺平屋建" required>
-                                    </div>
-                                    <div id="bldg1Size1" class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1Size1Label">床面積　1F</span>
-                                        <input type="text" class="form-control rounded-3 smInput" id="bldg1Size1IntegerInput" aria-describedby="bldg1Size1Label" placeholder="１００" aria-label="１００" required>
-                                        <span class="text-center my-auto" style="width:30px;">・</span>
-                                        <input type="text" class="form-control rounded-3 xsInput" id="bldg1Size1DecimalInput" aria-describedby="bldg1Size1Label" placeholder="００" aria-label="００" required>
-                                    </div>
-                                    <div class="mt-3 mb-3 d-flex">
-                                        <button type="button" id="addBldg1SizeButton" class="btn btn-primary me-3">床面積を追加</button>
-                                        <button type="button" id="removeBldg1SizeButton" class="btn btn-secondary ms-3" style="display: none;" disabled="true">削除</button>
-                                    </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1ValueLabel">評価額</span>
-                                        <input type="text" class="form-control mdInput" id="bldg1ValueInput" aria-describedby="bldg1ValueLabel" placeholder="１２３４５４６７" aria-label="１２３４５４６７" required>
-                                    </div>
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="bldg1OwnershipLabel">所有権</span>
-                                        <input type="text" class="form-control rounded-end smInput" id="bldg1OwnershipTopInput" aria-describedby="bldg1OwnershipLabel" placeholder="１" aria-label="１" required>
-                                        <span class="text-center my-auto" style="width:30px;">／</span>
-                                        <input type="text" class="form-control rounded-3 smInput" id="bldg1OwnershipBottomInput" aria-describedby="bldg1OwnershipLabel" placeholder="１" aria-label="１" required>
-                                        <div class="d-flex align-items-center">
-                                            <!-- 割り切れないときはエラーメッセージ出す -->
-                                            <span class="form-text fs-6 ms-2">※所有者のときは、１／１にしてください。</span>
-                                        </div>
-                                    </div>
-                                    <!-- 法定相続のときは不要 -->
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="land1AcquirerLabel">取得者</span>
-                                        <select name="land1Acquirer" class="form-select mdInput" id="land1AcquirerSelect" aria-describedby="land1AcquirerLabel" required>
-                                            <option ></option>
-                                        </select>
-                                    </div>
-                                    <!-- 法定相続、一人が全て取得のときは不要 -->
-                                    <div class="input-group">
-                                        <span class="input-group-text lgLabel" id="land1AcquisitionRateLabel">取得割合</span>
-                                        <input type="text" class="form-control rounded-end smInput" id="land1coacquisitionRateTopInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
-                                        <span class="text-center my-auto" style="width:30px;">／</span>
-                                        <input type="text" class="form-control rounded-3 smInput" id="land1coacquisitionRateBottomInput" aria-describedby="land1coacquisitionRateLabel" placeholder="１" aria-label="１" required>
-                                        <div class="d-flex align-items-center">
-                                            <span class="form-text fs-6 ms-2">※全て取得するときは、１／１にしてください。</span>
-                                        </div>
+                                    <div class="modal-body">
+                                        （建物の登記情報を挿入）
                                     </div>
                                 </div>
-                            </li>
-                            <div class="d-flex mt-3">
-                                <button type="button" id="addBldgBtn" class="btn btn-primary">建物を追加</button>
-                                <button type="button" id="removeBldgBtn" class="btn btn-secondary ms-3" style="display: none;" disabled="true">建物を削除</button>
                             </div>
-                        </ol>
+                        </div>
                     </div>
-                </fieldset>
-                <div class="mt-5 d-flex justify-content-center">
-                    <button type="button" id="bldgOkBtn" class="btn btn-primary me-3">確定</button>
-                    <button type="button" id="bldgCorrectBtn" class="btn btn-success ms-3" disabled="true">修正</button>
+                    {{ house_forms.management_form }}
+                    {% for form in house_forms %}
+                        <div id="id_house-{{forloop.counter0}}-wrapper" class="houseWrapper d-flex">
+                            <div class="my-auto fw-bold">
+                                （１）
+                            </div>
+                            <div class="ms-3">
+                                <fieldset id="id_house-{{forloop.counter0}}-fieldset"  class="houseFieldset d-flex mt-4">
+                                    <div class="w-100">
+                                        {% for field in form %}
+                                           {% if field.name == "number" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        不動産番号
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "address" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        所在地
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "house_number" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="id_house-{{forloop.counter0}}-house_number_top" class="input-group-text label">
+                                                        家屋番号
+                                                    </label>
+                                                    <div class="form-control rounded-end d-flex justify-content-evenly">
+                                                        <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.counter0}}-house_number_top" name="house-{{forloop.counter0}}-house_number_top">
+                                                        <span >
+                                                            番
+                                                        </span>
+                                                        <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.counter0}}-house_number_bottom" name="house-{{forloop.counter0}}-house_number_bottom">
+                                                        {{ field }}
+                                                    </div>
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "purparty" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="id_house-{{forloop.counter0}}-purparty_top" class="input-group-text label">
+                                                        所有権・持分
+                                                    </label>
+                                                    <div class="form-control rounded-end d-flex">
+                                                        <input type="checkbox" id="id_house-{{forloop.counter0}}-purparty_checkbox" name="house-{{forloop.counter0}}-purparty_checkbox">
+                                                        <label class="ms-1" for="id_house-{{forloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
+                                                            所有者
+                                                        </label>
+                                                        <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.counter0}}-purparty_top" name="house-{{forloop.counter0}}-purparty_top">
+                                                        <span class="mx-1">
+                                                            分の
+                                                        </span>
+                                                        <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.counter0}}-purparty_bottom" name="house-{{forloop.counter0}}-purparty_bottom">
+                                                        {{ field }}
+                                                    </div>
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "office" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        法務局
+                                                    </label>
+                                                    {{ field }}
+                                                    <span id="{{field.auto_id}}_message" class="errorMessage officeEmPosition rounded-3" style="display: none;">
+                                                        入力された不動産番号に一致する管轄法務局が見当たりませんでした。不動産番号を再度ご確認ください。
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "price" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        評価額
+                                                    </label>
+                                                    {{ field }}
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "is_exchange" %}
+                                                <div class="input-group position-relative Q">
+                                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                                        換価しますか？
+                                                    </label>
+                                                    <div class="form-control input-group justify-content-evenly rounded-end">
+                                                        {% for choice in field %}
+                                                            <div class="form-check">
+                                                                {% if forloop.counter == 1 %}
+                                                                    <label class="form-check-label d-inline">
+                                                                {% else %}
+                                                                    <label class="form-check-label d-inline">
+                                                                {% endif %}
+                                                                    {{ choice.tag }}{{ choice.choice_label }}
+                                                                    </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                                    </span>
+                                                </div>
+                                            {% elif field.name == "index" %}
+                                                {{field}}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </fieldset>
+                                <div class="tempHouseAcquirerWrapper">
+                                    <fieldset id="id_house_{{forloop.counter0}}_temp_house_acquirer-0-fieldset" class="mt-3 tempHouseAcquirerFieldset">
+                                        <div class="input-group position-relative Q">
+                                            <label for="id_house_{{forloop.counter0}}_temp_house_acquirer-0-acquirer" class="input-group-text label rounded-start">
+                                                不動産取得者
+                                            </label>
+                                            <select name="house_{{forloop.counter0}}_temp_house_acquirer-0-acquirer" maxlength="100" class="form-select text-center cursor-pointer rounded-end" id="id_house_{{forloop.counter0}}_temp_house_acquirer-0-acquirer">
+                                            </select>
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                        <div class="input-group position-relative Q">
+                                            <label for="id_house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_top" class="input-group-text label">
+                                                取得割合
+                                            </label>
+                                            <div class="form-control rounded-end d-flex justify-content-evenly">
+                                                <input class="p-0 fraction form-control text-center" type="text" id="id_house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_top" name="house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_top">
+                                                <span>
+                                                    分の
+                                                </span>
+                                                <input class="p-0 fraction form-control text-center" type="text" id="id_house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_bottom" name="house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_bottom">
+                                            </div>
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                        <div class="form-text">
+                                            ※取得割合は合計が１になるように入力してください
+                                        </div>
+                                    </fieldset>
+                                    <div class="mt-3 d-flex justify-content-evenly">
+                                        <button type="button" class="btn btn-secondary removeTempHouseAcquirerBtn" disabled="true">
+                                            不動産取得者を削除する
+                                        </button>
+                                        <button type="button" class="btn btn-primary addTempHouseAcquirerBtn" disabled="true">
+                                            不動産取得者を追加する
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="tempHouseCashAcquirerWrapper" style="display: none;">
+                                    <fieldset id="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-fieldset" class="mt-3 tempHouseCashAcquirerFieldset">
+                                        <div class="input-group position-relative Q">
+                                            <label for="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-acquirer" class="input-group-text label rounded-start">
+                                                金銭取得者
+                                            </label>
+                                            <select name="house_{{forloop.counter0}}_temp_house_cash_acquirer-0-acquirer" maxlength="100" class="form-select text-center cursor-pointer rounded-end" id="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-acquirer">
+                                            </select>
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                        <div class="input-group position-relative Q">
+                                            <label for="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_top" class="input-group-text label">
+                                                取得割合
+                                            </label>
+                                            <div class="form-control rounded-end d-flex justify-content-evenly">
+                                                <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_top" name="house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_top">
+                                                <span>
+                                                    分の
+                                                </span>
+                                                <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_bottom" name="house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_bottom">
+                                            </div>
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </fieldset>
+                                    <div class="mt-3 d-flex justify-content-evenly">
+                                        <button type="button" class="btn btn-secondary removeTempHouseCashAcquirerBtn" disabled="true">
+                                            金銭取得者を削除する
+                                        </button>
+                                        <button type="button" class="btn btn-primary addTempHouseCashAcquirerBtn" disabled="true">
+                                            金銭取得者を追加する
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {{ house_acquirer_forms.management_form }}
+                    <div id="id_house_acquirer_wrapper">
+                        {% for form in house_acquirer_forms %}
+                            <fieldset id="id_house_acquirer-{{forloop.counter0}}-fieldset"  class="houseAcquirerFieldset d-flex" style="display: none;">
+                                {% for field in form %}
+                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                        {{field}}
+                                    {% endif %}
+                                {% endfor %}
+                            </fieldset>
+                        {% endfor %}
+                    </div>
+                    {{ house_cash_acquirer_forms.management_form }}
+                    {% for form in house_cash_acquirer_forms %}
+                    <div id="id_house_cash_acquirer_wrapper">
+                        <fieldset id="id_house_cash_acquirer-{{forloop.counter0}}-fieldset"  class="houseCashAcquirerFieldset d-flex" style="display: none;">
+                            {% for field in form %}
+                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                    {{field}}
+                                {% endif %}
+                            {% endfor %}
+                        </fieldset>
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex justify-content-evenly houseBtnsDiv mt-5">
+                        <button type="button" id="houseCorrectBtn" class="preBtn btn btn-secondary" disabled="true">
+                            前の建物を修正する
+                        </button>
+                        <button type="button" id="houseOkBtn" class="nextBtn btn btn-primary" disabled="true">
+                            次の建物へ進む
+                        </button>
+                    </div>
                 </div>
             </section>
             <section id="bldg-section" class="container" style="display: none;">
                 <hr>
                 <div>
-                    <h5 class="form-label">４－３．区分建物情報</h5>
+                    <h5 class="form-label">４－区分建物情報</h5>
                 </div>
                 <fieldset>
                     <div class="mt-3">
                         <ol id="condominiumOl" class="list-group">
                             <li id="condominium1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
                                 <div class="me-auto">
-                                    <!-- PDFをUpしているときは、所在地と家屋番号を自動入力して評価額以外（追加ボタンも）は非表示にする -->
-                                    <!-- <div class="input-group serialNumberArea">
-                                        <span class="input-group-text" id="condominium1SerialNumberLabel">不動産番号</span>
-                                        <input type="text" class="form-control" id="condominium1lSerialNumberInput" aria-describedby="condominium1SerialNumberLabel" placeholder="０１２３４５６７８９０１２" aria-label="０１２３４５６７８９０１２" required>
-                                    </div> -->
                                     <div class="input-group valueArea">
                                         <span class="input-group-text" id="condominium1ValueLabel">評価額</span>
                                         <input type="text" class="form-control" id="condominium1ValueInput" aria-describedby="condominium1ValueLabel" placeholder="１２３４５４６７" aria-label="１２３４５４６７" required>

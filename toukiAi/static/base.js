@@ -244,21 +244,24 @@ function validateIntInput(el){
 
 /**
  * 桁数チェック
- * @param {number} val チェック対象の数字
- * @param {string} type チェックする桁数
- * @return {boolean} 適切なときはtrue、それ以外はfalse
+ * @param {HTMLInputElement} input チェック対象の入力
+ * @param {string} type チェックする桁数 phoneNumber, postNumber, propertyNumber
+ * @return {boolean} 適切なときはtrue、それ以外はエラーメッセージ
  */
-function isDigit(val, type){
-    let validDigit;
-    let countDigit = String(val).length;
-    //電話番号（10桁又は11桁）
-    if(type === "phoneNumber"){
-        validDigit = [10, 11]
-        return validDigit.includes(countDigit);
-    }else if(type === "postNumber"){
-        //郵便番号（7桁）
-        validDigit = 7;
-        return (validDigit === countDigit);
+function isDigit(input, type) {
+    const countDigit = input.value.length; // 文字列化の必要はない
+    switch (type) {
+        case "phoneNumber":
+            // 電話番号（10桁または11桁）
+            return [10, 11].includes(countDigit) ? true : "１０桁または１１桁で入力してください";
+        case "postNumber":
+            // 郵便番号（7桁）
+            return countDigit === 7 ? true : "ハイフンなしの７桁で入力してください";
+        case "propertyNumber":
+            // 不動産番号（13桁）
+            return countDigit === 13 ? true : "１３桁で入力してください";
+        default:
+            return "未知のタイプです";
     }
 }
 

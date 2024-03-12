@@ -61,9 +61,9 @@ function setNavTogglerStyle(){
     //ハンバーガーメニューが表示されたとき
     if(width < 558){
         //ロゴの要素を修正
-        logoArea.classList.remove("navbar-brand");
-        logoArea.classList.add("mt-3", "fw-bold", "fs-5");
-        logo.innerHTML = "トップページ";
+        // logoArea.classList.remove("navbar-brand");
+        // logoArea.classList.add("mt-3", "fw-bold", "fs-5");
+        // logo.innerHTML = "トップページ";
 
 
         //進捗状況の要素を修正
@@ -98,9 +98,9 @@ function setNavTogglerStyle(){
 
     }else{
         //ロゴ要素を元に戻す
-        logoArea.classList.add("navbar-brand");
-        logoArea.classList.remove("mt-3", "fw-bold", "fs-5");
-        logo.innerHTML = "（ロゴ）";
+        // logoArea.classList.add("navbar-brand");
+        // logoArea.classList.remove("mt-3", "fw-bold", "fs-5");
+        // logo.innerHTML = "（ロゴ）";
 
         //進捗状況の要素を修正
         linkToProgressArea.classList.remove("mt-2", "fs-5");
@@ -264,33 +264,41 @@ function inputOrCheckAndDispatchChangeEvent(el, text = null){
 }
 
 /**
+ * input要素を初期化する
+ * @param {HTMLInputElement} input 
+ */
+function resetInputValue(input) {
+    if (input.type === "text" || input.type === "number") {
+        input.value = "";
+    } else if (input.type === "checkbox" || input.type === "radio") {
+        input.checked = false;
+    }
+}
+
+/**
  * input要素とselect要素の値を初期化する
  * @param {(HTMLElement|HTMLElement[])} els 
  */
-function iniInputsAndSelectValue(els){
-    if(!Array.isArray(els))
-        els = [els];
-    for(let i = 0, len = els.length; i < len; i++){
-        const el = els[i];
-        let isDisable = false;
-        if(el.disabled){
-            el.disabled = false;
-            isDisable = true;
-        }
-        const tagName = el.tagName;
+function iniInputsAndSelectValue(els) {
+    // 単一の要素を配列に統一
+    if(!Array.isArray(els)){els = [els]};
+    
+    els.forEach(el => {
+        // 一時的にdisabledを解除
+        const wasDisabled = el.disabled;
+        if(wasDisabled){el.disabled = false};
+
+        // タグ名による処理の分岐
+        const tagName = el.tagName.toUpperCase(); // 大文字小文字を区別しない比較のため
         if(tagName === "INPUT"){
-            if(el.type === "text" || el.type === "number"){
-                el.value = "";
-            }else if(el.type === "checkbox" || el.type === "radio"){
-                el.checked = false;
-            }
+            resetInputValue(el);
         }else if(tagName === "SELECT"){
             el.value = "";
         }
 
-        if(isDisable)
-            el.disabled = true;
-    }
+        // 元のdisabled状態に戻す
+        if(wasDisabled){el.disabled = true};
+    });
 }
 
 /**
@@ -315,7 +323,7 @@ function copyAndPasteEl(copyFrom, att, regex, newIdx){
         if(el.htmlFor)
             el.htmlFor = el.htmlFor.replace(regex, `$1${newIdx}`);
     });
-    slideDownAndScroll(copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling));
+    copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
 }
 
 /*

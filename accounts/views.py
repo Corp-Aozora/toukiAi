@@ -149,14 +149,17 @@ def change_email(request):
                         {company_name}
                         {company_post_number}
                         {company_address}
-                        TEL {company_phone_number}
+                        受信専用電話番号 {company_receiving_phone_number}
+                        発信専用電話番号 {company_calling_phone_number}
+                        ※弊社からの電話は発信専用番号が表示されます。
                         営業時間 {company_opening_hours}
                         ホームページ {company_url}
                     ''').format(
                         company_name=CompanyData.NAME,
                         company_post_number=CompanyData.POST_NUMBER,
                         company_address=CompanyData.ADDRESS,
-                        company_phone_number=CompanyData.PHONE_NUMBER,
+                        company_receiving_phone_number=CompanyData.RECEIVING_PHONE_NUMBER,
+                        company_calling_phone_number=CompanyData.CALLING_PHONE_NUMBER,
                         company_opening_hours=CompanyData.OPENING_HOURS,
                         company_url=CompanyData.URL,
                         token=forms.instance.token,

@@ -1,5 +1,7 @@
 "use strict";
 
+const sections = document.getElementsByTagName("section");
+
 class Fieldset{
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -282,7 +284,15 @@ class TypeOfDivision extends Fieldset{
         typeOfDivisions.push(this);
     }
 }
-const TODIdxs = TypeOfDivision.idxs;
+const {typeOfDivision: TODTypeOfDivision,
+    propertyAllocation: TODPropertyAllocation,
+    contentType1: TODContentType1,
+    objectId1: TODObjectId1,
+    cashAllocation: TODCashAllocation,
+    allCashAcquirer: TODAllCashAcquirer,
+    contentType2: TODContentType2,
+    objectId2: TODObjectId2
+} = TypeOfDivision.idxs;
 
 
 //不動産の数
@@ -302,7 +312,10 @@ class NumberOfProperties extends Fieldset{
         numberOfProperties.push(this);
     }
 }
-const NOPIdxs = NumberOfProperties.idxs;
+const {land: NOPLand,
+    house: NOPHouse,
+    bldg: NOPBldg
+} = NumberOfProperties.idxs;
 
 //土地情報
 const lands = [];
@@ -330,26 +343,34 @@ class Land extends Fieldset{
             i !== Land.idxs.index.input
         );
         lands.push(this);
-        this.tempLandAcquirers = [];
-        this.tempLandCashAcquirers = [];
-        this.landAcquirers = [];
-        this.landCashAcquirers = [];
+        this.tempAcquirers = [];
+        this.tempCashAcquirers = [];
+        this.acquirers = [];
+        this.cashAcquirers = [];
     }
 
-    addTempLandAcquirer(acquirer){
-        this.tempLandAcquirers.push(acquirer);
+    addTempAcquirer(acquirer){
+        this.tempAcquirers.push(acquirer);
     }
-    addTempLandCashAcquirer(acquirer){
-        this.tempLandCashAcquirers.push(acquirer);
+    addTempCashAcquirer(acquirer){
+        this.tempCashAcquirers.push(acquirer);
     }
-    addLandAcquirer(acquirer){
-        this.landAcquirers.push(acquirer);
+    addAcquirer(acquirer){
+        this.acquirers.push(acquirer);
     }
-    addLandCashAcquirer(acquirer){
-        this.landCashAcquirers.push(acquirer);
+    addCashAcquirer(acquirer){
+        this.cashAcquirers.push(acquirer);
     }
 }
-const LIdxs = Land.idxs;
+const {number: LNumber, 
+    address: LAddress, 
+    landNumber: LLandNumber, 
+    purparty: LPurparty, 
+    office: LOffice, 
+    price: LPrice, 
+    isExchange: LIsExchange,
+    index: LIndex
+} = Land.idxs;
 
 //不動産取得者又は金銭取得者の仮フォーム
 class TempAcquirer extends Fieldset{
@@ -366,7 +387,9 @@ class TempAcquirer extends Fieldset{
         this.belongsTo = instance;
     }
 }
-const TAIdxs = TempAcquirer.idxs;
+const {acquirer: TAAcquirer,
+    percentage: TAPercentage
+} = TempAcquirer.idxs;
 
 class Acquirer{
     //入力欄のインデックス
@@ -382,7 +405,11 @@ class Acquirer{
         this.inputs = Array.from(this.fieldset.getElementsByTagName("input"));
     }
 }
-const AIdxs = Acquirer.idxs;
+const {contentType2: AContentType,
+    objectId2: AObjectId,
+    percentage: APercentage,
+    target: ATarget
+} = Acquirer.idxs;
 
 //土地情報欄のボタン
 const landSection = document.getElementById("land-section");
@@ -400,21 +427,6 @@ const okBtn = document.getElementById("okBtn");
 const statusText = document.getElementById("statusText");
 //２を修正するボタンと４へ進むボタン
 const preBtn = document.getElementById("preBtn");
-
-/**
- * インスタンスの属性値を変数化する
- * @param {Fieldset} instance 
- * @returns 
- */
-function fieldDataToVariable(instance){
-    return{
-        fieldset : instance.fieldset,
-        Qs : instance.Qs,
-        inputs : instance.inputs,
-        errMsgEls : instance.errMsgEls,
-        noInputs : instance.noInputs
-    }
-}
 
 /**
  * 都道府県の値をチェック
@@ -469,13 +481,13 @@ function isActivateOkBtn(instance){
         //土地取得者が法定相続のとき又は金銭取得者が法定相続のとき、trueを返す(取得割合の検証不要)
         const fieldsetId = TAs[0].fieldset.id;
         const TODInputs = typeOfDivisions[0].inputs;
-        const isLALegalInheritance = fieldsetId.includes("temp_land_acquirer-") && TODInputs[TODIdxs.propertyAllocation.input[yes]].checked;
-        const isLCALegalInheritance = fieldsetId.includes("temp_land_cash_acquirer") && TODInputs[TODIdxs.cashAllocation.input[no]].checked;
+        const isLALegalInheritance = fieldsetId.includes("temp_land_acquirer-") && TODInputs[TODPropertyAllocation.input[yes]].checked;
+        const isLCALegalInheritance = fieldsetId.includes("temp_land_cash_acquirer") && TODInputs[TODCashAllocation.input[no]].checked;
         if(isLALegalInheritance || isLCALegalInheritance)
             return true;
 
         //法定相続ではないとき、対象の全仮フォームをチェックして取得割合を取得する
-        const percentageIdxs = TAIdxs.percentage.input;
+        const percentageIdxs = TAPercentage.input;
         let totalFraction = new Fraction(0);
         TAs.forEach(x =>{
             const inputs = x.inputs;
@@ -490,7 +502,7 @@ function isActivateOkBtn(instance){
             const top = instance.inputs[percentageIdxs[no]];
             top.value = "";
             const msg = "取得割合の合計は１になるように入力してください";
-            afterValidation("false", instance.errMsgEls[TAIdxs.percentage.form], msg, top, instance);
+            afterValidation("false", instance.errMsgEls[TAPercentage.form], msg, top, instance);
             return false;
         }else
             return totalFraction.equals(1);
@@ -502,11 +514,11 @@ function isActivateOkBtn(instance){
      */
     function verifyLandSection(land){
         const landVerified = land.noInputs.length === 0;
-        const TLAs = land.tempLandAcquirers;
+        const TLAs = land.tempAcquirers;
         const TLAsPurpartyVerified = isHundredPercent(TLAs);
         const TLAVerified = getLastElFromArray(TLAs).noInputs.length === 0;
-        const TLCAs = land.tempLandCashAcquirers;
-        const TLCAsPurpartyVerified = land.inputs[LIdxs.isExchange.input[yes]].checked ? isHundredPercent(TLCAs): true;
+        const TLCAs = land.tempCashAcquirers;
+        const TLCAsPurpartyVerified = land.inputs[LIsExchange.input[yes]].checked ? isHundredPercent(TLCAs): true;
         const TLCAVerified = getLastElFromArray(TLCAs).noInputs.length === 0;
         //最後の土地情報、かつ土地のエラーなし、かつ土地取得者仮フォームと金銭取得者仮フォームのエラーと取得割合が１分の１になっているとき
         if(getLastElFromArray(lands) === land && landVerified && TLAVerified && TLAsPurpartyVerified && TLCAVerified && TLCAsPurpartyVerified){
@@ -522,10 +534,10 @@ function isActivateOkBtn(instance){
             okBtn.disabled = true;
         }
         //仮取得者のフォームエラーなし、かつ取得割合が１分の１ではないとき、不動産取得者の追加ボタンを有効化する
-        const isTLAsAllSelected = TLAs[0].inputs[TAIdxs.acquirer.input].options.length - 1 === TLAs.length;
+        const isTLAsAllSelected = TLAs[0].inputs[TAAcquirer.input].options.length - 1 === TLAs.length;
         const TLAAddBtn = getLastElFromArray(TLAs).fieldset.nextElementSibling.getElementsByClassName("addTempLandAcquirerBtn")[0];
         TLAAddBtn.disabled = TLAVerified && !TLAsPurpartyVerified && !isTLAsAllSelected ? false: true;
-        const isTLCAsAllSelected = TLCAs[0].inputs[TAIdxs.acquirer.input].options.length - 1 === TLCAs.length;
+        const isTLCAsAllSelected = TLCAs[0].inputs[TAAcquirer.input].options.length - 1 === TLCAs.length;
         const TLCAAddBtn = getLastElFromArray(TLCAs).fieldset.nextElementSibling.getElementsByClassName("addTempLandCashAcquirerBtn")[0];
         TLCAAddBtn.disabled = TLCAVerified && !TLCAsPurpartyVerified && !isTLCAsAllSelected ? false: true;
     }
@@ -993,8 +1005,16 @@ function pushInvalidEl(instance, el){
         instance.noInputs.push(el);
         if(instance instanceof SpouseOrAscendant || instance instanceof DescendantOrCollateral)
             heirsOkBtn.disabled = true;
-        else if(instance instanceof Land)
+        else if(instance instanceof Land || instance instanceof TempAcquirer){
+            //土地又は取得者仮フォームのインスタンスのとき
             landOkBtn.disabled = true;
+            if(instance instanceof TempAcquirer){
+                if(instance.fieldset.id.includes("temp_land_acquirer"))
+                    instance.fieldset.nextElementSibling.getElementsByClassName("addTempLandAcquirerBtn")[0].disabled = true;
+                else
+                    instance.fieldset.nextElementSibling.getElementsByClassName("addTempLandCashAcquirerBtn")[0].disabled = true;
+            }
+        }
         okBtn.disabled = true;
     }
 }
@@ -1041,25 +1061,9 @@ function afterValidation(isValid, errMsgEl, message, el, instance){
         errMsgEl.innerHTML = message;
         errMsgEl.style.display = "block";
         //建物名、地番の枝番以外の要素のとき
-        if(!el.id.includes("bldg") && !el.id.includes("land_number_bottom")){
-            //配列に取得
-            instance.noInputs.push(el);
-            //相続人情報のとき
-            if(instance instanceof SpouseOrAscendant || instance instanceof DescendantOrCollateral){
-                heirsOkBtn.disabled = true;
-            }else if(instance instanceof Land || instance instanceof TempAcquirer){
-                //土地又は取得者仮フォームのインスタンスのとき
-                landOkBtn.disabled = true;
-                if(instance instanceof TempAcquirer){
-                    if(instance.fieldset.id.includes("temp_land_acquirer"))
-                        instance.fieldset.nextElementSibling.getElementsByClassName("addTempLandAcquirerBtn")[0].disabled = true;
-                    else
-                        instance.fieldset.nextElementSibling.getElementsByClassName("addTempLandCashAcquirerBtn")[0].disabled = true;
-                }
-            }
-            //次へのボタンを無効化
-            okBtn.disabled = true;
-        }
+        if(!el.id.includes("bldg") && !el.id.includes("land_number_bottom"))
+            pushInvalidEl(instance, el);
+
         el.value = "";
     }
 }
@@ -1451,7 +1455,6 @@ function handleHeirsOkBtnEvent(){
  */
 function handleCorrectBtnEvent(){
     //全セクションタグを取得して最後の要素からループ処理
-    const sections = document.getElementsByTagName("section");
     for (let i = sections.length - 1; i >= 0; i--) {
         //表示されているとき
         const isDisplayedSection = window.getComputedStyle(sections[i]).display !== 'none';
@@ -1461,9 +1464,9 @@ function handleCorrectBtnEvent(){
             //使用された直前のセクションを取得する
             let preSection;
             if(sections[i].id === "application-section"){
-                if(parseInt(typeOfDivisions[0].inputs[NOPIdxs.bldg].value) > 0){
+                if(parseInt(typeOfDivisions[0].inputs[NOPBldg].value) > 0){
                     preSection = sections[i - 1];
-                }else if(parseInt(typeOfDivisions[0].inputs[NOPIdxs.house].value) > 0){
+                }else if(parseInt(typeOfDivisions[0].inputs[NOPHouse].value) > 0){
                     preSection = document.getElementById("house-section");
                 }else{
                     preSection = landSection;
@@ -1499,16 +1502,16 @@ function handleCorrectBtnEvent(){
                 lands.forEach(x =>{
                     if(x != lastInstance){
                         x.fieldset.disabled = true;
-                        x.tempLandAcquirers.forEach(y => y.fieldset.disabled = true);
-                        x.tempLandCashAcquirers.forEach(y => y.fieldset.disabled = true);
+                        x.tempAcquirers.forEach(y => y.fieldset.disabled = true);
+                        x.tempCashAcquirers.forEach(y => y.fieldset.disabled = true);
                     }
                 })
                 //土地取得者の仮フォームのラッパーが表示されている、かつ２以上のフォームがあるとき削除ボタンを有効化する
-                if(lastInstance.tempLandAcquirers[0].parentElement.style.display !== "none" && lastInstance.tempLandAcquirers.length > 1){
+                if(lastInstance.tempAcquirers[0].fieldset.parentElement.style.display !== "none" && lastInstance.tempAcquirers.length > 1){
                     getLastElFromArray(removeTLABtns).disabled = true;
                 }
                 //金銭取得者の仮フォームのラッパーが表示されている、かつ２以上のフォームがあるとき削除ボタンを有効化する
-                if(lastInstance.tempLandCashAcquirers[0].parentElement.style.display !== "none" && lastInstance.tempLandCashAcquirers.length > 1){
+                if(lastInstance.tempCashAcquirers[0].fieldset.parentElement.style.display !== "none" && lastInstance.tempCashAcquirers.length > 1){
                     const removeTLCABtns = preSection.getElementsByClassName("removeTempLandCashAcquirerBtn");
                     getLastElFromArray(removeTLCABtns).disabled = true;
                 }
@@ -1678,69 +1681,53 @@ function checkHeirsSection(){
 }
 
 /**
- * 金銭を全て取得する人の選択肢に全相続人を追加する
- * @param {TypeOfDivision} instance 
+ * selectに法定相続人全員を追加する
+ * ・第２引数をfalseにすると１つ目のoptionはvalue空白の「選択してください」を追加しない
+ * @param {HTMLSelectElement} select 
+ * @param {boolean} includePrompt 「選択してください」を含めるかどうか
  */
-function addAllHeirsToCashAcquirerSelect(instance){
-    //金銭の全取得者セレクトタグ
-    const allCashAcquirer = instance.inputs[TODIdxs.allCashAcquirer.input];
-    //全相続人に対してループ処理
-    heirs.forEach(x => {
-        const heirIdx = x.constructor.idxs;
-        const heirInputs = x.inputs;
-        //不動産取得について「する」又は「しない」のいずれかが選択されているとき（相続人のとき）
-        if(heirIdx.isAcquire.some(y => heirInputs[y].checked))
-            allCashAcquirer.add(createOption(heirInputs[heirIdx.idAndContentType].value, heirInputs[heirIdx.name].value));
+function addAllLegalHeirsToSelect(select, includePrompt = true){
+    select.options.length = 0;
+    const candidates = getAllLegalHeirs();
+    if(includePrompt)
+        select.add(createOption("", "選択してください"));
+    candidates.forEach(x => {
+        const idxs = x.constructor.idxs;
+        const inputs = x.inputs;
+        select.add(createOption(inputs[idxs.idAndContentType].value, inputs[idxs.name].value));
     })
 }
-
 
 /**
  * 遺産分割の方法セクションのchangeインベントを設定する
  * @param {TypeOfDivision} instance 
  * @param {number} i 
  */
-function TypeOfDivisionChangeEventHandler(instance, i){
-    const {inputs, Qs, noInputs} = fieldDataToVariable(instance);
-    const cashAllocationQ = Qs[TODIdxs.cashAllocation.form];
-    const cashAllocationInputIdxs = TODIdxs.cashAllocation.input;
-    const allCashAcquirerQ = Qs[TODIdxs.allCashAcquirer.form];
-    const allCashAcquirerInputIdx = TODIdxs.allCashAcquirer.input;
+function TODChangeEventHandler(instance, i){
+    const {inputs, Qs, noInputs} = instance;
+    const cashAllocationQ = Qs[TODCashAllocation.form];
+    const cashAllocationInputIdxs = TODCashAllocation.input;
+    const allCashAcquirerQ = Qs[TODAllCashAcquirer.form];
+    const allCashAcquirerInputIdx = TODAllCashAcquirer.input;
     const allCashAcquirerInput = inputs[allCashAcquirerInputIdx];
-    const typeOfDivisionInputIdxs = TODIdxs.typeOfDivision.input;
-    const propertyAllocationInputIdxs = TODIdxs.propertyAllocation.input;
-    const propertyAllocationFormIdx = TODIdxs.propertyAllocation.form;
-    const isPropertyAcquirerAlone = inputs[TODIdxs.contentType1.input].value !== "";
+    const typeOfDivisionInputIdxs = TODTypeOfDivision.input;
+    const {input: propertyAllocationInputIdxs, form: propertyAllocationFormIdx} = TODPropertyAllocation;
+    const isPropertyAcquirerAlone = inputs[TODContentType1.input].value !== "";
     const isPropertyAcquirerFree = inputs[propertyAllocationInputIdxs[no]].checked;
     const propertyAllocationQ = Qs[propertyAllocationFormIdx];
     const propertyAllocationInputYes = inputs[propertyAllocationInputIdxs[yes]];
     const cashAllocationInputYes = inputs[cashAllocationInputIdxs[yes]];
-    const contentType2Input = inputs[TODIdxs.contentType2.input];
-    const objectId2Input = inputs[TODIdxs.objectId2.input];
+    const contentType2Input = inputs[TODContentType2.input];
+    const objectId2Input = inputs[TODObjectId2.input];
     //遺産分割の方法のとき
     if(typeOfDivisionInputIdxs.includes(i)){
-        const isNotLegalInheritance = (isPropertyAcquirerAlone || isPropertyAcquirerFree);
+        const isPropertyAllocationDecided = (isPropertyAcquirerAlone || isPropertyAcquirerFree);
         //通常のとき
         if(i === typeOfDivisionInputIdxs[yes]){
-            //不動産取得者が１人又は２人以上で全員未満のとき
-            if(isNotLegalInheritance){
-                activateOkBtn();
-            }else{
-                //全相続人が不動産取得者のとき
-                //不動産取得者欄を表示する
-                slideDownIfHidden(propertyAllocationQ);
-                //すでに不動産取得者欄が入力されているとき
-                if(propertyAllocationInputIdxs.some(x => inputs[x].checked))
-                    activateOkBtn();
-                else
-                    //未入力のときは、エラー要素を追加して次の項目へ進むボタンを無効化する
-                    pushInvalidEl(instance, propertyAllocationInputYes);
-            }   
-            //金銭取得方法欄が表示されているとき、非表示にして初期化
-            iniCashRelatedQs();
+            handleNormalDivision(isPropertyAllocationDecided);
         }else{
             //不動産取得者が１人又は２人以上で全員未満のとき
-            if(isNotLegalInheritance){
+            if(isPropertyAllocationDecided){
                 //金銭取得方法欄を表示して、エラー要素を追加する
                 slideDownIfHidden(cashAllocationQ);
                 pushInvalidEl(instance, cashAllocationInputYes);
@@ -1798,6 +1785,26 @@ function TypeOfDivisionChangeEventHandler(instance, i){
         }
     }
 
+    //通常分割のときの処理
+    function handleNormalDivision(isPropertyAllocationDecided){
+        //不動産の取得方法が決まっているとき
+        if(isPropertyAllocationDecided){
+            activateOkBtn();
+        }else{
+            //決まってないとき
+            //不動産取得者欄を表示する
+            slideDownIfHidden(propertyAllocationQ);
+            //すでに取得方法がチェックされているとき、次へボタンを有効化する
+            if(propertyAllocationInputIdxs.some(x => inputs[x].checked))
+                activateOkBtn();
+            else
+                //未入力のときは、エラー要素を追加して次の項目へ進むボタンを無効化する
+                pushInvalidEl(instance, propertyAllocationInputYes);
+        }   
+        //金銭取得方法欄が表示されているとき、非表示にして初期化
+        iniCashRelatedQs();
+    }
+
     //金銭取得者欄と金銭全取得者欄を非表示にして初期化する
     function iniCashRelatedQs(){
         //金銭取得方法欄が表示されているとき、非表示にして初期化
@@ -1831,39 +1838,41 @@ function setTypeOfDivisionSection(){
     //不動産を取得しない相続人
     const notAcquirers = heirs.filter(heir => heir.inputs[heir.constructor.idxs.isAcquire[no]].checked);
     const isNotAcquirers = notAcquirers.length > 0;
-    //初めて遺産分割方法セクションを表示するとき
+    //初回の遺産分割方法セクションを表示するとき
     if(typeOfDivisions.length === 0){
         //インスタンス生成
         const instance = new TypeOfDivision("id_type_of_division-0-fieldset");
         const inputs = instance.inputs;
         //不動産取得者が一人のとき、content_type1とobject_id1に値を代入する
         if(isAcquireAlone)
-            getAllPropertyAcquirer(instance);
+            inputAllAcquirer(instance, acquirers[0]);
         //全員が不動産取得者ではないとき、不動産取得者欄のその他にチェックを入れる
         else if(isNotAcquirers)
-            inputs[TODIdxs.propertyAllocation.input[no]].checked = true;
+            inputs[TODPropertyAllocation.input[no]].checked = true;
         //金銭取得者をselectに追加する
-        addAllHeirsToCashAcquirerSelect(instance);
+        addAllLegalHeirsToSelect(instance.inputs[TODAllCashAcquirer.input]);
         //イベントを設定
         for(let i = 0, len = inputs.length; i < len; i++){
             inputs[i].addEventListener("change", ()=>{
-                TypeOfDivisionChangeEventHandler(instance, i);
+                TODChangeEventHandler(instance, i);
             })
         }
         //次の項目へ進むボタンを無効化する
         okBtn.disabled = true;
     }else{
         let newPattern = isAcquireAlone ? yes : (isNotAcquirers ? no : other);
-        const {inputs, Qs} = fieldDataToVariable(typeOfDivisions[0]);
-        const wasAlone = inputs[TODIdxs.contentType1.input].value !== "";
-        const wasNotAcquirers = Qs[TODIdxs.propertyAllocation.form].style.display === "none";
-        let oldPattern = wasAlone ? yes: (wasNotAcquirers ? no: other);
+        const instance = typeOfDivisions[0]
+        const {inputs, Qs} = instance;
+        const wasAlone = inputs[TODContentType1.input].value !== "";
+        const wasNotAcquirers = inputs[TODPropertyAllocation.input[no]].checked;
+        const wasLegalInheritance = inputs[TODPropertyAllocation.input[yes]].checked;
+        let oldPattern = wasAlone ? yes: (wasNotAcquirers ? no: (wasLegalInheritance ? other: other2));
         //不動産取得者の数に変更があるとき
         if(newPattern !== oldPattern){
             //インスタンスの初期化処理
             //質問欄の表示を遺産分割の方法のみにする
             Qs.forEach(x => {
-                if(x !== Qs[TODIdxs.typeOfDivision.form])
+                if(x !== Qs[TODTypeOfDivision.form])
                     x.style.display = "none";
             })
             //inputとselectの初期化
@@ -1873,29 +1882,29 @@ function setTypeOfDivisionSection(){
                 else
                     x.value = "";
             })
+            pushInvalidEl(instance, inputs[TODTypeOfDivision.input[yes]]);
             //不動産取得者が一人になったとき
             if(newPattern === yes)
-                getAllPropertyAcquirer(typeOfDivisions[0]);
+                inputAllAcquirer(instance, acquirers[0]);
             //不動産取得者が二人以上、全員未満になったとき
             else if(newPattern === no)
-                inputs[TODIdxs.propertyAllocation.input[no]].checked = true;
+                inputs[TODPropertyAllocation.input[no]].checked = true;
         }else{
             //変更がないとき
             if(newPattern === yes)
-                getAllPropertyAcquirer(typeOfDivisions[0]);
+                inputAllAcquirer(instance, acquirers[0]);
         }
 
         //入力状況に応じて次の項目へ進むボタンを有効化又は無効化する
-        okBtn.disabled = typeOfDivisions[0].noInputs.length === 0 ? false: true;
+        okBtn.disabled = instance.noInputs.length === 0 ? false: true;
     }
 
     //不動産の全取得者のidとcontent_typeを取得して遺産分割方法インスタンスに代入する
-    function getAllPropertyAcquirer(instance){
-        const acquirers = heirs.filter(heir => heir.inputs[heir.constructor.idxs.isAcquire[yes]].checked);
-        const parts = acquirers[0].inputs[acquirers[0].constructor.idxs.idAndContentType].value.split("_");
+    function inputAllAcquirer(instance, acquirer){
+        const parts = acquirer.inputs[acquirer.constructor.idxs.idAndContentType].value.split("_");
         const inputs = instance.inputs;
-        inputs[TODIdxs.objectId1.input].value = parts[0];
-        inputs[TODIdxs.contentType1.input].value = parts[1];
+        inputs[TODObjectId1.input].value = parts[0];
+        inputs[TODContentType1.input].value = parts[1];
     }
     scrollToTarget(typeOfDivisions[0].fieldset);
 }
@@ -2022,6 +2031,29 @@ function setNumberOfPropertiesSection(){
 }
 
 /**
+ * 土地インスタンスをよく使用する変数に分解する
+ * @param {Land} land 
+ * @returns 
+ */
+function landDataToVariable(land){
+    return{
+        land: land,
+        fieldset: land.fieldset,
+        Qs: land.Qs,
+        inputs: land.inputs,
+        errMsgEls: land.errMsgEls,
+        noInputs: land.noInputs,
+        TLAs: land.tempAcquirers,
+        TLAWrapper: land.fieldset.nextElementSibling,
+        TLCAs: land.tempCashAcquirers,
+        TLCAWrapper: land.fieldset.nextElementSibling.nextElementSibling,
+        LAs: land.acquirers,
+        LCAs: land.cashAcquirers,
+        landWrapper: land.fieldset.parentElement.parentElement
+    }
+}
+
+/**
  * 重複入力チェック
  * @param {Fieldset[]} instances
  * @param {number} inputIdx 
@@ -2044,14 +2076,20 @@ function isDuplicateInput(instances, inputIdx){
  * @param {HTMLElement} input 
  */
 function propertyNumberValidation(input){
-    const result = isBlank(input);
+    let result = isBlank(input);
     if(result !== false)
         return result;
     if(!isNumber(input.value, input))
         return "数字で入力してください";
-    if(input.value.length !== 13)
-        return "１３桁の数字で入力してください";
-    return isDuplicateInput(lands, LIdxs.number.input);
+    result = isDigit(input, "propertyNumber");
+    if(typeof result === "string")
+        return result;
+    result = isDuplicateInput(lands, LNumber.input);
+    if(typeof result === "string"){
+        input.value = "";
+        return result;
+    }
+    return true;
 }
 
 /**
@@ -2078,22 +2116,22 @@ function branchNumberValidation(input){
 function landValidation(inputs, idx){
     const input = inputs[idx];
     //不動産番号のとき、空欄、整数、１３桁、重複
-    if(idx === LIdxs.number.input){
+    if(idx === LNumber.input){
         return propertyNumberValidation(input);
-    }else if([LIdxs.address.input, LIdxs.office.input].includes(idx)){
+    }else if([LAddress.input, LOffice.input].includes(idx)){
         //所在地、法務局のとき、空欄チェック
         const result = isBlank(input);
         return (result !== false) ? result: true;
-    }else if(idx === LIdxs.landNumber.input[no]){
+    }else if(idx === LLandNumber.input[no]){
         //地番の枝番のとき、（空欄のときは何もしない）整数
         return branchNumberValidation(input);
-    }else if([LIdxs.landNumber.input[yes], , LIdxs.purparty.input[no], LIdxs.purparty.input[other], LIdxs.price.input].includes(idx)){
+    }else if([LLandNumber.input[yes], LPurparty.input[no], LPurparty.input[other], LPrice.input].includes(idx)){
         //地番の主番、所有権・持分、評価額のとき、共通：空欄、整数
         let result = isBlank(input);
         if(result !== false)
             return result;
         //評価額のとき、コンマを削除する
-        if(idx === LIdxs.price.input)
+        if(idx === LPrice.input)
             input.value = removeCommas(input.value);
         if(!isNumber(input.value, input))
             return "数字のみで入力してください";
@@ -2101,9 +2139,9 @@ function landValidation(inputs, idx){
         if(typeof result === "string")
             return result;
         //所有権割合の分子が分母を超えてないかチェック
-        const isPurpartyInput = [LIdxs.purparty.input[no], LIdxs.purparty.input[other]].includes(idx);
-        const bottomVal = inputs[LIdxs.purparty.input[no]].value;
-        const topVal = inputs[LIdxs.purparty.input[other]].value;
+        const isPurpartyInput = [LPurparty.input[no], LPurparty.input[other]].includes(idx);
+        const bottomVal = inputs[LPurparty.input[no]].value;
+        const topVal = inputs[LPurparty.input[other]].value;
         if(isPurpartyInput && bottomVal !== "" && topVal !== ""){
             const bottom = parseInt(ZenkakuToHankaku(bottomVal));
             const top = parseInt(ZenkakuToHankaku(topVal));
@@ -2198,11 +2236,11 @@ function getAllcandidates(){
  */
 function handleLandKeydownEvent(e, inputs, idx){
     //隠しinputが次にある要素のときは、+2にして隠しinputを飛ばす
-    const isNextDisplayedInput = ![LIdxs.landNumber.input[no], LIdxs.purparty.input[other]].includes(idx);
-    const isPurpartyOtherInput = idx === LIdxs.purparty.input[other];
+    const isNextDisplayedInput = ![LLandNumber.input[no], LPurparty.input[other]].includes(idx);
+    const isPurpartyOtherInput = idx === LPurparty.input[other];
     setEnterKeyFocusNext(e, (isNextDisplayedInput ? inputs[idx + 1]: (isPurpartyOtherInput ? inputs[idx + 3]: inputs[idx + 2])));
     //所在地、所有者CBと換価確認以外の欄は数字のみの入力に制限する
-    const isNumberOnlyInputs = ![LIdxs.address.input, LIdxs.purparty.input[yes], LIdxs.isExchange.input[yes], LIdxs.isExchange.input[no]].includes(idx);
+    const isNumberOnlyInputs = ![LAddress.input, LPurparty.input[yes], LIsExchange.input[yes], LIsExchange.input[no]].includes(idx);
     if(isNumberOnlyInputs)
         handleNumInputKeyDown(e);
 }
@@ -2213,10 +2251,10 @@ function handleLandKeydownEvent(e, inputs, idx){
  */
 function purpartyCbChangeEvent(land){
     const inputs = land.inputs;
-    const purpartyInputIdxs = LIdxs.purparty.input;
-    const noInput = inputs[purpartyInputIdxs[no]];
-    const otherInput = inputs[purpartyInputIdxs[other]];
-    const isChecked = inputs[purpartyInputIdxs[yes]].checked;
+    const idxs = LPurparty.input;
+    const noInput = inputs[idxs[no]];
+    const otherInput = inputs[idxs[other]];
+    const isChecked = inputs[idxs[yes]].checked;
     isChecked ? purpartyCbWhenChecked(land, noInput, otherInput): purpartyCbWhenUnChecked(land, noInput, otherInput);
 }
 
@@ -2255,7 +2293,7 @@ function inputPurparty(land, noInput, otherInput, boolean){
     const val = boolean ? "１": "";
     inputAndToggleDisable(noInput, val, boolean);
     inputAndToggleDisable(otherInput, val, boolean);
-    land.inputs[LIdxs.purparty.input[other2]].value = val + "分の" + val;
+    land.inputs[LPurparty.input[other2]].value = val + "分の" + val;
 }
 
 /**
@@ -2274,12 +2312,12 @@ function inputAndToggleDisable(input, val, toggle){
  * @param {Land} instance 
  */
 function isExchangeChecked(instance){
-    const TLCA = instance.tempLandCashAcquirers[0];
+    const TLCA = instance.tempCashAcquirers[0];
     const TODInputs = typeOfDivisions[0].inputs;
-    const aloneHeirContentType = TODInputs[TODIdxs.contentType2.input].value;
-    const aloneHeirId = TODInputs[TODIdxs.objectId2.input].value;
+    const aloneHeirContentType = TODInputs[TODContentType2.input].value;
+    const aloneHeirId = TODInputs[TODObjectId2.input].value;
     const isAloneInheritance = aloneHeirContentType !== "";
-    const isLegalInheritance = TODInputs[TODIdxs.cashAllocation.input[no]].checked;
+    const isLegalInheritance = TODInputs[TODCashAllocation.input[no]].checked;
     //一人のみが取得するとき
     if(isAloneInheritance){
         const idAndContentType = aloneHeirId + "_" + aloneHeirContentType;
@@ -2299,12 +2337,12 @@ function isExchangeChecked(instance){
  * @param {number} [startIdx=0] イベント設定する開始対象の土地のインデックス
  */
 function setLandEvent(startIdx = 0){
-    const numberInputIdx = LIdxs.number.input;
-    const addressInputIdx = LIdxs.address.input;
-    const landNumberInputIdxs = LIdxs.landNumber.input;
-    const purpartyInputIdxs = LIdxs.purparty.input;
-    const officeInputIdx = LIdxs.office.input;
-    const isExchangeInputIdxs = LIdxs.isExchange.input;
+    const numberInputIdx = LNumber.input;
+    const addressInputIdx = LAddress.input;
+    const landNumberInputIdxs = LLandNumber.input;
+    const purpartyInputIdxs = LPurparty.input;
+    const officeInputIdx = LOffice.input;
+    const isExchangeInputIdxs = LIsExchange.input;
 
     //各土地インスタンスに対してループ処理
     for(let i = startIdx, len = lands.length; i < len; i++){
@@ -2312,7 +2350,7 @@ function setLandEvent(startIdx = 0){
         const landInputs = land.inputs;
         for(let j = 0, len2 = landInputs.length; j < len2; j++){
             //隠しinputとindex以外のとき
-            const isDisplayedInputs = ![landNumberInputIdxs[other], purpartyInputIdxs[other2], LIdxs.index.input].includes(j);
+            const isDisplayedInputs = ![landNumberInputIdxs[other], purpartyInputIdxs[other2], LIndex.input].includes(j);
             if(isDisplayedInputs){
                 //キーダウンイベント
                 landInputs[j].addEventListener("keydown", (e)=>{
@@ -2324,7 +2362,7 @@ function setLandEvent(startIdx = 0){
             function isExchangeChangeEvent(inputIdx){
                 //エラー要素から換価する、しない両方のinputを削除する
                 land.noInputs = land.noInputs.filter(x => x !== landInputs[isExchangeInputIdxs[yes]] && x !== landInputs[isExchangeInputIdxs[no]]);
-                const TLCAs = land.tempLandCashAcquirers;
+                const TLCAs = land.tempCashAcquirers;
                 const TLCA = TLCAs[0];
                 //換価するとき
                 if(inputIdx === isExchangeInputIdxs[yes]){
@@ -2352,7 +2390,7 @@ function setLandEvent(startIdx = 0){
             const changeEventHandler = (inputIdx, formIdx) => {
                 landInputs[inputIdx].addEventListener("change", () => {
                     //地番の枝番に対するエラーを非表示にする
-                    land.errMsgEls[LIdxs.landNumber.form].style.display = "none";
+                    land.errMsgEls[LLandNumber.form].style.display = "none";
                     //所有者CBのとき
                     if(inputIdx === purpartyInputIdxs[yes]){
                         purpartyCbChangeEvent(land);
@@ -2365,7 +2403,7 @@ function setLandEvent(startIdx = 0){
                     //所有者CB、換価確認ラジオボタン以外のとき
                     const result = landValidation(landInputs, inputIdx);
                     afterValidation(result, land.errMsgEls[formIdx], result, landInputs[inputIdx], land);
-                    if(result && inputIdx !== LIdxs.price.input)
+                    if(result && inputIdx !== LPrice.input)
                         landInputs[inputIdx].value = hankakuToZenkaku(landInputs[inputIdx].value);
 
                     //不動産番号のとき
@@ -2391,7 +2429,7 @@ function setLandEvent(startIdx = 0){
                             landInputs[purpartyInputIdxs[other2]].value = landInputs[inputIdx].value + landInputs[purpartyInputIdxs[other2]].value;
                         else
                             landInputs[purpartyInputIdxs[other2]].value += landInputs[inputIdx].value;
-                    }else if(inputIdx === LIdxs.price.input){
+                    }else if(inputIdx === LPrice.input){
                         //評価額のとき、半角にしてコンマを追加して全角に戻す
                         const hankaku = ZenkakuToHankaku(landInputs[inputIdx].value);
                         landInputs[inputIdx].value = hankakuToZenkaku(addCommas(hankaku));
@@ -2400,20 +2438,20 @@ function setLandEvent(startIdx = 0){
             }
 
             //各入力欄にchangeイベントを設定する
-            if(j === LIdxs.number.input)
-                changeEventHandler(j, LIdxs.number.form);
+            if(j === LNumber.input)
+                changeEventHandler(j, LNumber.form);
             else if(j === addressInputIdx)
-                changeEventHandler(j, LIdxs.address.form);
+                changeEventHandler(j, LAddress.form);
             else if([landNumberInputIdxs[yes], landNumberInputIdxs[no]].includes(j))
-                changeEventHandler(j, LIdxs.landNumber.form);
+                changeEventHandler(j, LLandNumber.form);
             else if(j === officeInputIdx)
-                changeEventHandler(j, LIdxs.office.form);
+                changeEventHandler(j, LOffice.form);
             else if([purpartyInputIdxs[yes], purpartyInputIdxs[no], purpartyInputIdxs[other]].includes(j))
-                changeEventHandler(j, LIdxs.purparty.form);
-            else if(j === LIdxs.price.input)
-                changeEventHandler(j, LIdxs.price.form);
+                changeEventHandler(j, LPurparty.form);
+            else if(j === LPrice.input)
+                changeEventHandler(j, LPrice.form);
             else if(isExchangeInputIdxs.includes(j))
-                changeEventHandler(j, LIdxs.isExchange.form);  
+                changeEventHandler(j, LIsExchange.form);  
         }
     }
 }
@@ -2582,7 +2620,7 @@ function getLegalPercentage(candidates, heir){
  */
 function addOption(tempAcquires, candidates){
     tempAcquires.forEach(x =>{
-        const select = x.inputs[TAIdxs.acquirer.input];
+        const select = x.inputs[TAAcquirer.input];
         const option = document.createElement("option");
         option.text = "選択してください";
         option.value = "";
@@ -2627,8 +2665,8 @@ function addAcquirerCandidate(){
     })
 
     lands.forEach(x =>{
-        addOption(x.tempLandAcquirers, TLACandidates);
-        addOption(x.tempLandCashAcquirers, TLCACandidates);
+        addOption(x.tempAcquirers, TLACandidates);
+        addOption(x.tempCashAcquirers, TLCACandidates);
     })
 }
 
@@ -2643,7 +2681,7 @@ function tempLandValidation(inputs, idx){
     if(result !== false)
         return result;
 
-    const percentageIdxs = TAIdxs.percentage.input;
+    const percentageIdxs = TAPercentage.input;
     if(percentageIdxs.includes(idx)){
         if(!isNumber(input.value, input))
             return "数字で入力してください";
@@ -2669,46 +2707,46 @@ function tempLandValidation(inputs, idx){
 /**
  * 土地取得者の仮フォームに対するイベント設定
  */
-function setLandTAEvent(){
+function setLandTAEvent(startIdx = 0){
     const addBtn = addTLABtns[0];
     //各土地に対してループ処理
-    lands.forEach(x =>{
+    for(let i = startIdx, len = lands.length; i < len; i++){
         //土地取得者仮フォーム
-        const TLA = x.tempLandAcquirers[0];
+        const TLA = lands[i].tempAcquirers[0];
         const TLAInputs = TLA.inputs;
         //金銭取得者仮フォーム
-        const TLCA = x.tempLandCashAcquirers[0];
+        const TLCA = lands[i].tempCashAcquirers[0];
         const TLCAInputs = TLCA.inputs;
         //土地取得者仮フォームと金銭取得者仮フォームは、同一のフォーム形式のためイベント設定
-        for(let i = 0, len = TLAInputs.length; i < len; i++){
-            const TAPercentageInputIdxs = TAIdxs.percentage.input;
+        for(let k = 0, len = TLAInputs.length; k < len; k++){
+            const TAPercentageInputIdxs = TAPercentage.input;
             //取得割合のとき
-            if(TAPercentageInputIdxs.includes(i)){
+            if(TAPercentageInputIdxs.includes(k)){
+                //keydownイベントを設定（数字のみの入力制限とフォーカス移動処理）
+                TLAInputs[k].addEventListener("keydown", (e)=> keyDownHandler(e, TLAInputs));
+                TLCAInputs[k].addEventListener("keydown", (e)=> keyDownHandler(e, TLCAInputs));
                 function keyDownHandler(e, inputs){
                     handleNumInputKeyDown(e);
-                    setEnterKeyFocusNext(e, (TAPercentageInputIdxs[yes] ? inputs[i + 1]: addBtn));
+                    setEnterKeyFocusNext(e, (TAPercentageInputIdxs[yes] ? inputs[k + 1]: addBtn));
                 }
-                //keydownイベント、数字のみの入力制限とフォーカス移動処理
-                TLAInputs[i].addEventListener("keydown", (e)=> keyDownHandler(e, TLAInputs));
-                TLCAInputs[i].addEventListener("keydown", (e)=> keyDownHandler(e, TLCAInputs));
             }
             //全インプットに対してchangeイベントを設定
+            TLAInputs[k].addEventListener("change", ()=>changeEventHandler(TLA));
+            TLCAInputs[k].addEventListener("change", ()=>changeEventHandler(TLCA));
             function changeEventHandler(TA){
                 const TAInputs = TA.inputs;
-                const result = tempLandValidation(TAInputs, i);
+                const result = tempLandValidation(TAInputs, k);
                 //取得者のとき
-                if(i === TAIdxs.acquirer.input){
-                    afterValidation(result, TA.errMsgEls[TAIdxs.acquirer.form], result, TAInputs[i], TA);
-                }else if(TAPercentageInputIdxs.includes(i)){
+                if(k === TAAcquirer.input){
+                    afterValidation(result, TA.errMsgEls[TAAcquirer.form], result, TAInputs[k], TA);
+                }else if(TAPercentageInputIdxs.includes(k)){
                     //取得割合のとき
-                    afterValidation(result, TA.errMsgEls[TAIdxs.percentage.form], result, TAInputs[i], TA);
-                    TAInputs[i].value = hankakuToZenkaku(TAInputs[i].value);
+                    afterValidation(result, TA.errMsgEls[TAPercentage.form], result, TAInputs[k], TA);
+                    TAInputs[k].value = hankakuToZenkaku(TAInputs[k].value);
                 }
             }
-            TLAInputs[i].addEventListener("change", ()=>changeEventHandler(TLA));
-            TLCAInputs[i].addEventListener("change", ()=>changeEventHandler(TLCA));
         }
-    })
+    }
 }
 
 /**
@@ -2729,14 +2767,13 @@ function removeOptionFromSelect(select, target){
 /**
  * 取得者仮フォームの追加ボタンのイベント設定
  */
-function setAddTABtnEvent(){
-    const TAcquirerInputIdx = TAIdxs.acquirer.input;
-    const TAPercentageInputIdxs = TAIdxs.percentage.input;
+function setAddTABtnEvent(startIdx = 0){
+    const TAcquirerInputIdx = TAAcquirer.input;
+    const TAPercentageInputIdxs = TAPercentage.input;
     //土地の数と追加ボタンの数は同じ
-    for(let i = 0, len = addTLABtns.length; i < len; i++){
-        const land = lands[i];
+    for(let i = startIdx, len = addTLABtns.length; i < len; i++){
+        const {land, TLAs, TLCAs} = landDataToVariable(lands[i]);
         addTLABtns[i].addEventListener("click", ()=>{
-            const TLAs = land.tempLandAcquirers;
             //追加する仮フォームの生成
             addTAFieldsetAndInstance(false, land, TLAs);
             inputTAWhenLastAcquirer(TLAs);
@@ -2756,7 +2793,6 @@ function setAddTABtnEvent(){
             setForNextTAFieldset(newTLA, addTLABtns[i], removeTLABtns[i]);
         })
         addTLCABtns[i].addEventListener("click", ()=>{
-            const TLCAs = land.tempLandCashAcquirers;
             addTAFieldsetAndInstance(true, land, TLCAs);
             inputTAWhenLastAcquirer(TLCAs);
             const newTLCA = getLastElFromArray(TLCAs);
@@ -2801,11 +2837,13 @@ function setAddTABtnEvent(){
         const newTA = new TempAcquirer(newId, land);
         const newTAInputs = newTA.inputs;
         newTAInputs.forEach(x => x.value = "");
-        isCash ? land.addTempLandCashAcquirer(newTA): land.addTempLandAcquirer(newTA);
+        isCash ? land.addTempCashAcquirer(newTA): land.addTempAcquirer(newTA);
         //すでに選択された取得者は取得者候補から削除する
         const selectedHeir = currentTA.inputs[TAcquirerInputIdx].value;
         const newTLAAcquirersInput = newTAInputs[TAcquirerInputIdx];
         removeOptionFromSelect(newTLAAcquirersInput, selectedHeir);
+        slideDown(newTA.fieldset);
+        scrollToTarget(newTA.fieldset);
     }
 
     /**
@@ -2861,10 +2899,10 @@ function setAddTABtnEvent(){
         const result = tempLandValidation(TAInputs, inputIdx);
         //取得者のとき、hidden取得者に転記する
         if(inputIdx === TAcquirerInputIdx){
-            afterValidation(result, TAInstance.errMsgEls[TAIdxs.acquirer.form], result, TAInputs[TAcquirerInputIdx], TAInstance);
+            afterValidation(result, TAInstance.errMsgEls[TAAcquirer.form], result, TAInputs[TAcquirerInputIdx], TAInstance);
         }else if(TAPercentageInputIdxs.includes(inputIdx)){
             //取得割合のとき、合計が１以下になっているかをチェックしてhidden取得者に転記する
-            afterValidation(result, TAInstance.errMsgEls[TAIdxs.percentage.form], result, TAInputs[inputIdx], TAInstance);
+            afterValidation(result, TAInstance.errMsgEls[TAPercentage.form], result, TAInputs[inputIdx], TAInstance);
             TAInputs[inputIdx].value = hankakuToZenkaku(TAInputs[inputIdx].value);
         }
     }
@@ -2908,20 +2946,27 @@ function handleRemoveTABtn(TAs, removeBtn, addBtn){
 /**
  * 不動産取得者の削除ボタンにイベントを設定
  */
-function setRemoveTABtnEvent(){
+function setRemoveTABtnEvent(startIdx = 0){
     //不動産取得者を削除するボタンに対してループ処理
-    for(let i = 0, len = removeTLABtns.length; i < len; i++){
-        const land = lands[i];
-        const TLAs = land.tempLandAcquirers;
+    for(let i = startIdx, len = removeTLABtns.length; i < len; i++){
+        const {TLAs, TLCAs} = landDataToVariable(lands[i]);
         removeTLABtns[i].addEventListener("click", ()=>{
             handleRemoveTABtn(TLAs, removeTLABtns[i], addTLABtns[i]);
         })
-        const TLCAs = land.tempLandCashAcquirers;
         removeTLCABtns[i].addEventListener("click", ()=>{
             handleRemoveTABtn(TLCAs, removeTLCABtns[i], addTLCABtns[i]);
-
         })
     }
+}
+
+/**
+ * querySelectorAllで取得した全ての要素を無効化する
+ * @param {string} selector querySelectorAllのセレクタ
+ * @param {HTMLElement} target querySelectorAllの対象
+ */
+function disableEveryEls(selector, target = null){
+    const targets = Array.from(target ? target.querySelectorAll(selector): document.querySelectorAll(selector));
+    targets.forEach(x => x.disabled = true);
 }
 
 /**
@@ -2933,18 +2978,16 @@ function setLandOkBtnEvent(){
         //土地情報をループ処理（最後の要素から参照する）
         for(let i = landWrappers.length - 1; 0 <= i; i--){
             //土地情報が表示されているとき
-            if(landWrappers[i].style.display !== "none"){
+            const landWrapper = landWrappers[i];
+            if(landWrapper.style.display !== "none"){
                 //表示されている最後の土地情報が最後の土地情報ではないとき
                 if(i !== lands.length - 1){
                     //現在の土地情報を無効化する
-                    const targets = Array.from(landWrappers[i].querySelectorAll("fieldset, button"));
-                    targets.forEach(x => x.disabled = true)
+                    disableEveryEls("fieldset, button", landWrapper);
                     //次の土地情報を有効化する
-                    slideDownAndScroll(landWrappers[i + 1]);
-                    removeTLABtns[i + 1].disabled = lands[i + 1].tempLandAcquirers.length > 1? false: true;
-                    removeTLCABtns[i + 1].disabled = lands[i + 1].tempLandCashAcquirers.length > 1?false: true;
-                    isActivateOkBtn(lands[i + 1]);
-                    landCorrectBtn.disabled = false;
+                    const nextLandIdx = i + 1;
+                    setAndDisplayLandWrapper(nextLandIdx);
+                    lands[nextLandIdx].fieldset.querySelector("input").focus();
                     return;
                 }else{
                     //最後の土地が表示されているときに押されてしまった場合、何も処理をしない
@@ -2966,6 +3009,19 @@ function disableFirstElByClassName(className, target = null){
 }
 
 /**
+ * 前の土地情報のフォーム関連を有効化する
+ * @param {HTMLElement} preLandWrapper 
+ */
+function enablePreLandForm(preLandWrapper){
+    const landFieldset = preLandWrapper.getElementsByClassName("landFieldset")[0];
+    landFieldset.disabled = false;
+    const lastTAFieldset = getLastElFromArray(preLandWrapper.getElementsByClassName("tempLandAcquirerFieldset"));
+    lastTAFieldset.disabled = false;
+    const lastTCAFieldset = getLastElFromArray(preLandWrapper.getElementsByClassName("tempLandCashAcquirerFieldset"));
+    lastTCAFieldset.disabled = false;
+}
+
+/**
  * 前の土地を修正するボタンにイベント設定
  */
 function setLandCorrectBtnEvent(){
@@ -2984,19 +3040,18 @@ function setLandCorrectBtnEvent(){
             if(landWrapper.style.display !== "none"){
                 //現在表示されている土地情報を非表示にする
                 slideUp(landWrapper);
-                //一つ前の土地情報を有効化する/次の土地へボタンを有効化する
-                const fieldsets = Array.from(preLandWrapper.getElementsByTagName("fieldset"));
-                fieldsets.forEach(x => x.disabled = false);
+                //一つ前の土地情報の土地欄、仮フォーム欄を有効化する
+                enablePreLandForm(preLandWrapper);
                 //不動産取得者の削除ボタンの有効化判別
                 const removeTLABtn = preLandWrapper.getElementsByClassName("removeTempLandAcquirerBtn")[0];
-                const isTLAMoreThanOne = lands[i - 1].tempLandAcquirers.length > 1;
+                const isTLAMoreThanOne = lands[i - 1].tempAcquirers.length > 1;
                 removeTLABtn.disabled = isTLAMoreThanOne ? false: true;
                 //不動産取得者の追加ボタン無効化
                 disableFirstElByClassName("addTempLandAcquirerBtn", preLandWrapper);
                 //金銭取得者の削除ボタンの有効化判別
                 const removeTLCABtn = preLandWrapper.getElementsByClassName("removeTempLandCashAcquirerBtn")[0];
                 const isTLCAWrapperDisplayed = preLandWrapper.getElementsByClassName("tempLandCashAcquirerWrapper")[0].style.display !== "none";
-                const isTLCAMoreThanOne = lands[i - 1].tempLandCashAcquirers.length > 1;
+                const isTLCAMoreThanOne = lands[i - 1].tempCashAcquirers.length > 1;
                 removeTLCABtn.disabled = (isTLCAWrapperDisplayed && isTLCAMoreThanOne) ? false: true;
                 //金銭取得者の追加ボタンの有効化判別
                 disableFirstElByClassName("addTempLandCashAcquirerBtn", preLandWrapper);
@@ -3008,16 +3063,6 @@ function setLandCorrectBtnEvent(){
         }
         //スクロール
     })
-}
-
-/**
- * 隠し取得者の欄を初期化する
- * @param {HTMLElement[]} AInputs 
- */
-function iniAcquirerInputs(AInputs){
-    AInputs[AIdxs.contentType2].value = "";
-    AInputs[AIdxs.objectId2].value = "";
-    AInputs[AIdxs.percentage].value = "分の";
 }
 
 /**
@@ -3043,20 +3088,20 @@ function removeElsExceptFirstByClassName(className, target = null){
  */
 function inputTA(TA, acquirer, purpartyBottom, purpartyTop){
     const inputs = TA.inputs;
-    inputs[TAIdxs.acquirer.input].value = acquirer;
-    inputs[TAIdxs.percentage.input[yes]].value = purpartyBottom;
-    inputs[TAIdxs.percentage.input[no]].value = purpartyTop;
+    inputs[TAAcquirer.input].value = acquirer;
+    inputs[TAPercentage.input[yes]].value = purpartyBottom;
+    inputs[TAPercentage.input[no]].value = purpartyTop;
 }
 
 /**
- * 法定相続用を仮フォーム生成
+ * 法定相続用の仮フォーム生成
  * @param {boolean} isCash 
  * @param {Land} land 
  */
 function createLegalInheritanceTAFieldset(isCash, land){
     const candidates = getAllLegalHeirs();
     for(let i = 0, len = candidates.length; i < len; i++){
-        const TAs = isCash ? land.tempLandCashAcquirers: land.tempLandAcquirers;
+        const TAs = isCash ? land.tempCashAcquirers: land.tempAcquirers;
         const candidate = candidates[i];
         const idAndContentType = candidate.inputs[candidate.constructor.idxs.idAndContentType].value;
         const purparty = getLegalPercentage(candidates, candidate);
@@ -3065,35 +3110,36 @@ function createLegalInheritanceTAFieldset(isCash, land){
             const copyFrom = TAs[i - 1].fieldset;
             const att = "[id],[name],[for]";
             const regex = /(acquirer-)\d+/;
-            const newIdx = i + 1;
-            copyAndPasteEl(copyFrom, att, regex, newIdx);  
-            const newId = copyFrom.id.replace(regex, `$1${newIdx}`);
+            copyAndPasteEl(copyFrom, att, regex, i);  
+            const newId = copyFrom.id.replace(regex, `$1${i}`);
             const newTA = new TempAcquirer(newId, land);
-            isCash ? land.addTempLandCashAcquirer(newTA): land.addTempLandAcquirer(newTA);
+            isCash ? land.addTempCashAcquirer(newTA): land.addTempAcquirer(newTA);
         }
         const TA = TAs[i];
         inputTA(TA, idAndContentType, parts[0], parts[1]);
         TA.noInputs.length = 0;
     }
-    const TAWrapper = isCash ? land.tempLandCashAcquirers[0].fieldset.parentElement: land.tempLandAcquirers[0].fieldset.parentElement;
+    const TAWrapper = isCash ? land.tempCashAcquirers[0].fieldset.parentElement: land.tempAcquirers[0].fieldset.parentElement;
     TAWrapper.style.setProperty('display', 'none', 'important');
 }
 
 /**
- * 対象の土地情報を有効化して表示する
- * @param {number} idx 
+ * 対象の土地欄のフォームとボタンの有効化判別
+ * ・土地フォームと仮フォームの有効化
+ * ・仮フォームの削除ボタンの有効化判別
+ * ・前の土地を修正するボタンの有効化判別
+ * ・仮フォームの追加と次の土地へ進む、次の項目へ進むボタンの有効化判別
+ * @param {number} idx 土地のインデックス
  */
 function setAndDisplayLandWrapper(idx){
-    const land = lands[idx];
-    const landFieldset = land.fieldset;
-    const TLAs = land.tempLandAcquirers;
-    const TLCAs = land.tempLandCashAcquirers;
-    landFieldset.parentElement.parentElement.style.display = "block";
-    landFieldset.disabled = false;
+    const {land, fieldset, landWrapper, TLAs, TLCAs} = landDataToVariable(lands[idx]);
+    slideDownAndScroll(landWrapper);
+    fieldset.disabled = false;
     getLastElFromArray(TLAs).fieldset.disabled = false;
     getLastElFromArray(TLCAs).fieldset.disabled = false;
     removeTLABtns[idx].disabled = TLAs.length > 1? false: true;
     removeTLCABtns[idx].disabled = TLCAs.length > 1? false: true;
+    landCorrectBtn.disabled = idx > 0? false: true;
     isActivateOkBtn(land);
 }
 
@@ -3109,32 +3155,231 @@ function removeLandWrappers(newCount){
 }
 
 /**
+ * 遺産分割方法の変更に合わせて土地情報の表示状態を変更する
+ * @param {SpouseOrAscendant|DescendantOrCollateral[]} newCandidates
+ */
+function iniLandSectionByTypeOfDivisionChange(newCandidates){
+    for(let i = 0, len = lands.length; i < len; i++){
+        const {land, fieldset, TLAs, TLAWrapper, TLCAs, landWrapper} = landDataToVariable(lands[i]);
+        //全て有効化
+        fieldset.disabled = false;
+        resetTA(TLAs, newCandidates);
+        getLastElFromArray(TLCAs).fieldset.disabled = false;
+        //不動産取得者仮フォーム全てを表示状態にする
+        TLAWrapper.style.display = "block";
+        //２つ目以降の土地情報ラッパーは非表示
+        if(i === 0){
+            landWrapper.style.display = "block";
+            removeTLABtns[i].disabled = true;
+            addTLABtns[i].disabled = true;
+            removeTLCABtns[i].disabled = TLCAs.length > 1? false: true;
+            isActivateOkBtn(land);
+        }else{
+            landWrapper.style.setProperty('display', 'none', 'important');
+        }
+    }
+}
+
+/**
+ * 前回の取得候補者と今回の取得候補者が同じか判別する
+ * @param {SpouseOrAscendant|DescendantOrCollateral[]} newCandidates 
+ * @param {SpouseOrAscendant|DescendantOrCollateral[]} oldCandidates 
+ * @returns 
+ */
+function isCandidatesNoChange(newCandidates, oldCandidates){
+    for (let i = 0, len = newCandidates.length; i < len; i++) {
+        const newCandidate = newCandidates[i];
+        const compareVal = newCandidate.inputs[newCandidate.constructor.idxs.idAndContentType].value;
+        const isMatch = oldCandidates.some(x => compareVal === x.value);
+        if (!isMatch) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * 土地を単独で取得するときの処理
+ * @param {Land[]} instances 
+ */
+function handlePropertyAcquirerAloneDivision(instances, allLegalHeirs, acquirer){
+    instances.forEach(x => {
+        const TAs = x.tempAcquirers; 
+        resetTA(TAs, allLegalHeirs)
+        inputTAWhenAcquirerAlone(TAs[0], acquirer);
+    });
+}
+
+/**
+ * 不動産取得の仮フォームと選択肢を初期化する
+ * @param {TempAcquirer} TAs 
+ * @param {SpouseOrAscendant|DescendantOrCollateral} candidates 
+ */
+function resetTA(TAs, candidates){
+    iniTA(TAs);
+    addOption(TAs, candidates);
+}
+
+/**
+ * 不動産取得の仮フォームを初期化する
+ * @param {TempAcquirer} TAs 
+ */
+function iniTA(TAs){
+    const acquireIdx = TAAcquirer.input;
+    const percentageIdxs = TAPercentage.input;
+    for(let i = TAs.length - 1; 0 <= i; i--){
+        const TA = TAs[i];
+        const TAFieldset = TA.fieldset;
+        if(i === 0){
+            TAFieldset.disabled = false;
+            const TAInputs = TA.inputs;
+            TAInputs.forEach(x => x.value = "");
+            TAInputs[acquireIdx].options.length = 0;
+            pushInvalidEl(TA, TAInputs[acquireIdx]);
+            pushInvalidEl(TA, TAInputs[percentageIdxs[yes]]);
+            pushInvalidEl(TA, TAInputs[percentageIdxs[no]]);
+        }else{
+            TAFieldset.remove();
+            TAs.pop();
+        }
+    }
+}
+
+/**
+ * 土地フィールドセットを追加するときで不動産が法定相続のときのインスタンス追加処理
+ * @param {Land} land 
+ * @param {number} landIdx 
+ */
+function addLandTAInstanceByLegalInheritance(land, landIdx){
+    //不動産が法定相続のとき、仮取得者インスタンスを(不動産取得者 - 1)追加する
+    const count = getAllLegalHeirs().length;
+    for(let i = 1; i < count; i++){
+        land.addTempAcquirer(new TempAcquirer(`id_land_${landIdx}_temp_land_acquirer-${i}-fieldset`, land));
+    }
+}
+
+function copyAcquirerValues(sourceTAs, targetTAs) {
+    sourceTAs.forEach((x, index) => {
+        const val = x.inputs[TAAcquirer.input].value;
+        targetTAs[index].inputs[TAAcquirer.input].value = val;
+    });
+}
+
+//２回目以降の土地情報の複製
+function addLandFormNotFirstTime(index){
+    //最後の土地情報をコピーする
+    const TODInputs = typeOfDivisions[0].inputs;
+    const TODPropertyAllocationInputIdxs = TODPropertyAllocation.input;
+    const isFreeDivision = TODInputs[TODPropertyAllocationInputIdxs[no]].checked;
+    cloneLandFieldset(index, isFreeDivision);
+    //インスタンスを生成
+    const newLand = new Land(`id_land-${index}-fieldset`);
+    addLandRelatedInstance(newLand, index);
+    const isLegalInheritance = TODInputs[TODPropertyAllocationInputIdxs[yes]].checked;
+    //不動産が法定相続のとき、仮取得者インスタンスを(不動産取得者 - 1)追加する
+    if(isLegalInheritance){addLandTAInstanceByLegalInheritance(newLand, index);}
+    //土地情報と金銭取得者の仮フォームの値を初期化する
+    const newLandInputs = newLand.inputs;
+    iniInputsAndSelectValue(newLandInputs);
+    newLand.tempCashAcquirers.forEach(x => iniInputsAndSelectValue(x.inputs));
+    //不動産取得がその他のとき、仮フォームの値を初期化する
+    if(isFreeDivision){
+        newLand.tempAcquirers.forEach(x => iniInputsAndSelectValue(x.inputs))
+    }else{
+        //不動産の取得が法定相続又は単独のとき、select要素に値を代入する（複製するときになぜか値が初期化される）
+        const lastIndex = lands.length - 1; // 最後のインデックス
+        const preLastIndex = lastIndex - 1; // 最後から2番目のインデックス
+        const sourceTAs = lands[preLastIndex].tempAcquirers;
+        const targetTAs = lands[lastIndex].tempAcquirers;
+        copyAcquirerValues(sourceTAs, targetTAs);
+        //エラー要素を削除する
+        newLand.tempAcquirers.forEach(x => x.noInputs.length = 0);
+    }
+    //所有者欄を有効化する
+    const LPurpartyInputIdxs = LPurparty.input;
+    newLandInputs[LPurpartyInputIdxs[no]].disabled = false;
+    newLandInputs[LPurpartyInputIdxs[other]].disabled = false;
+}
+
+//初回の土地情報の複製
+function addLandFormFirstTime(landCount){
+    for(let i = 1; i < landCount; i++){
+        cloneLandFieldset(i, false);
+        const newLand = new Land(`id_land-${i}-fieldset`);
+        addLandRelatedInstance(newLand, i);
+    }
+}
+
+function cloneLandFieldset(landIndex, isFreeDivision){
+    const copyFrom = document.getElementById(`id_land-${landIndex - 1}-wrapper`);
+    const clone = copyFrom.cloneNode(true);
+    //仮フォームを１つにする
+    if(isFreeDivision)
+        removeElsExceptFirstByClassName("tempLandAcquirerFieldset", clone);
+    removeElsExceptFirstByClassName("tempLandCashAcquirerFieldset", clone);
+    //クローンした要素は非表示
+    clone.style.setProperty("display", "none", "important");
+    //複製した土地情報の属性値を変更
+    const newBranchNum = `（${hankakuToZenkaku(String(landIndex + 1))}）`;
+    clone.firstElementChild.textContent = newBranchNum;
+    clone.id = clone.id.replace(/\d+/, landIndex);
+    const els = clone.querySelectorAll('[id],[for],[name]');
+    const regex = /(land[_-])\d+/;
+    els.forEach(x => {
+        if(x.id){
+            x.id = x.id.replace(regex, `$1${landIndex}`);
+            if(x.id === `id_land-${landIndex}-index`)
+                x.value = `${landIndex}`;
+            else if(x.id.includes("purparty") || x.id.includes("acquirer-0-fieldset"))
+                x.disabled = false;
+        }
+        if(x.htmlFor)
+            x.htmlFor = x.htmlFor.replace(regex, `$1${landIndex}`);
+        if(x.name)
+            x.name = x.name.replace(regex, `$1${landIndex}`);
+    });
+    copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
+}
+
+function hiddenIsExchange(land){
+    const input = land.inputs[LIsExchange.input[no]];
+    land.Qs[LIsExchange.form].style.display = "none";
+    input.checked = true;
+    input.dispatchEvent(new Event("change"));
+}
+
+function addLandRelatedInstance(instance, landIndex){
+    instance.addTempAcquirer(new TempAcquirer(`id_land_${landIndex}_temp_land_acquirer-0-fieldset`, instance));
+    instance.addTempCashAcquirer(new TempAcquirer(`id_land_${landIndex}_temp_land_cash_acquirer-0-fieldset`, instance));
+    instance.tempCashAcquirers[0].noInputs.length = 0
+}
+
+/**
  * 土地情報欄のイベントなど設定
  */
 function setLandSection(){
-    const TAAcquirerInputIdx = TAIdxs.acquirer.input;
+    const TAAcquirerInputIdx = TAAcquirer.input;
     const TODInputs = typeOfDivisions[0].inputs;
     //不動産の数で入力された数分の土地のフォーム、hidden不動産取得者、hidden金銭取得者を生成する
-    const landCount = parseInt(numberOfProperties[0].inputs[NOPIdxs.land].value);
+    const newCount = parseInt(numberOfProperties[0].inputs[NOPLand].value);
     //初めて土地情報を入力するとき
     if(lands.length === 0){
         //インスタンスを生成する
         const land = new Land("id_land-0-fieldset");
         addLandRelatedInstance(land, 0);
         //土地の数が２以上のとき、土地情報を複製する
-        if(landCount > 1)
-            addNewLandForm(landCount, 1);
+        if(newCount > 1)
+            addLandFormFirstTime(newCount);
         //取得者候補を追加する
         addAcquirerCandidate();
-        //土地取得者が１人又は法定相続のとき
+        const isLandAcquirerAlone = TODInputs[TODContentType1.input].value !== "";
+        const isLandLegalInheritance = TODInputs[TODPropertyAllocation.input[yes]].checked;
         //遺産分割方法の不動産の全取得者欄が入力されているときは、自動入力する
-        const isLandAcquirerAlone = TODInputs[TODIdxs.contentType1.input].value !== "";
-        const isLandLegalInheritance = TODInputs[TODIdxs.propertyAllocation.input[yes]].checked;
         if(isLandAcquirerAlone){
-            const TODContentType1Val = TODInputs[TODIdxs.contentType1.input].value;
-            const TODObject1Val = TODInputs[TODIdxs.objectId1.input].value;
+            const TODContentType1Val = TODInputs[TODContentType1.input].value;
+            const TODObject1Val = TODInputs[TODObjectId1.input].value;
             const idAndContentType = TODObject1Val + "_" + TODContentType1Val;
-            lands.forEach(x => x.tempLandAcquirers.forEach(y => inputTAWhenAcquirerAlone(y, idAndContentType)));
+            lands.forEach(x => x.tempAcquirers.forEach(y => inputTAWhenAcquirerAlone(y, idAndContentType)));
         }else if(isLandLegalInheritance){
             //不動産の取得者が法定相続のとき
             lands.forEach(x => createLegalInheritanceTAFieldset(false, x));
@@ -3142,7 +3387,7 @@ function setLandSection(){
         //土地情報の各入力欄のイベントを設定
         setLandEvent();
         //通常分割のとき、換価確認欄を非表示にして「しない」にチェックを入れる
-        const isNormalDivision = TODInputs[TODIdxs.typeOfDivision.input[yes]].checked;
+        const isNormalDivision = TODInputs[TODTypeOfDivision.input[yes]].checked;
         if(isNormalDivision)
             lands.forEach(x => hiddenIsExchange(x));
         //土地又は金銭取得者の仮フォームの各入力欄のイベントを設定
@@ -3157,225 +3402,130 @@ function setLandSection(){
         setLandCorrectBtnEvent();
     }else{
         //土地情報を入力したことがあるとき
-        const oldLandCount = lands.length;
+        const oldCount = lands.length;
         //土地の数が減ったとき
-        if(landCount < oldLandCount)
-            removeLandWrappers(landCount);
+        if(newCount < oldCount)
+            removeLandWrappers(newCount);
 
         const land = lands[0];
-        const isCashFreeDivision = TODInputs[TODIdxs.cashAllocation.input[other]].checked; //今回の遺産分割方法確認
+        const isCashFreeDivision = TODInputs[TODCashAllocation.input[other]].checked; //今回の遺産分割方法確認
         const allLegalHeirs = getAllLegalHeirs();
         //換価のとき
-        if(TODInputs[TODIdxs.typeOfDivision.input[no]].checked){
-            let isInitialize = false;
-            for(let i = 0, len = lands.length; i < len; i++){
-                const land = lands[i];
-                const TLCAs = land.tempLandCashAcquirers;
-                const isExchangeInputYes = land.inputs[LIdxs.isExchange.input[yes]];
-                const isExchange = isExchangeInputYes.checked;
-                //金銭の遺産分割方法がその他のとき
-                if(isCashFreeDivision){
-                    const landWrapper = land.fieldset.parentElement.parentElement;
-                    const TLACWrapper = TLCAs[0].fieldset.parentElement;
-                    const wasAloneOrLegalInheritance = isExchange && TLACWrapper.style.display === "none";
-                    //前回１人又は法定相続だったときで初回のとき
-                    if((wasAloneOrLegalInheritance && !isInitialize) || wasAloneOrLegalInheritance){
-                        TLACWrapper.style.display = "block";
-                        resetTA(TLCAs, allLegalHeirs);
-                        setAndDisplayLandWrapper(i);
-                        if(!isInitialize)
-                            isInitialize = true;
-                        else
+        const isExchangeYes = TODInputs[TODTypeOfDivision.input[no]].checked;
+        if(isExchangeYes){
+            //通常から換価に変更されたとき、換価確認のいいえにチェックが入ってるのを解除して表示状態にして最初の欄のみの表示にする
+            const isNormalToExchange = land.inputs[LIsExchange.input[no]].checked && land.Qs[LIsExchange.form].style.display === "none";
+            if(isNormalToExchange){
+                lands.forEach((x, idx) => {
+                    x.inputs[LIsExchange.input[no]].checked = false;
+                    x.Qs[LIsExchange.form].style.display = "";
+                    pushInvalidEl(x, x.inputs[LIsExchange.input[yes]]);
+                    if(idx > 0)
+                        x.fieldset.parentElement.parentElement.style.setProperty("display", "none", "important");
+                })
+            }else{
+                //前回も換価だったとき、金銭の分配方法の変更に応じて修正する
+                let isInitialize = false;
+                for(let i = 0, len = lands.length; i < len; i++){
+                    const {land, TLCAs} = landDataToVariable(lands[i]);
+                    const isExchangeInputYes = land.inputs[LIsExchange.input[yes]];
+                    const isExchange = isExchangeInputYes.checked;
+                    //金銭の遺産分割方法がその他のとき
+                    if(isCashFreeDivision){
+                        const landWrapper = land.fieldset.parentElement.parentElement;
+                        const TLACWrapper = TLCAs[0].fieldset.parentElement;
+                        const wasAloneOrLegalInheritance = isExchange && TLACWrapper.style.display === "none";
+                        //前回１人又は法定相続だったときで初回のとき
+                        if((wasAloneOrLegalInheritance && !isInitialize) || wasAloneOrLegalInheritance){
+                            TLACWrapper.style.display = "block";
+                            resetTA(TLCAs, allLegalHeirs);
+                            setAndDisplayLandWrapper(i);
+                            if(!isInitialize)
+                                isInitialize = true;
+                            else
+                                landWrapper.style.setProperty('display', 'none', 'important');
+                        }else if(isInitialize){
+                            //初回以降の処理
+                            land.fieldset.disabled = false;
+                            getLastElFromArray(land.tempAcquirers).fieldset.disabled = false;
                             landWrapper.style.setProperty('display', 'none', 'important');
-                    }else if(isInitialize){
-                        //初回以降の処理
-                        land.fieldset.disabled = false;
-                        getLastElFromArray(land.tempLandAcquirers).fieldset.disabled = false;
-                        landWrapper.style.setProperty('display', 'none', 'important');
-                    }
-                }else if(isExchange){
-                    //金銭の遺産分割方法が１人又は法定相続のとき
-                    resetTA(TLCAs, allLegalHeirs);
-                    isExchangeInputYes.dispatchEvent(new Event("change"));
-                }                
+                        }
+                    }else if(isExchange){
+                        //金銭の遺産分割方法が１人又は法定相続のとき
+                        resetTA(TLCAs, allLegalHeirs);
+                        isExchangeInputYes.dispatchEvent(new Event("change"));
+                    }                
+                }
             }
         }else{
             //通常のとき
             //換価チェック欄を初期化・非表示にする
             lands.forEach(x => {
-                const isExchange = x.inputs[LIdxs.isExchange.input[yes]].checked;
-                if(isExchange){
-                    iniTA(x.tempLandCashAcquirers);
-                    hiddenIsExchange(x);
-                }
+                resetTA(x.tempCashAcquirers, allLegalHeirs);
+                hiddenIsExchange(x);
             })
         }
 
         const wasTLAHidden = land.fieldset.nextElementSibling.style.display === "none"; //前回の遺産分割方法確認
-        const isLandAloneDivision = TODInputs[TODIdxs.contentType1.input].value !== ""; //今回の遺産分割方法確認
-        const isLandFreeDivision = TODInputs[TODIdxs.propertyAllocation.input[no]].checked; //今回の遺産分割方法確認
+        const isLandAloneDivision = TODInputs[TODContentType1.input].value !== ""; //今回の遺産分割方法確認
+        const isLandFreeDivision = TODInputs[TODPropertyAllocation.input[no]].checked; //今回の遺産分割方法確認
         //遺産分割方法が１人のとき
         if(isLandAloneDivision){
-            const aloneAcquirer = TODInputs[TODIdxs.objectId1.input].value + "_" + TODInputs[TODIdxs.contentType1.input].value;
-            lands.forEach(x => {
-                resetTA(x.tempLandAcquirers, allLegalHeirs)
-                inputTAWhenAcquirerAlone(x.tempLandAcquirers[0], aloneAcquirer);
-            });
+            const aloneAcquirer = TODInputs[TODObjectId1.input].value + "_" + TODInputs[TODContentType1.input].value;
+            handlePropertyAcquirerAloneDivision(lands, allLegalHeirs, aloneAcquirer);
         }else if(isLandFreeDivision){
             //遺産分割方法がその他のとき
             const newCandidates = getAllcandidates();
-            //単独又は法定相続だったのとき、仮フォームを表示状態にして仮フォームと隠しフォームの値を初期化、候補者を更新
+            //単独又は法定相続だったのとき
             if(wasTLAHidden){
-                land.fieldset.nextElementSibling.style.display = "block";
-                lands.forEach(x => resetTA(x.tempLandAcquirers, newCandidates));
+                iniLandSectionByTypeOfDivisionChange(newCandidates);
             }else{
                 //その他だったのとき
-                const oldCandidates = Array.from(land.tempLandAcquirers[0].inputs[TAAcquirerInputIdx].options).slice(1);
+                const oldCandidates = Array.from(land.tempAcquirers[0].inputs[TAAcquirerInputIdx].options).slice(1);
+                const isAllLegalHeirs = newCandidates.length === allLegalHeirs.length;
                 const isSameLength = newCandidates.length === oldCandidates.length;
-                //同じ人数かつ同じ要素のときは何も処理をしない
-                if(isSameLength){
-                    let isAllMatch = true;
-                    for(let i = 0, len = newCandidates.length; i < len; i++){
-                        let isMatch = false;
-                        const newCandidate = newCandidates[i];
-                        for(let j = 0, len = oldCandidates.length; j < len; j++){
-                            const isSameHeir = newCandidate.inputs[newCandidate.constructor.idxs.idAndContentType].value === oldCandidates[j].value;
-                            if(isSameHeir){
-                                isMatch = true;
-                                break;
-                            }
-                        }
-                        if(isMatch){
-                            continue
-                        }else{
-                            isAllMatch = false;
-                            break;
-                        }
-                    }
-                    if(!isAllMatch)
-                        lands.forEach(x => resetTA(x.tempLandAcquirers, newCandidates));
-                }else{
-                    lands.forEach(x => resetTA(x.tempLandAcquirers, newCandidates));
+                //同じ人数かつ同じ要素（全員が取得車の場合を除く）のときは何も処理をしない
+                if(!isAllLegalHeirs && isSameLength){
+                    if(!isCandidatesNoChange(newCandidates, oldCandidates))
+                        iniLandSectionByTypeOfDivisionChange(newCandidates);
+                }else if(!isSameLength){
+                    iniLandSectionByTypeOfDivisionChange(newCandidates);
                 }
             }
         }else{
             //遺産分割方法が法定相続のとき
             lands.forEach(x => {
-                resetTA(x.tempLandAcquirers, allLegalHeirs);
+                resetTA(x.tempAcquirers, allLegalHeirs);
                 createLegalInheritanceTAFieldset(false, x);
             });
         }
 
         //土地の数が増えたとき
-        if(landCount > oldLandCount){
-            //最後の土地情報をコピーする
-            addNewLandForm(landCount, oldLandCount);
-            //追加したフォームを初期化する
-            for(let i = oldLandCount, len = landCount; i < len; i++){
-                const land = lands[i];
-                //土地情報の初期化
-                iniInputsAndSelectValue(land.inputs);
-                land.tempLandAcquirers[0].inputs.forEach(x => x.value = "");
-                land.tempLandCashAcquirers[0].inputs.forEach(x => x.value = "");
+        if(newCount > oldCount){
+            for(let i = oldCount; i < newCount; i++){
+                //最後の土地情報を複製する
+                addLandFormNotFirstTime(i);
             }
             //土地、仮フォーム、ボタンにイベントを設定する
-
+            setLandEvent(oldCount);
+            const isNormalDivision = TODInputs[TODTypeOfDivision.input[yes]].checked;
+            if(isNormalDivision)
+                lands.forEach(x => hiddenIsExchange(x));
+            setLandTAEvent(oldCount);
+            setAddTABtnEvent(oldCount);
+            setRemoveTABtnEvent(oldCount);
         }
     }
-    //最後に表示されている土地情報のボタン有効化判別をする
+    //最後に表示されている土地情報を有効化する
     for(let i = lands.length - 1; i >= 0; i --){
-        const land = lands[i];
-        if(land.fieldset.parentElement.parentElement.style.display !== "none"){
-            isActivateOkBtn(land);
-            land.fieldset.disabled = false;
-            getLastElFromArray(land.tempLandAcquirers).fieldset.disabled = false;
-            getLastElFromArray(land.tempLandCashAcquirers).fieldset.disabled = false;
-            landCorrectBtn.disabled = i > 0 ? false: true;
+        const landWrapper = lands[i].fieldset.parentElement.parentElement;
+        if(landWrapper.style.display !== "none"){
+            setAndDisplayLandWrapper(i);
             break;
         }
     }
     const target = lands.filter(x => !x.fieldset.disabled)[0].fieldset;
     scrollToTarget(target);
-
-    //土地情報の複製
-    function addNewLandForm(newLandCount, startIdx){
-        for(let i = startIdx; i < newLandCount; i++){
-            cloneLandFieldset(i);
-            const newLand = new Land(`id_land-${i}-fieldset`);
-            addLandRelatedInstance(newLand, i);
-        }
-        document.getElementById("id_land-TOTAL_FORMS").value = String(lands.length);
-    }
-
-    function resetTA(TAs, candidates){
-        iniTA(TAs);
-        addOption(TAs, candidates);
-    }
-
-    function iniTA(TAs){
-        const TAPercentageInputIdxs = TAIdxs.percentage.input;
-        for(let i = TAs.length - 1; 0 <= i; i--){
-            const TA = TAs[i];
-            const TAFieldset = TA.fieldset;
-            if(i === 0){
-                TAFieldset.disabled = false;
-                const TAInputs = TA.inputs;
-                TAInputs.forEach(x => x.value = "");
-                TAInputs[TAAcquirerInputIdx].options.length = 0;
-                pushInvalidEl(TA, TAInputs[TAAcquirerInputIdx]);
-                pushInvalidEl(TA, TAInputs[TAPercentageInputIdxs[yes]]);
-                pushInvalidEl(TA, TAInputs[TAPercentageInputIdxs[no]]);
-            }else{
-                TAFieldset.remove();
-                TAs.pop();
-            }
-        }
-    }
-
-    function cloneLandFieldset(landIndex){
-        const copyFrom = document.getElementById(`id_land-${landIndex - 1}-wrapper`);
-        const clone = copyFrom.cloneNode(true);
-        //仮フォームを１つにする
-        removeElsExceptFirstByClassName("tempLandAcquirerFieldset", clone);
-        removeElsExceptFirstByClassName("tempLandCashAcquirerFieldset", clone);
-        //クローンした要素は非表示
-        clone.style.setProperty("display", "none", "important");
-        //複製した土地情報の属性値を変更
-        const newBranchNum = `（${hankakuToZenkaku(String(landIndex + 1))}）`;
-        clone.firstElementChild.textContent = newBranchNum;
-        clone.id = clone.id.replace(/\d+/, landIndex);
-        const els = clone.querySelectorAll('[id],[for],[name]');
-        const regex = /(land[_-])\d+/;
-        els.forEach(x => {
-            if(x.id){
-                x.id = x.id.replace(regex, `$1${landIndex}`);
-                if(x.id === `id_land-${landIndex}-index`)
-                    x.value = `${landIndex}`;
-                else if(x.id.includes("purparty") || x.id.includes("acquirer-0-fieldset"))
-                    x.disabled = false;
-            }
-            if(x.htmlFor)
-                x.htmlFor = x.htmlFor.replace(regex, `$1${landIndex}`);
-            if(x.name)
-                x.name = x.name.replace(regex, `$1${landIndex}`);
-
-        });
-        copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
-    }
-
-    function hiddenIsExchange(land){
-        const isExchangeIdxs = LIdxs.isExchange;
-        const isExchangeNoInput = land.inputs[isExchangeIdxs.input[no]];
-        land.Qs[isExchangeIdxs.form].style.display = "none";
-        isExchangeNoInput.checked = true;
-        isExchangeNoInput.dispatchEvent(new Event("change"));
-    }
-
-    function addLandRelatedInstance(instance, landIndex){
-        instance.addTempLandAcquirer(new TempAcquirer(`id_land_${landIndex}_temp_land_acquirer-0-fieldset`, instance));
-        instance.addTempLandCashAcquirer(new TempAcquirer(`id_land_${landIndex}_temp_land_cash_acquirer-0-fieldset`, instance));
-        instance.tempLandCashAcquirers[0].noInputs.length = 0
-    }
 }
 
 /**
@@ -3404,50 +3554,78 @@ function showAlert(title, text, icon) {
 async function checkLandSection(){
     try{
         //遺産分割方法で換価分割が押されていた、かつ換価分割対象の不動産がないとき
-        const isExchageSelected = typeOfDivisions[0].inputs[TODIdxs.typeOfDivision.input[no]].checked;
-        const isSomeLandsToExchange = lands.some(x => x.inputs[LIdxs.isExchange.input[yes]].checked);
+        const TOD = typeOfDivisions[0];
+        const TODInputs = TOD.inputs;
+        const isExchageSelected = TODInputs[TODTypeOfDivision.input[no]].checked;
+        const isSomeLandsToExchange = lands.some(x => x.inputs[LIsExchange.input[yes]].checked);
         //アラート表示と遺産分割方法を通常に変更する
         if(isExchageSelected && !isSomeLandsToExchange)
             await alertAndChangeToNormal();
         //遺産分割の不動産の分配方法でその他が選択されているとき
-        const isFreeDivision = typeOfDivisions[0].inputs[TODIdxs.propertyAllocation.input[no]].checked;
+        const isFreeDivision = TODInputs[TODPropertyAllocation.input[no]].checked;
         if(isFreeDivision)
             //不動産取得にチェックが入っている法定相続人がいるが取得者になっていないとき、アラートを表示させてその人を取得しないに変更する
             await alertAndChangeIsAcquire();
         
         async function alertAndChangeToNormal(){
-            await showAlert("確認", "遺産分割の方法で「換価分割」が選択されてましたが、換価する土地が選択されていないため遺産分割の方法を「通常」に変更しました", "warning")
-    
-            const fieldset = typeOfDivisions[0].fieldset;
-            const input = typeOfDivisions[0].inputs[TODIdxs.typeOfDivision.input[yes]];
-            fixInput(fieldset, input);
+            try{
+                await showAlert("確認", "遺産分割の方法で「換価分割」が選択されてましたが、換価する土地が選択されていないため遺産分割の方法を「通常」に変更しました", "warning");
+                const fieldset = TOD.fieldset;
+                const input = TODInputs[TODTypeOfDivision.input[yes]];
+                fixInput(fieldset, input);
+            }catch(e){
+                throw {type: "a", message: e.message};
+            }
         }
     
         async function alertAndChangeIsAcquire(){
-            const candidates = getAllcandidates();
-            const acquirers = [];
-            lands.forEach(x => {
-                x.landAcquirers.forEach(y => {
-                    const match = candidates.find(z => z.inputs[z.constructor.idxs.idAndContentType].value === y.inputs[AIdxs.objectId2].value + "_" + y.inputs[AIdxs.contentType2].value);
-                    if(match && !acquirers.includes(match)) {
-                        acquirers.push(match);
-                    }
-                })
-            })
-            if (candidates.length !== acquirers.length) {
-                await showAlert("確認", "不動産取得者に選択されなかった相続人は、相続人情報の「不動産を取得しますか？」を「いいえ」に変更されました", "warning")
-                const targets = candidates.filter(x => !acquirers.some(y => y.inputs[y.constructor.idxs.idAndContentType].value === x.inputs[x.constructor.idxs.idAndContentType].value));
-                if(targets){
-                    targets.forEach(x => {
-                        const fieldset = x.fieldset;
-                        const input = x.inputs[x.constructor.idxs.isAcquire[no]];
-                        fixInput(fieldset, input);
+            try{
+                const candidates = getAllcandidates();
+                const acquirers = [];
+                lands.forEach(x => {
+                    x.tempAcquirers.forEach(y => {
+                        const match = candidates.find(z => z.inputs[z.constructor.idxs.idAndContentType].value === y.inputs[TAAcquirer.input].value);
+                        if(match && !acquirers.includes(match)) {
+                            acquirers.push(match);
+                        }
                     })
+                })
+                if (candidates.length !== acquirers.length) {
+                    await showAlert("確認", "不動産取得者に選択されなかった相続人は、相続人情報の「不動産を取得しますか？」を「いいえ」に変更されました", "warning")
+                    const targets = candidates.filter(x => !acquirers.some(y => y.inputs[y.constructor.idxs.idAndContentType].value === x.inputs[x.constructor.idxs.idAndContentType].value));
+                    if(targets){
+                        targets.forEach(x => {
+                            const fieldset = x.fieldset;
+                            const input = x.inputs[x.constructor.idxs.isAcquire[no]];
+                            fixInput(fieldset, input);
+                        })
+                        //相続人が一人になったとき
+                        const candidates = getAllcandidates();
+                        if(candidates.length === 1){
+                            //遺産分割方法の分配方法を非表示にする、チェックを初期化する
+                            TOD.Qs[TODPropertyAllocation.form].style.setProperty('display', 'none', 'important');
+                            TODPropertyAllocation.input.forEach(x => TODInputs[x].checked = false);
+                            //objectId1とcontentType1を取得する
+                            const aloneAcquirer = candidates[0];
+                            const parts = aloneAcquirer.inputs[aloneAcquirer.constructor.idxs.idAndContentType].value.split("_");
+                            TODInputs[TODObjectId1.input].value = parts[0];
+                            TODInputs[TODContentType1.input].value = parts[1];
+                            //不動産取得者のラッパーを全て非表示にする
+                            lands.forEach(x => x.fieldset.nextElementSibling.style.setProperty("display", "none", "important"));
+                        }
+                    }
                 }
+            }catch(e){
+                throw {type: "b", message: e.message};
             }
         }
     }catch(e){
-        console.error("checkLandSectionでエラーが発生しました：", error);
+        if(e.type === "a")
+            console.error("alertAndChangeToNormalでエラーが発生しました：", e.message);
+        else if(e.type === "b")
+            console.error("alertAndChangeIsAcquireでエラーが発生しました：", e.message);
+        else
+            console.error("checkLandSectionでエラーが発生しました：", e.message);
     }
 }
 
@@ -3464,16 +3642,183 @@ function fixInput(fieldset, input){
 }
 
 /**
- * 建物情報欄を設定
+ * 仮フォームの値を隠しフォームに転記
+ * @param {Land} land 
+ * @param {TempAcquirer} temp 
+ * @param {Acquirer} Acquirer 
  */
-function setHouseSection(){
+function copyToLandHiddenForm(land, temp, Acquirer){
+    const tempInputs = temp.inputs;
+    const parts = tempInputs[TAAcquirer.input].value.split("_");
+    const percentage = tempInputs[TAPercentage.input[yes]].value + "分の" + tempInputs[TAPercentage.input[no]].value;
+    const index = land.inputs[LIndex.input].value;
+    Acquirer.inputs[AObjectId].value = parts[0];
+    Acquirer.inputs[AContentType].value = parts[1];
+    Acquirer.inputs[APercentage].value = percentage;
+    Acquirer.inputs[ATarget].value = index;
+}
 
+/**
+ * 土地取得者の隠し取得者フォームとインスタンスを初期化する
+ */
+function iniLandAcquirers(){
+    //フィールドセットを１つにする
+    removeElsExceptFirstByClassName("landAcquirerFieldset", document.getElementById("id_land_acquirer_wrapper"));
+    removeElsExceptFirstByClassName("landCashAcquirerFieldset", document.getElementById("id_land_cash_acquirer_wrapper"));
+    //インスタンスを全て削除する
+    lands.forEach(x => {
+        x.acquirers.length = 0;
+        x.cashAcquirers.length = 0;
+    });
 }
 
 /**
  * 土地情報の取得者仮フォームを隠しフォームに転記する
  */
-function copyToLandHiddenForm(){
+function SynchronizeLandHiddenForm(){
+    //隠しフォームを初期化する
+    iniLandAcquirers();
+    //仮フォームからデータを取得する
+    let TAsCount = 0;
+    let TCAsCount = 0;
+    lands.forEach(x => {
+        x.tempAcquirers.forEach((y, idx) => {
+            if(TAsCount === 0){
+                //インスタンス生成、転記
+                x.addAcquirer(new Acquirer(`id_land_acquirer-${0}-fieldset`));
+                copyToLandHiddenForm(x, y, x.acquirers[0]);
+            }else{
+                //フィールドセットをコピー、属性を更新、ペースト、インスタンス生成、転記
+                const AWrapper = document.getElementById("id_land_acquirer_wrapper");
+                const copyFrom = getLastElFromArray(AWrapper.getElementsByClassName("landAcquirerFieldset"));
+                const att = "[id],[name]"
+                const regex = /(acquirer-)\d+/;
+                const newIdx = TAsCount + 1;
+                copyAndPasteEl(copyFrom, att, regex, newIdx);
+                x.addAcquirer(new Acquirer(`id_land_acquirer-${newIdx}-fieldset`));
+                copyToLandHiddenForm(x, y, x.acquirers[idx]);
+            }
+            TAsCount += 1;
+        });
+        x.tempCashAcquirers.forEach((y, idx) => {
+            if(TCAsCount === 0){
+                x.addCashAcquirer(new Acquirer(`id_land_cash_acquirer-${0}-fieldset`));
+                copyToLandHiddenForm(x, y, x.cashAcquirers[0]);
+            }else{
+                const CAWrapper = document.getElementById("id_land_cash_acquirer_wrapper");
+                const copyFrom = getLastElFromArray(CAWrapper.getElementsByClassName("landCashAcquirerFieldset"));
+                const att = "[id],[name]"
+                const regex = /(acquirer-)\d+/;
+                const newIdx = TCAsCount + 1;
+                copyAndPasteEl(copyFrom, att, regex, newIdx);
+                x.addCashAcquirer(new Acquirer(`id_land_cash_acquirer-${newIdx}-fieldset`));
+                copyToLandHiddenForm(x, y, x.cashAcquirers[idx]);
+            }
+            TCAsCount += 1;
+        });
+    })
+    //フォームセットの数を更新する
+    document.getElementById("id_land_acquirer-TOTAL_FORMS").value = TAsCount;
+    document.getElementById("id_land_cash_acquirer-TOTAL_FORMS").value = TCAsCount;
+}
+
+/**
+ * 被相続人セクションの次の項目へ進むボタンのイベント設定
+ * @param {HTMLElement} section 
+ * @param {HTMLElement} preSection 
+ */
+function handleDecedentSectionOkBtn(section, preSection){
+    const nextSectionIdx = 2;
+    handleOkBtnEventCommon(section, preSection, nextSectionIdx);
+    setHeirsSection();
+}
+
+/**
+ * 相続人セクションの次の項目へ進むボタンのイベント設定
+ * @param {HTMLElement} section 
+ * @param {HTMLElement} preSection 
+ * @returns 
+ */
+function handleHeirsSectionOkBtn(section, preSection){
+    if(checkHeirsSection() === false)
+        return;
+    const nextSectionIdx = 3;
+    heirsCorrectBtn.disabled = true;
+    handleOkBtnEventCommon(section, preSection, nextSectionIdx);
+    setTypeOfDivisionSection();
+}
+
+/**
+ * 遺産分割の方法セクションの次の項目へ進むボタンのイベント設定
+ * @param {HTMLElement} section 
+ * @param {HTMLElement} preSection 
+ */
+function handleTODSectionOkBtn(section, preSection){
+    const nextSectionIdx = 4;
+    handleOkBtnEventCommon(section, preSection, nextSectionIdx);
+    setNumberOfPropertiesSection();
+}
+
+/**
+ * 不動産の数セクションの次の項目へ進むボタンのイベント設定
+ * @param {HTMLElement} section 
+ * @param {HTMLElement} preSection 
+ */
+function handleNOPSectionOkBtn(section, preSection){
+    const nextSectionIdx = 4;
+    handleOkBtnEventCommon(section, preSection, nextSectionIdx);
+    if(section.id === "land-section")
+        setLandSection();
+    else if(section.id === "house-section")
+        setHouseSection();
+    else if(section.id === "bldg-section")
+        setBldgSection();
+    else
+        console.log("handleNOPSectionOkBtn：想定されていないセクションが指定されました")
+}
+
+/**
+ * 土地情報セクションの次の項目へ進むボタンのイベント設定
+ * @param {HTMLElement} section 
+ * @param {HTMLElement} preSection 
+ */
+function handleLandSectionOkBtn(section, preSection){
+    const nextSectionIdx = ["house-section", "bldg-section"].includes(section.id)? 4: 5;
+    handleOkBtnEventCommon(section, preSection, nextSectionIdx);
+    //最後の土地欄のボタンを無効化
+    landCorrectBtn.disabled = true;
+    getLastElFromArray(removeTLABtns).disabled = true;
+    getLastElFromArray(removeTLCABtns).disabled = true;
+    //入力に齟齬があるときのアラートと入力修正処理
+    checkLandSection();
+    //土地情報の仮フォームデータを隠しフォームに転記する処理
+    SynchronizeLandHiddenForm();
+    if(section.id === "house-section")
+        setHouseSection();
+    else if(section.id === "bldg-section")
+        setBldgSection ();
+    else if(section.id === "application-section")
+        setApplicationSection();
+    else
+        console.log("handleLandSectionOkBtn：想定されていないセクションが指定されました")
+}
+
+/**
+ * 建物情報欄を設定
+ */
+function setHouseSection(){
+    //最後のフォームに移動するように設定が必要
+    
+}
+
+
+function setBldgSection(){
+    //最後のフォームに移動するように設定が必要
+
+
+}
+
+function setApplicationSection(){
 
 }
 
@@ -3482,88 +3827,77 @@ function copyToLandHiddenForm(){
  */
 function handleOkBtnEvent(){
     //全セクションタグに対してループ処理
-    const sections = document.getElementsByTagName("section");
     for(let i = 0, len = sections.length; i < len; i++){
+        const section = sections[i];
         //非表示のセクションのとき
-        if (window.getComputedStyle(sections[i]).display === 'none') {
+        if (window.getComputedStyle(section).display === 'none') {
+            const preSection = sections[i - 1];
             //相続人情報のとき、相続人情報セクションを表示してループを中止
-            if(sections[i].id === "heirs-section"){
-                handleOkBtnEventCommon(sections[i], sections[i - 1], 2);
-                setHeirsSection();
+            if(section.id === "heirs-section"){
+                handleDecedentSectionOkBtn(section, preSection);
                 break;
-            }else if(sections[i].id === "type-of-division-section"){
-                if(checkHeirsSection() === false){
-                    return;
-                };
-                heirsCorrectBtn.disabled = true;
-                handleOkBtnEventCommon(sections[i], sections[i - 1], 3);
-                setTypeOfDivisionSection();
+            }else if(section.id === "type-of-division-section"){
+                handleHeirsSectionOkBtn(section, preSection);
                 break;
-            }else if(sections[i].id === "number-of-properties-section"){
-                handleOkBtnEventCommon(sections[i], sections[i - 1], 4);
-                setNumberOfPropertiesSection();
+            }else if(section.id === "number-of-properties-section"){
+                handleTODSectionOkBtn(section, preSection);
                 break;
-            }else if(sections[i].id === "land-section"){
-                if(numberOfProperties[0].inputs[NOPIdxs.land].value === "0"){
+            }else if(section.id === "land-section"){
+                const isNoLand = numberOfProperties[0].inputs[NOPLand].value === "0";
+                if(isNoLand){
+                    //土地が０のとき次のループへ
                     continue;
                 }else{
-                    handleOkBtnEventCommon(sections[i], sections[i - 1], 4);
-                    setLandSection();
+                    handleNOPSectionOkBtn(section, preSection);
                     break;
                 }
-            }else if(sections[i].id === "house-section"){
-                //建物の数が０のとき次のループへ
-                if(numberOfProperties[0].inputs[NOPIdxs.house].value === "0"){
+            }else if(section.id === "house-section"){
+                const isNoLand = numberOfProperties[0].inputs[NOPLand].value === "0";
+                const isNoHouse = numberOfProperties[0].inputs[NOPHouse].value === "0";
+                if(isNoHouse){
+                    //建物の数が０のとき次のループへ
                     continue;
+                }else if(isNoLand){
+                    //不動産の数からのとき
+                    handleNOPSectionOkBtn(section, sections[i - 2]);
                 }else{
-                    //土地情報の仮フォームデータを隠しフォームに転記する処理
-                    landCorrectBtn.disabled = true;
-                    getLastElFromArray(removeTLABtns).disabled = true;
-                    getLastElFromArray(removeTLCABtns).disabled = true;
-                    checkLandSection();
-                    copyToLandHiddenForm();
-                    setHouseSection();
+                    //土地からのとき
+                    handleLandSectionOkBtn(section, preSection);
                 }
-            }else if(sections[i].id === "bldg-section"){
+                break;
+            }else if(section.id === "bldg-section"){
+                const isNoBldg = numberOfProperties[0].inputs[NOPBldg].value === "0";
+                const isNoHouse = numberOfProperties[0].inputs[NOPHouse].value === "0";
+                const isNoLand = numberOfProperties[0].inputs[NOPLand].value === "0";
                 //区分建物が０のとき次のループへ
-                if(numberOfProperties[0].inputs[NOPIdxs.bldg].value === "0"){   
+                if(isNoBldg){   
                     continue;
+                }else if(isNoLand && isNoHouse){
+                    //不動産の数からのとき
+                }else if(isNoHouse){
+                    //土地からのとき
+                    handleLandSectionOkBtn(section, sections[i - 2]);
                 }else{
-                    //土地情報の仮フォームデータを隠しフォームに転記する処理（転記されていないときだけ）
-                    if(numberOfProperties[0].inputs[NOPIdxs.house].value === "0"){
-                        landCorrectBtn.disabled = true;
-                        checkLandSection();
-                    }
+                    //建物からのとき
+                    handleLandSectionOkBtn(section, preSection);
                 }
-            }else if(sections[i].id === "application-section"){
-                //土地情報の仮フォームデータを隠しフォームに転記する処理（転記されていないときだけ）
+                break;
+            }else if(section.id === "application-section"){
+                const isNoHouse = numberOfProperties[0].inputs[NOPHouse].value === "0";
+                const isNoBldg = numberOfProperties[0].inputs[NOPBldg].value === "0";
+                //土地からの時
+                if(isNoHouse && isNoBldg){
+                    handleLandSectionOkBtn(section, sections[i - 3]);
+                }else if(isNoBldg){
+                    //建物からの時
 
-
-                let presection = null;
-                // 後ろから順に調べる
-                for (let i = sections.length - 1; i >= 0; i--) {
-                    const section = sections[i];
-                    const style = window.getComputedStyle(section);
-                    if (style.display === "block") {
-                        presection = section;
-                        break; // 条件に合致する最初の要素を見つけたらループを抜ける
-                    }
-                }
-                if(!presection){
-                    console.log("handleOkBtnEvent:presectionはnullです");
-                    break;
                 }else{
-                    //不動産が土地のみのとき
-                    if(numberOfProperties[0].inputs[NOPIdxs.house].value === "0" && numberOfProperties[0].inputs[NOPIdxs.bldg].value === "0"){
-                        landCorrectBtn.disabled = true;
-                        checkLandSection();
-                    }
-
-                    handleOkBtnEventCommon(sections[i], presection, 5);
-                    break;
+                    //区分建物の時
                 }
+                scrollToTarget(section);
+                break;
             }else{
-                console.log("handleOkBtnEvent:該当のセクションはありません");
+                console.log("handleOkBtnEvent:想定されていないセクション移動がありました");
             }
         }
     }

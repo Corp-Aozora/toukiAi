@@ -421,6 +421,72 @@ const addTLCABtns = landSection.getElementsByClassName("addTempLandCashAcquirerB
 const landCorrectBtn = document.getElementById("landCorrectBtn");
 const landOkBtn = document.getElementById("landOkBtn");
 
+//建物情報
+const houses = [];
+class House extends Fieldset{
+    //入力欄のインデックス
+    static idxs = {
+        number:{form: 0, input: 0},
+        address:{form: 1, input: 1},
+        houseNumber:{form: 2, input: [2,3,4]},
+        purparty:{form: 3, input: [5,6,7,8]},
+        office:{form: 4, input: 9},
+        price:{form: 5, input: 10},
+        isExchange:{form:6, input: [11, 12]},
+        index:{form:7, input:13},
+    }
+    //fieldset、入力欄、ボタン
+    constructor(fieldsetId){
+        super(fieldsetId);
+        this.noInputs = Array.from(this.fieldset.querySelectorAll("input")).filter(
+            (_, i) =>
+            i !== House.idxs.houseNumber.input[other] &&
+            i !== House.idxs.houseNumber.input[no] &&
+            i !== House.idxs.purparty.input[yes] &&
+            i !== House.idxs.purparty.input[other2] &&
+            i !== House.idxs.index.input
+        );
+        houses.push(this);
+        this.tempAcquirers = [];
+        this.tempCashAcquirers = [];
+        this.acquirers = [];
+        this.cashAcquirers = [];
+    }
+
+    addTempAcquirer(acquirer){
+        this.tempAcquirers.push(acquirer);
+    }
+    addTempCashAcquirer(acquirer){
+        this.tempCashAcquirers.push(acquirer);
+    }
+    addAcquirer(acquirer){
+        this.acquirers.push(acquirer);
+    }
+    addCashAcquirer(acquirer){
+        this.cashAcquirers.push(acquirer);
+    }
+}
+const {number: HNumber, 
+    address: HAddress, 
+    houseNumber: HHouseNumber, 
+    purparty: HPurparty, 
+    office: HOffice, 
+    price: HPrice, 
+    isExchange: HIsExchange,
+    index: HIndex
+} = House.idxs;
+
+//建物情報欄のボタン
+const houseSection = document.getElementById("house-section");
+const removeTHABtns = houseSection.getElementsByClassName("removeTempHouseAcquirerBtn");
+const addTHABtns = houseSection.getElementsByClassName("addTempHouseAcquirerBtn");
+const removeTHCABtns = houseSection.getElementsByClassName("removeTempHouseCashAcquirerBtn");
+const addTHCABtns = houseSection.getElementsByClassName("addTempHouseCashAcquirerBtn");
+//前の建物に戻るボタンと次の建物へ進むボタン
+const houseCorrectBtn = document.getElementById("houseCorrectBtn");
+const houseOkBtn = document.getElementById("houseOkBtn");
+
+
 //修正するボタンと次の項目へボタン
 const correctBtn = document.getElementById("correctBtn");
 const okBtn = document.getElementById("okBtn");
@@ -2315,13 +2381,11 @@ function isExchangeChecked(instance){
     const TLCA = instance.tempCashAcquirers[0];
     const TODInputs = typeOfDivisions[0].inputs;
     const aloneHeirContentType = TODInputs[TODContentType2.input].value;
-    const aloneHeirId = TODInputs[TODObjectId2.input].value;
     const isAloneInheritance = aloneHeirContentType !== "";
     const isLegalInheritance = TODInputs[TODCashAllocation.input[no]].checked;
     //一人のみが取得するとき
     if(isAloneInheritance){
-        const idAndContentType = aloneHeirId + "_" + aloneHeirContentType;
-        inputTAWhenAcquirerAlone(TLCA, idAndContentType);
+        inputTAWhenAcquirerAlone(TLCA);
     }else if(isLegalInheritance){
         //法定相続のとき
         createLegalInheritanceTAFieldset(true, instance);
@@ -2618,20 +2682,16 @@ function getLegalPercentage(candidates, heir){
  * @param {TempAcquirer} tempAcquires 
  * @param {SpouseOrAscendant|DescendantOrCollateral} candidates 
  */
-function addOption(tempAcquires, candidates){
+function addAcquirerCandidate(tempAcquires, candidates){
     tempAcquires.forEach(x =>{
         const select = x.inputs[TAAcquirer.input];
-        const option = document.createElement("option");
-        option.text = "選択してください";
-        option.value = "";
-        select.add(option);
+        select.add(createOption("", "選択してください"));
         candidates.forEach(x =>{
             const inputs = x.inputs;
             const idxs = x.constructor.idxs;
-            const option = document.createElement("option");
-            option.text = inputs[idxs.name].value;
-            option.value = inputs[idxs.idAndContentType].value;
-            select.add(option);
+            const optionText = inputs[idxs.name].value;
+            const optionVal = inputs[idxs.idAndContentType].value;
+            select.add(createOption(optionVal, optionText));
         });
     });
 }
@@ -2639,34 +2699,38 @@ function addOption(tempAcquires, candidates){
 /**
  * １人が不動産を全て相続するとき、隠し不動産取得者欄に入力と不動産取得者仮フォームの非表示
  * @param {TempAcquirer} TA 
- * @param {string} acquirer 
  */
-function inputTAWhenAcquirerAlone(TA, acquirer){
-    inputTA(TA, acquirer, "１", "１");    
+function inputTAWhenAcquirerAlone(TA){
+    const TODInputs = typeOfDivisions[0].inputs;
+    const TODContentType1Val = TODInputs[TODContentType1.input].value;
+    const TODObject1Val = TODInputs[TODObjectId1.input].value;
+    const idAndContentType = TODObject1Val + "_" + TODContentType1Val;
+    inputTA(TA, idAndContentType, "１", "１");    
     TA.noInputs.length = 0;
     TA.fieldset.parentElement.style.display = "none";
 }
 
 /**
  * 取得者候補をselectタグのoptionに追加する
+ * @param {Land|House} instances lands, housesのいずれか
  */
-function addAcquirerCandidate(){
+function getAndAddAcquirerCandidate(instances){
     //土地候補者（不動産を取得するで「はい」がチェックされた人）、金銭取得者（相続人全員）を格納した配列
-    const TLACandidates = [];
-    const TLCACandidates = [];
+    const TACandidates = [];
+    const TCACandidates = [];
     heirs.forEach(x =>{
         const idxs = x.constructor.idxs.isAcquire;
         const inputs = x.inputs;
         if(inputs[idxs[yes]].checked || inputs[idxs[no]].checked){
-            TLCACandidates.push(x);
+            TCACandidates.push(x);
             if(inputs[idxs[yes]].checked)
-                TLACandidates.push(x);
+                TACandidates.push(x);
         }
     })
 
-    lands.forEach(x =>{
-        addOption(x.tempAcquirers, TLACandidates);
-        addOption(x.tempCashAcquirers, TLCACandidates);
+    instances.forEach(x =>{
+        addAcquirerCandidate(x.tempAcquirers, TACandidates);
+        addAcquirerCandidate(x.tempCashAcquirers, TCACandidates);
     })
 }
 
@@ -3096,12 +3160,12 @@ function inputTA(TA, acquirer, purpartyBottom, purpartyTop){
 /**
  * 法定相続用の仮フォーム生成
  * @param {boolean} isCash 
- * @param {Land} land 
+ * @param {Land|House} instance 
  */
-function createLegalInheritanceTAFieldset(isCash, land){
+function createLegalInheritanceTAFieldset(isCash, instance){
     const candidates = getAllLegalHeirs();
     for(let i = 0, len = candidates.length; i < len; i++){
-        const TAs = isCash ? land.tempCashAcquirers: land.tempAcquirers;
+        const TAs = isCash ? instance.tempCashAcquirers: instance.tempAcquirers;
         const candidate = candidates[i];
         const idAndContentType = candidate.inputs[candidate.constructor.idxs.idAndContentType].value;
         const purparty = getLegalPercentage(candidates, candidate);
@@ -3112,14 +3176,14 @@ function createLegalInheritanceTAFieldset(isCash, land){
             const regex = /(acquirer-)\d+/;
             copyAndPasteEl(copyFrom, att, regex, i);  
             const newId = copyFrom.id.replace(regex, `$1${i}`);
-            const newTA = new TempAcquirer(newId, land);
-            isCash ? land.addTempCashAcquirer(newTA): land.addTempAcquirer(newTA);
+            const newTA = new TempAcquirer(newId, instance);
+            isCash ? instance.addTempCashAcquirer(newTA): instance.addTempAcquirer(newTA);
         }
         const TA = TAs[i];
         inputTA(TA, idAndContentType, parts[0], parts[1]);
         TA.noInputs.length = 0;
     }
-    const TAWrapper = isCash ? land.tempCashAcquirers[0].fieldset.parentElement: land.tempAcquirers[0].fieldset.parentElement;
+    const TAWrapper = isCash ? instance.tempCashAcquirers[0].fieldset.parentElement: instance.tempAcquirers[0].fieldset.parentElement;
     TAWrapper.style.setProperty('display', 'none', 'important');
 }
 
@@ -3202,11 +3266,11 @@ function isCandidatesNoChange(newCandidates, oldCandidates){
  * 土地を単独で取得するときの処理
  * @param {Land[]} instances 
  */
-function handlePropertyAcquirerAloneDivision(instances, allLegalHeirs, acquirer){
+function handlePropertyAcquirerAloneDivision(instances, allLegalHeirs){
     instances.forEach(x => {
         const TAs = x.tempAcquirers; 
         resetTA(TAs, allLegalHeirs)
-        inputTAWhenAcquirerAlone(TAs[0], acquirer);
+        inputTAWhenAcquirerAlone(TAs[0]);
     });
 }
 
@@ -3217,7 +3281,7 @@ function handlePropertyAcquirerAloneDivision(instances, allLegalHeirs, acquirer)
  */
 function resetTA(TAs, candidates){
     iniTA(TAs);
-    addOption(TAs, candidates);
+    addAcquirerCandidate(TAs, candidates);
 }
 
 /**
@@ -3271,10 +3335,9 @@ function addLandFormNotFirstTime(index){
     const TODInputs = typeOfDivisions[0].inputs;
     const TODPropertyAllocationInputIdxs = TODPropertyAllocation.input;
     const isFreeDivision = TODInputs[TODPropertyAllocationInputIdxs[no]].checked;
-    cloneLandFieldset(index, isFreeDivision);
+    clonePropertyFieldset("land", index, isFreeDivision);
     //インスタンスを生成
-    const newLand = new Land(`id_land-${index}-fieldset`);
-    addLandRelatedInstance(newLand, index);
+    const newLand = createNewPropertyInstance("land", index);
     const isLegalInheritance = TODInputs[TODPropertyAllocationInputIdxs[yes]].checked;
     //不動産が法定相続のとき、仮取得者インスタンスを(不動産取得者 - 1)追加する
     if(isLegalInheritance){addLandTAInstanceByLegalInheritance(newLand, index);}
@@ -3301,42 +3364,52 @@ function addLandFormNotFirstTime(index){
     newLandInputs[LPurpartyInputIdxs[other]].disabled = false;
 }
 
-//初回の土地情報の複製
-function addLandFormFirstTime(landCount){
-    for(let i = 1; i < landCount; i++){
-        cloneLandFieldset(i, false);
-        const newLand = new Land(`id_land-${i}-fieldset`);
-        addLandRelatedInstance(newLand, i);
+/**
+ * 初回の不動産欄の複製処理（欄の複製とインスタンス生成）
+ * @param {string} prefix 
+ * @param {number} count 
+ */
+function addPropertyFormFirstTime(prefix, count){
+    for(let i = 1; i < count; i++){
+        clonePropertyFieldset(prefix, i, false);
+        createNewPropertyInstance(prefix, i);
     }
 }
 
-function cloneLandFieldset(landIndex, isFreeDivision){
-    const copyFrom = document.getElementById(`id_land-${landIndex - 1}-wrapper`);
+/**
+ * 不動産欄を複製する
+ * @param {string} prefix "land", "house", "bldg"のいずれか
+ * @param {number} idx 不動産のインデックス
+ * @param {boolean} isFreeDivision 遺産分割の分配方法がその他フラグ
+ */
+function clonePropertyFieldset(prefix, idx, isFreeDivision){
+    const copyFrom = document.getElementById(`id_${prefix}-${idx - 1}-wrapper`);
     const clone = copyFrom.cloneNode(true);
     //仮フォームを１つにする
+    const fixedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
     if(isFreeDivision)
-        removeElsExceptFirstByClassName("tempLandAcquirerFieldset", clone);
-    removeElsExceptFirstByClassName("tempLandCashAcquirerFieldset", clone);
+        removeElsExceptFirstByClassName(`temp${fixedPrefix}AcquirerFieldset`, clone);
+    removeElsExceptFirstByClassName(`temp${fixedPrefix}CashAcquirerFieldset`, clone);
     //クローンした要素は非表示
     clone.style.setProperty("display", "none", "important");
     //複製した土地情報の属性値を変更
-    const newBranchNum = `（${hankakuToZenkaku(String(landIndex + 1))}）`;
+    const newBranchNum = `（${hankakuToZenkaku(String(idx + 1))}）`;
     clone.firstElementChild.textContent = newBranchNum;
-    clone.id = clone.id.replace(/\d+/, landIndex);
+    clone.id = clone.id.replace(/\d+/, idx);
     const els = clone.querySelectorAll('[id],[for],[name]');
-    const regex = /(land[_-])\d+/;
+    const regex = prefix === "land"? /(land[_-])\d+/: (prefix === "house"? /(house[_-])\d+/: /(bldg[_-])\d+/);
     els.forEach(x => {
         if(x.id){
-            x.id = x.id.replace(regex, `$1${landIndex}`);
-            if(x.id === `id_land-${landIndex}-index`)
-                x.value = `${landIndex}`;
+            x.id = x.id.replace(regex, `$1${idx}`);
+            if(x.id === `id_${prefix}-${idx}-index`)
+                x.value = `${idx}`;
             else if(x.id.includes("purparty") || x.id.includes("acquirer-0-fieldset"))
                 x.disabled = false;
         }
         if(x.htmlFor)
-            x.htmlFor = x.htmlFor.replace(regex, `$1${landIndex}`);
+            x.htmlFor = x.htmlFor.replace(regex, `$1${idx}`);
         if(x.name)
-            x.name = x.name.replace(regex, `$1${landIndex}`);
+            x.name = x.name.replace(regex, `$1${idx}`);
     });
     copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
 }
@@ -3348,10 +3421,30 @@ function hiddenIsExchange(land){
     input.dispatchEvent(new Event("change"));
 }
 
-function addLandRelatedInstance(instance, landIndex){
-    instance.addTempAcquirer(new TempAcquirer(`id_land_${landIndex}_temp_land_acquirer-0-fieldset`, instance));
-    instance.addTempCashAcquirer(new TempAcquirer(`id_land_${landIndex}_temp_land_cash_acquirer-0-fieldset`, instance));
-    instance.tempCashAcquirers[0].noInputs.length = 0
+/**
+ * 新たな不動産インスタンスを生成して返す
+ * @param {string} prefix "land", "house", "bldg"のいずれか
+ * @param {number} idx インスタンスのインデックス
+ * @returns
+ */
+function createNewPropertyInstance(prefix, idx){
+    let instance;
+    if(prefix === "land"){
+        instance = new Land(`id_${prefix}-${idx}-fieldset`);
+    }else if(prefix === "house"){
+        instance = new House(`id_${prefix}-${idx}-fieldset`);
+    }else{
+        throw new Error("createNewPropertyInstance：想定されていないクラスのインスタンスが渡されました");
+    }
+    // TempAcquirerの追加処理を一般化
+    function addTempAcquirerTypes(){
+        instance.addTempAcquirer(new TempAcquirer(`id_${prefix}_${idx}_temp_${prefix}_acquirer-0-fieldset`, instance));
+        instance.addTempCashAcquirer(new TempAcquirer(`id_${prefix}_${idx}_temp_${prefix}_cash_acquirer-0-fieldset`, instance));
+        instance.tempCashAcquirers[0].noInputs.length = 0;
+    }
+    // 汎用関数を使用して、TempAcquirerを追加
+    addTempAcquirerTypes();
+    return instance;
 }
 
 /**
@@ -3362,25 +3455,22 @@ function setLandSection(){
     const TODInputs = typeOfDivisions[0].inputs;
     //不動産の数で入力された数分の土地のフォーム、hidden不動産取得者、hidden金銭取得者を生成する
     const newCount = parseInt(numberOfProperties[0].inputs[NOPLand].value);
+    const prefix = "land";
     //初めて土地情報を入力するとき
     if(lands.length === 0){
         //インスタンスを生成する
-        const land = new Land("id_land-0-fieldset");
-        addLandRelatedInstance(land, 0);
+        createNewPropertyInstance(prefix, 0);
         //土地の数が２以上のとき、土地情報を複製する
         if(newCount > 1)
-            addLandFormFirstTime(newCount);
+            addPropertyFormFirstTime(prefix, newCount);
         //取得者候補を追加する
-        addAcquirerCandidate();
-        const isLandAcquirerAlone = TODInputs[TODContentType1.input].value !== "";
-        const isLandLegalInheritance = TODInputs[TODPropertyAllocation.input[yes]].checked;
+        getAndAddAcquirerCandidate(lands);
+        const isAcquirerAlone = TODInputs[TODContentType1.input].value !== "";
+        const isLegalInheritance = TODInputs[TODPropertyAllocation.input[yes]].checked;
         //遺産分割方法の不動産の全取得者欄が入力されているときは、自動入力する
-        if(isLandAcquirerAlone){
-            const TODContentType1Val = TODInputs[TODContentType1.input].value;
-            const TODObject1Val = TODInputs[TODObjectId1.input].value;
-            const idAndContentType = TODObject1Val + "_" + TODContentType1Val;
-            lands.forEach(x => x.tempAcquirers.forEach(y => inputTAWhenAcquirerAlone(y, idAndContentType)));
-        }else if(isLandLegalInheritance){
+        if(isAcquirerAlone){
+            lands.forEach(x => x.tempAcquirers.forEach(y => inputTAWhenAcquirerAlone(y)));
+        }else if(isLegalInheritance){
             //不動産の取得者が法定相続のとき
             lands.forEach(x => createLegalInheritanceTAFieldset(false, x));
         }
@@ -3471,8 +3561,7 @@ function setLandSection(){
         const isLandFreeDivision = TODInputs[TODPropertyAllocation.input[no]].checked; //今回の遺産分割方法確認
         //遺産分割方法が１人のとき
         if(isLandAloneDivision){
-            const aloneAcquirer = TODInputs[TODObjectId1.input].value + "_" + TODInputs[TODContentType1.input].value;
-            handlePropertyAcquirerAloneDivision(lands, allLegalHeirs, aloneAcquirer);
+            handlePropertyAcquirerAloneDivision(lands, allLegalHeirs);
         }else if(isLandFreeDivision){
             //遺産分割方法がその他のとき
             const newCandidates = getAllcandidates();
@@ -3808,7 +3897,47 @@ function handleLandSectionOkBtn(section, preSection){
  */
 function setHouseSection(){
     //最後のフォームに移動するように設定が必要
-    
+    const TAAcquirerInputIdx = TAAcquirer.input;
+    const TODInputs = typeOfDivisions[0].inputs;
+    //不動産の数で入力された数分の土地のフォーム、hidden不動産取得者、hidden金銭取得者を生成する
+    const newCount = parseInt(numberOfProperties[0].inputs[NOPHouse].value);
+    const prefix = "house";
+    //初めて土地情報を入力するとき
+    if(houses.length === 0){
+        //インスタンスを生成する
+        createNewPropertyInstance(prefix, 0);
+        //土地の数が２以上のとき、土地情報を複製する
+        if(newCount > 1)
+            addPropertyFormFirstTime(prefix, newCount);
+        //取得者候補を追加する
+        getAndAddAcquirerCandidate(houses);
+        const isAcquirerAlone = TODInputs[TODContentType1.input].value !== "";
+        const isLegalInheritance = TODInputs[TODPropertyAllocation.input[yes]].checked;
+        //遺産分割方法の不動産の全取得者欄が入力されているときは、自動入力する
+        if(isAcquirerAlone){
+            houses.forEach(x => x.tempAcquirers.forEach(y => inputTAWhenAcquirerAlone(y)));
+        }else if(isLegalInheritance){
+            //不動産の取得者が法定相続のとき
+            houses.forEach(x => createLegalInheritanceTAFieldset(false, x));
+        }
+        //土地情報の各入力欄のイベントを設定
+        setLandEvent();
+        // //通常分割のとき、換価確認欄を非表示にして「しない」にチェックを入れる
+        // const isNormalDivision = TODInputs[TODTypeOfDivision.input[yes]].checked;
+        // if(isNormalDivision)
+        //     houses.forEach(x => hiddenIsExchange(x));
+        // //土地又は金銭取得者の仮フォームの各入力欄のイベントを設定
+        // setHouseTAEvent();
+        // //取得者仮フォームを追加ボタンのイベント設定
+        // setAddTABtnEvent();
+        // //不動産取得者を削除ボタンのイベント設定
+        // setRemoveTABtnEvent();
+        // //次の土地へ進むボタンのイベント設定
+        // setHouseOkBtnEvent();
+        // //前の土地を修正するボタンのイベント設定
+        // setHouseCorrectBtnEvent();
+    }
+    scrollToTarget(getLastElFromArray(houses).fieldset);
 }
 
 

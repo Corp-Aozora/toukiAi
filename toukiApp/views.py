@@ -1257,7 +1257,7 @@ def step_three(request):
             user_data_scope.append("application")
     #ないとき
     else:
-        application_form = StepThreeSpouseForm(prefix="application")
+        application_form = StepThreeApplicationForm(prefix="application")
         
     context = {
         "title" : "３．データ入力",

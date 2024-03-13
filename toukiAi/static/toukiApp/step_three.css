@@ -1,4 +1,4 @@
-#decedent-section label, #heirs-section label, #appication-section label{
+#decedent-section label, #heirs-section label, #application-section label{
     width: 115px!important;
 }
 
@@ -31,7 +31,7 @@
     width: 425px!important;
 }
 
-.heirsFieldset{
+.heirsFieldset, #id_application-fieldset{
     width: 500px!important;
 }
 

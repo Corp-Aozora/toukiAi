@@ -2027,55 +2027,121 @@
                     <h5 class="form-label">５．申請情報</h5>
                 </div>
                 <fieldset id="id_application-fieldset">
-                    <div class="mt-3">
-                        <div class="input-group">
-                            <span class="input-group-text">申請人</span>
-                            <select name="application_" class="form-select rounded-end mdInput" required>
-                                <option ></option>
-                            </select>
-                        </div>
-                        <div>
-                            <span class="form-text ms-2">※取得する方のみ申請人になれます</span>
-                        </div>
-                        <div class="mt-3">
-                            <div>
-                                <span class="fs-5">登記完了後に以下の書類は必要ですか？</span>
-                            </div>
-                            <div>
-                                <ul id="papersList" class="list-group list-group-flush mt-2 form-text">
-                                    <li class="list-group-item">遺産分間協議証明書</li>
-                                    <li class="list-group-item">戸籍謄本</li>
-                                    <li class="list-group-item">住民票</li>
-                                    <li class="list-group-item">印鑑証明書</li>
-                                    <li class="list-group-item border-bottom">固定資産評価証明書又は課税明細書</li>
-                                </ul>
-                            </div>
-                            <div class="d-flex justify-content-evenly mt-3 border rounded-3 twoRbs form-control">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="returnPaperRbs" id="returnPaperRbsZero">
-                                    <label class="form-check-label" for="returnPaperRbsZero">必要</label>
+                    <div class="border rounded-3 p-4 mt-3">
+                         {% for field in application_form %}
+                            {% if field.name == "applicant" %}
+                                <div class="input-group mt-4 position-relative Q">
+                                    <span class="form-label fs-5 fw-bold">
+                                        申請手続きをする方を選択してください
+                                    </span>
+                                    <div class="form-text">
+                                        ※申請に不備があったときに法務局から連絡を受けたり完了後の書類の受け取りを行います。
+                                    </div>
+                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                        申請人
+                                    </label>
+                                    {{ field }}
+                                    <span class="errorMessage emPosition" style="display: none;">
+                                    </span>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="returnPaperRbs" id="returnPaperRbsOne">
-                                    <label class="form-check-label" for="returnPaperRbsOne">不要</label>
+                            {% elif field.name == "is_agent" %}
+                                <div class="mt-4 isAgentDiv">
+                                    <span class="form-label fs-5 fw-bold">
+                                        申請人に変わっての方が申請手続きを行いますか？
+                                    </span>
+                                    <div class="d-flex justify-content-center p-2 input-group mt-3 border rounded-3">
+                                        {% for choice in field %}
+                                            <div class="form-check col">
+                                                {% if forloop.counter == 1 %}
+                                                    <label class="form-check-label ms-5">
+                                                {% else %}
+                                                    <label class="form-check-label">
+                                                {% endif %}
+                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                    </label>
+                                            </div>
+                                            <span class="errorMessage rbEmPosition" style="display: none;">
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                            {% elif field.name == "agent_name" %}
+                                <div class="form-label fs-5 fw-bold mt-4">
+                                    代理人
+                                    <div class="input-group position-relative Q mt-3">
+                                        <label for="{{field.auto_id}}" class="input-group-text label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
+                                    </div>
+                            {% elif field.name == "agent_address" %}
+                                <div class="input-group position-relative Q">
+                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    <span class="errorMessage emPosition" style="display: none;">
+                                    </span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <div>
-                                <span class="fs-5">法務局への書類提出方法について</span>
-                            </div>
-                            <div class="d-flex justify-content-evenly mt-3 border rounded-3 twoRbs form-control">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="submissionMethodRbs" id="submissionMethodRbsZero" required>
-                                    <label class="form-check-label" for="submissionMethodRbsZero">郵送</label>
+                            {% elif field.name == "agent_phone_number" %}
+                                        <div class="input-group position-relative Q">
+                                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                                {{ field.label }}
+                                            </label>
+                                            {{ field }}
+                                            <span class="errorMessage emPosition" style="display: none;">
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="submissionMethodRbs" id="submissionMethodRbsOne">
-                                    <label class="form-check-label" for="submissionMethodRbsOne">持参</label>
+                            {% elif field.name == "is_return" %}
+                                <div class="mt-4 isAgentDiv">
+                                    <span class="form-label fs-5 fw-bold">
+                                        書類の原本還付をしますか？
+                                    </span>
+                                    <div class="form-text">
+                                        ※手続き完了後に取得した証明書類を返却してもらうことができます。
+                                    </div>
+                                    <div class="d-flex justify-content-center p-2 input-group mt-3 border rounded-3">
+                                        {% for choice in field %}
+                                            <div class="form-check col">
+                                                {% if forloop.counter == 1 %}
+                                                    <label class="form-check-label ms-5">
+                                                {% else %}
+                                                    <label class="form-check-label">
+                                                {% endif %}
+                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                    </label>
+                                            </div>
+                                            <span class="errorMessage rbEmPosition" style="display: none;">
+                                            </span>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            {% elif field.name == "is_mail" %}
+                                <div class="mt-4 isAgentDiv">
+                                    <span class="form-label fs-5 fw-bold">
+                                        申請書類は法務局へ郵送しますか？
+                                    </span>
+                                    <div class="d-flex justify-content-center p-2 input-group mt-3 border rounded-3">
+                                        {% for choice in field %}
+                                            <div class="form-check col">
+                                                {% if forloop.counter == 1 %}
+                                                    <label class="form-check-label ms-5">
+                                                {% else %}
+                                                    <label class="form-check-label">
+                                                {% endif %}
+                                                        {{ choice.tag }}{{ choice.choice_label }}
+                                                    </label>
+                                            </div>
+                                            <span class="errorMessage rbEmPosition" style="display: none;">
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </fieldset>
             </section>

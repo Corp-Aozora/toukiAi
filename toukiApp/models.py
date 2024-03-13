@@ -970,7 +970,12 @@ class Site(CommonModel):
         related_name="site_house",
     )
     land_num = models.IntegerField(verbose_name="土地の符号", null=True, blank=True, default="")
-    land_type = models.CharField(verbose_name="敷地権の種類", null=True, blank=True, default="")
+    LAND_TYPE_CHOICES = [
+        ('所有権', '所有権'),
+        ('地上権', '地上権'),
+        ('賃借権', '賃借権'),
+    ]
+    land_type = models.CharField(verbose_name="敷地権の種類", max_length=30, choices=LAND_TYPE_CHOICES, null=True, blank=True)
     land_purparty = models.CharField(verbose_name="敷地権の割合", null=True, blank=True, default="")
     price = models.CharField(verbose_name="固定資産評価額", max_length=13,null=False, blank=False, default="")
     

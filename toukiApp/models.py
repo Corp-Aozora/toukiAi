@@ -26,6 +26,7 @@ class OpenInquiry(CommonModel):
     created_by = models.EmailField(verbose_name="メールアドレス")
     subject_list = (
         ("サポート内容", "サポート内容"),
+        ("料金", "料金"),
         ("オプション", "オプション"),
         ("提携司法書士", "提携司法書士"),
         ("運営者", "運営者"),

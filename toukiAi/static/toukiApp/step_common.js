@@ -326,6 +326,15 @@ function copyAndPasteEl(copyFrom, att, regex, newIdx){
     copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling);
 }
 
+/**
+ * 最初の文字を大文字にする
+ * @param {string} strings 
+ * @returns {string}
+ */
+function upperFirstString(strings){
+    return strings.charAt(0).toUpperCase() + strings.slice(1);
+}
+
 /*
     イベント
 */

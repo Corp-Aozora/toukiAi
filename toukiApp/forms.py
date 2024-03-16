@@ -789,6 +789,7 @@ class StepThreeLandForm(forms.ModelForm):
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
+                    "placeholder": "数字のみで入力（コンマは入力不要）",
                     "class": "form-control text-center rounded-end",
                 })
             elif field.label == "地目":
@@ -887,6 +888,7 @@ class StepThreeHouseForm(forms.ModelForm):
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
+                    "placeholder": "数字のみで入力（コンマは入力不要）",
                     "class": "form-control text-center rounded-end",
                 })
             elif field.label == "種類":
@@ -942,162 +944,153 @@ class StepThreeHouseCashAcquirerForm(forms.ModelForm):
             
         super().__init__(*args, **kwargs)
 
-#区分建物
-# class StepThreeHouseForm(forms.ModelForm):
-#     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+# 区分建物
+class StepThreeBldgForm(forms.ModelForm):
+    index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
     
-#     class Meta:
-#         model = House
-#         fields = model.step_three_fields
-#         widgets = {
-#             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
-#             "purparty": forms.HiddenInput(),
-#             "house_number": forms.HiddenInput(),
-#         }
+    class Meta:
+        model = Bldg
+        fields = model.step_three_fields
+        widgets = {
+            "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "purparty": forms.HiddenInput(),
+        }
 
-#     def __init__(self, *args, **kwargs):
-#         for field in self.base_fields.values():
-#             field.required = False
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
             
-#             if field.label in ["不動産番号", "所在地", "法務局"]:
-#                 field.widget.attrs.update({
-#                     "class": "form-control rounded-end",
-#                 })
-#                 if field.label == "不動産番号":
-#                     field.widget.attrs.update({
-#                         "placeholder": "１３桁の数字",
-#                         "maxlength": "13",
-#                     })
-#                 elif field.label == "所在地":
-#                     field.widget.attrs.update({
-#                         "placeholder": "福岡県福岡市中央区天神１丁目１番地１",
-#                         "maxlength": "100",
-#                     })
-#                 elif field.label == "法務局":
-#                     field.widget.attrs.update({
-#                         "placeholder": "不動産番号を入力すると自動で表示されます",
-#                         "maxlength": "30",
-#                         "disabled": "true",
-#                     })
-#                     # ここで "法務局" のフィールドに対して追加のクラスを加える
-#                     existing_classes = field.widget.attrs.get("class", "")
-#                     new_classes = f"{existing_classes} text-center"
-#                     field.widget.attrs.update({"class": new_classes})
-#             elif field.label == "固定資産評価額":
-#                 field.widget.attrs.update({
-#                     "class": "form-control text-center rounded-end",
-#                 })
-#             elif field.label == "種類":
-#                 field.widget.attrs.update({
-#                     "class": "form-select text-center cursor-pointer rounded-end",
-#                 })
-#             elif field.label ==  "換価対象":
-#                 field.widget.attrs.update({
-#                     "class": "form-check-input",
-#                 })
-#             elif field.label == "持ち分":
-#                 field.initial = "分の"
-#             elif field.label == "家屋番号":
-#                 field.initial = "番"
+            if field.label in ["不動産番号", "一棟の建物の所在", "家屋番号", "法務局"]:
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                })
+                if field.label == "不動産番号":
+                    field.widget.attrs.update({
+                        "placeholder": "１３桁の数字",
+                        "maxlength": "13",
+                    })
+                elif field.label == "一棟の建物の所在":
+                    field.widget.attrs.update({
+                        "placeholder": "福岡県福岡市中央区天神１丁目１番地１",
+                        "maxlength": "100",
+                    })
+                elif field.label == "家屋番号":
+                    field.widget.attrs.update({
+                        "placeholder": "専有部分の建物の表示にある家屋番号",
+                        "maxlength": "100",
+                    })
+                elif field.label == "法務局":
+                    field.widget.attrs.update({
+                        "placeholder": "不動産番号を入力すると自動で表示されます",
+                        "maxlength": "30",
+                        "disabled": "true",
+                    })
+                    # ここで "法務局" のフィールドに対して追加のクラスを加える
+                    existing_classes = field.widget.attrs.get("class", "")
+                    new_classes = f"{existing_classes} text-center"
+                    field.widget.attrs.update({"class": new_classes})
+            elif field.label == "固定資産評価額":
+                field.widget.attrs.update({
+                    "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "class": "form-control text-center rounded-end",
+                })
+            elif field.label == "種類":
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+            elif field.label ==  "換価対象":
+                field.widget.attrs.update({
+                    "class": "form-check-input",
+                })
+            elif field.label == "所有権・持分":
+                field.initial = "分の"
 
-#         super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
+# 敷地権        
+class StepThreeSiteForm(forms.ModelForm):
+    target = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+    
+    class Meta:
+        model = Site
+        index = model.step_three_fields.index("bldg")
+        model.step_three_fields.insert(index, "target")
+        fields = model.step_three_fields
+        widgets = {
+            "bldg": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
+            
+            if field.label in ["土地の符号", "所在及び地番"]:
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end",
+                })
+                if field.label == "土地の符号":
+                    field.widget.attrs.update({
+                        "maxlength": "3",
+                    })
+                elif field.label == "所在及び地番":
+                    field.widget.attrs.update({
+                        "placeholder": "福岡県福岡市中央区天神１丁目１番１",
+                        "maxlength": "100",
+                    })
+            elif field.label in ["敷地権の割合（分母）", "敷地権の割合（分子）"]:
+                field.widget.attrs.update({
+                    "class": "mx-1 p-0 fraction form-control text-center",
+                    "maxlength": "10",
+                })
+            elif field.label == "固定資産評価額":
+                field.widget.attrs.update({
+                    "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "class": "form-control text-center rounded-end",
+                })
+            elif field.label == "敷地権の種類":
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+        super().__init__(*args, **kwargs)
+        self.fields['type'].choices = [("", "選択してください")] + list(Site.TYPE_CHOICES)
         
-# class StepThreeHouseForm(forms.ModelForm):
-#     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+# 区分建物取得者
+class StepThreeBldgAcquirerForm(forms.ModelForm):
+    target = forms.CharField(required=False, widget=forms.HiddenInput())
     
-#     class Meta:
-#         model = House
-#         fields = model.step_three_fields
-#         widgets = {
-#             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
-#             "purparty": forms.HiddenInput(),
-#             "house_number": forms.HiddenInput(),
-#         }
+    class Meta:
+        model = PropertyAcquirer
+        fields = model.step_three_fields
+        widgets = {
+            "content_type2": forms.HiddenInput(),
+            "object_id2": forms.HiddenInput(),
+            "percentage": forms.HiddenInput(),
+        }
 
-#     def __init__(self, *args, **kwargs):
-#         for field in self.base_fields.values():
-#             field.required = False
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
             
-#             if field.label in ["不動産番号", "所在地", "法務局"]:
-#                 field.widget.attrs.update({
-#                     "class": "form-control rounded-end",
-#                 })
-#                 if field.label == "不動産番号":
-#                     field.widget.attrs.update({
-#                         "placeholder": "１３桁の数字",
-#                         "maxlength": "13",
-#                     })
-#                 elif field.label == "所在地":
-#                     field.widget.attrs.update({
-#                         "placeholder": "福岡県福岡市中央区天神１丁目１番地１",
-#                         "maxlength": "100",
-#                     })
-#                 elif field.label == "法務局":
-#                     field.widget.attrs.update({
-#                         "placeholder": "不動産番号を入力すると自動で表示されます",
-#                         "maxlength": "30",
-#                         "disabled": "true",
-#                     })
-#                     # ここで "法務局" のフィールドに対して追加のクラスを加える
-#                     existing_classes = field.widget.attrs.get("class", "")
-#                     new_classes = f"{existing_classes} text-center"
-#                     field.widget.attrs.update({"class": new_classes})
-#             elif field.label == "固定資産評価額":
-#                 field.widget.attrs.update({
-#                     "class": "form-control text-center rounded-end",
-#                 })
-#             elif field.label == "種類":
-#                 field.widget.attrs.update({
-#                     "class": "form-select text-center cursor-pointer rounded-end",
-#                 })
-#             elif field.label ==  "換価対象":
-#                 field.widget.attrs.update({
-#                     "class": "form-check-input",
-#                 })
-#             elif field.label == "持ち分":
-#                 field.initial = "分の"
-#             elif field.label == "家屋番号":
-#                 field.initial = "番"
+        super().__init__(*args, **kwargs)
 
-#         super().__init__(*args, **kwargs)
-        
-# #建物取得者
-# class StepThreeHouseAcquirerForm(forms.ModelForm):
-#     target = forms.CharField(required=False, widget=forms.HiddenInput())
+# 区分金銭取得者
+class StepThreeBldgCashAcquirerForm(forms.ModelForm):
+    target = forms.CharField(required=False, widget=forms.HiddenInput())
     
-#     class Meta:
-#         model = PropertyAcquirer
-#         fields = model.step_three_fields
-#         widgets = {
-#             "content_type2": forms.HiddenInput(),
-#             "object_id2": forms.HiddenInput(),
-#             "percentage": forms.HiddenInput(),
-#         }
+    class Meta:
+        model = CashAcquirer
+        fields = model.step_three_fields
+        widgets = {
+            "content_type2": forms.HiddenInput(),
+            "object_id2": forms.HiddenInput(),
+            "percentage": forms.HiddenInput(),
+        }
 
-#     def __init__(self, *args, **kwargs):
-#         for field in self.base_fields.values():
-#             field.required = False
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            field.required = False
             
-#         super().__init__(*args, **kwargs)
-
-# #建物金銭取得者
-# class StepThreeHouseCashAcquirerForm(forms.ModelForm):
-#     target = forms.CharField(required=False, widget=forms.HiddenInput())
-    
-#     class Meta:
-#         model = CashAcquirer
-#         fields = model.step_three_fields
-#         widgets = {
-#             "content_type2": forms.HiddenInput(),
-#             "object_id2": forms.HiddenInput(),
-#             "percentage": forms.HiddenInput(),
-#         }
-
-#     def __init__(self, *args, **kwargs):
-#         for field in self.base_fields.values():
-#             field.required = False
-            
-#         super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
                 
 #申請情報
 class StepThreeApplicationForm(forms.ModelForm):
@@ -1113,10 +1106,13 @@ class StepThreeApplicationForm(forms.ModelForm):
             "is_agent": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
             "is_return": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
             "is_mail": forms.RadioSelect(choices=[("true", "郵送する"), ("false", "持参する")]),
+            "content_type": forms.HiddenInput(),
+            "object_id": forms.HiddenInput(),
         }
         labels = {
             "agent_name": "氏名",
             "agent_address": "住所",
+            "phone_number": "電話番号",
             "agent_phone_number": "電話番号"
         }
 
@@ -1141,7 +1137,7 @@ class StepThreeApplicationForm(forms.ModelForm):
                     })
                 elif field.label == "電話番号":
                     field.widget.attrs.update({
-                        "placeholder": "０９０－ＸＸＸＸ－ＸＸＸＸ",
+                        "placeholder": "０９０－１２３４－５６７８",
                         "maxlength": "13",
                     })
             elif field.label in ["代理人の有無", "原本還付の有無", "郵送の有無"]:

@@ -170,7 +170,7 @@ class RegistryNameAndAddress(CommonModel):
     
     class Meta:
         verbose_name = _("登記簿上の住所氏名")
-        verbose_name_plural = _("登記簿上の住所")
+        verbose_name_plural = _("登記簿上の住所氏名")
 
 # 配偶者
 # 外部キー：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとid
@@ -825,7 +825,7 @@ class Land(CommonModel):
         related_name="land",
     )
     register = models.ForeignKey(
-        Decedent,
+        RegistryNameAndAddress,
         verbose_name="不動産登記簿",
         on_delete=models.CASCADE,
         null = True,
@@ -889,7 +889,7 @@ class House(CommonModel):
         related_name="house",
     )
     register = models.ForeignKey(
-        Decedent,
+        RegistryNameAndAddress,
         verbose_name="不動産登記簿",
         on_delete=models.CASCADE,
         null = True,
@@ -950,6 +950,75 @@ class House(CommonModel):
     class Meta:
         verbose_name = _("建物")
         verbose_name_plural = _("建物")
+        
+class Bldg(CommonModel):
+    """区分建物
+
+    Args:
+        CommonModel (_type_): _description_
+    """
+    decedent = models.ForeignKey(
+        Decedent,
+        verbose_name="被相続人",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="bldgs",
+    )
+    register = models.ForeignKey(
+        RegistryNameAndAddress,
+        verbose_name="不動産登記簿",
+        on_delete=models.CASCADE,
+        null = True,
+        blank = True,
+        related_name="bldg_register",
+    )
+    number = models.CharField(verbose_name="不動産番号", max_length=100, null=False, blank=False, default="")
+    address = models.CharField(verbose_name="一棟の建物の所在", max_length=100, null=True, blank=True, default="")
+    bldg_number = models.CharField(verbose_name="家屋番号", max_length=100, null=True, blank=True, default="")
+    purpose = models.CharField(verbose_name="種類", max_length=100, null=True, blank=True, default="")
+    type = models.CharField(verbose_name="構造", max_length=100, null=True, blank=True, default="")
+    first_floor_size = models.CharField(verbose_name="１階面積", max_length=100, null=True, blank=True, default="")
+    second_floor_size = models.CharField(verbose_name="２階面積", max_length=100, null=True, blank=True, default="")
+    third_floor_size = models.CharField(verbose_name="３階面積", max_length=100, null=True, blank=True, default="")
+    fourth_floor_size = models.CharField(verbose_name="４階面積", max_length=100, null=True, blank=True, default="")
+    fifth_floor_size = models.CharField(verbose_name="５階面積", max_length=100, null=True, blank=True, default="")
+    purparty = models.CharField(verbose_name="所有権・持分", max_length=100 ,null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
+    is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
+    office = models.CharField(verbose_name="法務局", max_length=30, null=True, blank=True, default="")
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "bldg_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "bldg_update_by"
+    )
+    
+    step_three_fields = [
+        "number",
+        "address",
+        "bldg_number",
+        "purparty",
+        "office",
+        "price",
+        "is_exchange",        
+        "register",
+    ]
+    
+    class Meta:
+        verbose_name = _("区分建物")
+        verbose_name_plural = _("区分建物")
 
 #敷地権
 class Site(CommonModel):
@@ -961,22 +1030,24 @@ class Site(CommonModel):
         blank = False,
         related_name="site",
     )
-    house = models.ForeignKey(
-        Decedent,
-        verbose_name="建物",
+    bldg = models.ForeignKey(
+        Bldg,
+        verbose_name="区分建物",
         on_delete=models.CASCADE,
         null = True,
         blank = True,
-        related_name="site_house",
+        related_name="site_bldg",
     )
-    land_num = models.IntegerField(verbose_name="土地の符号", null=True, blank=True, default="")
-    LAND_TYPE_CHOICES = [
+    number = models.CharField(verbose_name="土地の符号", max_length=3, null=True, blank=True, default="")
+    address_and_land_number = models.CharField(verbose_name="所在及び地番", max_length=100, null=True, blank=True, default="")
+    TYPE_CHOICES = [
         ('所有権', '所有権'),
         ('地上権', '地上権'),
         ('賃借権', '賃借権'),
     ]
-    land_type = models.CharField(verbose_name="敷地権の種類", max_length=30, choices=LAND_TYPE_CHOICES, null=True, blank=True)
-    land_purparty = models.CharField(verbose_name="敷地権の割合", null=True, blank=True, default="")
+    type = models.CharField(verbose_name="敷地権の種類", max_length=3, choices=TYPE_CHOICES, null=True, blank=True)
+    purparty_bottom = models.CharField(verbose_name="敷地権の割合（分母）", max_length=10, null=True, blank=True, default="")
+    purparty_top = models.CharField(verbose_name="敷地権の割合（分子）", max_length=10, null=True, blank=True, default="")
     price = models.CharField(verbose_name="固定資産評価額", max_length=13,null=False, blank=False, default="")
     
     created_by = models.ForeignKey(
@@ -996,7 +1067,16 @@ class Site(CommonModel):
         related_name = "site_update_by"
     )
     
-    step_three_fields = []
+    step_three_fields = [
+        "decedent",
+        "number",
+        "address_and_land_number",
+        "type",
+        "purparty_bottom",
+        "purparty_top",
+        "price",
+        "bldg",
+    ]
     
     class Meta:
         verbose_name = _("敷地")
@@ -1149,6 +1229,7 @@ class Application(CommonModel):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="application_content_type", verbose_name="申請人", null=True, blank=True)
     object_id = models.PositiveIntegerField(verbose_name="申請人id", null=True, blank=True)
     content_object = GenericForeignKey('content_type', 'object_id')
+    phone_number = models.CharField(verbose_name="申請人電話番号", max_length=13 ,null=True, blank=True, default="")
     is_agent = models.BooleanField(verbose_name="代理人の有無", null=True, blank=True, default=None)
     agent_name = models.CharField(verbose_name="代理人氏名", max_length=30 ,null=True, blank=True, default="")
     agent_address = models.CharField(verbose_name="代理人住所", max_length=100 ,null=True, blank=True, default="")
@@ -1178,6 +1259,7 @@ class Application(CommonModel):
         "content_type",
         "object_id",
         "is_agent",
+        "phone_number",
         "agent_name",
         "agent_address",
         "agent_phone_number",

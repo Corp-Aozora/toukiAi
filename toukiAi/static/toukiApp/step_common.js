@@ -335,6 +335,18 @@ function upperFirstString(strings){
     return strings.charAt(0).toUpperCase() + strings.slice(1);
 }
 
+/**
+ * 配列から引数で渡された対象の要素を削除して返す
+ * @param {*} targets 
+ * @param {*} arr
+ * @returns {HTMLElement[]}
+ */
+function filterArr(targets, arr){
+    if(!Array.isArray(targets))
+        targets = [targets];
+    return arr.filter(x => !targets.includes(x));
+}
+
 /*
     イベント
 */

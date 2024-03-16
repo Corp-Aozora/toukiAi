@@ -248,16 +248,16 @@ class LandChangeForm(forms.ModelForm):
 
 class LandAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('register', 'number', 'purparty', 'price', 'created_by', 'updated_by')}),
+        (None, {'fields': ("decedent", 'register', 'number', "address", "land_number", "type", "size", 'purparty', 'price', "is_exchange", "office", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = LandChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'number', 'updated_by')
-    list_filter = ('updated_at', 'created_by', 'number', 'updated_by')
-    search_fields = ('updated_at', 'created_by', 'number', 'updated_by')
+    list_display = ("id", "decedent", "register", 'updated_at', 'created_by', 'number', 'updated_by')
+    list_filter = ('updated_at', 'created_by', "decedent", "register", 'number', 'updated_by')
+    search_fields = ('updated_at', 'created_by', "id", "decedent", "register", 'number', 'updated_by')
     ordering = ['-updated_at']
 
 admin.site.register(Land, LandAdmin)
@@ -284,6 +284,28 @@ class HouseAdmin(admin.ModelAdmin):
 
 admin.site.register(House, HouseAdmin)
 
+# 区分建物
+class BldgChangeForm(forms.ModelForm):
+    class Meta:
+        model = Bldg
+        fields = '__all__'
+
+class BldgAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ("decedent", 'register', 'number', "address", "bldg_number", 'purparty', 'price', "is_exchange", "office", 'created_by', 'updated_by')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at')
+    
+    form = BldgChangeForm
+    list_display = ("id", "decedent", "register", "number", 'updated_at', 'created_by', 'updated_by')
+    list_filter = ('updated_at', 'created_by', "decedent", "register", 'number', 'updated_by')
+    search_fields = ('updated_at', 'created_by', "decedent", "register", 'number', 'updated_by')
+    ordering = ['-updated_at']
+
+admin.site.register(Bldg, BldgAdmin)
+
 # 敷地
 class SiteChangeForm(forms.ModelForm):
     class Meta:
@@ -292,16 +314,16 @@ class SiteChangeForm(forms.ModelForm):
 
 class SiteAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('house', "land_num", 'price', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', "bldg", "number", "address_and_land_number", "type", "purparty_top", "purparty_bottom", 'price', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = SiteChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'house', "land_num", 'updated_by')
-    list_filter = ('updated_at', 'created_by', 'house', "land_num", 'updated_by')
-    search_fields = ('updated_at', 'created_by', 'house', "land_num", 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', "bldg", 'updated_by')
+    list_filter = ('updated_at', 'created_by', 'decedent', "bldg", "address_and_land_number", 'updated_by')
+    search_fields = ('updated_at', 'created_by', 'decedent', "bldg",  "address_and_land_number",'updated_by')
     ordering = ['-updated_at']
 
 admin.site.register(Site, SiteAdmin)
@@ -336,14 +358,14 @@ class TypeOfDivisionChangeForm(forms.ModelForm):
 
 class TypeOfDivisionAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', "type_of_division", 'property_allocation', 'cash_allocation', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', "type_of_division", 'property_allocation', "content_type1", "object_id1", 'cash_allocation', "content_type2", "object_id2", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = TypeOfDivisionChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_display = ("id", 'updated_at', 'created_by', 'decedent', "type_of_division", 'updated_by')
     list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']
@@ -449,7 +471,7 @@ class ApplicationChangeForm(forms.ModelForm):
 
 class ApplicationAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', "content_type", 'object_id', 'is_agent', "agent_name", "agent_address", "agent_phone_number", "is_return", "is_mail", 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', "content_type", 'object_id', "phone_number", 'is_agent', "agent_name", "agent_address", "agent_phone_number", "is_return", "is_mail", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     

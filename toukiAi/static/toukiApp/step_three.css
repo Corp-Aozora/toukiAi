@@ -15,11 +15,11 @@
     width:200px
 }
 
-#land-section label, #house-section label{
+#land-section label, #house-section, #bldg-section label{
     width: 125px!important;
 }
 
-.landWrapper, .landBtnsDiv, .houseWrapper, .houseBtnsDiv{
+.landWrapper, .landBtnsDiv, .houseWrapper, .houseBtnsDiv, .bldgWrapper, .bldgBtnsDiv{
     width:510px;
 }
 
@@ -63,6 +63,11 @@
 
 .officeEmPosition{
     top: -75px;
+    left: 150px;
+}
+
+.applicantEmPosition{
+    top: 30px;
     left: 150px;
 }
 

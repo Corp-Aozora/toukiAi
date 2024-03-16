@@ -115,3 +115,17 @@ button {
     position:relative;
     top:-2px;
 }
+
+/* SweetAlert2 ボタンの配置を変更する */
+.swal2-actions {
+    display: flex;
+    flex-direction: row-reverse; /* ボタンの順序を逆にする */
+}
+
+.swal2-confirm {
+    order: 1; /* 「OK」ボタンを左に配置 */
+}
+
+.swal2-cancel {
+    order: 2; /* 「キャンセル」ボタンを右に配置 */
+}

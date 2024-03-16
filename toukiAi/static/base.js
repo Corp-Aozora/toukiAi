@@ -188,16 +188,19 @@ function slideDownAfterDelay(el, time = 250){
  * @param {number} duration スクロールまでの待ち時間
  */
 function scrollToTarget(el, duration = 250) {
-    let rect = el.getBoundingClientRect();
-    let gap = header.clientHeight + 40; // `header`が事前に定義されていると仮定
-    let targetPosition = rect.top + window.scrollY - gap;
+    return new Promise(resolve => {
+        let rect = el.getBoundingClientRect();
+        let gap = header.clientHeight + 40;
+        let targetPosition = rect.top + window.scrollY - gap;
 
-    setTimeout(() => {
-        window.scrollTo({
-            top: targetPosition,
-            behavior: "smooth"
-        });
-    }, duration);
+        setTimeout(() => {
+            window.scrollTo({
+                top: targetPosition,
+                behavior: "smooth"
+            });
+            resolve(); // スクロール処理が完了したことを示す
+        }, duration);
+    });
 }
 
 /**
@@ -209,7 +212,8 @@ function scrollToTarget(el, duration = 250) {
 function isNumber(val, el){
     //入力値がないときは、何もしない
     val = String(val);
-    if(val === "") return false;
+    if(val === "")
+        return false;
 
     //全角、半角の数字のみかチェック
     const reg = new RegExp(/^[0-9０-９]*$/);
@@ -251,30 +255,62 @@ function validateIntInput(el){
 function isDigit(input, type) {
     const countDigit = input.value.length; // 文字列化の必要はない
     switch (type) {
+        case "phoneNumberWithHyphen":
+            //電話番号ハイフン有り（12桁又は13桁）
+            return [12, 13].includes(countDigit) ? true : "ハイフンありで１２桁、１３桁で入力してください";
         case "phoneNumber":
             // 電話番号（10桁または11桁）
-            return [10, 11].includes(countDigit) ? true : "１０桁または１１桁で入力してください";
+            return [10, 11].includes(countDigit) ? true : "ハイフンなしで１０桁または１１桁で入力してください";
         case "postNumber":
             // 郵便番号（7桁）
-            return countDigit === 7 ? true : "ハイフンなしの７桁で入力してください";
+            return countDigit === 7 ? true : "ハイフンなしの７桁の数字で入力してください";
         case "propertyNumber":
             // 不動産番号（13桁）
-            return countDigit === 13 ? true : "１３桁で入力してください";
+            return countDigit === 13 ? true : "１３桁の数字で入力してください";
         default:
             return "未知のタイプです";
     }
 }
 
 /**
- * 電話番号形式チェック
- * @param {string} val 
- * @param {HTMLElement} el 
+ * 電話番号形式チェック（ハイフンの有無両方対応可）
+ * @param {HTMLInputElement} input 
+ * @param {boolean} isHyphen
  * @returns {boolean} 形式に合致するときはtrue、合致しないときはfalse
  */
-function checkPhoneNumber(val, el){
-    const result = isNumber(val, el);
-    if(!result) return false;
-    return isDigit(el.value, "phoneNumber");
+function checkPhoneNumber(input, isHyphen){
+    //元の値を保持する
+    const originalVal = input.value;
+    let val = originalVal;
+    //ハイフンありのとき、ハイフンを除去する
+    if(isHyphen){
+        const matches = val.match(/[-－ー]/g);
+        const count = matches? matches.length: 0;
+        if(count !== 2){
+            input.value = "";
+            return "ハイフンを２つ使用してください";
+        }
+        val = val.replace(/[-－ー]/g, '');
+    }
+    //数字チェック
+    let result = isNumber(val, input);
+    if(!result){
+        input.value = "";
+        return "数字で入力してください";
+    }
+    //ハイフンの前後に１文字以上の存在することをチェック
+    const pattern = /^.+[-－ー].+[-－ー].+$/;
+    // パターンに一致するかチェック
+    if (!pattern.test(originalVal)) {
+        return "ハイフンの前後に１字以上の数字を入力してください";
+    }
+
+    input.value = originalVal;
+    result = isDigit(input, isHyphen? "phoneNumberWithHyphen": "phoneNumber");
+    if(typeof result === "string"){
+        input.value = "";
+    }
+    return result;
 }
 
 /**
@@ -614,4 +650,48 @@ function createOption(val, text){
     option.value = val;
     option.text = text;
     return option;
+}
+
+/**
+ * アラートを表示する（SweetAlert2）
+ * @param {string} title タイトル（太大文字）
+ * @param {string} text 説明文
+ * @param {string} icon アラートレベル（successやwarning）
+ */
+function showAlert(title, text, icon) {
+    return Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showClass: {
+            popup: 'animate__animated animate__fadeInUp animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutDown animate__faster'
+        }
+    });
+}
+
+/**
+ * 確認ダイアログを表示する（SweetAlert2）
+ * @param {string} title タイトル（太大文字）
+ * @param {string} text 説明文
+ * @param {string} icon アラートレベル（successやwarning）
+ */
+function showConfirmDialog(title, text, icon){
+    return Swal.fire({
+        title: title,
+        html: text,
+        icon: icon,
+        showCancelButton: true,
+        showClass: {
+            popup: 'animate__animated animate__fadeInUp animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutDown animate__faster'
+        },
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "OK"
+    })
 }

@@ -769,7 +769,7 @@ class StepThreeLandForm(forms.ModelForm):
                 })
                 if field.label == "不動産番号":
                     field.widget.attrs.update({
-                        "placeholder": "１３桁の数字",
+                        "placeholder": "謄本右上にある１３桁の数字",
                         "maxlength": "13",
                     })
                 elif field.label == "所在地":
@@ -868,7 +868,7 @@ class StepThreeHouseForm(forms.ModelForm):
                 })
                 if field.label == "不動産番号":
                     field.widget.attrs.update({
-                        "placeholder": "１３桁の数字",
+                        "placeholder": "謄本右上にある１３桁の数字",
                         "maxlength": "13",
                     })
                 elif field.label == "所在地":
@@ -966,12 +966,12 @@ class StepThreeBldgForm(forms.ModelForm):
                 })
                 if field.label == "不動産番号":
                     field.widget.attrs.update({
-                        "placeholder": "１３桁の数字",
+                        "placeholder": "謄本右上にある１３桁の数字",
                         "maxlength": "13",
                     })
                 elif field.label == "一棟の建物の所在":
                     field.widget.attrs.update({
-                        "placeholder": "福岡県福岡市中央区天神１丁目１番地１",
+                        "placeholder": "一棟の建物の表示にある所在",
                         "maxlength": "100",
                     })
                 elif field.label == "家屋番号":
@@ -1024,19 +1024,17 @@ class StepThreeSiteForm(forms.ModelForm):
         for field in self.base_fields.values():
             field.required = False
             
-            if field.label in ["土地の符号", "所在及び地番"]:
+            if field.label == "所在及び地番":
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
+                    "placeholder": "地番の表記は「番地」ではなく「番」です",
+                    "maxlength": "100",
                 })
-                if field.label == "土地の符号":
-                    field.widget.attrs.update({
-                        "maxlength": "3",
-                    })
-                elif field.label == "所在及び地番":
-                    field.widget.attrs.update({
-                        "placeholder": "福岡県福岡市中央区天神１丁目１番１",
-                        "maxlength": "100",
-                    })
+            elif field.label == "土地の符号":
+                field.widget.attrs.update({
+                    "class": "form-control rounded-end text-center",
+                    "maxlength": "3",
+                })
             elif field.label in ["敷地権の割合（分母）", "敷地権の割合（分子）"]:
                 field.widget.attrs.update({
                     "class": "mx-1 p-0 fraction form-control text-center",

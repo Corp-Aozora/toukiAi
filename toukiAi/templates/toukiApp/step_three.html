@@ -1997,7 +1997,7 @@
                                            {% if field.name == "number" %}
                                                 <div class="input-group position-relative Q">
                                                     <label for="{{field.auto_id}}" class="input-group-text label">
-                                                        不動産番号
+                                                        {{ field.label }}
                                                     </label>
                                                     {{ field }}
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
@@ -2214,12 +2214,12 @@
                                     </div>
                                 {% elif field.name == "purparty_bottom" %}
                                     <div class="input-group position-relative Q">
-                                        <label for="id_bldg-{{forloop.counter0}}-purparty_top" class="input-group-text label">
+                                        <label for="id_site-{{forloop.counter0}}-purparty_top" class="input-group-text label">
                                             所有権・持分
                                         </label>
                                         <div class="form-control rounded-end d-flex">
-                                            <input type="checkbox" id="id_bldg-{{forloop.counter0}}-purparty_checkbox" name="bldg-{{forloop.counter0}}-purparty_checkbox">
-                                            <label class="ms-1" for="id_bldg-{{forloop.counter0}}-purparty_checkbox" style="width: 55px!important;">
+                                            <input type="checkbox" id="id_site-{{forloop.counter0}}-purparty_checkbox" name="site-{{forloop.counter0}}-purparty_checkbox">
+                                            <label class="ms-1" for="id_site-{{forloop.counter0}}-purparty_checkbox" style="width: 55px!important;">
                                                 所有者
                                             </label>
                                             {{ field }}

@@ -2,7 +2,7 @@ class CompanyData:
     APP_NAME = "そうぞくとうきくん"
     NAME = "株式会社あおぞら"
     POST_NUMBER = "810-0001"
-    ADDRESS = "福岡県福岡市中大浮く天神二丁目２番１２号"
+    ADDRESS = "福岡県福岡市中央区天神二丁目２番１２号"
     BLDG = "Ｔ＆Ｊビルディング７Ｆ"
     CEO = "砂川宏太"
     RECEIVING_PHONE_NUMBER = "０５０－５４８２－５８３２"

@@ -1168,41 +1168,48 @@ def step_three(request):
     bldg_cash_acquirer_form_set = formset_factory(form=StepThreeBldgCashAcquirerForm, extra=1, max_num=20)
     
     #フォームからデータがPOSTされたとき
-    # if request.method == "POST":
-        # if request.user != decedent.user:
-        #     messages.error(request, 'アカウントデータが一致しません。')
-        #     return redirect('/toukiApp/index')
+    if request.method == "POST":
+        if request.user != decedent.user:
+            messages.error(request, 'アカウントデータが一致しません。')
+            return redirect('/toukiApp/index')
             
-        # forms = [
-        #     StepThreeDecedentForm(request.POST, instance=decedent, prefix="decedent"),
-        #     StepThreeSpouseForm(request.POST, instance=spouse_data, prefix="spouse"),
-        #     StepThreeTypeOfDivisionForm(request.POST, prefix="type_of_division"),
-        #     StepThreeNumberOfPropertiesForm(request.POST, prefix="number_of_properties"),
-        #     StepThreeApplicationForm(request.POST, prefix="application"),
-        # ]
-        # form_sets = [
-        #     registry_name_and_address_form_set(request.POST or None, prefix="registry_name_and_address"),
-        #     child_form_set(request.POST or None, prefix="child"),
-        #     child_spouse_form_set(request.POST or None, prefix="child_spouse"),
-        #     grand_child_form_set(request.POST or None, prefix="grand_child"),
-        #     ascendant_form_set(request.POST or None, prefix="ascendant"),
-        #     collateral_form_set(request.POST or None, prefix="collateral"),
-        #     land_form_set(request.POST or None, prefix="land"),
-        #     land_acquirer_form_set(request.POST or None, prefix="land_acquirer"),
-        #     land_cash_acquirer_form_set(request.POST or None, prefix="land_cash_acquirer"),
-        #     house_form_set(request.POST or None, prefix="house"),
-        #     house_acquirer_form_set(request.POST or None, prefix="house_acquirer"),
-        #     house_cash_acquirer_form_set(request.POST or None, prefix="house_cash_acquirer"),
-        # ]
+        forms = [
+            StepThreeDecedentForm(request.POST, prefix="decedent"),
+            StepThreeSpouseForm(request.POST, prefix="spouse"),
+            StepThreeTypeOfDivisionForm(request.POST, prefix="type_of_division"),
+            StepThreeNumberOfPropertiesForm(request.POST, prefix="number_of_properties"),
+            StepThreeApplicationForm(request.POST, prefix="application"),
+        ]
+        form_sets = [
+            registry_name_and_address_form_set(request.POST or None, prefix="registry_name_and_address"),
+            child_form_set(request.POST or None, prefix="child"),
+            child_spouse_form_set(request.POST or None, prefix="child_spouse"),
+            grand_child_form_set(request.POST or None, prefix="grand_child"),
+            ascendant_form_set(request.POST or None, prefix="ascendant"),
+            collateral_form_set(request.POST or None, prefix="collateral"),
+            land_form_set(request.POST or None, prefix="land"),
+            land_acquirer_form_set(request.POST or None, prefix="land_acquirer"),
+            land_cash_acquirer_form_set(request.POST or None, prefix="land_cash_acquirer"),
+            house_form_set(request.POST or None, prefix="house"),
+            house_acquirer_form_set(request.POST or None, prefix="house_acquirer"),
+            house_cash_acquirer_form_set(request.POST or None, prefix="house_cash_acquirer"),
+            bldg_form_set(request.POST or None, prefix="bldg"),
+            site_form_set(request.POST or None, prefix="site"),
+            bldg_acquirer_form_set(request.POST or None, prefix="bldg_acquirer"),
+            bldg_cash_acquirer_form_set(request.POST or None, prefix="bldg_cash_acquirer"),
+        ]
 
-        # # if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
-        # #     for form in forms:
-        # #         if not form.is_valid():
-        # #             print(f"Form {form} errors: {form.errors}")
-        # #     for form_set in form_sets:
-        # #         if not form_set.is_valid():
-        # #             print(f"Formset {form_set} errors: {form_set.errors}")
-        # #     return redirect('/toukiApp/step_one')
+        if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
+            for form in forms:
+                if not form.is_valid():
+                    print(f"Form {form} errors: {form.errors}")
+            for form_set in form_sets:
+                if not form_set.is_valid():
+                    print(f"Formset {form_set} errors: {form_set.errors}")
+            return redirect('/toukiApp/step_three')
+        else:
+            print("success")
+            return
         # if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
         #     try:
         #         with transaction.atomic():

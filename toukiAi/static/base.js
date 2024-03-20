@@ -695,3 +695,11 @@ function showConfirmDialog(title, text, icon){
         confirmButtonText: "OK"
     })
 }
+
+/**
+ * input、selectを全て有効にする
+ * ・フォームのsubmit前に使用する
+ */
+function enableAllInputsAndSelects(){
+    Array.from(document.querySelectorAll("fieldset, input, select")).forEach(x => x.disabled = false);
+}

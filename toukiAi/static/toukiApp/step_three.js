@@ -354,7 +354,32 @@ class NumberOfProperties extends Fieldset{
         super(fieldsetId);
         this.decreaseBtn = Array.from(this.fieldset.getElementsByClassName("decreaseBtn"));
         this.increaseBtn = Array.from(this.fieldset.getElementsByClassName("increaseBtn"));
+        this.idxs = NumberOfProperties.idxs;
+        this.landIdx = this.idxs.land;
+        this.houseIdx = this.idxs.house;
+        this.bldgIdx = this.idxs.bldg;
         numberOfProperties.push(this);
+    }
+    // プロパティのカウントを取得する共通のメソッド
+    getCount(type, isNum = false) {
+        const idx = NumberOfProperties.idxs[type];
+        if (typeof idx === 'undefined') {
+            throw new Error('getCount：typeに想定しない値が渡されました');
+        }
+        const val = this.inputs[idx].value;
+        return isNum ? parseInt(val, 10) || 0 : val; // NaNを0に変換
+    }
+
+    getLandCount(isNum) {
+        return this.getCount('land', isNum);
+    }
+
+    getHouseCount(isNum) {
+        return this.getCount('house', isNum);
+    }
+
+    getBldgCount(isNum) {
+        return this.getCount('bldg', isNum);
     }
 }
 const {land: NOPLand,
@@ -375,6 +400,7 @@ class Land extends Fieldset{
         price:{form: 5, input: 10},
         isExchange:{form:6, input: [11, 12]},
         index:{form:7, input:13},
+        id:{form:8, input:14}
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -385,7 +411,8 @@ class Land extends Fieldset{
             i !== Land.idxs.landNumber.input[no] &&
             i !== Land.idxs.purparty.input[yes] &&
             i !== Land.idxs.purparty.input[other2] &&
-            i !== Land.idxs.index.input
+            i !== Land.idxs.index.input &&
+            i !== Land.idxs.id.input
         );
         lands.push(this);
         this.tempAcquirers = [];
@@ -414,7 +441,8 @@ const {number: LNumber,
     office: LOffice, 
     price: LPrice, 
     isExchange: LIsExchange,
-    index: LIndex
+    index: LIndex,
+    id: LId
 } = Land.idxs;
 
 //不動産取得者又は金銭取得者の仮フォーム
@@ -436,6 +464,7 @@ const {acquirer: TAAcquirer,
     percentage: TAPercentage
 } = TempAcquirer.idxs;
 
+
 class Acquirer{
     //入力欄のインデックス
     static idxs = {
@@ -443,6 +472,8 @@ class Acquirer{
         objectId2: 1,
         percentage: 2,
         target: 3,
+        contentType1: 4,
+        objectId1: 5,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -450,10 +481,12 @@ class Acquirer{
         this.inputs = Array.from(this.fieldset.getElementsByTagName("input"));
     }
 }
-const {contentType2: AContentType,
-    objectId2: AObjectId,
+const {contentType2: AContentType2,
+    objectId2: AObjectId2,
     percentage: APercentage,
-    target: ATarget
+    target: ATarget,
+    contentType1: AContentType1,
+    objectId1: AObjectId1
 } = Acquirer.idxs;
 
 //土地情報欄のボタン
@@ -478,6 +511,7 @@ class House extends Fieldset{
         price:{form: 5, input: 10},
         isExchange:{form:6, input: [11, 12]},
         index:{form:7, input:13},
+        id:{form:8, input:14},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -488,7 +522,8 @@ class House extends Fieldset{
             i !== House.idxs.houseNumber.input[no] &&
             i !== House.idxs.purparty.input[yes] &&
             i !== House.idxs.purparty.input[other2] &&
-            i !== House.idxs.index.input
+            i !== House.idxs.index.input &&
+            i !== House.idxs.id.input
         );
         houses.push(this);
         this.tempAcquirers = [];
@@ -517,7 +552,8 @@ const {number: HNumber,
     office: HOffice, 
     price: HPrice, 
     isExchange: HIsExchange,
-    index: HIndex
+    index: HIndex,
+    id: HId
 } = House.idxs;
 
 //建物情報欄のボタン
@@ -651,8 +687,8 @@ class Application extends Fieldset{
         phoneNumber:{form: 5, input: 6},
         isReturn:{form: 6, input: [7, 8]},
         isMail:{form: 7, input: [9, 10]},
-        contentType:{form: 8, input: 11},
-        objectId:{form: 9, input: 12},
+        objectId:{form: 8, input: 11},
+        contentType:{form: 9, input: 12},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -664,8 +700,8 @@ class Application extends Fieldset{
             i !== Application.idxs.name.input &&
             i !== Application.idxs.address.input &&
             i !== Application.idxs.phoneNumber.input &&
-            i !== Application.idxs.contentType.input &&
-            i !== Application.idxs.objectId.input
+            i !== Application.idxs.objectId.input &&
+            i !== Application.idxs.contentType.input
         );
         applications.push(this);
     }
@@ -678,8 +714,8 @@ const {applicant: aApplicant,
     phoneNumber: aPhoneNumber, 
     isReturn: aIsReturn, 
     isMail: aIsMail,
-    contentType: aContentType,
-    objectId: aObjectId
+    objectId: aObjectId,
+    contentType: aContentType
 } = Application.idxs;
 
 //修正するボタンと次の項目へボタン
@@ -735,6 +771,14 @@ function getTotalFraction(instances, bottomIdx, topIdx){
     })
     return totalFraction;
 }
+
+/**
+ * インスタンスが引数に渡された配列に格納されたクラスのいずれかに該当するか判別する
+ */
+function isClassMatched(instance, classes){
+   return classes.some(x => instance instanceof x);
+}
+
 /**
  * 次の項目へ進むボタンなど進む関連ボタンの有効化判別処理
  * @param {Fieldset} instance チェック対象のインスタンス
@@ -742,13 +786,12 @@ function getTotalFraction(instances, bottomIdx, topIdx){
 function isActivateOkBtn(instance){
     //対象のインスタンスのエラー要素の数をチェック
     const isInstanceVerified = instance.noInputs.length === 0;
-    const isClassMatched = (classes) => classes.some(x => instance instanceof x);
     //被相続人情報のとき
-    if(isClassMatched([Decedent, RegistryNameAndAddress])){
+    if(isClassMatched(instance, [Decedent, RegistryNameAndAddress])){
         //被相続人と登記簿上の氏名・住所の両方のエラー要素がないとき次の項目へボタンを有効化する
         const isDecedentSectionVerified = !decedents.concat(registryNameAndAddresses).some(x => x.noInputs.length !== 0);
         okBtn.disabled = !isDecedentSectionVerified;
-    }else if(isClassMatched([SpouseOrAscendant, DescendantOrCollateral])){
+    }else if(isClassMatched(instance, [SpouseOrAscendant, DescendantOrCollateral])){
         //相続人情報のとき
         const isLastHeir = getLastElFromArray(heirs) === instance;
         //最後の相続人でエラー要素がないとき、次の項目へボタンを有効化する
@@ -758,10 +801,10 @@ function isActivateOkBtn(instance){
             //他の相続人でエラー要素がないとき、次の人へボタンを有効化する
             heirsOkBtn.disabled = !isInstanceVerified;
         }
-    }else if(isClassMatched([Land, House, Bldg, Site, TempAcquirer])){
+    }else if(isClassMatched(instance, [Land, House, Bldg, Site, TempAcquirer])){
         //不動産情報のとき
         //インスタンス自身と仮フォームのデータもチェックする、区分建物の場合は敷地権も
-        const isParentInstance = isClassMatched([Land, House, Bldg]);
+        const isParentInstance = isClassMatched(instance, [Land, House, Bldg]);
         verifyPropertySection(isParentInstance? instance: instance.belongsTo);
     }else if(instance instanceof Application){
         //申請情報
@@ -1093,7 +1136,6 @@ function loadNOPData(){
                 input.dispatchEvent(new Event("change"));
             }
         }
-        isActivateOkBtn(instance);
     }else{
         throw new Error("loadNOPData：インスタンスが生成されてません。");
     }
@@ -1110,9 +1152,128 @@ function loadLandData(){
         //金銭取得者の仮フォームの復元
         //不動産取得者の隠しフォームの復元
         //金銭取得者の隠しフォームの復元
+        //ボタン操作
     })
 }
 
+/**
+ * 建物情報のデータを復元する
+ */
+function loadHouseData(){
+    houses.forEach(x => {
+        //家屋番号の復元
+        //所有権・持分の復元
+        //不動産取得者の仮フォームの復元
+        //金銭取得者の仮フォームの復元
+        //不動産取得者の隠しフォームの復元
+        //金銭取得者の隠しフォームの復元
+        //ボタン操作
+
+    })
+}
+
+/**
+ * 区分建物情報のデータを復元する
+ */
+function loadBldgData(){
+    for(let i = 0, len1 = bldgs.length; i < len1; i++){
+        const bldg = bldgs[i];
+        const BInputs = bldg.inputs;
+        //区分建物のイベントを発火させる
+        for(let j = 0, len2 = BInputs.length; i < len2; i++){
+            if([BPurparty.input[yes], BPurparty.input[other2]].includes(j))
+                continue;
+            if(j === BIndex.input)
+                break;
+            const input = BInputs[i];
+            //入力されている欄はイベントを発火する
+            if(input.value){
+                input.dispatchEvent(new Event("change"));
+            }
+        }
+        //最後の区分建物以外でエラー要素が存在するときエラー表示する
+        if(i !== len1 && bldg.noInputs.length !== 0)
+            throw new Error(`loadBldgData：${i}番目の区分建物のデータが未入力にあります`);
+
+        //敷地のイベントを発火
+        const sites = bldg.sites;
+        for(let j = 0, len2 = sites.length; j < len2; j++){
+            const site = sites[j];
+            const SInputs = site.inputs;
+            for(let k = 0, len3 = SInputs.length; k < len3; k++){
+                if(k === SPurparty.input[yes])
+                    continue;
+                const input = SInputs[k];
+                if(input.value){
+                    input.dispatchEvent(new Event("change"));
+                }
+            }
+            //最後の敷地権以外でエラー要素が存在するとき、エラー表示する
+            if(j !== len2 - 1 && site.noInputs.length !== 0)
+                throw new Error(`loadBldgData：${i}番目の区分建物の${j}番目の敷地権のデータに未入力があります`);
+        }
+
+        //不動産仮フォームの生成とインスタンス追加
+        const acquirers = bldg.acquirers;
+        for(let j = 0, len2 = acquirers.length; j < len2; j++){
+            const acquirer = acquirers[j];
+            const AInputs = acquirer.inputs;
+            if(j === 0){
+                inputTAAndDispatchChangeEvent(bldg.tempAcquirers[0], AInputs);
+            }else{
+                const TA = new TempAcquirer(`id_${prefix}_${i}_temp_${prefix}_acquirer-${j}-fieldset`, bldg);
+                bldg.addTempAcquirer(TA);
+                inputTAAndDispatchChangeEvent(TA, AInputs)
+            }
+            //フォーム追加操作
+            if(addTBABtns[i].disabled === false){
+                addTBABtns[i].dispatchEvent(new Event("click"));
+            }else if(j !== len2 - 1 && addTBABtns[i].disabled){
+                throw new Error(`loadBldgData：${i}番目の区分建物の${j}番目の不動産取得者のデータに未入力があります`);
+            }
+        }
+        //金銭仮フォームの生成とインスタンス生成
+        const cashAcquirers = bldg.cashAcquirers;
+        for(let j = 0, len2 = cashAcquirers.length; j < len2; j++){
+            const acquirer = cashAcquirers[j];
+            const AInputs = acquirer.inputs;
+            if(j === 0){
+                //値がないとき
+                if(!AInputs[AContentType2].input.value){
+                    //次があるときエラー
+                    if(j !== len2)
+                        throw new Error(`loadBldgData：${i}番目の区分建物の${j}番目の金銭取得者のデータに未入力があります`);
+                    break;
+                }
+
+                inputTAAndDispatchChangeEvent(bldg.tempCashAcquirers[0], AInputs);
+            }else{
+                const TA = new TempAcquirer(`id_${prefix}_${i}_temp_${prefix}_cash_acquirer-${j}-fieldset`, bldg);
+                bldg.addTempAcquirer(TA);
+                inputTAAndDispatchChangeEvent(TA, AInputs)
+            }
+            //フォーム追加操作
+            if(addTBCABtns[i].disabled === false){
+                addTBCABtns[i].dispatchEvent(new Event("click"));
+            }else if(j !== len2 - 1 && addTBCABtns[i].disabled){
+                throw new Error(`loadBldgData：${i}番目の区分建物の${j}番目の金銭取得者のデータに未入力があります`);
+            }
+        }
+        //ボタン操作
+        isActivateOkBtn(bldg);
+        if(bldgOkBtn.disabled === false){
+            bldgOkBtn.dispatchEvent(new Event("click"));
+        }
+    }
+
+    function inputTAAndDispatchChangeEvent(TA, AInputs){
+        const TAInputs = TA.inputs;
+        inputOrCheckAndDispatchChangeEvent(TAInputs[TAAcquirer.input], AInputs[AObjectId2].value + "_" + AInputs[AContentType2].value);
+        const [b, t] = AInputs[APercentage].split("分の");
+        inputOrCheckAndDispatchChangeEvent(TAInputs[TAPercentage.input[yes]], b);
+        inputOrCheckAndDispatchChangeEvent(TAInputs[TAPercentage.input[no]], t);
+    }
+}
 /**
  * ユーザーのデータを取得する
  */
@@ -1195,10 +1356,11 @@ async function loadData(){
         if(okBtn.disabled)
             return;
         handleOkBtnEvent();
-        await scrollToTarget(landSection);
+        const NOP = numberOfProperties[0];
+        await scrollToTarget(NOP.getLandCount(true) > 0? landSection: (NOP.getHouseCount(true) > 0? houseSection: bldgSection));
         
         //土地情報を反映する
-        if(lands.length > 0){
+        if(NOP.getLandCount(true) > 0 && lands[0].inputs[LId.input].value !== ""){
             loadLandData();
             if(okBtn.disabled)
                 return;
@@ -1206,10 +1368,19 @@ async function loadData(){
         }
         
         //建物情報を反映する
-        if(houses.length > 0){
-
+        if(NOP.getHouseCount(true) > 0 && houses[0].inputs[HId.input].value !== ""){
+            loadHouseData();
+            if(okBtn.disabled)
+                return;
+            handleOkBtnEvent();
         }
         //区分建物情報を反映する
+        if(NOP.getBldgCount(true) > 0 && bldgs[0].inputs[BId.input].value !== ""){
+            loadBldgData();
+            if(okBtn.disabled)
+                return;
+            handleOkBtnEvent();
+        }
         //申請情報を反映する
     }catch(e){
         console.error("loadData：保存データの表示中にエラーが発生しました", e);
@@ -2932,7 +3103,7 @@ function setLandHouseEvent(instances, startIdx = 0){
         const inputs = instance.inputs;
         for(let j = 0, len2 = inputs.length; j < len2; j++){
             //隠しinputとindex以外のとき
-            const isDisplayedInputs = ![landNumberInputIdxs[other], purpartyInputIdxs[other2], LIndex.input].includes(j);
+            const isDisplayedInputs = ![landNumberInputIdxs[other], purpartyInputIdxs[other2], LIndex.input, LId.input].includes(j);
             if(isDisplayedInputs){
                 //キーダウンイベント
                 inputs[j].addEventListener("keydown", (e)=>{
@@ -3025,11 +3196,10 @@ function setLandHouseEvent(instances, startIdx = 0){
 }
 
 /**
- * 不動産情報欄のイベントを設定する
+ * 区分建物情報欄のイベントを設定する
  * @param {number} [startIdx=0] イベント設定する開始対象の土地のインデックス
  */
 function setBldgEvent(startIdx = 0){
-    //土地建物は共通のインデックスのため仮に土地のインデックスを使用している
     const numberInputIdx = BNumber.input;
     const addressInputIdx = BAddress.input;
     const bldgNumberInputIdxs = BBldgNumber.input;
@@ -3044,7 +3214,7 @@ function setBldgEvent(startIdx = 0){
         const inputs = instance.inputs;
         for(let j = 0, len2 = inputs.length; j < len2; j++){
             //隠しinputとindex以外のとき
-            const isDisplayedInputs = ![purpartyInputIdxs[other2], LIndex.input].includes(j);
+            const isDisplayedInputs = ![purpartyInputIdxs[other2], BIndex.input, BId.input].includes(j);
             if(isDisplayedInputs){
                 //キーダウンイベント
                 inputs[j].addEventListener("keydown", (e)=>{
@@ -4117,20 +4287,20 @@ function createNewPropertyInstance(prefix, idx){
         throw new Error("createNewPropertyInstance：想定されていないクラスのインスタンスが渡されました");
     }
     //TempAcquirerを追加
-    addTempAcquirerTypes();
+    createTempAcquirerInstance(instance, prefix, idx);
     //区分建物のとき、敷地権のインスタンスも追加する
     if(prefix === "bldg"){
         const siteCount = bldgSection.getElementsByClassName("siteFieldset").length - 1;
         instance.addSite(new Site(`id_site-${siteCount}-fieldset`, instance));
     }
     return instance;
+}
 
-    // TempAcquirerの追加処理を一般化
-    function addTempAcquirerTypes(){
-        instance.addTempAcquirer(new TempAcquirer(`id_${prefix}_${idx}_temp_${prefix}_acquirer-0-fieldset`, instance));
-        instance.addTempCashAcquirer(new TempAcquirer(`id_${prefix}_${idx}_temp_${prefix}_cash_acquirer-0-fieldset`, instance));
-        instance.tempCashAcquirers[0].noInputs.length = 0;
-    }
+// TempAcquirerの追加処理を一般化
+function createTempAcquirerInstance(instance, prefix, idx){
+    instance.addTempAcquirer(new TempAcquirer(`id_${prefix}_${idx}_temp_${prefix}_acquirer-0-fieldset`, instance));
+    instance.addTempCashAcquirer(new TempAcquirer(`id_${prefix}_${idx}_temp_${prefix}_cash_acquirer-0-fieldset`, instance));
+    instance.tempCashAcquirers[0].noInputs.length = 0;
 }
 
 /**
@@ -4313,6 +4483,7 @@ function handleCashAllocationChangeProcess(instances, allLegalHeirs){
 async function checkPropertySection(){
     try{
         const TOD = typeOfDivisions[0];
+        const TODInputs = TOD.inputs;
         //遺産分割方法で換価分割が押されていたが、換価分割する不動産が選択されなかったとき
         if(TOD.isExchangeDivision() && !isAnyPropertyToExchange())
             await alertAndChangeToNormal();
@@ -4336,7 +4507,6 @@ async function checkPropertySection(){
             }
         }
         
-        const TODInputs = TOD.inputs;
         //アラートを表示と取得候補者になったが取得者として選択されなかった相続人の取得確認欄を「しない」に変更する
         async function alertAndChangeIsAcquire(){
             try{
@@ -4379,7 +4549,13 @@ async function checkPropertySection(){
             TODInputs[TODObjectId1.input].value = objectId;
             TODInputs[TODContentType1.input].value = contentType;
             //不動産取得者のラッパーを全て非表示にする
-            [lands, houses, bldgs].forEach(x => x.tempAcquirers[0].parentElement.style.setProperty("display", "none", "important"));
+            [lands, houses, bldgs].forEach(x => {
+                if(x.length > 0){
+                    x.forEach(y => {
+                        y.tempAcquirers[0].fieldset.parentElement.style.setProperty("display", "none", "important");
+                    })
+                }
+            });
         }
 
         //換価する不動産があるか判別
@@ -4393,9 +4569,11 @@ async function checkPropertySection(){
                 return properties.some(property => property.inputs[idx[yes]].checked);
             }
         }
-        
+
         //取得候補者が全員取得者として選択されているとき、配列に追加する
         function findAndAddMatches(property, candidates, acquirers) {
+            if(property.length === 0)
+                return;
             property.forEach(x => {
                 x.tempAcquirers.forEach(y => {
                     const match = candidates.find(z => z.inputs[z.constructor.idxs.idAndContentType].value === y.inputs[TAAcquirer.input].value);
@@ -4426,25 +4604,37 @@ function fixInput(fieldset, input){
 }
 
 /**
+ * 隠し取得者欄に入力する
+ * @param {Acquirer} acquirer 
+ * @param {string} objectId 
+ * @param {string} contentType 
+ * @param {string} percentage 
+ * @param {string} index 
+ */
+function inputToHiddenAcquirer(acquirer, objectId, contentType, percentage, index){
+    acquirer.inputs[AObjectId2].value = objectId;
+    acquirer.inputs[AContentType2].value = contentType;
+    acquirer.inputs[APercentage].value = percentage;
+    acquirer.inputs[ATarget].value = index;
+}
+
+/**
  * 仮フォームの値を隠しフォームに転記
  * @param {Land|House|Bldg} instance 転記対象の仮フォームを持っている不動産インスタンス
  * @param {TempAcquirer} temp 仮フォームインスタンス
- * @param {Acquirer} Acquirer 隠しフォームインスタンス
+ * @param {Acquirer} acquirer 隠しフォームインスタンス
  */
-function copyToPropertyHiddenForm(instance, temp, Acquirer){
+function copyToPropertyHiddenForm(instance, temp, acquirer){
     const tempInputs = temp.inputs;
-    const parts = tempInputs[TAAcquirer.input].value.split("_");
+    const [objectId, contentType] = tempInputs[TAAcquirer.input].value.split("_");
     //空欄のときは処理不要（金銭取得者の転記用）
-    if(parts.length !== 2)
+    if(!objectId || !contentType)
         return;
     const percentage = tempInputs[TAPercentage.input[yes]].value + "分の" + tempInputs[TAPercentage.input[no]].value;
     const index = instance instanceof Bldg?
         instance.inputs[BIndex.input].value:
         instance.inputs[LIndex.input].value;
-    Acquirer.inputs[AObjectId].value = parts[0];
-    Acquirer.inputs[AContentType].value = parts[1];
-    Acquirer.inputs[APercentage].value = percentage;
-    Acquirer.inputs[ATarget].value = index;
+    inputToHiddenAcquirer(acquirer, objectId, contentType, percentage, index);
 }
 
 /**
@@ -4890,6 +5080,8 @@ function handleSiteEvent(startIdx = 0){
  * @param {Bldg} bldg 
  */
 function inputSiteNumber(bldg){
+    if(!bldg)
+        throw new Error("inputSiteNumber：bldgインスタンスが存在しません");
     const count = bldg.sites.length;
     const input = getLastElFromArray(bldg.sites).inputs[SNumber.input];
     input.disabled = false;
@@ -4902,35 +5094,39 @@ function inputSiteNumber(bldg){
  * @param {number} startIdx 
  */
 function handleAddSiteBtnEvent(startIdx = 0){
-    for(let i = startIdx, len = addSiteBtns.length; i < len ; i++){
-        const addBtn = addSiteBtns[i];
-        const bldg = bldgs[i];
-        addBtn.addEventListener("click", ()=>{
-            //敷地権フォームを生成
-            const newIdx = bldgSection.getElementsByClassName("siteFieldset").length;
-            const copyFrom = getLastElFromArray(bldg.sites).fieldset;
-            const regex = /(site-)\d+/;
-            const att = '[id],[name],[for]';
-            copyAndPasteEl(copyFrom, att, regex, newIdx);
-            //インスタンスも生成
-            const newId = copyFrom.id.replace(regex, `$1${newIdx}`);
-            const newSite = new Site(newId, bldg);
-            bldg.addSite(newSite);
-            //値を初期化
-            const newSiteInputs = newSite.inputs;
-            iniInputsAndSelectValue(newSiteInputs);
-            newSite.inputs[SPurparty.input[no]].disabled = false;
-            newSite.inputs[SPurparty.input[other]].disabled = false;
-            //土地の符号に初期値を入れる
-            inputSiteNumber(bldg);
-            //イベント設定
-            handleSiteEvent(newIdx);
-            //表示処理
-            slideDownAndScroll(newSite.fieldset);
-            addBtn.disabled = true; 
-            removeSiteBtns[i].disabled = false;
-            updateSiteTotalForms();
-        })
+    try{
+        for(let i = startIdx, len = addSiteBtns.length; i < len ; i++){
+            const addBtn = addSiteBtns[i];
+            const bldg = bldgs[i];
+            addBtn.addEventListener("click", ()=>{
+                //敷地権フォームを生成
+                const newIdx = bldgSection.getElementsByClassName("siteFieldset").length;
+                const copyFrom = getLastElFromArray(bldg.sites).fieldset;
+                const regex = /(site-)\d+/;
+                const att = '[id],[name],[for]';
+                copyAndPasteEl(copyFrom, att, regex, newIdx);
+                //インスタンスも生成
+                const newId = copyFrom.id.replace(regex, `$1${newIdx}`);
+                const newSite = new Site(newId, bldg);
+                bldg.addSite(newSite);
+                //値を初期化
+                const newSiteInputs = newSite.inputs;
+                iniInputsAndSelectValue(newSiteInputs);
+                newSite.inputs[SPurparty.input[no]].disabled = false;
+                newSite.inputs[SPurparty.input[other]].disabled = false;
+                //土地の符号に初期値を入れる
+                inputSiteNumber(bldg);
+                //イベント設定
+                handleSiteEvent(newIdx);
+                //表示処理
+                slideDownAndScroll(newSite.fieldset);
+                addBtn.disabled = true; 
+                removeSiteBtns[i].disabled = false;
+                updateSiteTotalForms();
+            })
+        }
+    }catch(e){
+        console.error("handleAddSiteBtnEvent：エラー発生", e);
     }
 }
 
@@ -4994,124 +5190,223 @@ function handleIsExchangeYesProcess(instances, allLegalHeirs){
 }
 
 /**
+ * 隠しフォームのインスタンスを全て生成する
+ * @param {boolean} isCash 
+ * @param {string} prefix 
+ */
+function createAcquirerInstances(isCash, prefix){
+    const id = `id_${prefix}_${isCash? 'cash_': ''}acquirer-`;
+    const count = parseInt(document.getElementById(`id_${prefix}_${isCash? "cash_": ""}acquirer-TOTAL-FORMS`).value);
+    const acquirers = [];
+    for(let i = 0; i < count; i++){
+        acquirers.push(new Acquirer(`${id}${i}-fieldset`));
+    }
+    return acquirers;
+}
+
+/**
+ * 登録されているデータに基づく不動産データの復元
+ * @param {Land|House|Bldg} instance 
+ * @param {number} index 不動産のインデックス
+ */
+function restorePropertyData(instance, index){
+    const indexIdx = instance instanceof Land? LIndex.input:
+        (instance instanceof House? HIndex.input: BIndex.input);
+    const purpartyInputIdxs = instance instanceof Land? LPurparty.input:
+        (instance instanceof House? HPurparty.input: BPurparty.input);
+    const inputs = instance.inputs;
+    //インデックスを入力
+    inputs[indexIdx].value = index;
+    //土地建物のとき、地番又は家屋番号の復元
+    if(isClassMatched(instance, [Land, House])){
+        const identIdx = instance instanceof Land? LLandNumber.input: HHouseNumber.input;
+        const [main, branch] = inputs[identIdx[other]].value.split("番");
+        inputs[identIdx[yes]].value = main;
+        inputs[identIdx[no]].value = branch;
+    }
+    //所有権・持分の復元
+    const [b, t] = inputs[purpartyInputIdxs[other2]].value.split("分の");
+    inputs[purpartyInputIdxs[no]].value = b;
+    inputs[purpartyInputIdxs[other]].value = t;
+}
+
+/**
+ * 対象の区分建物の敷地権のインスタンスを生成する
+ * @param {HTMLElement} wrapper 
+ * @param {Bldg} bldg 
+ */
+function createSiteInstance(wrapper, bldg){
+    const startIdx = sites.length;
+    const count = wrapper.getElementsByClassName("siteFieldset").length;
+    for(let j = startIdx, len = startIdx + count; j < len; j++){
+        const site = new Site(`id_site-${j}-fieldset`, bldg);
+        site.inputs[STarget.input].value = bldg.inputs[BIndex.input].value;
+    }
+}
+
+/**
+ * 不動産と隠しフォームを関連付ける
+ * @param {Land|House|Bldg} instance 
+ * @param {Acquirer[]} acquirers 
+ */
+function relatePropertyAndAcquirer(instance, acquirers){
+    const prefix = getPropertyPrefix(instance);
+    const idx = prefix === "land"? LId.input: 
+        (prefix === "house"? HId.input: BId.input);
+    acquirers.forEach(x => {
+        if(instance.inputs[idx].value === x.inputs[AObjectId1].value){
+            instance.addAcquirer(x);
+        }else{
+            throw new Error(`relatePropertyAndAcquirer：取得者が持つobjectId1と一致する${prefix}データのidがありません`);
+        }
+    });
+}
+
+/**
  * 区分建物欄のイベントなど設定
  */
 function setBldgSection(){
-    const TAAcquirerInputIdx = TAAcquirer.input;
-    const TOD = typeOfDivisions[0];
-    const newCount = parseInt(numberOfProperties[0].inputs[NOPBldg].value);
-    const prefix = "bldg";
-    const isBldgAcquirerAlone = TOD.isPropertyAcquirerAlone();
-    const isNormalDivision = TOD.isNormalDivision();
-    //初回入力
-    if(bldgs.length === 0){
-        //インスタンスを生成する
-        createNewPropertyInstance(prefix, 0);
-        //数が２以上のとき複製する
-        if(newCount > 1)
-            addPropertyFormFirstTime(prefix, newCount);
-        //取得者候補を追加する
-        getAndAddAcquirerCandidate(bldgs);
-        //遺産分割方法の不動産の全取得者欄が入力されているときは、自動入力する
-        if(isBldgAcquirerAlone){
-            bldgs.forEach(x => x.tempAcquirers.forEach(y => inputTAWhenAcquirerAlone(y)));
-        }else if(TOD.isPropertyLegalInheritance()){
-            //不動産の取得者が法定相続のとき
-            bldgs.forEach(x => createLegalInheritanceTAFieldset(false, x));
-        }
-        //各入力欄のイベントを設定
-        setBldgEvent();
-        //通常分割のとき、換価確認欄を非表示にして「しない」にチェックを入れる
-        if(isNormalDivision)
-            bldgs.forEach(x => hiddenIsExchange(x));
-        setPropertyTAsEvent(bldgs);
-        setAddTABtnsEvent(bldgs);
-        setRemoveTABtnsEvent(bldgs);
-        setPropertyOkBtnEvent(bldgs);
-        setPropertyCorrectBtnEvent(bldgs);
-        //敷地権フォームにイベント設定
-        handleSiteEvent();
-        //敷地権の追加ボタンにイベント設定
-        handleAddSiteBtnEvent();
-        //敷地権の削除ボタンにイベント設定
-        handleRemoveSiteBtnEvent();
-        //敷地の符号に初期値を入力して無効化する
-        sites.forEach(x => {
-            x.inputs[SNumber.input].value = "１";
-            x.inputs[SNumber.input].disabled = true;
-        });
-        //敷地のフォーム数を更新する
-        updateSiteTotalForms();
-    }else if(bldgs.length > 0){
-        //再表示のとき
-        const oldCount = bldgs.length;
-        //土地の数が減ったとき
-        if(newCount < oldCount){
-            //減った分のフォームとインスタンスを削除する
-            removePropertyWrappers(bldgs, newCount);
-        }
-        const bldg = bldgs[0];
-        const allLegalHeirs = getAllLegalHeirs();
-        //換価ボタンが押されたときの処理
-        TOD.isExchangeDivision()?
-            handleIsExchangeYesProcess(bldgs, allLegalHeirs):
-            handleIsExchangeNoProcess(bldgs, allLegalHeirs);
-            
-        const wasTAHidden = bldg.tempAcquirers[0].fieldset.parentElement.style.display === "none"; //前回の遺産分割方法確認
-        //遺産分割方法が１人のとき
-        if(isBldgAcquirerAlone){
-            handlePropertyAcquirerAloneDivision(bldgs, allLegalHeirs);
-        }else if(TOD.isPropertyFreeAllocation()){
-            //遺産分割方法がその他のとき
-            const newCandidates = getAllcandidates();
-            //単独又は法定相続だったのとき
-            if(wasTAHidden){
-                iniPropertySectionByPropertyAllocationChange(bldgs, newCandidates);
-            }else{
-                //その他だったのとき
-                const oldCandidates = Array.from(bldg.tempAcquirers[0].inputs[TAAcquirerInputIdx].options).slice(1);
-                const isAllLegalHeirs = newCandidates.length === allLegalHeirs.length;
-                const isSameLength = newCandidates.length === oldCandidates.length;
-                //同じ人数かつ同じ要素（全員が取得車の場合を除く）のときは何も処理をしない
-                if(!isAllLegalHeirs && isSameLength){
-                    if(!isCandidatesNoChange(newCandidates, oldCandidates))
-                        iniPropertySectionByPropertyAllocationChange(bldgs, newCandidates);
-                }else if(!isSameLength){
-                    iniPropertySectionByPropertyAllocationChange(bldgs, newCandidates);
+    try{
+        const TAAcquirerInputIdx = TAAcquirer.input;
+        const TOD = typeOfDivisions[0];
+        const newCount = numberOfProperties[0].getBldgCount(true);
+        const prefix = "bldg";
+        const isBldgAcquirerAlone = TOD.isPropertyAcquirerAlone();
+        const isNormalDivision = TOD.isNormalDivision();
+        //初回表示
+        if(bldgs.length === 0){
+            const isDataExist = document.getElementById("id_bldg-0-id").value !== "";
+            //保存データが表示されている場合
+            if(isDataExist){
+                //仮フォームのインスタンス生成
+                const bldgAcquirers = createAcquirerInstances(false, prefix);
+                const cashAcquirers = createAcquirerInstances(true, prefix);
+                //区分建物のラッパー毎にループ処理
+                const bldgWrappers = bldgSection.getElementsByClassName(`${prefix}Wrapper`);
+                for(let i = 0, len1 = bldgWrappers.length; i < len1; i++){
+                    //区分建物のインスタンス生成、隠しinputから表示を復元
+                    const bldg = new Bldg(`id_bldg-${i}-fieldset`);
+                    restorePropertyData(bldg, i);
+                    //敷地権のインスタンス生成
+                    createSiteInstance(bldgWrappers[i], bldg);
+                    //区分建物と隠しフォームのインスタンスを紐づける
+                    relatePropertyAndAcquirer(bldg, bldgAcquirers);
+                    relatePropertyAndAcquirer(bldg, cashAcquirers);
+                    //仮フォームは最初の１つだけインスタンスを用意する
+                    createTempAcquirerInstance(bldg, prefix, i);
                 }
+            }else{
+                //初めての入力のとき
+                //インスタンスを生成する
+                createNewPropertyInstance(prefix, 0);
+                //数が２以上のとき複製する
+                if(newCount > 1)
+                    addPropertyFormFirstTime(prefix, newCount);
+                //敷地の符号に初期値を入力して無効化する
+                sites.forEach(x => {
+                    const siteNumberInput = x.inputs[SNumber.input];
+                    siteNumberInput.value = "１";
+                    siteNumberInput.disabled = true;
+                });
+                //敷地のフォーム数を更新する
+                updateSiteTotalForms();
             }
-        }else{
-            //遺産分割方法が法定相続のとき
-            bldgs.forEach(x => {
-                resetTA(x.tempAcquirers, allLegalHeirs);
-                createLegalInheritanceTAFieldset(false, x);
-            });
-        }
-
-        //数が増えたとき
-        if(newCount > oldCount){
-            for(let i = oldCount; i < newCount; i++){
-                //最後の情報を複製する
-                addPropertyFormNotFirstTime(bldgs, i);
+            //取得者候補を追加する
+            getAndAddAcquirerCandidate(bldgs);
+            //遺産分割方法の不動産の全取得者欄が入力されているときは、自動入力する
+            if(isBldgAcquirerAlone){
+                bldgs.forEach(x => x.tempAcquirers.forEach(y => inputTAWhenAcquirerAlone(y)));
+            }else if(TOD.isPropertyLegalInheritance()){
+                //不動産の取得者が法定相続のとき
+                bldgs.forEach(x => createLegalInheritanceTAFieldset(false, x));
             }
-            //不動産、仮フォーム、ボタンにイベントを設定する
-            setBldgEvent(oldCount);
+            setBldgEvent();
             if(isNormalDivision)
                 bldgs.forEach(x => hiddenIsExchange(x));
-            setPropertyTAsEvent(bldgs, oldCount);
-            setAddTABtnsEvent(bldgs, oldCount);
-            setRemoveTABtnsEvent(bldgs, oldCount);
-            const dif = newCount - oldCount;
-            handleSiteEvent(sites.length - dif);
-            handleAddSiteBtnEvent(oldCount);
-            handleRemoveSiteBtnEvent(oldCount);
+            setPropertyTAsEvent(bldgs);
+            setAddTABtnsEvent(bldgs);
+            setRemoveTABtnsEvent(bldgs);
+            setPropertyOkBtnEvent(bldgs);
+            setPropertyCorrectBtnEvent(bldgs);
+            //敷地権フォームにイベント設定
+            handleSiteEvent();
+            //敷地権の追加ボタンにイベント設定
+            handleAddSiteBtnEvent();
+            //敷地権の削除ボタンにイベント設定
+            handleRemoveSiteBtnEvent();
+        }else if(bldgs.length > 0){
+            //再表示のとき
+            const oldCount = bldgs.length;
+            //土地の数が減ったとき
+            if(newCount < oldCount){
+                //減った分のフォームとインスタンスを削除する
+                removePropertyWrappers(bldgs, newCount);
+            }
+            const bldg = bldgs[0];
+            const allLegalHeirs = getAllLegalHeirs();
+            //換価ボタンが押されたときの処理
+            TOD.isExchangeDivision()?
+                handleIsExchangeYesProcess(bldgs, allLegalHeirs):
+                handleIsExchangeNoProcess(bldgs, allLegalHeirs);
+                
+            const wasTAHidden = bldg.tempAcquirers[0].fieldset.parentElement.style.display === "none"; //前回の遺産分割方法確認
+            //遺産分割方法が１人のとき
+            if(isBldgAcquirerAlone){
+                handlePropertyAcquirerAloneDivision(bldgs, allLegalHeirs);
+            }else if(TOD.isPropertyFreeAllocation()){
+                //遺産分割方法がその他のとき
+                const newCandidates = getAllcandidates();
+                //単独又は法定相続だったのとき
+                if(wasTAHidden){
+                    iniPropertySectionByPropertyAllocationChange(bldgs, newCandidates);
+                }else{
+                    //その他だったのとき
+                    const oldCandidates = Array.from(bldg.tempAcquirers[0].inputs[TAAcquirerInputIdx].options).slice(1);
+                    const isAllLegalHeirs = newCandidates.length === allLegalHeirs.length;
+                    const isSameLength = newCandidates.length === oldCandidates.length;
+                    //同じ人数かつ同じ要素（全員が取得車の場合を除く）のときは何も処理をしない
+                    if(!isAllLegalHeirs && isSameLength){
+                        if(!isCandidatesNoChange(newCandidates, oldCandidates))
+                            iniPropertySectionByPropertyAllocationChange(bldgs, newCandidates);
+                    }else if(!isSameLength){
+                        iniPropertySectionByPropertyAllocationChange(bldgs, newCandidates);
+                    }
+                }
+            }else{
+                //遺産分割方法が法定相続のとき
+                bldgs.forEach(x => {
+                    resetTA(x.tempAcquirers, allLegalHeirs);
+                    createLegalInheritanceTAFieldset(false, x);
+                });
+            }
+
+            //数が増えたとき
+            if(newCount > oldCount){
+                for(let i = oldCount; i < newCount; i++){
+                    //最後の情報を複製する
+                    addPropertyFormNotFirstTime(bldgs, i);
+                }
+                //不動産、仮フォーム、ボタンにイベントを設定する
+                setBldgEvent(oldCount);
+                if(isNormalDivision)
+                    bldgs.forEach(x => hiddenIsExchange(x));
+                setPropertyTAsEvent(bldgs, oldCount);
+                setAddTABtnsEvent(bldgs, oldCount);
+                setRemoveTABtnsEvent(bldgs, oldCount);
+                const dif = newCount - oldCount;
+                handleSiteEvent(sites.length - dif);
+                handleAddSiteBtnEvent(oldCount);
+                handleRemoveSiteBtnEvent(oldCount);
+            }
+            updateSiteTotalForms();
+        }else{
+            console.error(`setBldgSection：区分建物の数が不正な値です${e}`);
         }
-        updateSiteTotalForms();
-    }else{
-        console.error("setBldgSection：区分建物の数が不正な値です");
+        //最後に表示されている土地情報を有効化する
+        enableAndDisplayTargetPropertyWrapper(bldgs);
+    }catch(e){
+        console.error(`setBldgSection：エラーが発生しました\n詳細：${e}`);
     }
-    //最後に表示されている土地情報を有効化する
-    enableAndDisplayTargetPropertyWrapper(bldgs);
 }
 
 /**
@@ -5121,6 +5416,8 @@ function setBldgSection(){
 function addApplicantCandidates(instance){
     const applicant = instance.inputs[aApplicant.input];
     applicant.length = 1;
+    instance.inputs[aObjectId.input].value = "";
+    instance.inputs[aContentType.input].value = "";
     applicant.disabled = false;
     const candidates = getAllcandidates();
     candidates.forEach(x => {
@@ -5135,6 +5432,9 @@ function addApplicantCandidates(instance){
     if(candidates.length === 1){
         applicant.selectedIndex = 1;
         instance.noInputs = instance.noInputs.filter(x => x !== instance.inputs[aApplicant.input]);
+        const [id, contentType] = applicant.value.split("_");
+        instance.inputs[aObjectId.input].value = id;
+        instance.inputs[aContentType.input].value = contentType;
         applicant.disabled = true;
     }else{
         pushInvalidEl(instance, applicant);
@@ -5211,14 +5511,20 @@ function setApplicationEvent(instance){
                 isActivateOkBtn(instance);
                 return;
             }else if(aIsReturn.input.includes(i)){
-
+                //原本還付
                 instance.noInputs = filterArr([inputs[aIsReturn.input[yes]], inputs[aIsReturn.input[no]]], instance.noInputs);
                 isActivateOkBtn(instance);
                 return;
             }else if(aIsMail.input.includes(i)){
+                //郵送・持参
                 instance.noInputs = filterArr([inputs[aIsMail.input[yes]], inputs[aIsMail.input[no]]], instance.noInputs);
                 isActivateOkBtn(instance);
                 return;
+            }else if(i === aApplicant.input){
+                //申請人
+                const [id, contentType] = input.value.split("_");
+                inputs[aObjectId.input].value = id;
+                inputs[aContentType.input].value = contentType? contentType: "";
             }
             //その共通
             const result = applicationValidation(inputs, i);
@@ -5280,6 +5586,7 @@ function setApplicationSection(){
     }else{
         throw new Error("setApplicationSection：想定しない操作が行われました")
     }
+    scrollToTarget(applicationSection);
 }
 
 /**
@@ -5288,6 +5595,7 @@ function setApplicationSection(){
 async function handleOkBtnEvent(){
     //全セクションタグに対してループ処理
     for(let i = 0, len = sections.length; i < len; i++){
+        //表示対象か判別されるセクション
         const section = sections[i];
         //非表示のセクションのとき
         if (window.getComputedStyle(section).display === 'none') {
@@ -5303,28 +5611,26 @@ async function handleOkBtnEvent(){
                 handleTODSectionOkBtn(section, preSection);
                 break;
             }else if(section.id === "land-section"){
-                const isNoLand = numberOfProperties[0].inputs[NOPLand].value === "0";
                 //土地が０のとき次のループへ
-                if(isNoLand)
+                if(numberOfProperties[0].getLandCount(true) === 0)
                     continue;
                 handleNOPSectionOkBtn(section, preSection);
                 break;
             }else if(section.id === "house-section"){
-                const isNoLand = numberOfProperties[0].inputs[NOPLand].value === "0";
-                const isNoHouse = numberOfProperties[0].inputs[NOPHouse].value === "0";
+                const NOP = numberOfProperties[0];
                 //建物の数が０のとき次のループへ
-                if(isNoHouse)
+                if(NOP.getHouseCount(true) === 0)
                     continue;
-                isNoLand ?
+                NOP.getLandCount(true === 0) ?
                     handleNOPSectionOkBtn(section, sections[i - 2]):
                     handlePropertySectionOkBtn(section, preSection);
                 break;
             }else if(section.id === "bldg-section"){
-                const isNoBldg = numberOfProperties[0].inputs[NOPBldg].value === "0";
-                const isNoHouse = numberOfProperties[0].inputs[NOPHouse].value === "0";
-                const isNoLand = numberOfProperties[0].inputs[NOPLand].value === "0";
+                const NOP = numberOfProperties[0];
+                const isNoHouse = NOP.getHouseCount(true) === 0;
+                const isNoLand = NOP.getLandCount(true) === 0;
                 //区分建物が０のとき次のループへ
-                if(isNoBldg)
+                if(NOP.getBldgCount(true) === 0)
                     continue;
                 const offset = isNoLand && isNoHouse ? -3 : (isNoHouse ? -2 : -1);
                 isNoLand && isNoHouse ?
@@ -5333,16 +5639,16 @@ async function handleOkBtnEvent(){
                 break;
             }else if(section.id === "application-section"){
                 okBtn.disabled = true;
-                const isNoHouse = numberOfProperties[0].inputs[NOPHouse].value === "0";
-                const isNoBldg = numberOfProperties[0].inputs[NOPBldg].value === "0";
                 //不動産セクションの入力に齟齬があるときのアラートと入力修正処理
                 await checkPropertySection();
+                const NOP = numberOfProperties[0];
+                const isNoHouse = NOP.getHouseCount(true) === 0;
+                const isNoBldg = NOP.getBldgCount(true) === 0;
                 const offset = isNoHouse && isNoBldg ? -3 : (isNoBldg ? -2 : -1);
                 handlePropertySectionOkBtn(section, sections[i + offset]);
-                scrollToTarget(section);
                 break;
             }else{
-                console.log("handleOkBtnEvent:想定されていないセクション移動がありました");
+                console.error("handleOkBtnEvent:想定されていないセクションでokBtnがクリックされました");
             }
         }
     }
@@ -5389,6 +5695,60 @@ function handlePreBtnEvent(){
             });
         }
     })
+}
+
+/**
+ * インスタンスの未入力フィールドをチェックする
+ * @param {*} instance チェックするインスタンス
+ * @throws {Error} 未入力フィールドがある場合、エラーを投げる
+ */
+function checkNoInputs(instance){
+    if(instance.noInputs.length > 0){
+        if(instance instanceof NumberOfProperties && instance.noInputs.length < 3)
+            return;
+        throw new Error(`${instance.constructor.name}に未入力があります`);
+    }
+}
+
+/**
+ * エラー要素があるか判別する
+ * @param {*[]} instances 
+ */
+function isNoInputs(instances){
+    instances.forEach(x => {
+        checkNoInputs(x);
+        if(x instanceof Land || x instanceof House || x instanceof Bldg){
+            x.tempAcquirers.forEach(y => checkNoInputs(y));
+            x.tempCashAcquirers.forEach(y => checkNoInputs(y));
+            if(x instanceof Bldg){
+                x.sites.forEach(y => checkNoInputs(y));
+            }
+        }
+    })
+}
+
+/**
+ * ４．に進むボタンが押されたときの処理
+ */
+function handleSubmitBtnEvent(event){
+    const spinner = document.getElementById("submitSpinner");
+    try{
+        //複数回submitされないようにする
+        submitBtn.disabled = true;
+        spinner.style.display = "";
+        //全てのフォームをチェック
+        const instances = [decedents, registryNameAndAddresses, heirs, typeOfDivisions, numberOfProperties, lands, houses, bldgs, applications];
+        instances.forEach(x => {
+            if(x.length > 0)
+                isNoInputs(x);
+        })
+        //全てのフィールドセットのdisabledをfalseに変更する
+        enableAllInputsAndSelects();
+    }catch(e){
+        console.error(`handleSubmitBtnEvent：エラーが発生しました\n詳細：${e}`);
+        event.preventDefault();
+        spinner.style.display = "none";
+    }
 }
 
 /**
@@ -5453,8 +5813,17 @@ okBtn.addEventListener("click", ()=>{
 })
 
 /*
- * 前に戻るボタンのクリックイベント
+ * ２．に戻るボタンのクリックイベント
  */
 preBtn.addEventListener("click", ()=>{
     handlePreBtnEvent();
 })
+
+/**
+ * ４．に進むボタンのクリックイベント
+ */
+
+form.addEventListener("submit", (e)=>{
+    handleSubmitBtnEvent(e);
+})
+

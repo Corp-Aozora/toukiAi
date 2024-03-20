@@ -813,11 +813,15 @@ class StepThreeLandAcquirerForm(forms.ModelForm):
     
     class Meta:
         model = PropertyAcquirer
+        index = model.step_three_fields.index("content_type1")
+        model.step_three_fields.insert(index, "target")
         fields = model.step_three_fields
         widgets = {
             "content_type2": forms.HiddenInput(),
             "object_id2": forms.HiddenInput(),
             "percentage": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "object_id1": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -832,11 +836,15 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
     
     class Meta:
         model = CashAcquirer
+        index = model.step_three_fields.index("content_type1")
+        model.step_three_fields.insert(index, "target")
         fields = model.step_three_fields
         widgets = {
             "content_type2": forms.HiddenInput(),
             "object_id2": forms.HiddenInput(),
             "percentage": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "object_id1": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -912,13 +920,17 @@ class StepThreeHouseAcquirerForm(forms.ModelForm):
     
     class Meta:
         model = PropertyAcquirer
+        index = model.step_three_fields.index("content_type1")
+        model.step_three_fields.insert(index, "target")
         fields = model.step_three_fields
         widgets = {
             "content_type2": forms.HiddenInput(),
             "object_id2": forms.HiddenInput(),
             "percentage": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "object_id1": forms.HiddenInput(),
         }
-
+        
     def __init__(self, *args, **kwargs):
         for field in self.base_fields.values():
             field.required = False
@@ -931,11 +943,15 @@ class StepThreeHouseCashAcquirerForm(forms.ModelForm):
     
     class Meta:
         model = CashAcquirer
+        index = model.step_three_fields.index("content_type1")
+        model.step_three_fields.insert(index, "target")
         fields = model.step_three_fields
         widgets = {
             "content_type2": forms.HiddenInput(),
             "object_id2": forms.HiddenInput(),
             "percentage": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "object_id1": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1058,11 +1074,15 @@ class StepThreeBldgAcquirerForm(forms.ModelForm):
     
     class Meta:
         model = PropertyAcquirer
+        index = model.step_three_fields.index("content_type1")
+        model.step_three_fields.insert(index, "target")
         fields = model.step_three_fields
         widgets = {
             "content_type2": forms.HiddenInput(),
             "object_id2": forms.HiddenInput(),
             "percentage": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "object_id1": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1077,11 +1097,15 @@ class StepThreeBldgCashAcquirerForm(forms.ModelForm):
     
     class Meta:
         model = CashAcquirer
+        index = model.step_three_fields.index("content_type1")
+        model.step_three_fields.insert(index, "target")
         fields = model.step_three_fields
         widgets = {
             "content_type2": forms.HiddenInput(),
             "object_id2": forms.HiddenInput(),
             "percentage": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "object_id1": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1092,13 +1116,9 @@ class StepThreeBldgCashAcquirerForm(forms.ModelForm):
                 
 #申請情報
 class StepThreeApplicationForm(forms.ModelForm):
-    applicant = forms.ChoiceField(choices=[("", "選択してください")], widget=forms.Select())
-    
     class Meta:
         model = Application
-        index = model.step_three_fields.index("is_agent")
-        model.step_three_fields.insert(index, "applicant")
-        # decedent, content_type, object_id, (applicant), is_agent, agent_name, agent_address, agent_phone_number, is_return, is_mail,
+        # decedent, content_type, object_id, is_agent, agent_name, agent_address, agent_phone_number, is_return, is_mail,
         fields = model.step_three_fields
         widgets = {
             "is_agent": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),

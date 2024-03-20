@@ -1157,11 +1157,11 @@ class PropertyAcquirer(CommonModel):
     
     step_three_fields = [
         "decedent",
-        "content_type1",
-        "object_id1",
         "content_type2",
         "object_id2",
         "percentage",
+        "content_type1",
+        "object_id1",
     ]
     
     class Meta:
@@ -1205,11 +1205,11 @@ class CashAcquirer(CommonModel):
     
     step_three_fields = [
         "decedent",
-        "content_type1",
-        "object_id1",
         "content_type2",
         "object_id2",
         "percentage",
+        "content_type1",
+        "object_id1",
     ]
     
     class Meta:
@@ -1256,8 +1256,6 @@ class Application(CommonModel):
     
     step_three_fields = [
         "decedent",
-        "content_type",
-        "object_id",
         "is_agent",
         "phone_number",
         "agent_name",
@@ -1265,6 +1263,8 @@ class Application(CommonModel):
         "agent_phone_number",
         "is_return",
         "is_mail",
+        "object_id",
+        "content_type",
     ]
     
     class Meta:

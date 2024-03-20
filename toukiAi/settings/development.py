@@ -53,3 +53,21 @@ CSRF_COOKIE_SECURE = True
 # Cloud Storageバケット情報
 # region:asia-northeast1
 # gs://toukiai-development_souzokutoukikun
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': './logfile.log',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'DEBUG',
+    },
+}

@@ -21,7 +21,7 @@
             </div>
         </div>
         <hr>
-        <form action="{% url 'toukiApp:step_four' %}" method="POST" class="my-4" novalidate>
+        <form action="{% url 'toukiApp:step_three' %}" method="POST" class="my-4" novalidate>
             {% csrf_token %}
             <section id="decedent-section" class="container">
                 <fieldset id="id_decedent-0-fieldset">
@@ -1604,6 +1604,7 @@
                                                 {{field}}
                                             {% endif %}
                                         {% endfor %}
+                                        <input type="hidden" name="id_land-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
                                     </div>
                                 </fieldset>
                                 <div class="tempLandAcquirerWrapper">
@@ -1687,7 +1688,7 @@
                         {% for form in land_acquirer_forms %}
                             <fieldset id="id_land_acquirer-{{forloop.counter0}}-fieldset"  class="landAcquirerFieldset d-flex" style="display: none;">
                                 {% for field in form %}
-                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" or field.name == "object_id1" or field.name == "content_type1" %}
                                         {{field}}
                                     {% endif %}
                                 {% endfor %}
@@ -1699,7 +1700,7 @@
                     <div id="id_land_cash_acquirer_wrapper">
                         <fieldset id="id_land_cash_acquirer-{{forloop.counter0}}-fieldset"  class="landCashAcquirerFieldset d-flex" style="display: none;">
                             {% for field in form %}
-                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" or field.name == "object_id1" or field.name == "content_type1" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -1848,6 +1849,7 @@
                                                 {{field}}
                                             {% endif %}
                                         {% endfor %}
+                                        <input type="hidden" name="id_house-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
                                     </div>
                                 </fieldset>
                                 <div class="tempHouseAcquirerWrapper">
@@ -1931,7 +1933,7 @@
                         {% for form in house_acquirer_forms %}
                             <fieldset id="id_house_acquirer-{{forloop.counter0}}-fieldset"  class="houseAcquirerFieldset d-flex" style="display: none;">
                                 {% for field in form %}
-                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" or field.name == "object_id1" or field.name == "content_type1" %}
                                         {{field}}
                                     {% endif %}
                                 {% endfor %}
@@ -1943,7 +1945,7 @@
                     <div id="id_house_cash_acquirer_wrapper">
                         <fieldset id="id_house_cash_acquirer-{{forloop.counter0}}-fieldset"  class="houseCashAcquirerFieldset d-flex" style="display: none;">
                             {% for field in form %}
-                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" or field.name == "object_id1" or field.name == "content_type1" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -2085,7 +2087,7 @@
                                                 {{field}}
                                             {% endif %}
                                         {% endfor %}
-                                        <input type="hidden" name="id_bldg-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
+                                        <input type="hidden" id="id_bldg-{{forloop.counter0}}-id" name="bldg-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
                                     </div>
                                 </fieldset>
                                 <div class="siteWrapper">
@@ -2179,7 +2181,7 @@
                         {% for form in bldg_acquirer_forms %}
                             <fieldset id="id_bldg_acquirer-{{forloop.counter0}}-fieldset"  class="bldgAcquirerFieldset d-flex" style="display: none;">
                                 {% for field in form %}
-                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                    {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" or field.name == "object_id1" or field.name == "content_type1" %}
                                         {{field}}
                                     {% endif %}
                                 {% endfor %}
@@ -2191,7 +2193,7 @@
                     <div id="id_bldg_cash_acquirer_wrapper">
                         <fieldset id="id_bldg_cash_acquirer-{{forloop.counter0}}-fieldset"  class="bldgCashAcquirerFieldset d-flex" style="display: none;">
                             {% for field in form %}
-                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" %}
+                                {% if field.name == "percentage" or field.name == "object_id2" or field.name == "content_type2" or field.name == "target" or field.name == "object_id1" or field.name == "content_type1" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -2265,23 +2267,26 @@
                 </div>
                 <fieldset id="id_application-fieldset">
                     <div class="border rounded-3 p-4 mt-3">
+                        <div class="input-group mt-4 position-relative Q">
+                            <span class="form-label fs-5 fw-bold">
+                                申請手続きをする方を選択してください
+                            </span>
+                            <div class="form-text">
+                                ※申請に不備があったときに法務局から連絡を受けたり完了後の書類の受け取りを行います。
+                            </div>
+                            <label for="{{field.auto_id}}" class="input-group-text label">
+                                申請人
+                            </label>
+                            <select name="application-applicant" maxlength="20" class="form-select text-center cursor-pointer rounded-end" id="id_application-applicant">
+                                <option value="" selected="">
+                                    選択してください
+                                </option>
+                            </select>
+                            <span class="errorMessage applicantEmPosition" style="display: none;">
+                            </span>
+                        </div>
                          {% for field in application_form %}
-                            {% if field.name == "applicant" %}
-                                <div class="input-group mt-4 position-relative Q">
-                                    <span class="form-label fs-5 fw-bold">
-                                        申請手続きをする方を選択してください
-                                    </span>
-                                    <div class="form-text">
-                                        ※申請に不備があったときに法務局から連絡を受けたり完了後の書類の受け取りを行います。
-                                    </div>
-                                    <label for="{{field.auto_id}}" class="input-group-text label">
-                                        申請人
-                                    </label>
-                                    {{ field }}
-                                    <span class="errorMessage applicantEmPosition" style="display: none;">
-                                    </span>
-                                </div>
-                            {% elif field.name == "is_agent" %}
+                            {% if field.name == "is_agent" %}
                                 <div class="mt-4">
                                     <span class="form-label fs-5 fw-bold">
                                         申請人以外の方が申請手続きを行いますか？
@@ -2428,11 +2433,11 @@
                         </button>
                     </div>
                     <div>
-                        <button id="submitBtn" type="submit" class="btn btn-primary nextBtn" disabled>
+                        <button id="submitBtn" type="submit" class="btn btn-primary" disabled>
                             ４．書類の作成に進む
+                            <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            </span>
                         </button>
-                        <div id="spinner" class="spinner-border text-warning align-middle" role="status" style="display: none;">
-                        </div>
                     </div>
                 </div>
                 <div class="m-auto text-center">

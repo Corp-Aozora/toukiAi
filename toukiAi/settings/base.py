@@ -207,21 +207,3 @@ ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 0
 # AXES_LOCKOUT_URL = "/toukiapp/signin"
 
 # HANDLER_403 = 'accounts.views.error_403'
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': './logfile.log',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
-    },
-}

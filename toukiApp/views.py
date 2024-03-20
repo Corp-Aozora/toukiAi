@@ -278,14 +278,14 @@ def step_one(request):
             StepOneSpouseForm(request.POST, prefix="spouse"),
             StepOneDescendantCommonForm(request.POST, prefix="child_common"),
             StepOneCollateralCommonForm(request.POST, prefix="collateral_common"),
-            ]
+        ]
         form_sets = [
             child_form_set(request.POST, prefix="child"),
             child_spouse_form_set(request.POST or None, prefix="child_spouse"),
             grand_child_form_set(request.POST or None, prefix="grand_child"), 
             ascendant_form_set(request.POST or None, prefix="ascendant"),
             collateral_form_set(request.POST or None, prefix="collateral")
-            ]
+        ]
 
         # if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
         #     for form in forms:
@@ -684,7 +684,7 @@ def step_two(request):
 
 """
 
-ステップ３関連
+    ステップ３関連
 
 """
 
@@ -724,92 +724,92 @@ def check_type_of_division_conditions(data):
 
     return final_condition
 
+def check_heirs_conditions(data):
+    #ループ処理できるようにdataを配列形式に変える
+    if not isinstance(data, list):
+        data = [data]
+    flg = True
+    for d in data:
+        attr = [
+            d.name,
+            d.birth_year, d.birth_month, d.birth_date
+        ]
+        #卑属又は兄弟姉妹のとき前配偶者又は異父母データを追加する
+        if d.__class__ in [Descendant, Collateral]:
+            attr.append(d.object_id2)
+        #死亡して相続放棄してない又は空欄とき、死亡年月日を追加
+        if d.is_live is False and not d.is_refuse:
+            attr.extend([d.death_year, d.death_month, d.death_date])
+        #不動産を取得するとき、都道府県、市区町村、町域・番地を追加
+        if d.is_acquire is True:
+            attr.extend([d.prefecture, d.city, d.address])
+        #全項目をチェック
+        if not all(attr):
+            flg = False
+            break
+    return flg    
+
 def step_three_input_status(data):
     """登録されているステップ３のデータをチェックしてどこまで入力が完了しているか判別する
     
     Args:
-        data (_type_): ステップ３で使用するデータ
+        data (Model): ステップ３で使用するデータ
 
     Returns:
         bool: 入力完了はtrue、未完了はfalse
     """
-    #被相続人データのとき
-    if data.__class__ == Decedent:
-        #チェック対象の属性リスト
-        attr = [
-            data.name,
-            data.death_year, data.death_month, data.death_date, 
-            data.birth_year, data.birth_month, data.birth_date, 
-            data.prefecture, data.city, data.address, 
-            data.domicile_prefecture, data.domicile_city, data.domicile_address
-        ]
-        #チェック対象が全て値を持つときTrueを返す
-        if all(attr):
-            return True
-    elif data.__class__ == RegistryNameAndAddress:
-        if all([all([d.name, d.prefecture, d.city, d.address]) for d in data]):
-            return True
-    elif data.__class__ in [Spouse, Ascendant, Descendant, Collateral]:
-        #ループ処理できるようにdataを配列形式に変える
-        if not isinstance(data, list):
-            data = [data]
+    try:
             
-        flg = True
-        for d in data:
+        #被相続人データのとき
+        if data.__class__ == Decedent:
+            #チェック対象の属性リスト
             attr = [
-                d.name,
-                d.birth_year, d.birth_month, d.birth_date
+                data.name,
+                data.death_year, data.death_month, data.death_date, 
+                data.birth_year, data.birth_month, data.birth_date, 
+                data.prefecture, data.city, data.address, 
+                data.domicile_prefecture, data.domicile_city, data.domicile_address
             ]
-            #卑属又は兄弟姉妹のとき前配偶者又は異父母データを追加する
-            if d.__class__ in [Descendant, Collateral]:
-                attr.append(d.object_id2)
-            #死亡して相続放棄してない又は空欄とき、死亡年月日を追加
-            if d.is_live is False and not d.is_refuse:
-                attr.extend([d.death_year, d.death_month, d.death_date])
-            #不動産を取得するとき、都道府県、市区町村、町域・番地を追加
-            if d.is_acquire is True:
-                attr.extend([d.prefecture, d.city, d.address])
-            #全項目をチェック
-            if not all(attr):
-                flg = False
-                break
-        return flg
-    elif data.__class__ == TypeOfDivision:
-        return check_type_of_division_conditions(data)
-    elif data.__class__ == NumberOfProperties:
-        attr = [data.land, data.house, data.bldg]
-        if any(x > 0 for x in attr):
-            return True
-    elif data.__class__ in [Land, House, Bldg]:
-        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data.office]
-        if all(attr):
-            return True
-    elif data.__class__ == Site:
-        attr = [data.bldg, data.number, data.address_and_land_number, data.type, 
-                data.purparty_bottom, data.purparty_top, data.price,]
-        if all(attr):
-            return True
-    elif data.__class__ in [PropertyAcquirer, CashAcquirer]:
-        attr = [data.content_type1, data.object_id1, data.content_object1, 
-                data.content_type2, data.object_id2, data.content_object2,
-                data.percentage]
-        if all(attr):
-            return True
-    elif data.__class__ == Application:
-        if data.is_agent is not None:
-            attr = []
-            if data.is_agent == True:
-                attr = [data.content_type, data.object_id,
-                        data.agent_name, data.agent_address, data.agent_phone_number,
-                        data.is_return, data.is_mail]
-            else:
-                attr = [data.content_type, data.object_id, data.phone_number,
-                        data.is_return, data.is_mail]
-            if all(attr):
-                return True        
-            
-    return False
-
+            #チェック対象が全て値を持つときTrueを返す
+            return all(attr)
+        elif data.__class__ == RegistryNameAndAddress:
+            return all([all([d.name, d.prefecture, d.city, d.address]) for d in data])
+        elif data.__class__ in [Spouse, Ascendant, Descendant, Collateral]:
+            return check_heirs_conditions(data)
+        elif data.__class__ == TypeOfDivision:
+            return check_type_of_division_conditions(data)
+        elif data.__class__ == NumberOfProperties:
+            attr = [data.land, data.house, data.bldg]
+            return any(x > 0 for x in attr)
+        elif data.__class__ in [Land, House, Bldg]:
+            attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data.office]
+            return all(attr)
+        elif data.__class__ == Site:
+            attr = [data.bldg, data.number, data.address_and_land_number, data.type, 
+                    data.purparty_bottom, data.purparty_top, data.price,]
+            return all(attr)
+        elif data.__class__ in [PropertyAcquirer, CashAcquirer]:
+            attr = [data.content_type1, data.object_id1, data.content_object1, 
+                    data.content_type2, data.object_id2, data.content_object2,
+                    data.percentage]
+            return all(attr)
+        elif data.__class__ == Application:
+            if data.is_agent is not None:
+                attr = []
+                if data.is_agent == True:
+                    attr = [data.content_type, data.object_id,
+                            data.agent_name, data.agent_address, data.agent_phone_number,
+                            data.is_return, data.is_mail]
+                else:
+                    attr = [data.content_type, data.object_id, data.phone_number,
+                            data.is_return, data.is_mail]
+                return all(attr)        
+                
+        return False
+    except Exception as e:
+        logger.error(f"step_three_input_status：エラー詳細: {e}")
+        return HttpResponse("登録されているデータチェック中にエラーが発生しました。", status=500)
+        
 def get_registry_name_and_address_initial_data(data):
     """登記簿上の氏名住所の初期データ生成処理。
 
@@ -992,9 +992,97 @@ def get_acquirer_initial_data(data):
 
     return initial_data
 
-# データ登録処理
+def add_value_for_new_data(form, user, decedent):
+    if not form.decedent:
+        form.decedent = decedent
+        form.created_by = user
+        form.updated_by = user
+
+def save_step_three_registry_name_and_address(decedent, user, form_set):
+    """登記簿上の氏名住所のデータ操作
+    ・既存のデータがあるとき、更新
+    ・ないとき、新規登録
+    ・既存のデータがないとき、削除
+
+    Args:
+        decedent (_type_): _description_
+        user (_type_): _description_
+        form_set (_type_): _description_
+    """
+    target_ids = []
+    for form in form_set:
+        registry_name_and_address = form.save(commit=False)
+        if not registry_name_and_address.decedent:
+            add_value_for_new_data(registry_name_and_address, user, decedent)
+        registry_name_and_address.save()
+        target_ids.append(registry_name_and_address.id)
+    RegistryNameAndAddress.objects.filter(decedent=decedent.id).exclude(id__in=target_ids).delete()
+
+def save_step_three_descendant_or_collateral(decedent, user, form_set, content_type, relationship):
+    related_indivisual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
+    for form in form_set:
+        descendant = form.save(commit=False)
+        if form.cleaned_data.get("other_parent_name") != "" and form.cleaned_data.get("object_id2") == "":
+            related_indivisual = RelatedIndividual(
+                decedent = decedent,
+                content_type = content_type,
+                object_id = descendant.id,
+                name = form.cleaned_data.get("other_parent_name"),
+                relationship = relationship,
+                created_by = user,
+                updated_by = user,
+            )
+            related_indivisual.save()
+            descendant.content_type2 = related_indivisual_content_type
+            descendant.object_id2 = related_indivisual.id
+        descendant.save()
+
+def save_step_three_step_property(decedent, user, form_set):
+    index_and_ids = []
+    for form in form_set:
+        property = form.save(commit=False)
+        if not property.decedent:
+            add_value_for_new_data(property, user, decedent)
+        property.save()
+        index_and_ids.append((form.cleaned_data.get("index"), property.id))
+    return index_and_ids
+
+def save_step_three_acquirer(decedent, user, form_set, property_content_type, index_and_ids):
+    for form in form_set:
+        acquirer = form.save(commit=False)
+        if not acquirer.decedent:
+            add_value_for_new_data(acquirer, user, decedent)
+            acquirer.content_type1 = property_content_type
+            for idx, id in index_and_ids:
+                if acquirer.target == idx:
+                    acquirer.object_id1 = id    
+
+def save_step_three_site(decedent, user, form_set, index_and_ids):
+    for form in form_set:
+        site = form.save(commit=False)
+        if not site.decedent:
+            add_value_for_new_data(site, user, decedent)
+            for idx, id in index_and_ids:
+                if site.target == idx:
+                    site.bldg = id    
+
+def save_step_three_form(decedent, user, form):
+    instance = form.save(commit=False)
+    add_value_for_new_data(instance, user, decedent)
+    instance.save()    
+    
 def save_step_three_datas(user, forms, form_sets):
-    # すべてのデータを削除する
+    """ステップ３のデータ登録・更新処理
+
+    Args:
+        user (User): ユーザーデータ
+        forms (form[]): データ操作対象のフォームを格納した配列
+        form_sets (form_set[]): データ操作対象のフォームセットを格納した配列
+
+    Returns:
+        _type_: _description_
+    """
+
     forms_idx = {
         "decedent": 0,
         "spouse": 1,
@@ -1002,131 +1090,182 @@ def save_step_three_datas(user, forms, form_sets):
         "number_of_properties": 3,
         "application": 4,
     }
-    form_sets_idx = {
-        "registry_name_and_address": 0,
-        "child": 1,
-        "child_spouse": 2,
-        "grand_child": 3,
-        "ascendant": 4,
-        "collateral": 5,
-        "land": 6,
-        "land_acquirer": 7,
-        "land_cash_acquirer": 8,
-        "house": 9,
-        "house_acquirer": 10,
-        "house_cash_acquirer": 11,
-    }
- 
-    decedent = forms[forms_idx["decedent"]].save(commit=False)
-    decedent.progress = 4
-    decedent.save()
+    form_sets_idx = get_formsets_idx_for_step_three()
     
-    # 配偶者
-    spouse = forms[forms_idx["spouse"]].save(commit=False)
-    spouse.save()
-    
-    # 遺産分割方法、不動産の数、申請情報
-    type_of_division = forms[forms_idx["type_of_division"]].save(commit=False)
-    number_of_properties = forms[forms_idx["number_of_properties"]].save(commit=False)
-    application = forms[forms_idx["application"]].save(commit=False)
-    #新規登録のときはdecedent, created_byの登録が必要
-    if not type_of_division.decedent:
-        type_of_division.decedent = decedent
-        type_of_division.created_by = user
-        number_of_properties.decedent = decedent
-        number_of_properties.created_by = user 
-        application.decedent = decedent
-        number_of_properties.created_by = user
-    type_of_division.updated_by = user
-    type_of_division.save()
-    number_of_properties.updated_by = user
-    number_of_properties.save()
-    application.updated_by = user
-    application.save()
-    
-    # 登記簿上の氏名住所
-    RegistryNameAndAddress.objects.filter(decedent=decedent).delete()
-    for form in form_sets[form_sets_idx["registry_name_and_address"]]:
-        registry_name_and_address = form.save(commit=False)
-        registry_name_and_address.decedent = decedent
-        registry_name_and_address.created_by = user
-        registry_name_and_address.updated_by = user
-        registry_name_and_address.save()
-    
-    # 子（前配偶者がいるとき、前配偶者の新規登録又は更新をしてから更新する）
-    child_content_type = ContentType.objects.get_for_model(Descendant)
-    for form in form_sets[form_sets_idx["child"]]:
-        child = form.save(commit=False)
-        # if(form.cleaned_data.get("other_parent_name") != ""):
-        #     other_parent = 
-        child.save()
-            
-def get_data_for_step_three(decedent):
-    """_summary_
-    被相続人に紐づくステップ３で使用するデータを取得する
-    Args:
-        decedent (Decedent): 被相続人のデータ
-    """
     try:
-        registry_name_and_address_data = RegistryNameAndAddress.objects.filter(decedent=decedent)
-        spouse_data = Spouse.objects.filter(object_id=decedent.id).first()
-        child_data = Descendant.objects.filter(object_id1=decedent.id)
-        child_ids = child_data.values_list('id', flat=True)  # child_dataの各要素が持つIDのリストを取得
-        child_spouse_data = Spouse.objects.filter(object_id__in=child_ids)
-        grand_child_data = Descendant.objects.filter(object_id1__in=child_ids)
-        ascendant_data = Ascendant.objects.filter(decedent=decedent)
-        collateral_data = Collateral.objects.filter(decedent=decedent)
-        type_of_division_data = TypeOfDivision.objects.filter(decedent=decedent).first()
-        number_of_properties_data = NumberOfProperties.objects.filter(decedent=decedent).first()
-        land_data = Land.objects.filter(decedent=decedent)
+        decedent = form.save(commit=False)
+        decedent.progress = 4
+        decedent.save()
+        print("decedent:success")
+        
+        # 配偶者
+        save_step_three_form(decedent, user, forms[forms_idx["spouse"]])
+        print("spouse:success")
+        
+        # 遺産分割方法
+        save_step_three_form(decedent, user, forms[forms_idx["type_of_division"]])
+        print("type_of_division:success")
+        
+        #不動産の数
+        save_step_three_form(decedent, user, forms[forms_idx["number_of_properties"]])
+        print("number_of_properties:success")
+        
+        #申請情報
+        save_step_three_form(decedent, user, forms[forms_idx["application"]])
+        print("application:success")
+        
+        # 登記簿上の氏名住所
+        save_step_three_registry_name_and_address(decedent, user, form_sets[form_sets_idx["registry_name_and_address"]])
+        print("registry_name_and_address:success")    
+        
+        # 子（前配偶者がいるとき、前配偶者の新規登録又は更新をしてから更新する）
+        descendant_content_type = ContentType.objects.get_for_model(Descendant)
+        save_step_three_descendant_or_collateral(
+            decedent,
+            user,
+            form_sets[form_sets_idx["child"]],
+            descendant_content_type,
+            "前配偶者",
+        )
+        print("child:success")
+            
+        #子の配偶者
+        for form in form_sets[form_sets_idx["child_spouse"]]:
+            child_spouse = form.save(commit=False)
+            child_spouse.save()
+        print("child_spouse:success")
+        
+        #孫
+        save_step_three_descendant_or_collateral(
+            decedent,
+            user,
+            form_sets[form_sets_idx["grand_child"]],
+            descendant_content_type,
+            "子の前配偶者",
+        )
+        print("grand_spouse:success")
+            
+        #尊属
+        for form in form_sets[form_sets_idx["ascendant"]]:
+            ascendant = form.save(commit=False)
+            ascendant.save()
+        print("ascendant:success")
+            
+        #兄弟姉妹
+        collateral_content_type = ContentType.objects.get_for_model(Collateral)
+        save_step_three_descendant_or_collateral(
+            decedent,
+            user,
+            form_sets[form_sets_idx["collateral"]],
+            collateral_content_type,
+            "異父又は異母",
+        )
+        print("collateral:success")
+            
+        #土地
+        land_index_and_ids = save_step_three_step_property(
+            decedent,
+            user,
+            form_sets[form_sets_idx["land"]]
+            )
+        print("land:success")
+            
+        #土地取得者
         land_content_type = ContentType.objects.get_for_model(Land)
-        land_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=land_content_type)
-        land_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=land_content_type)
-        house_data = House.objects.filter(decedent=decedent)
+        save_step_three_acquirer(
+            decedent,
+            user,
+            form_sets[form_sets_idx["land_acquirer"]],
+            land_content_type,
+            land_index_and_ids,
+        )
+        print("land_acquirer:success")
+                
+        #土地金銭取得者
+        save_step_three_acquirer(
+            decedent,
+            user,
+            form_sets[form_sets_idx["land_cash_acquirer"]],
+            land_content_type,
+            land_index_and_ids,
+        )
+        print("land_cash_acquirer:success")
+        
+        #建物
+        house_index_and_ids = save_step_three_step_property(
+            decedent,
+            user,
+            form_sets[form_sets_idx["house"]]
+            )
+        print("house:success")
+        
+        #建物取得者
         house_content_type = ContentType.objects.get_for_model(House)
-        house_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=house_content_type)
-        house_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=house_content_type)
-        bldg_data = Bldg.objects.filter(decedent=decedent)
-        site_data = Site.objects.filter(decedent=decedent)
+        save_step_three_acquirer(
+            decedent,
+            user,
+            form_sets[form_sets_idx["house_acquirer"]],
+            house_content_type,
+            house_index_and_ids,
+        )
+        print("house_acquirer:success")
+        
+        #建物金銭取得者
+        save_step_three_acquirer(
+            decedent,
+            user,
+            form_sets[form_sets_idx["house_cash_acquirer"]],
+            house_content_type,
+            house_index_and_ids,
+        )
+        print("house_cash_acquirer:success")
+        
+        #区分建物
+        bldg_index_and_ids = save_step_three_step_property(
+            decedent,
+            user,
+            form_sets[form_sets_idx["bldg"]]
+            )
+        print("bldg:success")
+        
+        #敷地権
+        save_step_three_site(
+            decedent,
+            user,
+            form_sets[form_sets_idx["site"]],
+            bldg_index_and_ids,
+        )
+        
+        #区分建物取得者
         bldg_content_type = ContentType.objects.get_for_model(Bldg)
-        bldg_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=bldg_content_type)
-        bldg_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=bldg_content_type)
-        application_data = Application.objects.filter(decedent=decedent).first()
-        return [registry_name_and_address_data,
-                spouse_data, child_data, child_spouse_data, grand_child_data, ascendant_data, collateral_data,
-                type_of_division_data,
-                number_of_properties_data,
-                land_data, land_acquirer_data, land_cash_acquirer_data,
-                house_data, house_acquirer_data, house_cash_acquirer_data,
-                bldg_data, site_data, bldg_acquirer_data, bldg_cash_acquirer_data,
-                application_data,]
-    except MultipleObjectsReturned:
-        logger.error(f"get_data_for_step_three：重複データが存在します")
-        return HttpResponse("データ取得中にエラーが発生しました。", status=500)
+        save_step_three_acquirer(
+            decedent,
+            user,
+            form_sets[form_sets_idx["bldg_acquirer"]],
+            bldg_content_type,
+            bldg_index_and_ids,
+        )
+        print("bldg_acquirer:success")
+        
+        #区分建物金銭取得者
+        save_step_three_acquirer(
+            decedent,
+            user,
+            form_sets[form_sets_idx["bldg_cash_acquirer"]],
+            bldg_content_type,
+            bldg_index_and_ids,
+        )
+        print("bldg_cash_acquirer:success")        
     except DatabaseError as e:
-        logger.error(f"get_data_for_step_three：データベースでの処理中にエラーが発生しました: {e}")
+        logger.error(f"save_step_three_datas：データベース処理でエラー発生: {e}")
         redirect(to='/toukiApp/step_three/')
     except Exception as e:
-        logger.error(f"get_data_for_step_three：Unexpected error occurred: {e}")
-        return HttpResponse("データ取得中にエラーが発生しました。", status=500)
-               
-#メイン
-def step_three(request):
-    #ログインユーザー以外はログインページに遷移させる
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-    
-    #ユーザーに紐づく被相続人データを取得する
-    user = User.objects.get(email = request.user)
-    decedent = user.decedent.first()
-    
-    #被相続人データがないときは、ステップ１に遷移させる
-    if not decedent:
-        redirect(to='/toukiApp/step_one/')
-    
-    #被相続人に紐づくデータを取得する
-    data = get_data_for_step_three(decedent)
-    data_idx = {
+        logger.error(f"save_step_three_datas：エラー詳細: {e}")
+        return HttpResponse("データ登録中にエラーが発生しました。", status=500)
+        
+
+def get_data_idx_for_step_three():
+    idxs = {
         "registry_name_and_address": 0,
         "spouse": 1,
         "child": 2,
@@ -1148,400 +1287,596 @@ def step_three(request):
         "bldg_cash_acquirer": 18,
         "application": 19,
     }
-    
-    #フォームセット
-    registry_name_and_address_form_set = formset_factory(form=StepThreeRegistryNameAndAddressForm, extra=1, max_num=10)
-    child_form_set = formset_factory(form=StepThreeDescendantForm, extra=0, max_num=15)
-    child_spouse_form_set = formset_factory(form=StepThreeSpouseForm, extra=0, max_num=15)
-    grand_child_form_set = formset_factory(form=StepThreeDescendantForm, extra=0, max_num=15)
-    ascendant_form_set = formset_factory(form=StepThreeAscendantForm, extra=0, max_num=15)
-    collateral_form_set = formset_factory(form=StepThreeCollateralForm, extra=0, max_num=15)
-    land_form_set = formset_factory(form=StepThreeLandForm, extra=1, max_num=20)
-    land_acquirer_form_set = formset_factory(form=StepThreeLandAcquirerForm, extra=1, max_num=20)
-    land_cash_acquirer_form_set = formset_factory(form=StepThreeLandCashAcquirerForm, extra=1, max_num=20)
-    house_form_set = formset_factory(form=StepThreeHouseForm, extra=1, max_num=20)
-    house_acquirer_form_set = formset_factory(form=StepThreeHouseAcquirerForm, extra=1, max_num=20)
-    house_cash_acquirer_form_set = formset_factory(form=StepThreeHouseCashAcquirerForm, extra=1, max_num=20)
-    bldg_form_set = formset_factory(form=StepThreeBldgForm, extra=1, max_num=20)
-    site_form_set = formset_factory(form=StepThreeSiteForm, extra=1, max_num=20)
-    bldg_acquirer_form_set = formset_factory(form=StepThreeBldgAcquirerForm, extra=1, max_num=20)
-    bldg_cash_acquirer_form_set = formset_factory(form=StepThreeBldgCashAcquirerForm, extra=1, max_num=20)
-    
-    #フォームからデータがPOSTされたとき
-    if request.method == "POST":
-        if request.user != decedent.user:
-            messages.error(request, 'アカウントデータが一致しません。')
-            return redirect('/toukiApp/index')
-            
-        forms = [
-            StepThreeDecedentForm(request.POST, prefix="decedent"),
-            StepThreeSpouseForm(request.POST, prefix="spouse"),
-            StepThreeTypeOfDivisionForm(request.POST, prefix="type_of_division"),
-            StepThreeNumberOfPropertiesForm(request.POST, prefix="number_of_properties"),
-            StepThreeApplicationForm(request.POST, prefix="application"),
-        ]
-        form_sets = [
-            registry_name_and_address_form_set(request.POST or None, prefix="registry_name_and_address"),
-            child_form_set(request.POST or None, prefix="child"),
-            child_spouse_form_set(request.POST or None, prefix="child_spouse"),
-            grand_child_form_set(request.POST or None, prefix="grand_child"),
-            ascendant_form_set(request.POST or None, prefix="ascendant"),
-            collateral_form_set(request.POST or None, prefix="collateral"),
-            land_form_set(request.POST or None, prefix="land"),
-            land_acquirer_form_set(request.POST or None, prefix="land_acquirer"),
-            land_cash_acquirer_form_set(request.POST or None, prefix="land_cash_acquirer"),
-            house_form_set(request.POST or None, prefix="house"),
-            house_acquirer_form_set(request.POST or None, prefix="house_acquirer"),
-            house_cash_acquirer_form_set(request.POST or None, prefix="house_cash_acquirer"),
-            bldg_form_set(request.POST or None, prefix="bldg"),
-            site_form_set(request.POST or None, prefix="site"),
-            bldg_acquirer_form_set(request.POST or None, prefix="bldg_acquirer"),
-            bldg_cash_acquirer_form_set(request.POST or None, prefix="bldg_cash_acquirer"),
-        ]
+    return idxs
 
-        if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
-            for form in forms:
-                if not form.is_valid():
-                    print(f"Form {form} errors: {form.errors}")
-            for form_set in form_sets:
-                if not form_set.is_valid():
-                    print(f"Formset {form_set} errors: {form_set.errors}")
-            return redirect('/toukiApp/step_three')
-        else:
-            print("success")
-            return
-        # if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
-        #     try:
-        #         with transaction.atomic():
-        #             save_step_three_datas(user, forms, form_sets)
-        #     except Exception as e:
-        #         # ログにエラーメッセージを記録します
-        #         print(f"Error occurred: {e}")
-        #         # ユーザーにエラーが発生したことを通知します
-        #         messages.error(request, 'データの保存中にエラーが発生しました。')
-        #         return redirect('/toukiApp/step_three')
-        #     else:
-        #         return redirect('/toukiApp/step_four')
-        # else:
-        #     for form in forms:
-        #         if not form.is_valid():
-        #             print(f"Form {form} errors: {form.errors}")
-        #     for form_set in form_sets:
-        #         if not form_set.is_valid():
-        #             print(f"Formset {form_set} errors: {form_set.errors}")
-        #     return redirect('/toukiApp/step_three')
-    
-    #入力が完了している項目を取得するための配列
-    user_data_scope = [] 
-    progress = decedent.progress
-    #被相続人のデータを初期値にセットしたフォーム
-    decedent_form = StepThreeDecedentForm(prefix="decedent", instance=decedent)
-    #被相続人データのうちhtmlには表示しない内部データ
-    decedent_form_internal_field_name = ["user", "progress"]
-    
-    #登記簿上の氏名住所のデータを取得してデータがあるとき
-    registry_name_and_address_data = data[data_idx["registry_name_and_address"]]
-    if registry_name_and_address_data.exists():
-        #余分なフォームを消すためにextraを0に変更して、初期値を与える
-        registry_name_and_address_form_set = formset_factory(
-            form=StepThreeRegistryNameAndAddressForm, 
-            extra=0, 
-            max_num=10
-        )
-        registry_name_and_address_forms = registry_name_and_address_form_set(
-            initial = get_registry_name_and_address_initial_data(registry_name_and_address_data),
-            prefix="registry_name_and_address"
-        )
-        #被相続人情報の入力状況チェック
-        if step_three_input_status(decedent):
-            user_data_scope.append("decedent")
-        #登記簿上の氏名住所の入力状況チェック
-        if step_three_input_status(registry_name_and_address_data):
-            user_data_scope.append("registry_name_and_address")
-    #ないとき    
-    else:
-        registry_name_and_address_forms = registry_name_and_address_form_set(prefix="registry_name_and_address")
-    #配偶者
-    spouse_data = data[data_idx["spouse"]]
-    if spouse_data:
-        spouse_form = StepThreeSpouseForm(prefix="spouse", instance=spouse_data)
-        if step_three_input_status(spouse_data):
-            user_data_scope.append("spouse")
-    else:
-        spouse_form = StepThreeSpouseForm(prefix="spouse")
-    #子
-    child_data = data[data_idx["child"]]
-    if child_data.exists():
-        child_forms = child_form_set(
-            initial=get_descendant_or_collateral_initial_data(child_data, Descendant),
-            prefix="child"
-        )
-        if step_three_input_status(child_data):
-            user_data_scope.append("child")
-    else:
-        child_forms = child_form_set(prefix="child")
-    #子の配偶者
-    child_spouse_data = data[data_idx["child_spouse"]]
-    if child_spouse_data.exists():
-        child_spouse_forms = child_spouse_form_set(
-            initial=get_spouse_or_ascendant_initial_data(child_spouse_data), 
-            prefix="child_spouse")
-        if step_three_input_status(child_spouse_data):
-            user_data_scope.append("child_spouse")
-    else:
-        child_spouse_forms = child_spouse_form_set(prefix="child")
-    #孫
-    grand_child_data = data[data_idx["grand_child"]]
-    if grand_child_data.exists():
-        grand_child_forms = grand_child_form_set(
-            initial=get_descendant_or_collateral_initial_data(grand_child_data, Descendant),
-            prefix="grand_child"
-        )
-        if step_three_input_status(grand_child_data):
-            user_data_scope.append("grand_child")
-    else:
-        grand_child_forms = grand_child_form_set(prefix="grand_child")
-    #尊属
-    ascendant_data = data[data_idx["ascendant"]]
-    if ascendant_data.exists():
-        ascendant_forms = ascendant_form_set(
-            initial=get_spouse_or_ascendant_initial_data(ascendant_data),
-            prefix="ascendant")
-        if step_three_input_status(ascendant_data):
-            user_data_scope.append("ascendant")
-    else:
-        ascendant_forms = ascendant_form_set(prefix="ascendant")
-    #兄弟姉妹
-    collateral_data = data[data_idx["collateral"]]
-    if collateral_data.exists():
-        collateral_forms = collateral_form_set(
-            initial=get_descendant_or_collateral_initial_data(collateral_data, Collateral),
-            prefix="collateral"
-        )
-        if step_three_input_status(collateral_data):
-            user_data_scope.append("collateral")
-    else:
-        collateral_forms = collateral_form_set(prefix="collateral")
-    #遺産分割方法
-    type_of_division_data = data[data_idx["type_of_division"]]
-    if type_of_division_data:
-        type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division", instance=type_of_division_data)
-        if step_three_input_status(type_of_division_data):
-            user_data_scope.append("type_of_division")
-    else:
-        type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division")
-    #不動産の数
-    number_of_properties_data = data[data_idx["number_of_properties"]]
-    if number_of_properties_data:
-        number_of_properties_form = StepThreeNumberOfPropertiesForm(prefix="number_of_properties", instance=number_of_properties_data)
-        if step_three_input_status(number_of_properties_data):
-            user_data_scope.append("number_of_properties")
-    else:
-        number_of_properties_form = StepThreeNumberOfPropertiesForm(prefix="number_of_properties")
-    #土地
-    land_data = data[data_idx["land"]]
-    if land_data.exists():
-        land_form_set = formset_factory(
-            form=StepThreeLandForm,
-            extra=0,
-            max_num=20
-        )
-        land_forms = land_form_set(
-            initial=get_property_initial_data(land_data),
-            prefix="land"
-        )
-        if step_three_input_status(land_data):
-            user_data_scope.append("land")
-    else:
-        land_forms = land_form_set(prefix="land")
-        
-    #土地取得者
-    land_acquirer_data = data[data_idx["land_acquirer"]]
-    if land_acquirer_data.exists():
-        land_acquirer_form_set = formset_factory(
-            form=StepThreeLandAcquirerForm,
-            extra=0,
-            max_num=20
-        )
-        land_acquirer_forms = land_acquirer_form_set(
-            initial=get_acquirer_initial_data(land_acquirer_data), 
-            prefix="land_acquirer"
-        )
-        if step_three_input_status(land_acquirer_data):
-            user_data_scope.append("land_acquirer")
-    else:
-        land_acquirer_forms = land_acquirer_form_set(prefix="land_acquirer")
-        
-    #土地金銭取得者
-    land_cash_acquirer_data = data[data_idx["land_cash_acquirer"]]
-    if land_cash_acquirer_data.exists():
-        land_cash_acquirer_form_set = formset_factory(
-            form=StepThreeLandCashAcquirerForm,
-            extra=0,
-            max_num=20
-        )
-        land_cash_acquirer_forms = land_cash_acquirer_form_set(
-            initial=get_acquirer_initial_data(land_cash_acquirer_data),
-            prefix="land_cash_acquirer"
-        )
-        if step_three_input_status(land_cash_acquirer_data):
-            user_data_scope.append("land_cash_acquirer")
-    else:
-        land_cash_acquirer_forms = land_cash_acquirer_form_set(prefix="land_cash_acquirer")
-    #建物
-    house_data = data[data_idx["house"]]
-    if house_data.exists():
-        house_form_set = formset_factory(
-            form=StepThreeHouseForm,
-            extra=0,
-            max_num=20
-        )
-        house_forms = house_form_set(
-            initial=get_property_initial_data(house_data),
-            prefix="house"
-        )
-        if step_three_input_status(house_data):
-            user_data_scope.append("house")
-    else:
-        house_forms = house_form_set(prefix="house")
-    #建物取得者
-    house_acquirer_data = data[data_idx["house_acquirer"]]
-    if house_acquirer_data.exists():
-        house_acquirer_form_set = formset_factory(
-            form=StepThreeHouseAcquirerForm,
-            extra=0,
-            max_num=20
-        )
-        house_acquirer_forms = house_acquirer_form_set(
-            initial=get_acquirer_initial_data(house_acquirer_data),
-            prefix="house_acquirer"
-        )
-        if step_three_input_status(house_acquirer_data):
-            user_data_scope.append("house_acquirer")
-    else:
-        house_acquirer_forms = house_acquirer_form_set(prefix="house_acquirer")
-      
-    #建物金銭取得者
-    house_cash_acquirer_data = data[data_idx["house_cash_acquirer"]]
-    if house_cash_acquirer_data.exists():
-        house_cash_acquirer_form_set = formset_factory(
-            form=StepThreeHouseCashAcquirerForm, 
-            extra=0,
-            max_num=20
-        )
-        house_cash_acquirer_forms = house_cash_acquirer_form_set(
-            initial=get_acquirer_initial_data(house_cash_acquirer_data),
-            prefix="house_cash_acquirer"
-        )
-        if step_three_input_status(house_cash_acquirer_data):
-            user_data_scope.append("house_cash_acquirer")
-    else:
-        house_cash_acquirer_forms = house_cash_acquirer_form_set(prefix="house_cash_acquirer")    
-    #区分建物
-    bldg_data = data[data_idx["bldg"]]
-    if bldg_data.exists():
-        bldg_form_set = formset_factory(
-            form=StepThreeBldgForm,
-            extra=0,
-            max_num=20
-        )
-        bldg_forms = bldg_form_set(
-            initial=get_property_initial_data(bldg_data), 
-            prefix="bldg"
-        )
-        if step_three_input_status(bldg_data):
-            user_data_scope.append("bldg")
-    else:
-        bldg_forms = bldg_form_set(prefix="bldg")
-    #敷地権
-    site_data = data[data_idx["site"]]
-    if site_data.exists():
-        site_form_set = formset_factory(
-            form=StepThreeSiteForm,
-            extra=0,
-            max_num=20
-        )
-        site_forms = site_form_set(
-            initial=get_property_initial_data(site_data),
-            prefix="site"
-        )
-        if step_three_input_status(site_data):
-            user_data_scope.append("site")
-    else:
-        site_forms = site_form_set(prefix="site")
-    #区分建物取得者
-    bldg_acquirer_data = data[data_idx["bldg_acquirer"]]
-    if bldg_acquirer_data.exists():
-        bldg_acquirer_form_set = formset_factory(
-            form=StepThreeBldgAcquirerForm,
-            extra=0,
-            max_num=20
-        )
-        bldg_acquirer_forms = bldg_acquirer_form_set(
-            initial=get_acquirer_initial_data(bldg_acquirer_data),
-            prefix="bldg_acquirer"
-        )
-        if step_three_input_status(bldg_acquirer_data):
-            user_data_scope.append("bldg_acquirer")
-    else:
-        bldg_acquirer_forms = bldg_acquirer_form_set(prefix="bldg_acquirer")
-    #区分建物金銭取得者
-    bldg_cash_acquirer_data = data[data_idx["bldg_cash_acquirer"]]
-    if bldg_cash_acquirer_data.exists():
-        bldg_cash_acquirer_form_set = formset_factory(
-            form=StepThreeBldgCashAcquirerForm, 
-            extra=0,
-            max_num=20
-        )
-        bldg_cash_acquirer_forms = bldg_cash_acquirer_form_set(
-            initial=get_acquirer_initial_data(bldg_cash_acquirer_data),
-            prefix="bldg_cash_acquirer"
-        )
-        if step_three_input_status(bldg_cash_acquirer_data):
-            user_data_scope.append("bldg_cash_acquirer")
-    else:
-        bldg_cash_acquirer_forms = bldg_cash_acquirer_form_set(prefix="bldg_cash_acquirer")
-    #申請情報
-    application_data = data[data_idx["application"]]
-    if application_data:
-        application_form = StepThreeApplicationForm(prefix="application", instance=application_data)
-        if step_three_input_status(application_data):
-            user_data_scope.append("application")
-    else:
-        application_form = StepThreeApplicationForm(prefix="application")
+def get_data_for_step_three(decedent):
+    """_summary_
+    被相続人に紐づくステップ３で使用するデータを取得する
+    Args:
+        decedent (Decedent): 被相続人のデータ
+    """
+    try:
+        registry_name_and_address_data = RegistryNameAndAddress.objects.filter(decedent=decedent).order_by('id')
+        spouse_data = Spouse.objects.filter(object_id=decedent.id).first()
+        child_data = Descendant.objects.filter(object_id1=decedent.id).order_by('id')
+        child_ids = child_data.values_list('id', flat=True)  # child_dataの各要素が持つIDのリストを取得
+        child_spouse_data = Spouse.objects.filter(object_id__in=child_ids).order_by('id')
+        grand_child_data = Descendant.objects.filter(object_id1__in=child_ids).order_by('id')
+        ascendant_data = Ascendant.objects.filter(decedent=decedent).order_by('id')
+        collateral_data = Collateral.objects.filter(decedent=decedent).order_by('id')
+        type_of_division_data = TypeOfDivision.objects.filter(decedent=decedent).first()
+        number_of_properties_data = NumberOfProperties.objects.filter(decedent=decedent).first()
+        land_data = Land.objects.filter(decedent=decedent).order_by('id')
+        land_content_type = ContentType.objects.get_for_model(Land)
+        land_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=land_content_type).order_by('id')
+        land_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=land_content_type).order_by('id')
+        house_data = House.objects.filter(decedent=decedent).order_by('id')
+        house_content_type = ContentType.objects.get_for_model(House)
+        house_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=house_content_type).order_by('id')
+        house_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=house_content_type).order_by('id')
+        bldg_data = Bldg.objects.filter(decedent=decedent).order_by('id')
+        site_data = Site.objects.filter(decedent=decedent).order_by('id')
+        bldg_content_type = ContentType.objects.get_for_model(Bldg)
+        bldg_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent, content_type1=bldg_content_type).order_by('id')
+        bldg_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=bldg_content_type).order_by('id')
+        application_data = Application.objects.filter(decedent=decedent).first()
+        return [
+            registry_name_and_address_data,
+            spouse_data, child_data, child_spouse_data, grand_child_data, ascendant_data, collateral_data,
+            type_of_division_data,
+            number_of_properties_data,
+            land_data, land_acquirer_data, land_cash_acquirer_data,
+            house_data, house_acquirer_data, house_cash_acquirer_data,
+            bldg_data, site_data, bldg_acquirer_data, bldg_cash_acquirer_data,
+            application_data,
+        ]
+    except MultipleObjectsReturned:
+        logger.error(f"get_data_for_step_three：重複データが存在します")
+        return HttpResponse("get_data_for_step_three：重複データが存在します。", status=500)
+    except DatabaseError as e:
+        logger.error(f"get_data_for_step_three：データベースでの処理中にエラーが発生しました: {e}")
+        redirect(to='/toukiApp/step_three/')
+    except Exception as e:
+        logger.error(f"get_data_for_step_three：エラー詳細: {e}")
+        return HttpResponse(f"get_data_for_step_three： {e}", status=500)
 
-    context = {
-        "title" : "３．データ入力",
-        "progress": progress,
-        "user" : user,
-        "user_data_scope": user_data_scope,
-        "decedent": decedent,
-        "decedent_form": decedent_form,
-        "decedent_form_internal_field_name": decedent_form_internal_field_name,
-        "registry_name_and_address_forms": registry_name_and_address_forms,
-        "spouse_form": spouse_form,
-        "child_forms": child_forms,
-        "child_spouse_forms": child_spouse_forms,
-        "grand_child_forms": grand_child_forms,
-        "ascendant_forms": ascendant_forms,
-        "collateral_forms": collateral_forms,
-        "type_of_division_form": type_of_division_form,
-        "number_of_properties_form": number_of_properties_form,
-        "land_forms": land_forms,
-        "land_acquirer_forms": land_acquirer_forms,
-        "land_cash_acquirer_forms": land_cash_acquirer_forms,
-        "house_forms": house_forms,
-        "house_acquirer_forms": house_acquirer_forms,
-        "house_cash_acquirer_forms": house_cash_acquirer_forms,
-        "bldg_forms": bldg_forms,
-        "site_forms": site_forms,
-        "bldg_acquirer_forms": bldg_acquirer_forms,
-        "bldg_cash_acquirer_forms": bldg_cash_acquirer_forms,
-        "application_form": application_form,
-        "sections" : Sections.SECTIONS[Sections.STEP3],
-        "service_content" : Sections.SERVICE_CONTENT,
+step_three_formset_configuration = [
+    (StepThreeRegistryNameAndAddressForm, 1, 10),
+    (StepThreeDescendantForm, 0, 15),
+    (StepThreeSpouseForm, 0, 15),
+    (StepThreeDescendantForm, 0, 15),
+    (StepThreeAscendantForm, 0, 15),
+    (StepThreeCollateralForm, 0, 15),
+    (StepThreeLandForm, 1, 20),
+    (StepThreeLandAcquirerForm, 1, 20),
+    (StepThreeLandCashAcquirerForm, 1, 20),
+    (StepThreeHouseForm, 1, 20),
+    (StepThreeHouseAcquirerForm, 1, 20),
+    (StepThreeHouseCashAcquirerForm, 1, 20),
+    (StepThreeBldgForm, 1, 20),
+    (StepThreeSiteForm, 1, 20),
+    (StepThreeBldgAcquirerForm, 1, 20),
+    (StepThreeBldgCashAcquirerForm, 1, 20),    
+]
+
+def create_formset(form, extra, max_num):
+    return formset_factory(form=form, extra=extra, max_num=max_num)
+
+def get_formsets_for_step_three():
+    form_sets = [create_formset(form, extra, max_num) for form, extra, max_num in step_three_formset_configuration]
+    return form_sets
+
+def get_forms_for_step_three_post(request, decedent, data, data_idx):
+    forms = [
+        StepThreeDecedentForm(
+            request.POST or None,
+            prefix="decedent",
+            instance=decedent,
+        ),
+        StepThreeSpouseForm(
+            request.POST or None,
+            prefix="spouse",
+            instance=data[data_idx["spouse"]] if data[data_idx["spouse"]] else None,
+        ),
+        StepThreeTypeOfDivisionForm(
+            request.POST or None,
+            prefix="type_of_division",
+            instance=data[data_idx["type_of_division"]] if data[data_idx["type_of_division"]] else None,
+        ),
+        StepThreeNumberOfPropertiesForm(
+            request.POST or None,
+            prefix="number_of_properties",
+            instance=data[data_idx["number_of_properties"]] if data[data_idx["number_of_properties"]] else None,
+        ),
+        StepThreeApplicationForm(
+            request.POST or None,
+            prefix="application",
+            instance=data[data_idx["application"]] if data[data_idx["application"]] else None,
+        ),
+    ]    
+    return forms
+
+def get_formsets_idx_for_step_three():
+    idxs = {
+        "registry_name_and_address": 0,
+        "child": 1,
+        "child_spouse": 2,
+        "grand_child": 3,
+        "ascendant": 4,
+        "collateral": 5,
+        "land": 6,
+        "land_acquirer": 7,
+        "land_cash_acquirer": 8,
+        "house": 9,
+        "house_acquirer": 10,
+        "house_cash_acquirer": 11,
+        "bldg": 12,
+        "site": 13,
+        "bldg_acquirer": 14,
+        "bldg_cash_acquirer": 15,
     }
-    return render(request, "toukiApp/step_three.html", context)
+    return idxs
+
+def get_form_sets_for_step_three_post(request, form_sets, form_sets_idxs, data, data_idxs):
+    form_sets =[
+        form_sets[form_sets_idxs["registry_name_and_address"]](
+            request.POST or None,
+            initial=get_registry_name_and_address_initial_data(data[data_idxs["registry_name_and_address"]]),
+            prefix="registry_name_and_address",
+        ),
+        form_sets[form_sets_idxs["child"]](
+            request.POST or None,
+            initial=get_descendant_or_collateral_initial_data(data[data_idxs["child"]], Descendant),
+            prefix="child",
+        ),
+        form_sets[form_sets_idxs["child_spouse"]](
+            request.POST or None,
+            initial=get_spouse_or_ascendant_initial_data(data[data_idxs["child_spouse"]]),
+            prefix="child_spouse",
+        ),
+        form_sets[form_sets_idxs["grand_child"]](
+            request.POST or None,
+            initial=get_descendant_or_collateral_initial_data(data[data_idxs["grand_child"]], Descendant),
+            prefix="grand_child",
+        ),
+        form_sets[form_sets_idxs["ascendant"]](
+            request.POST or None,
+            initial=get_spouse_or_ascendant_initial_data(data[data_idxs["ascendant"]]),
+            prefix="ascendant",
+        ),
+        form_sets[form_sets_idxs["collateral"]](
+            request.POST or None,
+            initial=get_descendant_or_collateral_initial_data(data[data_idxs["collateral"]], Collateral),
+            prefix="collateral",
+        ),
+        form_sets[form_sets_idxs["land"]](
+            request.POST or None,
+            initial=get_property_initial_data(data[data_idxs["land"]]),
+            prefix="land",
+        ),
+        form_sets[form_sets_idxs["land_acquirer"]](
+            request.POST or None,
+            initial=get_acquirer_initial_data(data[data_idxs["land_acquirer"]]), 
+            prefix="land_acquirer",
+        ),
+        form_sets[form_sets_idxs["land_cash_acquirer"]](
+            request.POST or None,
+            initial=get_acquirer_initial_data(data[data_idxs["land_cash_acquirer"]]), 
+            prefix="land_cash_acquirer",
+        ),
+        form_sets[form_sets_idxs["house"]](
+            request.POST or None,
+            initial=get_property_initial_data(data[data_idxs["house"]]),
+            prefix="house",
+        ),
+        form_sets[form_sets_idxs["house_acquirer"]](
+            request.POST or None,
+            initial=get_acquirer_initial_data(data[data_idxs["house_acquirer"]]),
+            prefix="house_acquirer",
+        ),
+        form_sets[form_sets_idxs["house_cash_acquirer"]](
+            request.POST or None,
+            initial=get_acquirer_initial_data(data[data_idxs["house_cash_acquirer"]]),
+            prefix="house_cash_acquirer",
+        ),
+        form_sets[form_sets_idxs["bldg"]](
+            request.POST or None,
+            initial=get_property_initial_data(data[data_idxs["bldg"]]), 
+            prefix="bldg",
+        ),
+        form_sets[form_sets_idxs["site"]](
+            request.POST or None,
+            initial=get_property_initial_data(data[data_idxs["site"]]),
+            prefix="site",
+        ),
+        form_sets[form_sets_idxs["bldg_acquirer"]](
+            request.POST or None, 
+            initial=get_acquirer_initial_data(data[data_idxs["bldg_acquirer"]]),
+            prefix="bldg_acquirer",
+        ),
+        form_sets[form_sets_idxs["bldg_cash_acquirer"]](
+            request.POST or None, 
+            initial=get_acquirer_initial_data(data[data_idxs["bldg_cash_acquirer"]]),
+            prefix="bldg_cash_acquirer",
+        ),
+    ]    
+    return form_sets
+
+#メイン
+def step_three(request):
+    try:
+        #ログインユーザー以外はログインページに遷移させる
+        if not request.user.is_authenticated:
+            return redirect(to='/account/login/')
+        
+        #ユーザーに紐づく被相続人データを取得する
+        user = User.objects.get(email = request.user)
+        decedent = user.decedent.first()
+        
+        #被相続人データがないときは、ステップ１に遷移させる
+        if not decedent:
+            return redirect(to='/toukiApp/step_one/')
+        
+        #被相続人に紐づくデータを取得する
+        data = get_data_for_step_three(decedent)
+        data_idx = get_data_idx_for_step_three()
+        
+        #フォームセットを生成
+        form_sets = get_formsets_for_step_three()
+        form_sets_idx = get_formsets_idx_for_step_three()
+        
+        #フォームからデータがPOSTされたとき
+        if request.method == "POST":
+            if request.user != decedent.user:
+                messages.error(request, 'アカウントデータが一致しません。')
+                return redirect('/toukiApp/index')
+            #フォームセットの属性を更新
+            forms = get_forms_for_step_three_post(request, decedent, data, data_idx)
+            form_sets = get_form_sets_for_step_three_post(request, form_sets, form_sets_idx, data, data_idx)
+
+            # if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
+            #     for form in forms:
+            #         if not form.is_valid():
+            #             print(f"Form {form} errors: {form.errors}")
+            #     for form_set in form_sets:
+            #         if not form_set.is_valid():
+            #             print(f"Formset {form_set} errors: {form_set.errors}")
+            #     return redirect('/toukiApp/step_three')
+            # else:
+            #     return redirect('/toukiApp/step_four')
+            if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
+                try:
+                    with transaction.atomic():
+                        save_step_three_datas(user, forms, form_sets, )
+                except Exception as e:
+                    logger.error(f"step_three：エラー発生\n被相続人id: {decedent.id}\n詳細：{e}")
+                    messages.error(request, 'データ登録中にエラーが発生しました。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+                    return redirect('/toukiApp/step_three')
+                else:
+                    return redirect('/toukiApp/step_four')
+            else:
+                for form in forms:
+                    if not form.is_valid():
+                        logger.error(f"step_three：formバリデーションに失敗\n被相続人id: {decedent.id}\n詳細：Form {form} errors: {form.errors}")
+                for form_set in form_sets:
+                    if not form_set.is_valid():
+                        logger.error(f"step_three：form_setバリデーションに失敗\n被相続人id: {decedent.id}\n詳細：Formset {form_set} errors: {form_set.errors}")
+                return redirect('/toukiApp/step_three')
+        
+        #入力が完了している項目を取得するための配列
+        user_data_scope = [] 
+        progress = decedent.progress
+        #被相続人のデータを初期値にセットしたフォーム
+        decedent_form = StepThreeDecedentForm(prefix="decedent", instance=decedent)
+        #被相続人データのうちhtmlには表示しない内部データ
+        decedent_form_internal_field_name = ["user", "progress"]
+        
+        #登記簿上の氏名住所のデータを取得してデータがあるとき
+        registry_name_and_address_data = data[data_idx["registry_name_and_address"]]
+        if registry_name_and_address_data.exists():
+            #余分なフォームを消すためにextraを0に変更して、初期値を与える
+            form_set = formset_factory(
+                form=StepThreeRegistryNameAndAddressForm, 
+                extra=0, 
+                max_num=10
+            )
+            registry_name_and_address_forms = form_set(
+                initial = get_registry_name_and_address_initial_data(registry_name_and_address_data),
+                prefix="registry_name_and_address"
+            )
+            #被相続人情報の入力状況チェック
+            if step_three_input_status(decedent):
+                user_data_scope.append("decedent")
+            #登記簿上の氏名住所の入力状況チェック
+            if step_three_input_status(registry_name_and_address_data):
+                user_data_scope.append("registry_name_and_address")
+        #ないとき    
+        else:
+            registry_name_and_address_forms = form_sets[form_sets_idx["registry_name_and_address"]](prefix="registry_name_and_address")
+        #配偶者
+        spouse_data = data[data_idx["spouse"]]
+        if spouse_data:
+            spouse_form = StepThreeSpouseForm(prefix="spouse", instance=spouse_data)
+            if step_three_input_status(spouse_data):
+                user_data_scope.append("spouse")
+        else:
+            spouse_form = StepThreeSpouseForm(prefix="spouse")
+        #子
+        child_data = data[data_idx["child"]]
+        if child_data.exists():
+            child_forms = form_sets[form_sets_idx["child"]](
+                initial=get_descendant_or_collateral_initial_data(child_data, Descendant),
+                prefix="child"
+            )
+            if step_three_input_status(child_data):
+                user_data_scope.append("child")
+        else:
+            child_forms = form_sets[form_sets_idx["child"]](prefix="child")
+        #子の配偶者
+        child_spouse_data = data[data_idx["child_spouse"]]
+        if child_spouse_data.exists():
+            child_spouse_forms = form_sets[form_sets_idx["child_spouse"]](
+                initial=get_spouse_or_ascendant_initial_data(child_spouse_data), 
+                prefix="child_spouse")
+            if step_three_input_status(child_spouse_data):
+                user_data_scope.append("child_spouse")
+        else:
+            child_spouse_forms = form_sets[form_sets_idx["child_spouse"]](prefix="child")
+        #孫
+        grand_child_data = data[data_idx["grand_child"]]
+        if grand_child_data.exists():
+            grand_child_forms = form_sets[form_sets_idx["grand_child"]](
+                initial=get_descendant_or_collateral_initial_data(grand_child_data, Descendant),
+                prefix="grand_child"
+            )
+            if step_three_input_status(grand_child_data):
+                user_data_scope.append("grand_child")
+        else:
+            grand_child_forms = form_sets[form_sets_idx["grand_child"]](prefix="grand_child")
+        #尊属
+        ascendant_data = data[data_idx["ascendant"]]
+        if ascendant_data.exists():
+            ascendant_forms = form_sets[form_sets_idx["ascendant"]](
+                initial=get_spouse_or_ascendant_initial_data(ascendant_data),
+                prefix="ascendant")
+            if step_three_input_status(ascendant_data):
+                user_data_scope.append("ascendant")
+        else:
+            ascendant_forms = form_sets[form_sets_idx["ascendant"]](prefix="ascendant")
+        #兄弟姉妹
+        collateral_data = data[data_idx["collateral"]]
+        if collateral_data.exists():
+            collateral_forms = form_sets[form_sets_idx["collateral"]](
+                initial=get_descendant_or_collateral_initial_data(collateral_data, Collateral),
+                prefix="collateral"
+            )
+            if step_three_input_status(collateral_data):
+                user_data_scope.append("collateral")
+        else:
+            collateral_forms = form_sets[form_sets_idx["collateral"]](prefix="collateral")
+        #遺産分割方法
+        type_of_division_data = data[data_idx["type_of_division"]]
+        if type_of_division_data:
+            type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division", instance=type_of_division_data)
+            if step_three_input_status(type_of_division_data):
+                user_data_scope.append("type_of_division")
+        else:
+            type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division")
+        #不動産の数
+        number_of_properties_data = data[data_idx["number_of_properties"]]
+        if number_of_properties_data:
+            number_of_properties_form = StepThreeNumberOfPropertiesForm(prefix="number_of_properties", instance=number_of_properties_data)
+            if step_three_input_status(number_of_properties_data):
+                user_data_scope.append("number_of_properties")
+        else:
+            number_of_properties_form = StepThreeNumberOfPropertiesForm(prefix="number_of_properties")
+        #土地
+        land_data = data[data_idx["land"]]
+        if land_data.exists():
+            form_set = formset_factory(
+                form=StepThreeLandForm,
+                extra=0,
+                max_num=20
+            )
+            land_forms = form_set(
+                initial=get_property_initial_data(land_data),
+                prefix="land"
+            )
+            if step_three_input_status(land_data):
+                user_data_scope.append("land")
+        else:
+            land_forms = form_sets[form_sets_idx["land"]](prefix="land")
+            
+        #土地取得者
+        land_acquirer_data = data[data_idx["land_acquirer"]]
+        if land_acquirer_data.exists():
+            form_set = formset_factory(
+                form=StepThreeLandAcquirerForm,
+                extra=0,
+                max_num=20
+            )
+            land_acquirer_forms = form_set(
+                initial=get_acquirer_initial_data(land_acquirer_data), 
+                prefix="land_acquirer"
+            )
+            if step_three_input_status(land_acquirer_data):
+                user_data_scope.append("land_acquirer")
+        else:
+            land_acquirer_forms = form_sets[form_sets_idx["land_acquirer"]](prefix="land_acquirer")
+            
+        #土地金銭取得者
+        land_cash_acquirer_data = data[data_idx["land_cash_acquirer"]]
+        if land_cash_acquirer_data.exists():
+            form_set = formset_factory(
+                form=StepThreeLandCashAcquirerForm,
+                extra=0,
+                max_num=20
+            )
+            land_cash_acquirer_forms = form_set(
+                initial=get_acquirer_initial_data(land_cash_acquirer_data),
+                prefix="land_cash_acquirer"
+            )
+            if step_three_input_status(land_cash_acquirer_data):
+                user_data_scope.append("land_cash_acquirer")
+        else:
+            land_cash_acquirer_forms = form_sets[form_sets_idx["land_cash_acquirer"]](prefix="land_cash_acquirer")
+        #建物
+        house_data = data[data_idx["house"]]
+        if house_data.exists():
+            form_set = formset_factory(
+                form=StepThreeHouseForm,
+                extra=0,
+                max_num=20
+            )
+            house_forms = form_set(
+                initial=get_property_initial_data(house_data),
+                prefix="house"
+            )
+            if step_three_input_status(house_data):
+                user_data_scope.append("house")
+        else:
+            house_forms = form_sets[form_sets_idx["house"]](prefix="house")
+        #建物取得者
+        house_acquirer_data = data[data_idx["house_acquirer"]]
+        if house_acquirer_data.exists():
+            form_set = formset_factory(
+                form=StepThreeHouseAcquirerForm,
+                extra=0,
+                max_num=20
+            )
+            house_acquirer_forms = form_set(
+                initial=get_acquirer_initial_data(house_acquirer_data),
+                prefix="house_acquirer"
+            )
+            if step_three_input_status(house_acquirer_data):
+                user_data_scope.append("house_acquirer")
+        else:
+            house_acquirer_forms = form_sets[form_sets_idx["house_acquirer"]](prefix="house_acquirer")
+        
+        #建物金銭取得者
+        house_cash_acquirer_data = data[data_idx["house_cash_acquirer"]]
+        if house_cash_acquirer_data.exists():
+            form_set = formset_factory(
+                form=StepThreeHouseCashAcquirerForm, 
+                extra=0,
+                max_num=20
+            )
+            house_cash_acquirer_forms = form_set(
+                initial=get_acquirer_initial_data(house_cash_acquirer_data),
+                prefix="house_cash_acquirer"
+            )
+            if step_three_input_status(house_cash_acquirer_data):
+                user_data_scope.append("house_cash_acquirer")
+        else:
+            house_cash_acquirer_forms = form_sets[form_sets_idx["house_cash_acquirer"]](prefix="house_cash_acquirer")    
+        #区分建物
+        bldg_data = data[data_idx["bldg"]]
+        if bldg_data.exists():
+            form_set = formset_factory(
+                form=StepThreeBldgForm,
+                extra=0,
+                max_num=20
+            )
+            bldg_forms = form_set(
+                initial=get_property_initial_data(bldg_data), 
+                prefix="bldg"
+            )
+            if step_three_input_status(bldg_data):
+                user_data_scope.append("bldg")
+        else:
+            bldg_forms = form_sets[form_sets_idx["bldg"]](prefix="bldg")
+        #敷地権
+        site_data = data[data_idx["site"]]
+        if site_data.exists():
+            form_set = formset_factory(
+                form=StepThreeSiteForm,
+                extra=0,
+                max_num=20
+            )
+            site_forms = form_set(
+                initial=get_property_initial_data(site_data),
+                prefix="site"
+            )
+            if step_three_input_status(site_data):
+                user_data_scope.append("site")
+        else:
+            site_forms = form_sets[form_sets_idx["site"]](prefix="site")
+        #区分建物取得者
+        bldg_acquirer_data = data[data_idx["bldg_acquirer"]]
+        if bldg_acquirer_data.exists():
+            form_set = formset_factory(
+                form=StepThreeBldgAcquirerForm,
+                extra=0,
+                max_num=20
+            )
+            bldg_acquirer_forms = form_set(
+                initial=get_acquirer_initial_data(bldg_acquirer_data),
+                prefix="bldg_acquirer"
+            )
+            if step_three_input_status(bldg_acquirer_data):
+                user_data_scope.append("bldg_acquirer")
+        else:
+            bldg_acquirer_forms = form_sets[form_sets_idx["bldg_acquirer"]](prefix="bldg_acquirer")
+        #区分建物金銭取得者
+        bldg_cash_acquirer_data = data[data_idx["bldg_cash_acquirer"]]
+        if bldg_cash_acquirer_data.exists():
+            form_set = formset_factory(
+                form=StepThreeBldgCashAcquirerForm, 
+                extra=0,
+                max_num=20
+            )
+            bldg_cash_acquirer_forms = form_set(
+                initial=get_acquirer_initial_data(bldg_cash_acquirer_data),
+                prefix="bldg_cash_acquirer"
+            )
+            if step_three_input_status(bldg_cash_acquirer_data):
+                user_data_scope.append("bldg_cash_acquirer")
+        else:
+            bldg_cash_acquirer_forms = form_sets[form_sets_idx["bldg_cash_acquirer"]](prefix="bldg_cash_acquirer")
+        #申請情報
+        application_data = data[data_idx["application"]]
+        if application_data:
+            application_form = StepThreeApplicationForm(prefix="application", instance=application_data)
+            if step_three_input_status(application_data):
+                user_data_scope.append("application")
+        else:
+            application_form = StepThreeApplicationForm(prefix="application")
+
+        context = {
+            "title" : "３．データ入力",
+            "progress": progress,
+            "user" : user,
+            "user_data_scope": json.dumps(user_data_scope),
+            "decedent": decedent,
+            "decedent_form": decedent_form,
+            "decedent_form_internal_field_name": decedent_form_internal_field_name,
+            "registry_name_and_address_forms": registry_name_and_address_forms,
+            "spouse_form": spouse_form,
+            "child_forms": child_forms,
+            "child_spouse_forms": child_spouse_forms,
+            "grand_child_forms": grand_child_forms,
+            "ascendant_forms": ascendant_forms,
+            "collateral_forms": collateral_forms,
+            "type_of_division_form": type_of_division_form,
+            "number_of_properties_form": number_of_properties_form,
+            "land_forms": land_forms,
+            "land_acquirer_forms": land_acquirer_forms,
+            "land_cash_acquirer_forms": land_cash_acquirer_forms,
+            "house_forms": house_forms,
+            "house_acquirer_forms": house_acquirer_forms,
+            "house_cash_acquirer_forms": house_cash_acquirer_forms,
+            "bldg_forms": bldg_forms,
+            "site_forms": site_forms,
+            "bldg_acquirer_forms": bldg_acquirer_forms,
+            "bldg_cash_acquirer_forms": bldg_cash_acquirer_forms,
+            "application_form": application_form,
+            "sections" : Sections.SECTIONS[Sections.STEP3],
+            "service_content" : Sections.SERVICE_CONTENT,
+        }
+        return render(request, "toukiApp/step_three.html", context)
+    except Exception as e:
+        logger.error(f"step_three：エラー詳細: {e}")
+        return HttpResponse("step_three：エラーが発生しました", status=500)
 
 #ステップ4
 #書類印刷

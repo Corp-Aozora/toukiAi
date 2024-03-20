@@ -40,6 +40,7 @@ class Decedent extends Fieldset{
         domicilePrefecture: 11,
         domicileCity: 12,
         domicileAddress: 13,
+        user: 14,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -56,7 +57,8 @@ class Decedent extends Fieldset{
             i !== Decedent.idxs.city &&
             i !== Decedent.idxs.domicilePrefecture &&
             i !== Decedent.idxs.domicileCity &&
-            i !== Decedent.idxs.bldg
+            i !== Decedent.idxs.bldg &&
+            i !== Decedent.idxs.user
         );
         decedents.push(this);
     }
@@ -73,13 +75,15 @@ class RegistryNameAndAddress extends Fieldset{
         city: 2,
         address: 3,
         bldg: 4,
+        decedent: 5,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
         super(fieldsetId);
         this.inputs = Array.from(this.fieldset.querySelectorAll("input, select"));
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
-            (_, i) => i !== RegistryNameAndAddress.idxs.bldg
+            (_, i) => i !== RegistryNameAndAddress.idxs.bldg &&
+                i !== RegistryNameAndAddress.idxs.decedent 
         );
         registryNameAndAddresses.push(this);
     }
@@ -109,7 +113,9 @@ class SpouseOrAscendant extends Fieldset{
         isRefuse: 13,
         isJapan: 14,
         objectId: 15,
-        idAndContentType: 16
+        idAndContentType: 16,
+        decedent: 17,
+        contentType: 18,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -130,7 +136,9 @@ class SpouseOrAscendant extends Fieldset{
                 i !== SpouseOrAscendant.idxs.isRefuse &&
                 i !== SpouseOrAscendant.idxs.isJapan &&
                 i !== SpouseOrAscendant.idxs.objectId &&
-                i !== SpouseOrAscendant.idxs.idAndContentType
+                i !== SpouseOrAscendant.idxs.idAndContentType &&
+                i !== SpouseOrAscendant.idxs.decedent &&
+                i !== SpouseOrAscendant.idxs.contentType
             );
         }else{
             this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
@@ -145,7 +153,9 @@ class SpouseOrAscendant extends Fieldset{
                 i !== SpouseOrAscendant.idxs.isRefuse &&
                 i !== SpouseOrAscendant.idxs.isJapan &&
                 i !== SpouseOrAscendant.idxs.objectId &&
-                i !== SpouseOrAscendant.idxs.idAndContentType
+                i !== SpouseOrAscendant.idxs.idAndContentType &&
+                i !== SpouseOrAscendant.idxs.decedent &&
+                i !== SpouseOrAscendant.idxs.contentType
             );
         }
         if(this.inputs[SpouseOrAscendant.idxs.prefecture].parentElement.style.display === "none"){
@@ -176,7 +186,11 @@ class DescendantOrCollateral extends Fieldset{
         isJapan: 15,
         isAdult: 16,
         objectId1: 17,
-        idAndContentType: 18
+        idAndContentType: 18,
+        decedent: 19,
+        contentType1: 20,
+        contentType2: 21,
+        objectId2: 22
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -200,7 +214,11 @@ class DescendantOrCollateral extends Fieldset{
                     i !== DescendantOrCollateral.idxs.isJapan &&
                     i !== DescendantOrCollateral.idxs.isAdult &&
                     i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType
+                    i !== DescendantOrCollateral.idxs.idAndContentType &&
+                    i !== DescendantOrCollateral.idxs.decedent &&
+                    i !== DescendantOrCollateral.idxs.contentType1 &&
+                    i !== DescendantOrCollateral.idxs.contentType2 &&
+                    i !== DescendantOrCollateral.idxs.objectId2
                     );
             }else{
                 this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
@@ -218,7 +236,11 @@ class DescendantOrCollateral extends Fieldset{
                     i !== DescendantOrCollateral.idxs.isJapan &&
                     i !== DescendantOrCollateral.idxs.isAdult &&
                     i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType
+                    i !== DescendantOrCollateral.idxs.idAndContentType &&
+                    i !== DescendantOrCollateral.idxs.decedent &&
+                    i !== DescendantOrCollateral.idxs.contentType1 &&
+                    i !== DescendantOrCollateral.idxs.contentType2 &&
+                    i !== DescendantOrCollateral.idxs.objectId2
                 );
             }
         }else{
@@ -236,7 +258,11 @@ class DescendantOrCollateral extends Fieldset{
                     i !== DescendantOrCollateral.idxs.isJapan &&
                     i !== DescendantOrCollateral.idxs.isAdult &&
                     i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType
+                    i !== DescendantOrCollateral.idxs.idAndContentType &&
+                    i !== DescendantOrCollateral.idxs.decedent &&
+                    i !== DescendantOrCollateral.idxs.contentType1 &&
+                    i !== DescendantOrCollateral.idxs.contentType2 &&
+                    i !== DescendantOrCollateral.idxs.objectId2
                     );
             }else{
                 this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
@@ -253,7 +279,11 @@ class DescendantOrCollateral extends Fieldset{
                     i !== DescendantOrCollateral.idxs.isJapan &&
                     i !== DescendantOrCollateral.idxs.isAdult &&
                     i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType
+                    i !== DescendantOrCollateral.idxs.idAndContentType &&
+                    i !== DescendantOrCollateral.idxs.decedent &&
+                    i !== DescendantOrCollateral.idxs.contentType1 &&
+                    i !== DescendantOrCollateral.idxs.contentType2 &&
+                    i !== DescendantOrCollateral.idxs.objectId2
                 );
             }
         }
@@ -280,7 +310,8 @@ class TypeOfDivision extends Fieldset{
         cashAllocation:{form: 4, input:[6, 7, 8]},
         allCashAcquirer:{form: 5, input:9},
         contentType2:{form: 6, input:10},
-        objectId2:{form: 7, input:11}
+        objectId2:{form: 7, input:11},
+        decedent:{form: 8, input:12}
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -297,6 +328,7 @@ class TypeOfDivision extends Fieldset{
         this.cashAllocationInputIdxs = this.idx.cashAllocation.input;
         this.contentType2InputIdx = this.idx.contentType2.input;
         this.objectId2InputIdx = this.idx.objectId2.input;
+        this.decedentInputIdx = this.idx.decedent.input;
         typeOfDivisions.push(this);
     }
     //通常分割か判別する
@@ -337,7 +369,8 @@ const {typeOfDivision: TODTypeOfDivision,
     cashAllocation: TODCashAllocation,
     allCashAcquirer: TODAllCashAcquirer,
     contentType2: TODContentType2,
-    objectId2: TODObjectId2
+    objectId2: TODObjectId2,
+    decedent: TODDecedent
 } = TypeOfDivision.idxs;
 
 //不動産の数
@@ -348,16 +381,21 @@ class NumberOfProperties extends Fieldset{
         land: 0,
         house: 1,
         bldg: 2,
+        decedent: 3,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
         super(fieldsetId);
+        this.noInputs = Array.from(this.fieldset.querySelectorAll("input")).filter(
+            (_, i) => i !== NumberOfProperties.idxs.decedent.input
+        );
         this.decreaseBtn = Array.from(this.fieldset.getElementsByClassName("decreaseBtn"));
         this.increaseBtn = Array.from(this.fieldset.getElementsByClassName("increaseBtn"));
         this.idxs = NumberOfProperties.idxs;
         this.landIdx = this.idxs.land;
         this.houseIdx = this.idxs.house;
         this.bldgIdx = this.idxs.bldg;
+        this.decedentIdx = this.idxs.decedent;
         numberOfProperties.push(this);
     }
     // プロパティのカウントを取得する共通のメソッド
@@ -384,7 +422,8 @@ class NumberOfProperties extends Fieldset{
 }
 const {land: NOPLand,
     house: NOPHouse,
-    bldg: NOPBldg
+    bldg: NOPBldg,
+    decedent: NOPDecedent
 } = NumberOfProperties.idxs;
 
 //土地情報
@@ -400,7 +439,9 @@ class Land extends Fieldset{
         price:{form: 5, input: 10},
         isExchange:{form:6, input: [11, 12]},
         index:{form:7, input:13},
-        id:{form:8, input:14}
+        id:{form:8, input:14},
+        decedent:{form:9, input:15},
+        register:{form:10, input:16}
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -412,7 +453,9 @@ class Land extends Fieldset{
             i !== Land.idxs.purparty.input[yes] &&
             i !== Land.idxs.purparty.input[other2] &&
             i !== Land.idxs.index.input &&
-            i !== Land.idxs.id.input
+            i !== Land.idxs.id.input &&
+            i !== Land.idxs.decedent.input &&
+            i !== Land.idxs.register.input
         );
         lands.push(this);
         this.tempAcquirers = [];
@@ -442,7 +485,9 @@ const {number: LNumber,
     price: LPrice, 
     isExchange: LIsExchange,
     index: LIndex,
-    id: LId
+    id: LId,
+    decedent: LDecedent,
+    register: LRegister
 } = Land.idxs;
 
 //不動産取得者又は金銭取得者の仮フォーム
@@ -474,6 +519,7 @@ class Acquirer{
         target: 3,
         contentType1: 4,
         objectId1: 5,
+        decedent: 6,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -486,7 +532,8 @@ const {contentType2: AContentType2,
     percentage: APercentage,
     target: ATarget,
     contentType1: AContentType1,
-    objectId1: AObjectId1
+    objectId1: AObjectId1,
+    decedent: ADecedent
 } = Acquirer.idxs;
 
 //土地情報欄のボタン
@@ -512,6 +559,8 @@ class House extends Fieldset{
         isExchange:{form:6, input: [11, 12]},
         index:{form:7, input:13},
         id:{form:8, input:14},
+        decedent:{form:9, input:15},
+        register:{form:10, input:16},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -523,7 +572,9 @@ class House extends Fieldset{
             i !== House.idxs.purparty.input[yes] &&
             i !== House.idxs.purparty.input[other2] &&
             i !== House.idxs.index.input &&
-            i !== House.idxs.id.input
+            i !== House.idxs.id.input &&
+            i !== House.idxs.decedent.input &&
+            i !== House.idxs.register.input
         );
         houses.push(this);
         this.tempAcquirers = [];
@@ -553,7 +604,9 @@ const {number: HNumber,
     price: HPrice, 
     isExchange: HIsExchange,
     index: HIndex,
-    id: HId
+    id: HId,
+    decedent: HDecedent,
+    register: HRegister
 } = House.idxs;
 
 //建物情報欄のボタン
@@ -579,6 +632,8 @@ class Bldg extends Fieldset{
         isExchange:{form:6, input: [9, 10]},
         index:{form:7, input: 11},
         id:{form:8, input: 12},
+        decedent:{form:9, input: 13},
+        register:{form:10, input: 14},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -590,7 +645,9 @@ class Bldg extends Fieldset{
             i !== Bldg.idxs.purparty.input[yes] &&
             i !== Bldg.idxs.purparty.input[other2] &&
             i !== Bldg.idxs.index.input &&
-            i !== Bldg.idxs.id.input
+            i !== Bldg.idxs.id.input &&
+            i !== Bldg.idxs.decedent.input &&
+            i !== Bldg.idxs.register.input
         );
         bldgs.push(this);
         this.sites = [];
@@ -625,7 +682,9 @@ const {number: BNumber,
     price: BPrice, 
     isExchange: BIsExchange,
     index: BIndex,
-    id: BId
+    id: BId,
+    decedent: BDecedent,
+    register: BRegister
 } = Bldg.idxs;
 
 //敷地権情報
@@ -639,6 +698,7 @@ class Site extends Fieldset{
         price:{form: 4, input: 6},
         target:{form: 5, input: 7},
         bldg:{form: 6, input: 8},
+        decedent:{form: 7, input: 9},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId, instance){
@@ -649,7 +709,8 @@ class Site extends Fieldset{
             i !== Site.idxs.number.input &&
             i !== Site.idxs.purparty.input[yes] &&
             i !== Site.idxs.target.input &&
-            i !== Site.idxs.bldg.input
+            i !== Site.idxs.bldg.input &&
+            i !== Site.idxs.decedent.input
         );
         this.belongsTo = instance;
         sites.push(this);
@@ -661,7 +722,8 @@ const {number: SNumber,
     purparty: SPurparty, 
     price: SPrice, 
     target: STarget,
-    bldg: SBldg
+    bldg: SBldg,
+    decedent: SDecedent
 } = Site.idxs;
 
 //区分建物情報欄のボタン
@@ -689,6 +751,7 @@ class Application extends Fieldset{
         isMail:{form: 7, input: [9, 10]},
         objectId:{form: 8, input: 11},
         contentType:{form: 9, input: 12},
+        decedent:{form: 10, input: 13},
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -701,6 +764,7 @@ class Application extends Fieldset{
             i !== Application.idxs.address.input &&
             i !== Application.idxs.phoneNumber.input &&
             i !== Application.idxs.objectId.input &&
+            i !== Application.idxs.contentType.input &&
             i !== Application.idxs.contentType.input
         );
         applications.push(this);
@@ -715,7 +779,8 @@ const {applicant: aApplicant,
     isReturn: aIsReturn, 
     isMail: aIsMail,
     objectId: aObjectId,
-    contentType: aContentType
+    contentType: aContentType,
+    decedent: aDecedent
 } = Application.idxs;
 
 //修正するボタンと次の項目へボタン
@@ -1734,6 +1799,8 @@ function setDecedentEvent(){
     const idxs = Decedent.idxs;
     //被相続人欄のinputにイベントを設定
     for(let i = 0, len = inputs.length; i < len; i++){
+        if(i === idxs.user)
+            break;
         //氏名欄のとき
         if(i === idxs.name){
             //キーダウンイベント
@@ -1791,6 +1858,8 @@ function setRegistryNameAndAddressEvent(instance){
     const inputs = instance.inputs;
     //登記簿上の氏名住所のインスタンスの各インプット要素に対して処理
     for(let i = 0, len = inputs.length; i < len; i++){
+        if(i === RIdxs.decedent)
+            break;
         if(i === RIdxs.name){
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
@@ -2665,6 +2734,8 @@ function setNumberOfPropertiesSection(){
         const min = 0;
         const max = 20;
         for(let i = 0, len = instance.inputs.length; i < len; i++){
+            if(i === NOPDecedent)
+                break;
             instance.inputs[i].addEventListener("change", ()=>{
                 countCheck(instance, i);
                 toggleCountBtn(instance.increaseBtn[i], instance.decreaseBtn[i], parseInt(instance.inputs[i].value), min, max);

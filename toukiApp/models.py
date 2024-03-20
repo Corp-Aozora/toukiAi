@@ -108,7 +108,6 @@ class Decedent(CommonModel):
     
     step_three_fields =[
         "progress",
-        "user",
         "name",
         "death_year",
         "death_month",
@@ -123,6 +122,7 @@ class Decedent(CommonModel):
         "domicile_prefecture",
         "domicile_city",
         "domicile_address",
+        "user",
     ]
     
     class Meta:
@@ -166,6 +166,7 @@ class RegistryNameAndAddress(CommonModel):
         "city",
         "address",
         "bldg",
+        "decedent",
     ]
     
     class Meta:
@@ -233,7 +234,6 @@ class Spouse(CommonModel):
     ]
     
     step_three_fields = [
-        "decedent",
         "name",
         "death_year",
         "death_month",
@@ -248,11 +248,12 @@ class Spouse(CommonModel):
         "bldg",
         "is_refuse",
         "is_japan",
-        "content_type",
         "object_id",
         "is_exist",
         "is_live",
         "is_heir",
+        "decedent",
+        "content_type",
     ]
     
     class Meta:
@@ -370,7 +371,6 @@ class Descendant(CommonModel):
     ]
     
     step_three_fields = [
-        "decedent",
         "name",
         "death_year",
         "death_month",
@@ -386,8 +386,9 @@ class Descendant(CommonModel):
         "is_refuse",
         "is_japan",
         "is_adult",
-        "content_type1",
         "object_id1",
+        "decedent",
+        "content_type1",
         "content_type2",
         "object_id2",
         "is_exist",
@@ -460,7 +461,6 @@ class Ascendant(CommonModel):
     ]
     
     step_three_fields = [
-        "decedent",
         "name",
         "death_year",
         "death_month",
@@ -475,11 +475,12 @@ class Ascendant(CommonModel):
         "bldg",
         "is_refuse",
         "is_japan",
-        "content_type",
         "object_id",
         "is_exist",
         "is_live",
         "is_heir",
+        "decedent",
+        "content_type",
     ]
     
     class Meta:
@@ -596,7 +597,6 @@ class Collateral(CommonModel):
     ]
     
     step_three_fields = [
-        "decedent",
         "name",
         "death_year",
         "death_month",
@@ -612,8 +612,9 @@ class Collateral(CommonModel):
         "is_refuse",
         "is_japan",
         "is_adult",
-        "content_type1",
         "object_id1",
+        "decedent",
+        "content_type1",
         "content_type2",
         "object_id2",
         "is_exist",
@@ -757,7 +758,6 @@ class TypeOfDivision(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
         "type_of_division",
         "property_allocation",
         "content_type1",
@@ -765,6 +765,7 @@ class TypeOfDivision(CommonModel):
         "cash_allocation",
         "content_type2",
         "object_id2",
+        "decedent",
     ]
     
     class Meta:
@@ -803,10 +804,10 @@ class NumberOfProperties(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
         "land",
         "house",
         "bldg",
+        "decedent",
     ]
     
     class Meta:
@@ -838,7 +839,7 @@ class Land(CommonModel):
     type = models.CharField(verbose_name="地目", max_length=100, choices=LANDCATEGORYS , null=True, blank=True, default="")
     size = models.CharField(verbose_name="地積", max_length=100, null=True, blank=True, default="")
     purparty = models.CharField(verbose_name="持ち分", max_length=100, null=False, blank=False, default="")
-    price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=16, null=False, blank=False, default="")
     is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
     office = models.CharField(verbose_name="法務局", max_length=30, null=True, blank=True, default="")
     
@@ -860,8 +861,6 @@ class Land(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
-        "register",
         "number",
         "address",
         "land_number",
@@ -871,6 +870,8 @@ class Land(CommonModel):
         "office",
         "price",
         "is_exchange",
+        "decedent",
+        "register",
     ]
     
     class Meta:
@@ -907,7 +908,7 @@ class House(CommonModel):
     fourth_floor_size = models.CharField(verbose_name="４階面積", max_length=100, null=True, blank=True, default="")
     fifth_floor_size = models.CharField(verbose_name="５階面積", max_length=100, null=True, blank=True, default="")
     purparty = models.CharField(verbose_name="持ち分", max_length=100 ,null=False, blank=False, default="")
-    price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=16, null=False, blank=False, default="")
     is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
     office = models.CharField(verbose_name="法務局", max_length=30, null=True, blank=True, default="")
     
@@ -929,8 +930,6 @@ class House(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
-        "register",
         "number",
         "address",
         "house_number",
@@ -945,6 +944,8 @@ class House(CommonModel):
         "office",
         "price",
         "is_exchange",        
+        "decedent",
+        "register",
     ]
     
     class Meta:
@@ -984,7 +985,7 @@ class Bldg(CommonModel):
     fourth_floor_size = models.CharField(verbose_name="４階面積", max_length=100, null=True, blank=True, default="")
     fifth_floor_size = models.CharField(verbose_name="５階面積", max_length=100, null=True, blank=True, default="")
     purparty = models.CharField(verbose_name="所有権・持分", max_length=100 ,null=False, blank=False, default="")
-    price = models.CharField(verbose_name="固定資産評価額", max_length=13, null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=16, null=False, blank=False, default="")
     is_exchange = models.BooleanField(verbose_name="換価対象", null=True, blank=True, default=None)
     office = models.CharField(verbose_name="法務局", max_length=30, null=True, blank=True, default="")
     
@@ -1013,6 +1014,7 @@ class Bldg(CommonModel):
         "office",
         "price",
         "is_exchange",        
+        "decedent",
         "register",
     ]
     
@@ -1048,7 +1050,7 @@ class Site(CommonModel):
     type = models.CharField(verbose_name="敷地権の種類", max_length=3, choices=TYPE_CHOICES, null=True, blank=True)
     purparty_bottom = models.CharField(verbose_name="敷地権の割合（分母）", max_length=10, null=True, blank=True, default="")
     purparty_top = models.CharField(verbose_name="敷地権の割合（分子）", max_length=10, null=True, blank=True, default="")
-    price = models.CharField(verbose_name="固定資産評価額", max_length=13,null=False, blank=False, default="")
+    price = models.CharField(verbose_name="固定資産評価額", max_length=16,null=False, blank=False, default="")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -1068,7 +1070,6 @@ class Site(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
         "number",
         "address_and_land_number",
         "type",
@@ -1076,6 +1077,7 @@ class Site(CommonModel):
         "purparty_top",
         "price",
         "bldg",
+        "decedent",
     ]
     
     class Meta:
@@ -1156,12 +1158,12 @@ class PropertyAcquirer(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
         "content_type2",
         "object_id2",
         "percentage",
         "content_type1",
         "object_id1",
+        "decedent",
     ]
     
     class Meta:
@@ -1204,12 +1206,12 @@ class CashAcquirer(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
         "content_type2",
         "object_id2",
         "percentage",
         "content_type1",
         "object_id1",
+        "decedent",
     ]
     
     class Meta:
@@ -1255,7 +1257,6 @@ class Application(CommonModel):
     )
     
     step_three_fields = [
-        "decedent",
         "is_agent",
         "phone_number",
         "agent_name",
@@ -1265,6 +1266,7 @@ class Application(CommonModel):
         "is_mail",
         "object_id",
         "content_type",
+        "decedent",
     ]
     
     class Meta:

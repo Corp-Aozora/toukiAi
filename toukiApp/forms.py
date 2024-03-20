@@ -348,6 +348,7 @@ class StepThreeDecedentForm(forms.ModelForm):
         model = Decedent
         fields = model.step_three_fields
         widgets = {
+            "user": forms.HiddenInput(),
             "city": forms.Select(),
             "domicile_city": forms.Select(),
         }
@@ -401,10 +402,13 @@ class StepThreeRegistryNameAndAddressForm(forms.ModelForm):
         fields = model.step_three_fields
         widgets = {
             "city": forms.Select(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         for field in self.base_fields.values():
+            field.required = False
+            
             if field.label in ["氏名", "登記上の町域・番地", "登記上の建物"]:
                 field.widget.attrs.update({
                     "class": "form-control rounded-end",
@@ -443,10 +447,15 @@ class StepThreeSpouseForm(forms.ModelForm):
     
     class Meta:
         model = Spouse
+        index = model.step_three_fields.index("is_exist")
+        model.step_three_fields.insert(index, "id_and_content_type")
         fields = model.step_three_fields
         widgets = {
             "city": forms.Select(),
             "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "decedent": forms.HiddenInput(),
+            "content_type": forms.HiddenInput(),
+            "object_id": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -509,12 +518,18 @@ class StepThreeDescendantForm(forms.ModelForm):
     
     class Meta:
         model = Descendant
-        index = model.step_three_fields.index("is_refuse")
-        model.step_three_fields.insert(index, "other_parent_name")
+        other_parent_name_idx = model.step_three_fields.index("is_refuse")
+        model.step_three_fields.insert(other_parent_name_idx, "other_parent_name")
+        id_and_content_type_idx = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(id_and_content_type_idx, "id_and_content_type")
         fields = model.step_three_fields
         widgets = {
             "city": forms.Select(),
             "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "decedent": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "content_type2": forms.HiddenInput(),
+            "object_id2": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -574,10 +589,15 @@ class StepThreeAscendantForm(forms.ModelForm):
     
     class Meta:
         model = Ascendant
+        index = model.step_three_fields.index("is_exist")
+        model.step_three_fields.insert(index, "id_and_content_type")
         fields = model.step_three_fields
         widgets = {
             "city": forms.Select(),
             "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "decedent": forms.HiddenInput(),
+            "content_type": forms.HiddenInput(),
+            "object_id": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -645,6 +665,10 @@ class StepThreeCollateralForm(forms.ModelForm):
         widgets = {
             "city": forms.Select(),
             "is_acquire": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
+            "decedent": forms.HiddenInput(),
+            "content_type1": forms.HiddenInput(),
+            "content_type2": forms.HiddenInput(),
+            "object_id2": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -713,6 +737,7 @@ class StepThreeTypeOfDivisionForm(forms.ModelForm):
             "cash_allocation": forms.RadioSelect(choices=[('全て一人', '全て一人'),('全て法定相続', '全て法定相続'),('その他', 'その他'),]),
             "content_type2":forms.HiddenInput(),
             "object_id2":forms.HiddenInput(),
+            "decedent":forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -734,7 +759,9 @@ class StepThreeNumberOfPropertiesForm(forms.ModelForm):
     class Meta:
         model = NumberOfProperties
         fields = model.step_three_fields
-
+        widgets = {
+            "decedent":forms.HiddenInput(),
+        }
     def __init__(self, *args, **kwargs):
         for field in self.base_fields.values():
             field.required = False
@@ -752,11 +779,15 @@ class StepThreeLandForm(forms.ModelForm):
     
     class Meta:
         model = Land
+        index = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(index, "index")
         fields = model.step_three_fields
         widgets = {
             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
             "purparty": forms.HiddenInput(),
             "land_number": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
+            "register": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -791,6 +822,7 @@ class StepThreeLandForm(forms.ModelForm):
                 field.widget.attrs.update({
                     "placeholder": "数字のみで入力（コンマは入力不要）",
                     "class": "form-control text-center rounded-end",
+                    "maxlength": "16",
                 })
             elif field.label == "地目":
                 field.widget.attrs.update({
@@ -822,6 +854,7 @@ class StepThreeLandAcquirerForm(forms.ModelForm):
             "percentage": forms.HiddenInput(),
             "content_type1": forms.HiddenInput(),
             "object_id1": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -845,6 +878,7 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
             "percentage": forms.HiddenInput(),
             "content_type1": forms.HiddenInput(),
             "object_id1": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -859,11 +893,15 @@ class StepThreeHouseForm(forms.ModelForm):
     
     class Meta:
         model = House
+        index = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(index, "index")
         fields = model.step_three_fields
         widgets = {
             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
             "purparty": forms.HiddenInput(),
             "house_number": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
+            "register": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -898,6 +936,7 @@ class StepThreeHouseForm(forms.ModelForm):
                 field.widget.attrs.update({
                     "placeholder": "数字のみで入力（コンマは入力不要）",
                     "class": "form-control text-center rounded-end",
+                    "maxlength": "16",
                 })
             elif field.label == "種類":
                 field.widget.attrs.update({
@@ -929,6 +968,7 @@ class StepThreeHouseAcquirerForm(forms.ModelForm):
             "percentage": forms.HiddenInput(),
             "content_type1": forms.HiddenInput(),
             "object_id1": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
         
     def __init__(self, *args, **kwargs):
@@ -952,6 +992,7 @@ class StepThreeHouseCashAcquirerForm(forms.ModelForm):
             "percentage": forms.HiddenInput(),
             "content_type1": forms.HiddenInput(),
             "object_id1": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -966,10 +1007,14 @@ class StepThreeBldgForm(forms.ModelForm):
     
     class Meta:
         model = Bldg
+        index = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(index, "index")
         fields = model.step_three_fields
         widgets = {
             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
             "purparty": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
+            "register": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1009,6 +1054,7 @@ class StepThreeBldgForm(forms.ModelForm):
                 field.widget.attrs.update({
                     "placeholder": "数字のみで入力（コンマは入力不要）",
                     "class": "form-control text-center rounded-end",
+                    "maxlength": "16",
                 })
             elif field.label == "種類":
                 field.widget.attrs.update({
@@ -1034,6 +1080,7 @@ class StepThreeSiteForm(forms.ModelForm):
         fields = model.step_three_fields
         widgets = {
             "bldg": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1059,6 +1106,7 @@ class StepThreeSiteForm(forms.ModelForm):
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
                     "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "maxlength": "16",
                     "class": "form-control text-center rounded-end",
                 })
             elif field.label == "敷地権の種類":
@@ -1083,6 +1131,7 @@ class StepThreeBldgAcquirerForm(forms.ModelForm):
             "percentage": forms.HiddenInput(),
             "content_type1": forms.HiddenInput(),
             "object_id1": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1106,6 +1155,7 @@ class StepThreeBldgCashAcquirerForm(forms.ModelForm):
             "percentage": forms.HiddenInput(),
             "content_type1": forms.HiddenInput(),
             "object_id1": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1126,6 +1176,7 @@ class StepThreeApplicationForm(forms.ModelForm):
             "is_mail": forms.RadioSelect(choices=[("true", "郵送する"), ("false", "持参する")]),
             "content_type": forms.HiddenInput(),
             "object_id": forms.HiddenInput(),
+            "decedent": forms.HiddenInput(),
         }
         labels = {
             "agent_name": "氏名",

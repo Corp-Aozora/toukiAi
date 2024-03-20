@@ -55,6 +55,7 @@ LOGGING = {
         'file': {
             'class': 'logging.FileHandler',
             'filename': './logfile.log',
+            'encoding': 'utf-8',  # ログファイルのエンコーディングを指定
         },
     },
     'root': {

@@ -1,3 +1,13 @@
 C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py changed, reloading.
 couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
 Watching for file changes with StatReloader
+Starting new HTTPS connection (1): www.land.mlit.go.jp:443
+https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=19 HTTP/1.1" 200 367
+Starting new HTTPS connection (1): www.land.mlit.go.jp:443
+https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=19 HTTP/1.1" 200 367
+Starting new HTTPS connection (1): www.land.mlit.go.jp:443
+https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=19 HTTP/1.1" 200 367
+Starting new HTTPS connection (1): www.land.mlit.go.jp:443
+https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=01 HTTP/1.1" 200 1719
+Starting new HTTPS connection (1): www.land.mlit.go.jp:443
+https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=01 HTTP/1.1" 200 1719

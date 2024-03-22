@@ -222,7 +222,7 @@
                                                                 </span>
                                                             </div>
                                                         </div>
-                                                    {% elif field.name == "decedent" %}
+                                                    {% elif field.name == "decedent" or field.name == "id" %}
                                                         {{ field }}
                                                     {% endif %}
                                                 {% endfor %}
@@ -425,7 +425,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                {% elif field.name == "is_refuse" or field.name == "is_japan" or field.name == "object_id" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type" %}
+                                {% elif field.name == "is_refuse" or field.name == "is_japan" or field.name == "object_id" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type" or field.name == "id" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -616,7 +616,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" %}
+                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" or field.name == "id" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -788,7 +788,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                {% elif field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id" or field.name == "id_and_content_type"  or field.name == "decedent" or field.name == "content_type"%}
+                                {% elif field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id" or field.name == "id_and_content_type"  or field.name == "decedent" or field.name == "content_type" or field.name == "id" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -979,7 +979,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" %}
+                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" or field.name == "id" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -1167,7 +1167,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                {% elif field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type" %}
+                                {% elif field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type" or field.name == "id" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -1358,7 +1358,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" %}
+                                {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" or field.name == "id" %}
                                     {{field}}
                                 {% endif %}
                             {% endfor %}
@@ -1605,10 +1605,7 @@
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
                                                     </span>
                                                 </div>
-                                            {% elif field.name == "index" %}
-                                                {{ field }}
-                                                <input type="hidden" id="id_land-{{forloop.parentloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
-                                            {% elif field.name == "decedent" or field.name == "register" %}
+                                            {% elif field.name == "index" or field.name == "land_id" or field.name == "decedent" or field.name == "register" %}
                                                 {{ field }}
                                             {% endif %}
                                         {% endfor %}
@@ -1697,19 +1694,21 @@
                                 {% for field in form %}
                                     {{field}}
                                 {% endfor %}
+                                <input type="hidden" id="id_land_acquirer-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
                             </fieldset>
                         {% endfor %}
                     </div>
                     {{ land_cash_acquirer_forms.management_form }}
-                    {% for form in land_cash_acquirer_forms %}
                     <div id="id_land_cash_acquirer_wrapper">
-                        <fieldset id="id_land_cash_acquirer-{{forloop.counter0}}-fieldset"  class="landCashAcquirerFieldset d-flex" style="display: none;">
-                            {% for field in form %}
-                                {{field}}
-                            {% endfor %}
-                        </fieldset>
+                        {% for form in land_cash_acquirer_forms %}
+                            <fieldset id="id_land_cash_acquirer-{{forloop.counter0}}-fieldset"  class="landCashAcquirerFieldset d-flex" style="display: none;">
+                                {% for field in form %}
+                                    {{field}}
+                                {% endfor %}
+                                <input type="hidden" id="id_land_cash_acquirer-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
+                            </fieldset>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                     <div class="d-flex justify-content-evenly landBtnsDiv mt-5">
                         <button type="button" id="landCorrectBtn" class="preBtn btn btn-secondary" disabled="true">
                             前の土地を修正する
@@ -1848,10 +1847,7 @@
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
                                                     </span>
                                                 </div>
-                                            {% elif field.name == "index" %}
-                                                {{ field }}
-                                                <input type="hidden" name="id_house-{{forloop.parentloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
-                                            {% elif field.name == "decedent" or field.name == "register" %}
+                                            {% elif field.name == "index" or field.name == "house_id" or field.name == "decedent" or field.name == "register" %}
                                                 {{ field }}
                                             {% endif %}
                                         {% endfor %}
@@ -1940,19 +1936,21 @@
                                 {% for field in form %}
                                     {{field}}
                                 {% endfor %}
+                                <input type="hidden" id="id_house_acquirer-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
                             </fieldset>
                         {% endfor %}
                     </div>
                     {{ house_cash_acquirer_forms.management_form }}
-                    {% for form in house_cash_acquirer_forms %}
                     <div id="id_house_cash_acquirer_wrapper">
-                        <fieldset id="id_house_cash_acquirer-{{forloop.counter0}}-fieldset"  class="houseCashAcquirerFieldset d-flex" style="display: none;">
-                            {% for field in form %}
-                                {{field}}
-                            {% endfor %}
-                        </fieldset>
+                        {% for form in house_cash_acquirer_forms %}
+                            <fieldset id="id_house_cash_acquirer-{{forloop.counter0}}-fieldset"  class="houseCashAcquirerFieldset d-flex" style="display: none;">
+                                {% for field in form %}
+                                    {{field}}
+                                {% endfor %}
+                                <input type="hidden" id="id_house_cash_acquirer-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
+                            </fieldset>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                     <div class="d-flex justify-content-evenly houseBtnsDiv mt-5">
                         <button type="button" id="houseCorrectBtn" class="preBtn btn btn-secondary" disabled="true">
                             前の建物を修正する
@@ -2084,10 +2082,7 @@
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
                                                     </span>
                                                 </div>
-                                            {% elif field.name == "index" %}
-                                                {{ field }}
-                                                <input type="hidden" id="id_bldg-{{forloop.parentloop.counter0}}-id" name="bldg-{{forloop.parentloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
-                                            {% elif field.name == "decedent" or field.name == "register" %}
+                                            {% elif field.name == "index" or field.name == "bldg_id" or field.name == "decedent" or field.name == "register" %}
                                                 {{ field }}
                                             {% endif %}
                                         {% endfor %}
@@ -2186,19 +2181,21 @@
                                 {% for field in form %}
                                     {{field}}
                                 {% endfor %}
+                                <input type="hidden" id="id_bldg_acquirer-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
                             </fieldset>
                         {% endfor %}
                     </div>
                     {{ bldg_cash_acquirer_forms.management_form }}
-                    {% for form in bldg_cash_acquirer_forms %}
                     <div id="id_bldg_cash_acquirer_wrapper">
-                        <fieldset id="id_bldg_cash_acquirer-{{forloop.counter0}}-fieldset"  class="bldgCashAcquirerFieldset d-flex" style="display: none;">
-                            {% for field in form %}
-                                {{field}}
-                            {% endfor %}
-                        </fieldset>
+                        {% for form in bldg_cash_acquirer_forms %}
+                            <fieldset id="id_bldg_cash_acquirer-{{forloop.counter0}}-fieldset"  class="bldgCashAcquirerFieldset d-flex" style="display: none;">
+                                {% for field in form %}
+                                    {{field}}
+                                {% endfor %}
+                                <input type="hidden" id="id_bldg_cash_acquirer-{{forloop.counter0}}-id" value="{{ form.instance.pk|default_if_none:"" }}" />
+                            </fieldset>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                     {{ site_forms.management_form }}
                     {% for form in site_forms %}
                     <fieldset id="id_site-{{forloop.counter0}}-fieldset"  class="siteFieldset d-flex mt-4">

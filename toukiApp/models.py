@@ -826,7 +826,7 @@ class Land(CommonModel):
         related_name="land",
     )
     register = models.ForeignKey(
-        RegistryNameAndAddress,
+        Register,
         verbose_name="不動産登記簿",
         on_delete=models.CASCADE,
         null = True,
@@ -890,7 +890,7 @@ class House(CommonModel):
         related_name="house",
     )
     register = models.ForeignKey(
-        RegistryNameAndAddress,
+        Register,
         verbose_name="不動産登記簿",
         on_delete=models.CASCADE,
         null = True,
@@ -967,7 +967,7 @@ class Bldg(CommonModel):
         related_name="bldgs",
     )
     register = models.ForeignKey(
-        RegistryNameAndAddress,
+        Register,
         verbose_name="不動産登記簿",
         on_delete=models.CASCADE,
         null = True,

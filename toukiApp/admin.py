@@ -402,15 +402,15 @@ class PropertyAcquirerChangeForm(forms.ModelForm):
 
 class PropertyAcquirerAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', "object_id1", 'object_id2', 'is_acquire', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'percentage', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = PropertyAcquirerChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
-    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
+    list_display = ("id", 'decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'updated_at', 'updated_by', 'created_by')
+    list_filter = ('updated_at', 'decedent', 'updated_by', 'created_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']
 
@@ -424,14 +424,14 @@ class CashAcquirerChangeForm(forms.ModelForm):
 
 class CashAcquirerAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('decedent', "object_id1", 'object_id2', 'is_acquire', 'created_by', 'updated_by')}),
+        (None, {'fields': ('decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'percentage', 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = CashAcquirerChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
+    list_display = ("id", 'decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'updated_at', 'updated_by', 'created_by')
     list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']

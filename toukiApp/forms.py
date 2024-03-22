@@ -397,6 +397,8 @@ class StepThreeDecedentForm(forms.ModelForm):
         
 #登記簿上の氏名住所情報
 class StepThreeRegistryNameAndAddressForm(forms.ModelForm):
+    id = forms.CharField(widget=forms.HiddenInput())
+    
     class Meta:
         model = RegistryNameAndAddress
         fields = model.step_three_fields
@@ -444,6 +446,7 @@ class StepThreeRegistryNameAndAddressForm(forms.ModelForm):
 class StepThreeSpouseForm(forms.ModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
+    id = forms.CharField(widget=forms.HiddenInput())
     
     class Meta:
         model = Spouse
@@ -512,9 +515,9 @@ class StepThreeSpouseForm(forms.ModelForm):
 class StepThreeDescendantForm(forms.ModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
-    
     #前配偶者との子のとき用
     other_parent_name = forms.CharField(label="前配偶者の氏名", required = False)
+    id = forms.CharField(widget=forms.HiddenInput())
     
     class Meta:
         model = Descendant
@@ -586,7 +589,8 @@ class StepThreeDescendantForm(forms.ModelForm):
 class StepThreeAscendantForm(forms.ModelForm):
      # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
-    
+    id = forms.CharField(widget=forms.HiddenInput())
+
     class Meta:
         model = Ascendant
         index = model.step_three_fields.index("is_exist")
@@ -656,6 +660,7 @@ class StepThreeCollateralForm(forms.ModelForm):
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
     #異父母との子のとき用
     other_parent_name = forms.CharField(label="異父母の氏名", required = False)
+    id = forms.CharField(widget=forms.HiddenInput())
     
     class Meta:
         model = Collateral
@@ -776,10 +781,12 @@ class StepThreeNumberOfPropertiesForm(forms.ModelForm):
 #土地
 class StepThreeLandForm(forms.ModelForm):
     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+    land_id = forms.CharField(widget=forms.HiddenInput())
     
     class Meta:
         model = Land
         index = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(index, "land_id")
         model.step_three_fields.insert(index, "index")
         fields = model.step_three_fields
         widgets = {
@@ -890,11 +897,13 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
 #建物
 class StepThreeHouseForm(forms.ModelForm):
     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+    house_id = forms.CharField(widget=forms.HiddenInput())
     
     class Meta:
         model = House
-        index = model.step_three_fields.index("decedent")
-        model.step_three_fields.insert(index, "index")
+        idx = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(idx, "house_id")
+        model.step_three_fields.insert(idx, "index")
         fields = model.step_three_fields
         widgets = {
             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),
@@ -1004,11 +1013,13 @@ class StepThreeHouseCashAcquirerForm(forms.ModelForm):
 # 区分建物
 class StepThreeBldgForm(forms.ModelForm):
     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
+    bldg_id = forms.CharField(widget=forms.HiddenInput())
     
     class Meta:
         model = Bldg
-        index = model.step_three_fields.index("decedent")
-        model.step_three_fields.insert(index, "index")
+        idx = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(idx, "bldg_id")
+        model.step_three_fields.insert(idx, "index")
         fields = model.step_three_fields
         widgets = {
             "is_exchange": forms.RadioSelect(choices=[("true", "する"), ("false", "しない")]),

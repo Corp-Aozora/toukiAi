@@ -40,30 +40,41 @@ class Decedent extends Fieldset{
         domicilePrefecture: 11,
         domicileCity: 12,
         domicileAddress: 13,
-        user: 14,
+        user: 14
     }
-    //fieldset、入力欄、ボタン
     constructor(fieldsetId){
         super(fieldsetId);
         this.inputs = Array.from(this.fieldset.querySelectorAll("input, select"));
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
             (_, i) => 
-            i !== Decedent.idxs.name &&
-            i !== Decedent.idxs.deathYear &&
-            i != Decedent.idxs.deathMonth &&
-            i !== Decedent.idxs.birthYear &&
-            i !== Decedent.idxs.birthMonth &&
-            i !== Decedent.idxs.prefecture &&
-            i !== Decedent.idxs.city &&
-            i !== Decedent.idxs.domicilePrefecture &&
-            i !== Decedent.idxs.domicileCity &&
-            i !== Decedent.idxs.bldg &&
-            i !== Decedent.idxs.user
+            i === Decedent.idxs.deathDate ||
+            i === Decedent.idxs.birthYear ||
+            i === Decedent.idxs.birthMonth ||
+            i === Decedent.idxs.birthDate ||
+            i === Decedent.idxs.address ||
+            i === Decedent.idxs.domicileAddress
         );
         decedents.push(this);
     }
 }
 const decedent = new Decedent("id_decedent-0-fieldset");
+const {
+    name: DName,
+    deathYear: DDeathYear,
+    deathMonth: DDeathMonth,
+    deathDate: DDeathDate,
+    birthYear: DBirthYear,
+    birthMonth: DBirthMonth,
+    birthDate: DBirthDate,
+    prefecture: DPrefecture,
+    city: DCity,
+    address: DAddress,
+    bldg: DBldg,
+    domicilePrefecture: DDomicilePrefecture,
+    domicileCity: DDomicileCity,
+    domicileAddress: DDomicileAddress,
+    user: DUser
+} = Decedent.idxs;
 
 //登記簿上の氏名住所
 const registryNameAndAddresses = [];
@@ -76,6 +87,7 @@ class RegistryNameAndAddress extends Fieldset{
         address: 3,
         bldg: 4,
         decedent: 5,
+        id: 6,
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -83,13 +95,22 @@ class RegistryNameAndAddress extends Fieldset{
         this.inputs = Array.from(this.fieldset.querySelectorAll("input, select"));
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
             (_, i) => i !== RegistryNameAndAddress.idxs.bldg &&
-                i !== RegistryNameAndAddress.idxs.decedent 
+                i !== RegistryNameAndAddress.idxs.decedent &&
+                i !== RegistryNameAndAddress.idxs.id
         );
         registryNameAndAddresses.push(this);
     }
 }
+const {
+    name: RName,
+    prefecture: RPrefecture,
+    city: RCity,
+    address: RAddress,
+    bldg: RBldg,
+    decedent: RDecedent,
+    id: RId,
+} = RegistryNameAndAddress.idxs;
 const registryNameAndAddress = new RegistryNameAndAddress("id_registry_name_and_address-0-fieldset");
-const RIdxs = RegistryNameAndAddress.idxs;
 const addRegistryAddressButton = document.getElementById("addRegistryAddressButton");
 const removeRegistryAddressButton = document.getElementById("removeRegistryAddressButton");
 
@@ -116,6 +137,7 @@ class SpouseOrAscendant extends Fieldset{
         idAndContentType: 16,
         decedent: 17,
         contentType: 18,
+        id: 19
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -125,37 +147,22 @@ class SpouseOrAscendant extends Fieldset{
         if(heirsDeathDateStyle.display === "none"){
             this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
                 (_, i) =>
-                i !== SpouseOrAscendant.idxs.name &&
-                i !== SpouseOrAscendant.idxs.deathYear &&
-                i !== SpouseOrAscendant.idxs.deathMonth &&
-                i !== SpouseOrAscendant.idxs.deathDate &&
-                i !== SpouseOrAscendant.idxs.bldg &&
-                i !== SpouseOrAscendant.idxs.prefecture &&
-                i !== SpouseOrAscendant.idxs.city &&
-                i !== SpouseOrAscendant.idxs.address &&
-                i !== SpouseOrAscendant.idxs.isRefuse &&
-                i !== SpouseOrAscendant.idxs.isJapan &&
-                i !== SpouseOrAscendant.idxs.objectId &&
-                i !== SpouseOrAscendant.idxs.idAndContentType &&
-                i !== SpouseOrAscendant.idxs.decedent &&
-                i !== SpouseOrAscendant.idxs.contentType
+                i === SpouseOrAscendant.idxs.birthYear ||
+                i === SpouseOrAscendant.idxs.birthMonth ||
+                i === SpouseOrAscendant.idxs.birthDate ||
+                i === SpouseOrAscendant.idxs.isAcquire[yes] ||
+                i === SpouseOrAscendant.idxs.isAcquire[no]
+
             );
         }else{
             this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
                 (_, i) =>
-                i !== SpouseOrAscendant.idxs.name &&
-                i !== SpouseOrAscendant.idxs.isAcquire[yes] &&
-                i !== SpouseOrAscendant.idxs.isAcquire[no] &&
-                i !== SpouseOrAscendant.idxs.bldg &&
-                i !== SpouseOrAscendant.idxs.prefecture &&
-                i !== SpouseOrAscendant.idxs.city &&
-                i !== SpouseOrAscendant.idxs.address &&
-                i !== SpouseOrAscendant.idxs.isRefuse &&
-                i !== SpouseOrAscendant.idxs.isJapan &&
-                i !== SpouseOrAscendant.idxs.objectId &&
-                i !== SpouseOrAscendant.idxs.idAndContentType &&
-                i !== SpouseOrAscendant.idxs.decedent &&
-                i !== SpouseOrAscendant.idxs.contentType
+                i === SpouseOrAscendant.idxs.deathYear ||
+                i === SpouseOrAscendant.idxs.deathMonth ||
+                i === SpouseOrAscendant.idxs.deathDate ||
+                i === SpouseOrAscendant.idxs.birthYear ||
+                i === SpouseOrAscendant.idxs.birthMonth ||
+                i === SpouseOrAscendant.idxs.birthDate
             );
         }
         if(this.inputs[SpouseOrAscendant.idxs.prefecture].parentElement.style.display === "none"){
@@ -165,6 +172,27 @@ class SpouseOrAscendant extends Fieldset{
         heirs.push(this);
     }
 }
+const {
+    name: SOAName,
+    deathYear: SOADeathYear,
+    deathMonth: SOADeathMonth,
+    deathDate: SOADeathDate,
+    birthYear: SOABirthYear,
+    birthMonth: SOABirthMonth,
+    birthDate: SOABirthDate,
+    isAcquire: SOAIsAcquire,
+    prefecture: SOAPrefecture,
+    city: SOACity,
+    address: SOAAddress,
+    bldg: SOABldg,
+    isRefuse: SOAIsRefuse,
+    isJapan: SOAIsJapan,
+    objectId: SOAObjectId,
+    idAndContentType: SOAIdAndContentType,
+    decedent: SOADecedent,
+    contentType: SOAContentType,
+    id: SOAId
+} = SpouseOrAscendant.idxs;
 
 class DescendantOrCollateral extends Fieldset{
     //入力欄のインデックス
@@ -190,7 +218,8 @@ class DescendantOrCollateral extends Fieldset{
         decedent: 19,
         contentType1: 20,
         contentType2: 21,
-        objectId2: 22
+        objectId2: 22,
+        id: 23
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -202,88 +231,44 @@ class DescendantOrCollateral extends Fieldset{
             if(otherParentDivStyle.display !== "none"){
                 this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
                     (_, i) =>
-                    i !== DescendantOrCollateral.idxs.name &&
-                    i !== DescendantOrCollateral.idxs.deathYear &&
-                    i !== DescendantOrCollateral.idxs.deathMonth &&
-                    i !== DescendantOrCollateral.idxs.deathDate &&
-                    i !== DescendantOrCollateral.idxs.bldg &&
-                    i !== DescendantOrCollateral.idxs.prefecture &&
-                    i !== DescendantOrCollateral.idxs.city &&
-                    i !== DescendantOrCollateral.idxs.address &&
-                    i !== DescendantOrCollateral.idxs.isRefuse &&
-                    i !== DescendantOrCollateral.idxs.isJapan &&
-                    i !== DescendantOrCollateral.idxs.isAdult &&
-                    i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType &&
-                    i !== DescendantOrCollateral.idxs.decedent &&
-                    i !== DescendantOrCollateral.idxs.contentType1 &&
-                    i !== DescendantOrCollateral.idxs.contentType2 &&
-                    i !== DescendantOrCollateral.idxs.objectId2
+                    i === DescendantOrCollateral.idxs.birthYear ||
+                    i === DescendantOrCollateral.idxs.birthMonth ||
+                    i === DescendantOrCollateral.idxs.birthDate ||
+                    i === DescendantOrCollateral.idxs.isAcquire[yes] ||
+                    i === DescendantOrCollateral.idxs.isAcquire[no] ||
+                    i === DescendantOrCollateral.idxs.otherParentsName
                     );
             }else{
                 this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
                     (_, i) =>
-                    i !== DescendantOrCollateral.idxs.name &&
-                    i !== DescendantOrCollateral.idxs.deathYear &&
-                    i !== DescendantOrCollateral.idxs.deathMonth &&
-                    i !== DescendantOrCollateral.idxs.deathDate &&
-                    i !== DescendantOrCollateral.idxs.bldg &&
-                    i !== DescendantOrCollateral.idxs.prefecture &&
-                    i !== DescendantOrCollateral.idxs.city &&
-                    i !== DescendantOrCollateral.idxs.address &&
-                    i !== DescendantOrCollateral.idxs.otherParentsName &&
-                    i !== DescendantOrCollateral.idxs.isRefuse &&
-                    i !== DescendantOrCollateral.idxs.isJapan &&
-                    i !== DescendantOrCollateral.idxs.isAdult &&
-                    i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType &&
-                    i !== DescendantOrCollateral.idxs.decedent &&
-                    i !== DescendantOrCollateral.idxs.contentType1 &&
-                    i !== DescendantOrCollateral.idxs.contentType2 &&
-                    i !== DescendantOrCollateral.idxs.objectId2
+                    i === DescendantOrCollateral.idxs.birthYear ||
+                    i === DescendantOrCollateral.idxs.birthMonth ||
+                    i === DescendantOrCollateral.idxs.birthDate ||
+                    i === DescendantOrCollateral.idxs.isAcquire[yes] ||
+                    i === DescendantOrCollateral.idxs.isAcquire[no]
                 );
             }
         }else{
             if(otherParentDivStyle.display !== "none"){
                 this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
                     (_, i) =>
-                    i !== DescendantOrCollateral.idxs.name &&
-                    i !== DescendantOrCollateral.idxs.isAcquire[yes] &&
-                    i !== DescendantOrCollateral.idxs.isAcquire[no] &&
-                    i !== DescendantOrCollateral.idxs.bldg &&
-                    i !== DescendantOrCollateral.idxs.prefecture &&
-                    i !== DescendantOrCollateral.idxs.city &&
-                    i !== DescendantOrCollateral.idxs.address &&
-                    i !== DescendantOrCollateral.idxs.isRefuse &&
-                    i !== DescendantOrCollateral.idxs.isJapan &&
-                    i !== DescendantOrCollateral.idxs.isAdult &&
-                    i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType &&
-                    i !== DescendantOrCollateral.idxs.decedent &&
-                    i !== DescendantOrCollateral.idxs.contentType1 &&
-                    i !== DescendantOrCollateral.idxs.contentType2 &&
-                    i !== DescendantOrCollateral.idxs.objectId2
+                    i === DescendantOrCollateral.idxs.deathYear ||
+                    i === DescendantOrCollateral.idxs.deathMonth ||
+                    i === DescendantOrCollateral.idxs.deathDate ||
+                    i === DescendantOrCollateral.idxs.birthYear ||
+                    i === DescendantOrCollateral.idxs.birthMonth ||
+                    i === DescendantOrCollateral.idxs.birthDate ||
+                    i === DescendantOrCollateral.idxs.otherParentsName                    
                     );
             }else{
                 this.noInputs = Array.from(this.fieldset.querySelectorAll("input, select")).filter(
                     (_, i) =>
-                    i !== DescendantOrCollateral.idxs.name &&
-                    i !== DescendantOrCollateral.idxs.isAcquire[yes] &&
-                    i !== DescendantOrCollateral.idxs.isAcquire[no] &&
-                    i !== DescendantOrCollateral.idxs.bldg &&
-                    i !== DescendantOrCollateral.idxs.prefecture &&
-                    i !== DescendantOrCollateral.idxs.city &&
-                    i !== DescendantOrCollateral.idxs.address &&
-                    i !== DescendantOrCollateral.idxs.otherParentsName &&
-                    i !== DescendantOrCollateral.idxs.isRefuse &&
-                    i !== DescendantOrCollateral.idxs.isJapan &&
-                    i !== DescendantOrCollateral.idxs.isAdult &&
-                    i !== DescendantOrCollateral.idxs.objectId1 &&
-                    i !== DescendantOrCollateral.idxs.idAndContentType &&
-                    i !== DescendantOrCollateral.idxs.decedent &&
-                    i !== DescendantOrCollateral.idxs.contentType1 &&
-                    i !== DescendantOrCollateral.idxs.contentType2 &&
-                    i !== DescendantOrCollateral.idxs.objectId2
+                    i === DescendantOrCollateral.idxs.deathYear ||
+                    i === DescendantOrCollateral.idxs.deathMonth ||
+                    i === DescendantOrCollateral.idxs.deathDate ||
+                    i === DescendantOrCollateral.idxs.birthYear ||
+                    i === DescendantOrCollateral.idxs.birthMonth ||
+                    i === DescendantOrCollateral.idxs.birthDate
                 );
             }
         }
@@ -294,7 +279,31 @@ class DescendantOrCollateral extends Fieldset{
         heirs.push(this);
     }
 }
-
+const {
+    name: DOCName,
+    deathYear: DOCDeathYear,
+    deathMonth: DOCDeathMonth,
+    deathDate: DOCDeathDate,
+    birthYear: DOCBirthYear,
+    birthMonth: DOCBirthMonth,
+    birthDate: DOCBirthDate,
+    isAcquire: DOCIsAcquire,
+    prefecture: DOCPrefecture,
+    city: DOCCity,
+    address: DOCAddress,
+    bldg: DOCBldg,
+    otherParentsName: DOCOtherParentsName,
+    isRefuse: DOCIsRefuse,
+    isJapan: DOCIsJapan,
+    isAdult: DOCIsAdult,
+    objectId1: DOCObjectId1,
+    idAndContentType: DOCIdAndContentType,
+    decedent: DOCDecedent,
+    contentType1: DOCContentType1,
+    contentType2: DOCContentType2,
+    objectId2: DOCObjectId2,
+    id: DOCId
+} = DescendantOrCollateral.idxs;
 const heirsCorrectBtn = document.getElementById("heirsCorrectBtn");
 const heirsOkBtn = document.getElementById("heirsOkBtn");
 
@@ -387,7 +396,7 @@ class NumberOfProperties extends Fieldset{
     constructor(fieldsetId){
         super(fieldsetId);
         this.noInputs = Array.from(this.fieldset.querySelectorAll("input")).filter(
-            (_, i) => i !== NumberOfProperties.idxs.decedent.input
+            (_, i) => i !== NumberOfProperties.idxs.decedent
         );
         this.decreaseBtn = Array.from(this.fieldset.getElementsByClassName("decreaseBtn"));
         this.increaseBtn = Array.from(this.fieldset.getElementsByClassName("increaseBtn"));
@@ -455,7 +464,8 @@ class Land extends Fieldset{
             i !== Land.idxs.index.input &&
             i !== Land.idxs.id.input &&
             i !== Land.idxs.decedent.input &&
-            i !== Land.idxs.register.input
+            i !== Land.idxs.register.input &&
+            i !== Land.idxs.id.input 
         );
         lands.push(this);
         this.tempAcquirers = [];
@@ -519,7 +529,7 @@ class Acquirer{
         target: 3,
         contentType1: 4,
         objectId1: 5,
-        decedent: 6,
+        decedent: 6
     }
     //fieldset、入力欄、ボタン
     constructor(fieldsetId){
@@ -765,7 +775,7 @@ class Application extends Fieldset{
             i !== Application.idxs.phoneNumber.input &&
             i !== Application.idxs.objectId.input &&
             i !== Application.idxs.contentType.input &&
-            i !== Application.idxs.contentType.input
+            i !== Application.idxs.decedent.input
         );
         applications.push(this);
     }
@@ -854,7 +864,7 @@ function isActivateOkBtn(instance){
     //被相続人情報のとき
     if(isClassMatched(instance, [Decedent, RegistryNameAndAddress])){
         //被相続人と登記簿上の氏名・住所の両方のエラー要素がないとき次の項目へボタンを有効化する
-        const isDecedentSectionVerified = !decedents.concat(registryNameAndAddresses).some(x => x.noInputs.length !== 0);
+        const isDecedentSectionVerified = decedents.concat(registryNameAndAddresses).every(x => x.noInputs.length === 0);
         okBtn.disabled = !isDecedentSectionVerified;
     }else if(isClassMatched(instance, [SpouseOrAscendant, DescendantOrCollateral])){
         //相続人情報のとき
@@ -1022,8 +1032,7 @@ async function getCityData(val, el, instance){
             instance.noInputs.push(el);
         }
     }).catch(error => {
-        console.log("getCityDataの処理でエラーが発生しました");
-        console.log(error);
+        throw new Error(`getCityData：${instance.constructor}の市区町村データ取得処理でエラーが発生\n詳細：${error}`);
     }).finally(()=>{
         //データ取得中ツールチップを削除する
         document.getElementById(`${el.id}_verifyingEl`).remove();
@@ -1034,8 +1043,9 @@ async function getCityData(val, el, instance){
 /**
  * ユーザーに紐づく被相続人の市区町村データを取得する
  */
-function getDecedentCityData(){
+async function getDecedentCityData(){
     const url = 'get_decedent_city_data';
+    const inputs = decedents[0].inputs;
     fetch(url, {
         method: 'GET',
         headers: {
@@ -1045,14 +1055,13 @@ function getDecedentCityData(){
         return response.json();
     }).then(response => {
         if(response.city !== ""){
-            decedent.inputs[Decedent.idxs.city].value = response.city;
+            inputs[DCity].value = response.city;
         }
         if(response.domicileCity !== ""){
-            decedent.inputs[Decedent.idxs.domicileCity].value = response.domicileCity;
+            inputs[DDomicileCity].value = response.domicileCity;
         }
     }).catch(error => {
-        console.log("getDecedentCityDataの処理でエラーが発生しました");
-        console.log(error);
+        console.error(`getDecedentCityData：エラーが発生\n詳細:${error}`);
     }).finally(()=>{
     });
 }
@@ -1073,8 +1082,7 @@ function getRegistryNameAndAddressCityData(){
     }).then(response => {
         return response.citys;
     }).catch(error => {
-        console.log("getRegistryNameAndAddressCityDataの処理でエラーが発生しました");
-        console.log(error);
+        console.log(`getRegistryNameAndAddressCityData:エラーが発生\n${error}`);
     });
 }
 
@@ -1339,46 +1347,51 @@ function loadBldgData(){
         inputOrCheckAndDispatchChangeEvent(TAInputs[TAPercentage.input[no]], t);
     }
 }
+
 /**
- * ユーザーのデータを取得する
+ * 被相続人のデータを復元
  */
-async function loadData(){
-    //被相続人データを反映
+async function loadDecedentData(){
     try{
-        try{
-            let idxs = Decedent.idxs;
-            for(let i = 0, len = decedent.inputs.length; i < len; i++){
-                const input = decedent.inputs[i];
-                //データがあるとき
-                if(input.value !== ""){
-                    //エラー要素から削除する
-                    decedent.noInputs = decedent.noInputs.filter(x => x.id !== input.id)
-                    //都道府県のとき、市区町村データを取得する
-                    if([idxs.prefecture, idxs.domicilePrefecture].includes(i))
-                        await getCityData(input.value, decedent.inputs[i + 1], decedent);
-                    else if([idxs.city, idxs.domicileCity].includes(i))
-                        getDecedentCityData();
-                }
+        const inputs = decedent.inputs;
+        for(let i = 0, len = inputs.length; i < len; i++){
+            const input = inputs[i];
+            //データがあるとき
+            if(input.value !== ""){
+                //エラー要素から削除する
+                decedent.noInputs = decedent.noInputs.filter(x => x.id !== input.id)
+                //都道府県のとき、市区町村データを取得する
+                if([DPrefecture, DDomicilePrefecture].includes(i))
+                    await getCityData(input.value, inputs[i + 1], decedent);
+                else if([DCity, DDomicileCity].includes(i))
+                    await getDecedentCityData();
             }
-        }catch(e){
-            throw {type: "decedent", message: e.message};
         }
-    
+    }catch(e){
+        throw new Error(`loadDecedentData：被相続人のデータ復元に失敗\n詳細：${e}`);
+    }    
+}
+
+async function loadRegistryNameAndAddressData(){
+    try{
         //登記簿上の氏名住所のデータを反映する
         const RNAACount = document.getElementsByClassName("registryNameAndAddressFieldset").length;
         //フォーム分のインスタンスを生成する（１つはすでに生成されているため1からスタート）
         for(let i = 1; i < RNAACount; i++){
             new RegistryNameAndAddress(`id_registry_name_and_address-${i}-fieldset`);
         }
+        setRegistryNameAndAddressEvent(1);
         //市区町村データ以外を反映させる
         for(let i = 0; i < RNAACount; i++){
             const instance = registryNameAndAddresses[i];
-            for(let j = 0, len = instance.inputs.length; j < len; j++){
-                const input = instance.inputs[j];
+            const inputs = instance.inputs;
+            for(let j = 0, len = inputs.length; j < len; j++){
+                const input = inputs[j];
                 if(input.value != ""){
                     //都道府県のとき、市区町村データを取得する
-                    if(j === RIdxs.prefecture)
-                        await getCityData(input.value, instance.inputs[RIdxs.city], instance);
+                    if(j === RPrefecture){
+                        await getCityData(input.value, inputs[RCity], instance);
+                    }
                     //入力データがあるとき、エラー要素から削除する
                     instance.noInputs = instance.noInputs.filter(x => x.id !== input.id)
                 }
@@ -1386,12 +1399,25 @@ async function loadData(){
         }
         //市区町村データを反映させる
         getRegistryNameAndAddressCityData().then(citys => {
-            if(citys.length > 0){
-                for(let i = 0, len = citys.length; i < len; i++){
-                    registryNameAndAddresses[i].inputs[RIdxs.city].value = citys[i];
-                }
+            if(citys.length === 0)
+                return;
+            for(let i = 0, len = citys.length; i < len; i++){
+                registryNameAndAddresses[i].inputs[RCity].value = citys[i];
             }
         })
+    }catch(e){
+        throw new Error(`loadRegistryNameAndAddressData：登記簿上の氏名住所のデータ復元に失敗\n詳細：${e}`);
+    }
+}
+
+/**
+ * ユーザーのデータを取得する
+ */
+async function loadData(){
+    try{
+        //被相続人データを反映
+        await loadDecedentData();
+        await loadRegistryNameAndAddressData();
         //全て入力されているとき、相続人情報欄を表示する
         const isDecedentSectionVerified = !decedents.concat(registryNameAndAddresses).some(x => x.noInputs.length !== 0);
         if(isDecedentSectionVerified)
@@ -1448,7 +1474,7 @@ async function loadData(){
         }
         //申請情報を反映する
     }catch(e){
-        console.error("loadData：保存データの表示中にエラーが発生しました", e);
+        console.error(`loadData：保存データの表示中にエラーが発生しました\n詳細：${e.message}`);
     }
 }
 
@@ -1479,6 +1505,19 @@ function relocateForms(){
 }
 
 /**
+ * 登記簿上の氏名住所のフィールドセットの設定
+ * ・最初のフォームのみに対する設定
+ */
+async function setRegistryNameAndAddressFieldset(){
+    //入力欄にイベントを設定
+    await setRegistryNameAndAddressEvent(0);
+    //追加ボタンのクリックイベント
+    addRegistryAddressButton.addEventListener("click", handleAddRegistryAddressButtonEvent);
+    //削除ボタンのクリックイベント
+    removeRegistryAddressButton.addEventListener("click", handleRemoveRegistryAddressButton);
+}
+
+/**
  * 初期表示時の処理
  * 
  */
@@ -1487,16 +1526,16 @@ async function initialize(){
     updateSideBar();
     //フォームを再配置する
     relocateForms();
-    //入力状況に合わせた表示にする
-    await loadData();
-    //最初は被相続人の氏名にフォーカスする
-    decedent.inputs[Decedent.idxs.name].focus();
-    //全input要素にenterを押したことによるPOSTが実行されないようにする
-    disableEnterKeyForInputs();
     //被相続人のinputにイベントを設定
     setDecedentEvent();
-    //登記簿上の氏名住所のinputにイベントを設定
-    setRegistryNameAndAddressEvent(registryNameAndAddresses[0]);
+    //登記簿上の氏名住所の設定
+    await setRegistryNameAndAddressFieldset();
+    //入力状況に合わせた表示にする
+    await loadData();
+    //全input要素にenterを押したことによるPOSTが実行されないようにする
+    disableEnterKeyForInputs();
+    //最初は被相続人の氏名にフォーカスする
+    decedent.inputs[DName].focus();
 }
 
 /**
@@ -1592,7 +1631,7 @@ function checkBirthAndDeathDate(instance){
 function checkBirthDate(instance){
     //配偶者、尊属又は卑属、兄弟姉妹で成人か不明なとき
     if(instance.constructor.name === "SpouseOrAscendant" ||
-        (instance.constructor.name === "DescendantOrCollateral" && instance.inputs[DescendantOrCollateral.idxs.isAdult] === null)){
+        (instance.constructor.name === "DescendantOrCollateral" && instance.inputs[DOCIsAdult] === null)){
         return
     }
     let year;
@@ -1627,12 +1666,12 @@ function checkBirthDate(instance){
             age--;
         }
         //成人チェック
-        if(instance.inputs[DescendantOrCollateral.idxs.isAdult].value === "True"){
+        if(instance.inputs[DOCIsAdult].value === "True"){
             if(age < 20)
                 return "１．では成人と入力されてました。<br>未成年である場合は、必要書類が変わることがあるため、先に１．の入力を修正してください。";
         }
         //未成年チェック
-        if(instance.inputs[DescendantOrCollateral.idxs.isAdult].value === "False"){
+        if(instance.inputs[DOCIsAdult].value === "False"){
             if(age >= 20)
                 return "１．では未成年と入力されてました。<br>成人である場合は、必要書類が変わることがあるため、先に１．の入力を修正してください。";
         }
@@ -1646,24 +1685,23 @@ function checkBirthDate(instance){
  */
 function decedentValidation(el){
     const inputs = decedent.inputs;
-    const idxs = Decedent.idxs;
     const dateErrMsg = "死亡年月日は生年月日より後の日付にしてください";
     //氏名のときは全角チェック
-    if(el === inputs[idxs.name]){
+    if(el === inputs[DName]){
         return isOnlyZenkaku(el);
-    }else if([inputs[idxs.deathYear], inputs[idxs.deathMonth]].includes(el)){
+    }else if([inputs[DDeathYear], inputs[DDeathMonth]].includes(el)){
         //死亡年月欄のとき、日数を更新して死亡年月日と生年月日の矛盾チェック
-        const days = getDaysInMonth(Number(inputs[idxs.deathYear].value.slice(0,4)), Number(inputs[idxs.deathMonth].value));
+        const days = getDaysInMonth(Number(inputs[DDeathYear].value.slice(0,4)), Number(inputs[DDeathMonth].value));
         updateDate("id_decedent-death_date", days);
         if(checkBirthAndDeathDate(decedent) === false)
             return dateErrMsg;
-    }else if([inputs[idxs.birthYear], inputs[idxs.birthMonth]].includes(el)){
+    }else if([inputs[DBirthYear], inputs[DBirthMonth]].includes(el)){
         //生年月欄のとき、日数を更新して死亡年月日と生年月日の矛盾チェック
-        const days = getDaysInMonth(Number(inputs[idxs.birthYear].value.slice(0,4)), Number(inputs[idxs.birthMonth].value));
+        const days = getDaysInMonth(Number(inputs[DBirthYear].value.slice(0,4)), Number(inputs[DBirthMonth].value));
         updateDate("id_decedent-birth_date", days);
         if(checkBirthAndDeathDate(decedent) === false)
             return dateErrMsg;
-    }else if([inputs[idxs.deathDate], inputs[idxs.birthDate]].includes(el)){
+    }else if([inputs[DDeathDate], inputs[DBirthDate]].includes(el)){
         //死亡日欄又は生日欄のとき、死亡年月日と生年月日の矛盾チェック
         if(checkBirthAndDeathDate(decedent) === false)
             return dateErrMsg;
@@ -1681,9 +1719,9 @@ function decedentValidation(el){
  */
 function registryNameAndAddressValidation(idx, el){
     //氏名のときは全角チェック
-    if(idx === RIdxs.name){
+    if(idx === RName){
         return isOnlyZenkaku(el);
-    }else if([RIdxs.prefecture, RIdxs.city].includes(idx)){
+    }else if([RPrefecture, RCity].includes(idx)){
         //都道府県又は市区町村のとき、空欄チェック
         return isBlank(el);
     }
@@ -1796,13 +1834,12 @@ function afterValidation(isValid, errMsgEl, message, el, instance){
  */
 function setDecedentEvent(){
     const inputs = decedent.inputs;
-    const idxs = Decedent.idxs;
     //被相続人欄のinputにイベントを設定
     for(let i = 0, len = inputs.length; i < len; i++){
-        if(i === idxs.user)
+        if(i === DUser)
             break;
         //氏名欄のとき
-        if(i === idxs.name){
+        if(i === DName){
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
                 //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
@@ -1815,19 +1852,19 @@ function setDecedentEvent(){
                 //全角チェック
                 handleFullWidthInput(decedent, inputs[i]);
             })
-        }else if([idxs.address, idxs.bldg].includes(i)){
+        }else if([DAddress, DBldg].includes(i)){
             //住所の町域・番地又は住所の建物名のとき
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
                 //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
                 setEnterKeyFocusNext(e, inputs[i + 1]);
             })
-        }else if(i === idxs.domicileAddress){
+        }else if(i === DDomicileAddress){
             //本籍の町域・番地のとき
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
                 //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
-                setEnterKeyFocusNext(e, registryNameAndAddress.inputs[RIdxs.name]);
+                setEnterKeyFocusNext(e, registryNameAndAddresses[0].inputs[RName]);
             })
         }
 
@@ -1839,10 +1876,10 @@ function setDecedentEvent(){
             //チェック結果に応じて処理を分岐
             afterValidation(isValid, decedent.errMsgEls[i], isValid, el, decedent);
             //建物名のエラーメッセージを非表示にする
-            if(i !== idxs.bldg)
-                decedent.errMsgEls[idxs.bldg].style.display = "none";
+            if(i !== DBldg)
+                decedent.errMsgEls[DBldg].style.display = "none";
             //住所又は本籍地のの都道府県のとき、市町村データを取得する
-            if([idxs.prefecture, idxs.domicilePrefecture].includes(i)){
+            if([DPrefecture, DDomicilePrefecture].includes(i)){
                 const val = el.value;
                 await getCityData(val, inputs[i + 1], decedent);
             }
@@ -1851,54 +1888,73 @@ function setDecedentEvent(){
 }
 
 /**
- * 登記簿上の氏名住所にイベントを設定する
- * @param {RegistryNameAndAddress} instance
+ * 登記簿上の氏名と住所を追加ボタンの操作
+ * @param {RegistryNameAndAddress} instance 
  */
-function setRegistryNameAndAddressEvent(instance){
-    const inputs = instance.inputs;
-    //登記簿上の氏名住所のインスタンスの各インプット要素に対して処理
-    for(let i = 0, len = inputs.length; i < len; i++){
-        if(i === RIdxs.decedent)
-            break;
-        if(i === RIdxs.name){
-            //キーダウンイベント
-            inputs[i].addEventListener("keydown",(e)=>{
-                //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
-                setEnterKeyFocusNext(e, inputs[i + 1]);
-                //数字を無効化
-                disableNumKey(e);
-            })
-            //inputイベント
-            inputs[i].addEventListener("input", (e)=>{
-                //入力文字によって
-                handleFullWidthInput(instance, inputs[i]);
-                if(registryNameAndAddresses.length > 9)
-                    addRegistryAddressButton.disabled = true;
-                else
-                    addRegistryAddressButton.disabled = instance.noInputs.length === 0 ? false: true;
-                okBtn.disabled = decedents.concat(registryNameAndAddresses).some(item => item.noInputs.length !== 0);
+function toggleRegistryNameAndAddressAddBtn(instance){
+    if(registryNameAndAddresses.length > 9)
+        addRegistryAddressButton.disabled = true;
+    else
+        addRegistryAddressButton.disabled = instance.noInputs.length === 0 ? false: true;
+}
+
+/**
+ * 登記簿上の氏名住所にイベントを設定する
+ * @param {number} startIdx イベント設定を開始するインスタンスのインデックス
+ */
+async function setRegistryNameAndAddressEvent(startIdx){
+    for(let i = startIdx, len = registryNameAndAddresses.length; i < len; i++){
+        const instance = registryNameAndAddresses[i];
+        const inputs = instance.inputs;
+        for(let j = 0, len = inputs.length; j < len; j++){
+            const input = inputs[j];
+            //被相続人以降はイベント不要
+            if(j === RDecedent)
+                break;
+            //氏名
+            if(j === RName){
+                //keydownイベント
+                input.addEventListener("keydown",(e)=>{
+                    //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
+                    setEnterKeyFocusNext(e, inputs[j + 1]);
+                    //半角で数字入力を無効化
+                    disableNumKey(e);
+                })
+    
+                //inputイベント
+                input.addEventListener("input", (e)=>{
+                    //全角かつ日本語のみチェック
+                    handleFullWidthInput(instance, input);
+                    toggleRegistryNameAndAddressAddBtn(instance);
+                    okBtn.disabled = decedents.concat(registryNameAndAddresses).some(x => x.noInputs.length !== 0);
+                })
+            }
+            //町域・番地
+            if(j === RAddress){
+                //キーダウンイベント
+                input.addEventListener("keydown",(e)=>{
+                    //enterで建物名・号室にフォーカス移動する
+                    setEnterKeyFocusNext(e, inputs[j + 1]);
+                })            
+            }
+            //hiddenInput以外の欄にchangeイベントを設定する
+            input.addEventListener("change", async (e)=>{
+                //入力値のチェック結果を取得
+                const el = e.target;
+                isValid = registryNameAndAddressValidation(j, el);
+                //チェック結果に応じて処理を分岐
+                afterValidation(isValid, instance.errMsgEls[j], isValid, el, instance);
+                //建物名のエラーメッセージを非表示にする
+                if(j !== RBldg){
+                    instance.errMsgEls[RBldg].style.display = "none";
+                }
+                //住所又は本籍地のの都道府県のとき、市町村データを取得する
+                if(j === RPrefecture){
+                    await getCityData(el.value, inputs[j + 1], instance);
+                }
+                toggleRegistryNameAndAddressAddBtn(instance);
             })
         }
-
-        //全入力欄にchangeイベントを設定する
-        inputs[i].addEventListener("change", async (e)=>{
-            //入力値のチェック結果を取得
-            const el = e.target;
-            isValid = registryNameAndAddressValidation(i, el);
-            //チェック結果に応じて処理を分岐
-            afterValidation(isValid, instance.errMsgEls[i], isValid, el, instance);
-            //建物名のエラーメッセージを非表示にする
-            if(i !== RIdxs.bldg)
-                instance.errMsgEls[RIdxs.bldg].style.display = "none";
-            //住所又は本籍地のの都道府県のとき、市町村データを取得する
-            if(i === RIdxs.prefecture){
-                await getCityData(el.value, inputs[i + 1], instance);
-            }
-            if(registryNameAndAddresses.length > 9)
-                addRegistryAddressButton.disabled = true;
-            else
-                addRegistryAddressButton.disabled = instance.noInputs.length === 0 ? false: true;
-        })
     }
 }
 
@@ -1933,7 +1989,7 @@ function handleAddRegistryAddressButtonEvent(){
     const copyFrom = getLastElFromArray(fieldsets);
     const clone = copyFrom.cloneNode(true);
     //コピー元のフィールドの建物名のエラー表示を非表示にする
-    getLastElFromArray(registryNameAndAddresses).errMsgEls[RIdxs.bldg].style.display = "none";
+    getLastElFromArray(registryNameAndAddresses).errMsgEls[RBldg].style.display = "none";
     //属性を更新する
     clone.querySelector("div").textContent = `（${hankakuToZenkaku(registryNameAndAddresses.length + 1)}）`
     const regex = /(registry_name_and_address-)\d+/;
@@ -1943,15 +1999,16 @@ function handleAddRegistryAddressButtonEvent(){
     slideDown(copyFrom.parentNode.insertBefore(clone, copyFrom.nextSibling));
     //コピー元を無効化する
     copyFrom.disabled = true;
-    //インスタンスを生成して初期化
+    //インスタンスを生成してdecedent以外を初期化
     const newInstance = new RegistryNameAndAddress(clone.id);
     for(let i = 0, len = newInstance.inputs.length; i < len; i++){
-        newInstance.inputs[i].value = "";
-        if(i === RIdxs.city)
+        if(i !== RDecedent)
+            newInstance.inputs[i].value = "";
+        if(i === RCity)
             newInstance.inputs[i].disabled = true;
     }
     //生成した要素にイベントを設定
-    setRegistryNameAndAddressEvent(newInstance);
+    setRegistryNameAndAddressEvent(registryNameAndAddresses.legnth - 1);
     //削除ボタンを有効化する
     removeRegistryAddressButton.disabled = false;
     //追加ボタンを無効化する
@@ -1962,26 +2019,20 @@ function handleAddRegistryAddressButtonEvent(){
 
 /**
  * 増減するフォームの削除ボタンに対する処理を設定する処理
- * @param {string} className 
- * @param {Fieldset[]} arr 
- * @param {HTMLButtonElement} addBtn 
- * @param {HTMLButtonElement} removeBtn 
  */
-function handleRemoveRegistryAddressButton(className, arr, addBtn, removeBtn){
+function handleRemoveRegistryAddressButton(){
     //最後の要素を削除する
-    const fieldsets = document.getElementsByClassName(className);
-    const lastFieldset = getLastElFromArray(fieldsets);
-    lastFieldset.remove();
-    if(className === "registryNameAndAddressFieldset")
-        document.getElementById("id_registry_name_and_address-TOTAL_FORMS").value = String(fieldsets.length - 1);
-    arr.pop();
+    const fieldsets = document.getElementsByClassName("registryNameAndAddressFieldset");
+    getLastElFromArray(fieldsets).remove();
+    registryNameAndAddresses.pop();
+    document.getElementById("id_registry_name_and_address-TOTAL_FORMS").value = String(registryNameAndAddresses.length);
     getLastElFromArray(fieldsets).disabled = false;
-    addBtn.disabled = false;
+    addRegistryAddressButton.disabled = false;
     //要素が１つになるとき、削除ボタンを無効化する
     if(fieldsets.length === 1)
-        removeBtn.disabled = true;
+        removeRegistryAddressButton.disabled = true;
     //次の項目へボタンの有効化判別処理
-    okBtn.disabled = decedents.concat(registryNameAndAddresses).some(item => item.noInputs.length !== 0);
+    isActivateOkBtn(getLastElFromArray(registryNameAndAddresses));
 }
 
 /**
@@ -1991,52 +2042,50 @@ function handleRemoveRegistryAddressButton(className, arr, addBtn, removeBtn){
  */
 function heirsValidation(el, instance){
     const inputs = instance.inputs;
-    const Sidxs = SpouseOrAscendant.idxs;
-    const Didxs = DescendantOrCollateral.idxs;
     const dateErrMsg = "死亡年月日は生年月日より後の日付にしてください";
     //氏名又は前配偶者・異父母の氏名のとき、全角チェックの結果を返す
-    if([inputs[Sidxs.name], inputs[Didxs.otherParentsName]].includes(el)){
+    if([inputs[SOAName], inputs[DOCOtherParentsName]].includes(el)){
         return isOnlyZenkaku(el);
-    }else if([inputs[Sidxs.deathYear], inputs[Sidxs.deathMonth]].includes(el)){
+    }else if([inputs[SOADeathYear], inputs[SOADeathMonth]].includes(el)){
         //死亡年月欄のとき、日数の更新と死亡年月日と生年月日の先後チェック
-        const days = getDaysInMonth(Number(inputs[Sidxs.deathYear].value.slice(0,4)), Number(inputs[Sidxs.deathMonth].value));
-        updateDate(inputs[Sidxs.deathDate].id, days);
+        const days = getDaysInMonth(Number(inputs[SOADeathYear].value.slice(0,4)), Number(inputs[SOADeathMonth].value));
+        updateDate(inputs[SOADeathDate].id, days);
         if(checkBirthAndDeathDate(instance) === false)
             return dateErrMsg;
-    }else if([inputs[Sidxs.birthYear], inputs[Sidxs.birthMonth]].includes(el)){
+    }else if([inputs[SOABirthYear], inputs[SOABirthMonth]].includes(el)){
         //生年月欄のとき、日数の更新と死亡年月日と生年月日の先後チェック
-        const days = getDaysInMonth(Number(inputs[Sidxs.birthYear].value.slice(0,4)), Number(inputs[Sidxs.birthMonth].value));
-        updateDate(inputs[Sidxs.birthDate].id, days);
+        const days = getDaysInMonth(Number(inputs[SOABirthYear].value.slice(0,4)), Number(inputs[SOABirthMonth].value));
+        updateDate(inputs[SOABirthDate].id, days);
         if(checkBirthAndDeathDate(instance) === false)
             return dateErrMsg;
         const result = checkBirthDate(instance);
         if(typeof result === "string")
             return result;
-    }else if([inputs[Sidxs.deathDate], inputs[Sidxs.birthDate]].includes(el)){
+    }else if([inputs[SOADeathDate], inputs[SOABirthDate]].includes(el)){
         //死亡日又は生日のとき、死亡年月日と生年月日の矛盾チェック
         if(checkBirthAndDeathDate(instance) === false)
             return dateErrMsg;
         const result = checkBirthDate(instance);
         if(typeof result === "string")
             return result;
-    }else if(el === inputs[Sidxs.isAcquire[yes]]){
+    }else if(el === inputs[SOAIsAcquire[yes]]){
         //不動産取得が「はい」のとき
         //不動産を取得する人がいない旨のエラーメッセージを非表示にする
         document.getElementById("statusArea").getElementsByClassName("errorMessage")[0].style.display = "none";
         //住所入力欄を表示して、住所欄をエラー要素に追加してtrueを返す
         slideDownAndScroll(instance.fieldset.getElementsByClassName("heirsAddressDiv")[0]);
-        if(inputs[Didxs.prefecture].parentElement.style.display === "none")
-            instance.noInputs = instance.noInputs.concat([inputs[Sidxs.address], inputs[Sidxs.bldg]]);
+        if(inputs[DOCPrefecture].parentElement.style.display === "none")
+            instance.noInputs = instance.noInputs.concat([inputs[SOAAddress], inputs[SOABldg]]);
         else
-            instance.noInputs = instance.noInputs.concat([inputs[Sidxs.prefecture], inputs[Sidxs.city], inputs[Sidxs.address]])
+            instance.noInputs = instance.noInputs.concat([inputs[SOAPrefecture], inputs[SOACity], inputs[SOAAddress]])
         return true;
-    }else if(el === inputs[Sidxs.isAcquire[no]]){
+    }else if(el === inputs[SOAIsAcquire[no]]){
         //不動産取得が「いいえ」のとき、住所欄を非表示・初期化にして、住所欄をエラー要素から削除してtrueを返す
         slideUp(instance.fieldset.getElementsByClassName("heirsAddressDiv")[0]);
-        const addressInputs = [inputs[Sidxs.prefecture], inputs[Sidxs.city], inputs[Sidxs.address], inputs[Sidxs.bldg]];
+        const addressInputs = [inputs[SOAPrefecture], inputs[SOACity], inputs[SOAAddress], inputs[SOABldg]];
         addressInputs.forEach(x => instance.noInputs = instance.noInputs.filter(item => item !== x));
         addressInputs.forEach(x => x.value = "");
-        instance.inputs[Sidxs.city].disabled = true;
+        instance.inputs[SOACity].disabled = true;
         return true;
     }
 
@@ -2051,19 +2100,17 @@ function heirsValidation(el, instance){
  */
 function setHeirsEvent(instance){
     const inputs = instance.inputs;
-    const SIdxs = SpouseOrAscendant.idxs;
-    const DIdxs = DescendantOrCollateral.idxs;
     //インスタンスのinputにイベントを設定
     for(let i = 0, len = inputs.length; i < len; i++){
         //相続放棄、日本在住、成人情報はイベント設定不要
-        if((instance instanceof SpouseOrAscendant && i === SIdxs.isRefuse) ||
-        (instance instanceof DescendantOrCollateral && i === DIdxs.isRefuse))
+        if((instance instanceof SpouseOrAscendant && i === SOAIsRefuse) ||
+        (instance instanceof DescendantOrCollateral && i === DOCIsRefuse))
             return;
         //氏名欄又は前配偶者又は異父母の氏名欄のとき
-        if([SIdxs.name, DIdxs.otherParentsName].includes(i)){
+        if([SOAName, DOCOtherParentsName].includes(i)){
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
-                if(i === SIdxs.name){
+                if(i === SOAName){
                     //enterで死亡年欄又は生年（次の入力欄）にフォーカス移動するイベントを設定する
                     if(instance.fieldset.getElementsByClassName("heirsDeathDateDiv")[0].style.display === "none")
                         setEnterKeyFocusNext(e, inputs[i + 4]);
@@ -2078,7 +2125,7 @@ function setHeirsEvent(instance){
                 //入力文字によって
                 handleFullWidthInput(instance, inputs[i]);
             })
-        }else if(i === SIdxs.address || i === SIdxs.bldg){
+        }else if(i === SOAAddress || i === SOABldg){
             //住所の町域・番地又は住所の建物名のとき
             //キーダウンイベント
             inputs[i].addEventListener("keydown",(e)=>{
@@ -2093,14 +2140,14 @@ function setHeirsEvent(instance){
             const el = e.target;
             isValid = heirsValidation(el, instance);
             //不動産取得のラジオボタンではないとき
-            if(i !== SIdxs.isAcquire[yes] && i !== SIdxs.isAcquire[no]){
+            if(i !== SOAIsAcquire[yes] && i !== SOAIsAcquire[no]){
                 //チェック結果に応じて処理を分岐
                 afterValidation(isValid, instance.errMsgEls[i], isValid, el, instance);
                 //建物名のエラーメッセージを非表示にする
-                if(i !== SIdxs.bldg)
+                if(i !== SOABldg)
                     //建物名のエラーメッセージを非表示にする
-                    instance.errMsgEls[SIdxs.bldg].style.display = "none";
-                if(i === SIdxs.prefecture){
+                    instance.errMsgEls[SOABldg].style.display = "none";
+                if(i === SOAPrefecture){
                     //住所の都道府県のとき、市町村データを取得する
                     const val = el.value;
                     await getCityData(val, inputs[i + 1], instance);
@@ -2108,7 +2155,7 @@ function setHeirsEvent(instance){
             }else{
                 //不動産取得のラジオボタンのとき
                 //エラー要素から削除
-                instance.noInputs = instance.noInputs.filter(x => x.id !== inputs[SIdxs.isAcquire[yes]].id && x.id !== inputs[SIdxs.isAcquire[no]].id);
+                instance.noInputs = instance.noInputs.filter(x => x.id !== inputs[SOAIsAcquire[yes]].id && x.id !== inputs[SOAIsAcquire[no]].id);
                 //エラー要素がない、かつ、最後の相続人のとき次の項目へボタンを有効化する、次の人へボタンを無効化する
                 if(instance.noInputs.length === 0 && getLastElFromArray(heirs) === instance){
                     okBtn.disabled = false;
@@ -2362,8 +2409,8 @@ function createHeirsInstance(fieldset){
 function setHeirsSection(){
     const section = heirsSection;
     //エラーメッセージを非表示にする
-    decedent.errMsgEls[Decedent.idxs.bldg].style.display = "none";
-    getLastElFromArray(registryNameAndAddresses).errMsgEls[RIdxs.bldg].style.display = "none";
+    decedent.errMsgEls[DBldg].style.display = "none";
+    getLastElFromArray(registryNameAndAddresses).errMsgEls[RBldg].style.display = "none";
     //初めて相続人情報に進んだとき
     if(heirs.length === 0){
         //氏名にフォーカス
@@ -3427,7 +3474,7 @@ function getLegalPercentage(candidates, heir){
             }else if(heir.fieldset.id.includes("id_child_spouse-")){
                 //相続人が子の配偶者のとき
                 //子の配偶者と同じobjectId1を持つ子の子を数える
-                const grandChildCount = candidates.filter(x => x instanceof DescendantOrCollateral && x.inputs[DescendantOrCollateral.idxs.objectId1].value === heir.inputs[SpouseOrAscendant.idxs.objectId].value).length;
+                const grandChildCount = candidates.filter(x => x instanceof DescendantOrCollateral && x.inputs[DOCObjectId1].value === heir.inputs[SOAObjectId].value).length;
                 //配偶者の有無と孫の有無で取得割合が変わる
                 if(isDecedentSpouse)
                     return returnPercentage(grandChildCount > 0? heirChildCount * 2 * 2: heirChildCount * 2);
@@ -3436,8 +3483,8 @@ function getLegalPercentage(candidates, heir){
             }else if(heir.fieldset.id.includes("id_grand_child-")){
                 //相続人が孫のとき
                 //子の配偶者の有無と同じobjectId1を持つ孫の数を取得する
-                const isChildSpouse = candidates.some(x => x instanceof SpouseOrAscendant && x.inputs[SpouseOrAscendant.idxs.objectId].value === heir.inputs[DescendantOrCollateral.idxs.objectId1].value);
-                const grandChildCount = candidates.filter(x => x instanceof DescendantOrCollateral && x.inputs[DescendantOrCollateral.idxs.objectId1].value === heir.inputs[DescendantOrCollateral.idxs.objectId1].value).length;
+                const isChildSpouse = candidates.some(x => x instanceof SpouseOrAscendant && x.inputs[SOAObjectId].value === heir.inputs[DOCObjectId1].value);
+                const grandChildCount = candidates.filter(x => x instanceof DescendantOrCollateral && x.inputs[DOCObjectId1].value === heir.inputs[DOCObjectId1].value).length;
                 //配偶者の有無と子の配偶者の有無で取得割合が変わる
                 if(isDecedentSpouse)
                     return returnPercentage(isChildSpouse? heirChildCount * 2 * 2 * grandChildCount: heirChildCount * 2 * grandChildCount);
@@ -3453,14 +3500,14 @@ function getLegalPercentage(candidates, heir){
                     return returnPercentage(3);
                 }else{
                     //相続人が父母のいずれかのとき
-                    if(heir.inputs[SpouseOrAscendant.idxs.objectId].value === decedentId){
+                    if(heir.inputs[SOAObjectId].value === decedentId){
                         return returnPercentage(6);
                     }else{
                         //相続人が祖父母のとき
                         const isGrandSpouse = candidates.some(x => x.fieldset.id.includes("id_ascendant-") &&
-                            x.inputs[SpouseOrAscendant.idxs.objectId].value === heir.inputs[SpouseOrAscendant.idxs.objectId].value);
+                            x.inputs[SOAObjectId].value === heir.inputs[SOAObjectId].value);
                         //相続人の中に別系統の尊属がいるとき
-                        if(candidates.some(x => x.inputs[SpouseOrAscendant.idxs.objectId].value === decedentId || x.inputs[SpouseOrAscendant.idxs.objectId].value !== heir.inputs[SpouseOrAscendant.idxs.objectId].value)){
+                        if(candidates.some(x => x.inputs[SOAObjectId].value === decedentId || x.inputs[SOAObjectId].value !== heir.inputs[SOAObjectId].value)){
                             //同じ系統の祖父母がいるとき
                             return returnPercentage(isGrandSpouse? 12: 6);
                         }else{
@@ -3475,14 +3522,14 @@ function getLegalPercentage(candidates, heir){
                     return returnPercentage(1);
                 }else{
                     //相続人が父母のいずれかのとき
-                    if(heir.inputs[SpouseOrAscendant.idxs.objectId].value === decedentId){
+                    if(heir.inputs[SOAObjectId].value === decedentId){
                         return returnPercentage(2);
                     }else{
                         //相続人が祖父母のとき
                         const isGrandSpouse = candidates.some(x => x.fieldset.id.includes("id_ascendant-") &&
-                            x.inputs[SpouseOrAscendant.idxs.objectId].value === heir.inputs[SpouseOrAscendant.idxs.objectId].value);
+                            x.inputs[SOAObjectId].value === heir.inputs[SOAObjectId].value);
                         //相続人の中に別系統の尊属がいるとき
-                        if(candidates.some(x => x.inputs[SpouseOrAscendant.idxs.objectId].value === decedentId || x.inputs[SpouseOrAscendant.idxs.objectId].value !== heir.inputs[SpouseOrAscendant.idxs.objectId].value)){
+                        if(candidates.some(x => x.inputs[SOAObjectId].value === decedentId || x.inputs[SOAObjectId].value !== heir.inputs[SOAObjectId].value)){
                             //同じ系統の祖父母がいるとき
                             return returnPercentage(isGrandSpouse? 4: 2);
                         }else{
@@ -5346,7 +5393,7 @@ function setBldgSection(){
         const isNormalDivision = TOD.isNormalDivision();
         //初回表示
         if(bldgs.length === 0){
-            const isDataExist = document.getElementById("id_bldg-0-id").value !== "";
+            const isDataExist = document.getElementById("id_bldg-0-bldg_id").value !== "";
             //保存データが表示されている場合
             if(isDataExist){
                 //仮フォームのインスタンス生成
@@ -5837,20 +5884,6 @@ window.addEventListener("load", ()=>{
 window.addEventListener('resize', () => {
     setSidebarHeight();
 });
-
-/**
- * 登記上の氏名と住所を追加ボタンのクリックイベント
- */
-addRegistryAddressButton.addEventListener("click", ()=>{
-    handleAddRegistryAddressButtonEvent();
-})
-
-/**
- * 登記上の氏名と住所を削除ボタンのクリックイベント
- */
-removeRegistryAddressButton.addEventListener("click", ()=>{
-    handleRemoveRegistryAddressButton("registryNameAndAddressFieldset", registryNameAndAddresses, addRegistryAddressButton, removeRegistryAddressButton);
-})
 
 /**
  * 相続人情報の前の人に戻るボタン

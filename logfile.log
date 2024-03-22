@@ -1456,3 +1456,8 @@ Not Found: /favicon.ico
 couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
 couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
 Watching for file changes with StatReloader
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+Watching for file changes with StatReloader

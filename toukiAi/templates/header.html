@@ -8,12 +8,11 @@
         <button id="toggler" class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="me-3">
-            <a style="text-decoration: none;" href="{% url 'toukiApp:index' %}">
-                <div class="btn-shogi btn btn-primary bg-gradient bg-opacity-50 shadow text-white">
-                </div>
-            </a>
-        </div>
+        <a class="me-4" href="{% url 'toukiApp:index' %}">
+            <img class="company_logo" src="{% static 'toukiApp/img/会社ロゴ.png' %}" alt="会社ロゴ">
+            <!-- <div class="btn-shogi btn btn-primary bg-gradient bg-opacity-50 shadow text-white">
+            </div> -->
+        </a>
         <div id="offcanvasMenus" class="offcanvas offcanvas-start" tabindex="-1" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header border-bottom">
                 <h5 id="offcanvasLabel" class="offcanvas-title">

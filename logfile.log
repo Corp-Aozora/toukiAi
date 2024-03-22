@@ -1452,3 +1452,7 @@ Watching for file changes with StatReloader
 C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py changed, reloading.
 couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
 Watching for file changes with StatReloader
+Not Found: /favicon.ico
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+Watching for file changes with StatReloader

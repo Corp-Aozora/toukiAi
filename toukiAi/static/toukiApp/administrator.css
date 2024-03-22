@@ -20,3 +20,16 @@
 #updateScheduleList li:not(:first-child){
     margin-top: 1rem;
 }
+
+.company_logo{
+    width:150px!important;
+}
+
+div .card{
+    margin-top: 3rem !important;
+}
+
+.company_message{
+    font-family: 'Noto Serif JP', serif;
+}
+  

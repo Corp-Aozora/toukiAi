@@ -43,6 +43,9 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from bs4 import BeautifulSoup
 import logging
 import inspect
+from requests.exceptions import HTTPError, ConnectionError, Timeout
+import traceback
+from django.db.models.query import QuerySet
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +60,7 @@ def index(request):
         form = OpenInquiryForm(request.POST)
         if form.is_valid():
             with transaction.atomic():
+                function_name = get_current_function_name()
                 try:
                     form.save()
                     subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
@@ -103,18 +107,24 @@ def index(request):
                     message.send()
                     request.session["post_success"] = True
                     
-                except BadHeaderError:
-                    return HttpResponse("無効なヘッダが検出されました。")
+                except BadHeaderError as e:
+                    basic_log(function_name, e, None, "無効なヘッダ")
+                    messages.error(request, f'無効なヘッダが検出されました {e}')
                 except SMTPException as e:
+                    basic_log(function_name, e, None, "SMTPエラー")
                     messages.error(request, f'SMTPエラーが発生しました {e}')
                 except socket.error as e:
+                    basic_log(function_name, e, None, "ネットワークエラー")
                     messages.error(request, f'ネットワークエラーが発生しました {e}')
                 except ValidationError as e:
-                    messages.warning(request, "データの保存に失敗しました。入力内容を確認してください。")
+                    basic_log(function_name, e, None)
+                    messages.error(request, "データの保存に失敗しました。入力内容を確認してください。")
                 except Exception as e:
+                    basic_log(function_name, e, None)
                     messages.error(request, f'予期しないエラーが発生しました {e}')
             
         else:
+            basic_log(function_name, None, None, "入力内容に誤り")
             messages.warning(request, "入力内容に誤りがあったため受付できませんでした")
             
         return redirect("/toukiApp/index")
@@ -266,13 +276,13 @@ def step_one(request):
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
     
+    function_name = get_current_function_name()
     user = User.objects.get(email = request.user)
     child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
     child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
     collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
-    
     if request.method == "POST":
         forms = [
             StepOneDecedentForm(request.POST, prefix="decedent"),
@@ -300,21 +310,23 @@ def step_one(request):
             try:
                 with transaction.atomic():
                     save_step_one_datas(user, forms, form_sets)
+            except DatabaseError as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データベース処理でエラーが発生しました。\nお問い合わせからご連絡をお願いします。')
+                return redirect('/toukiApp/step_one')
             except Exception as e:
-                # ログにエラーメッセージを記録します
-                print(f"Error occurred: {e}")
-                # ユーザーにエラーが発生したことを通知します
-                messages.error(request, 'データの保存中にエラーが発生しました。')
+                basic_log(function_name, e, user)
+                messages.error(request, 'データの保存中にエラーが発生しました。\nお問い合わせからご連絡をお願いします。')
                 return redirect('/toukiApp/step_one')
             else:
                 return redirect('/toukiApp/step_two')
         else:
             for form in forms:
                 if not form.is_valid():
-                    print(f"Form {form} errors: {form.errors}")
+                    basic_log(function_name, None, user, f"form {form} errors: {form.errors}")
             for form_set in form_sets:
                 if not form_set.is_valid():
-                    print(f"Formset {form_set} errors: {form_set.errors}")
+                    basic_log(function_name, None, user, f"formset {form_set} errors: {form_set.errors}")
             return redirect('/toukiApp/step_one')
     
     userDataScope = []
@@ -332,7 +344,7 @@ def step_one(request):
         userDataScope.append("decedent")
         
         spouse_form = StepOneSpouseForm(prefix="spouse")
-        spouse = Spouse.objects.filter(object_id=decedent.id).first()
+        spouse = Spouse.objects.filter(decedent=decedent, object_id=decedent.id).first()
         if spouse:
             spouse_data = model_to_dict(spouse)
             userDataScope.append("spouse")
@@ -355,7 +367,7 @@ def step_one(request):
                     ]
                     userDataScope.append("child")
                     
-                    child_spouses = Spouse.objects.filter(decedent=decedent)[1:]
+                    child_spouses = Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id)
                     if child_spouses.exists():
                         child_spouses_data = [
                             {
@@ -560,6 +572,8 @@ def step_two(request):
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
 
+    function_name = get_current_function_name()
+    
     user = User.objects.get(email = request.user)
     decedent = user.decedent.first()
     registry_files = Register.objects.filter(decedent=decedent)
@@ -625,9 +639,11 @@ def step_two(request):
                     )
                     register.save()  # データベースに保存
         except googleapiclient.errors.HttpError as e:
-            print(f'Error occurred: {e}')
+            basic_log(function_name, e, user, "googleapiclientエラー")
+            messages.error(request, 'データの保存中にエラーが発生しました。')
+            return JsonResponse({'status': 'error'})
         except Exception as e:
-            print(f"Error occurred: {e}")
+            basic_log(function_name, e, user)
             messages.error(request, 'データの保存中にエラーが発生しました。')
             return JsonResponse({'status': 'error'})
         else:
@@ -646,7 +662,6 @@ def step_two(request):
         output = os.path.join(settings.MEDIA_ROOT, 'download_tmp', file_name_and_file_path["name"])
 
         # ファイルをダウンロード
-        print("aaaaa" + file_name_and_file_path["path"])
         gdown.download(file_name_and_file_path["path"], output, quiet=True)
 
         # ダウンロードしたファイルの名前とパスを配列に追加
@@ -759,8 +774,8 @@ def step_three_input_status(data):
     Returns:
         bool: 入力完了はtrue、未完了はfalse
     """
+    function_name = get_current_function_name()
     try:
-            
         #被相続人データのとき
         if data.__class__ == Decedent:
             #チェック対象の属性リスト
@@ -808,8 +823,8 @@ def step_three_input_status(data):
                 
         return False
     except Exception as e:
-        logger.error(f"step_three_input_status：エラー詳細: {e}")
-        return HttpResponse("登録されているデータチェック中にエラーが発生しました。", status=500)
+        basic_log(function_name, e, None)
+        raise e
         
 def get_registry_name_and_address_initial_data(data):
     """登記簿上の氏名住所の初期データ生成処理。
@@ -996,100 +1011,229 @@ def get_acquirer_initial_data(data):
 
     return initial_data
 
-def add_value_for_new_data(form, user, decedent):
-    form.decedent = decedent
-    form.created_by = user
-    form.updated_by = user
+def add_required_for_data(instance, user, decedent):
+    """データに必須の項目を追加する
+    ・更新者は常に必須
+    ・被相続人と作成者は新規登録のときに必須
 
+    Args:
+        instance (_type_): モデルに登録するインスタンス
+        user (_type_): _description_
+        decedent (_type_): _description_
+    """
+    instance.updated_by = user
+    if not instance.id:
+        instance.decedent = decedent
+        instance.created_by = user
+def form_and_data_not_match_http_response():
+    return HttpResponse("入力内容と登録データに齟齬があります。\n解決方法をご案内いたしますので、お手数ですがお問い合わせをお願いします", status=400)
+    
 def save_step_three_registry_name_and_address(decedent, user, form_set):
     """登記簿上の氏名住所のデータ操作
-    ・被相続人に紐づく
-
+    
+    被相続人に紐づくデータを全削除してすべて新規登録にする
+    
     Args:
         user (_type_): _description_
         form_set (_type_): _description_
     """
-    try:
-        RegistryNameAndAddress.objects.filter(decedent=decedent).delete()
-        for form in form_set:
-            if form.cleaned_data:
-                registry_name_and_address = form.save(commit=False)
-                add_value_for_new_data(registry_name_and_address, user, decedent)
-                registry_name_and_address.save()
-    except Exception as e:
-        form_class_name = form.__class__.__name__  # formのクラス名を取得
-        logger.error(f"save_step_three_registry_name_and_address：{form_class_name} 保存時にエラーが発生しました\nエラー詳細: {e}")
-        raise
+    if is_form_set(form_set):
+        function_name = get_current_function_name()
+        form_class_name = get_form_set_class_name(form_set)
+        try:
+            RegistryNameAndAddress.objects.filter(decedent=decedent).delete()
+            for form in form_set:
+                instance = form.save(commit=False)
+                add_required_for_data(instance, user, decedent)
+                instance.save()
+        except DatabaseError as e:
+            basic_log(function_name, e, user, form_class_name)
+            raise e
+        except Exception as e:
+            basic_log(function_name, e, user, form_class_name)
+            raise e
+    else:
+        basic_log(get_current_function_name(), e, user, "フォームが存在しません")
+        raise ValidationError("登記簿上の氏名住所のフォームが存在しません")
 
-def save_step_three_child_spouse_or_ascendant(user, form_set, data):
+def update_form_set_validation(data, form_set, user):
+    """フォームセットを更新する際のバリデーション
+    
+    ・データが１つ以上ある
+    ・データ数とフォームセットの数が一致する
+    ・データとフォームセットのidが一致する
+
+    Args:
+        data (_type_): _description_
+        form_set (_type_): _description_
+        user (_type_): _description_
+        form_class_name (_type_): _description_
+        update_target_ids (_type_): _description_
+        data_keys (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if is_data(data) == False:
+        return False
+    function_name = get_current_function_name()
+    form_class_name = get_form_set_class_name(form_set)
+    update_target_ids = [form.cleaned_data.get("id") for form in form_set if form.cleaned_data.get('id')]
+    data_dict = {d.id: d for d in data}
+    data_keys = data_dict.keys()
+    if not is_form_set_count_equal_to_data_count(form_set, data):
+        basic_log(function_name, None, user, f"{form_class_name}のフォームセットの数とデータの数が一致しません")
+        raise ValidationError("データとフォームの数が一致ません")
+        
+    if not is_all_id_match(update_target_ids, data_keys, user, form_class_name):
+        basic_log(function_name, None, user, f"{form_class_name}のフォームセットのidとデータのidが一致しません")
+        raise ValidationError(id_not_match_message("データ", "フォーム"))
+
+def update_form_set(data, form_set, user, decedent, content_type = None, relationship = None):
+    """フォームセットの更新処理
+
+    バリデーション後に更新処理を行う
+    
+    Args:
+        data (_type_): _description_
+        form_set (_type_): _description_
+        user (_type_): _description_
+        decedent (_type_): _description_
+        content_type (_type_, optional): _description_. Defaults to None.
+        relationship (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     try:
-        form_class_name = form_set.forms[0].__class__.__name__  # formのクラス名を取得
-        update_target_ids = [form.cleaned_data.get("id") for form in form_set if form.cleaned_data.get('id')]
+        function_name = get_current_function_name()
+        if update_form_set_validation(data, form_set, user) == False:
+            return
+        
+        form_class_name = get_form_set_class_name(form_set)
+        if form_class_name in ["StepThreeDescendantForm", "StepThreeCollateralForm"]:
+            save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship)
+        elif form_class_name in ["StepThreeSpouseForm", "StepThreeAscendantForm"]:
+            save_step_three_child_spouse_or_ascendant(user, form_set, data)
+        else:
+            basic_log(get_current_function_name(), None, user, form_class_name)
+            raise ValidationError("想定しない形式のフォームが使用されてます")
+    except (DatabaseError, ValidationError) as e:
+        basic_log(function_name, e, user)
+        raise e
+    except Exception as e:
+        basic_log(function_name, e, user)
+        raise e
+
+def is_all_id_match(target_ids, data_ids, user, form_class_name):
+    """フォームセットのidとデータのidを比較する
+
+    Args:
+        target_ids (_type_): _description_
+        data_ids (_type_): _description_
+        user (_type_): _description_
+        form_class_name (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    #idを比較してフォームセットから送られたデータが全て更新対象のものか確認する
+    target_ids_set = set(int(id_str) for id_str in target_ids if id_str.isdigit())
+    # data_dict のキーからセットを作成
+    data_ids_set = set(data_ids)
+    # 両方のセットが完全に一致するか確認
+    if target_ids_set != data_ids_set:
+        missing_in_target_ids = data_ids_set - target_ids_set
+        missing_in_data_ids = target_ids_set - data_ids_set
+        message = f"{form_class_name}のid比較時にエラー発生\n\
+            フォームセットに含まれていないID：{missing_in_target_ids}\n\
+            データに含まれていないID：{missing_in_data_ids}"
+        basic_log(get_current_function_name(), None, user, message)
+        raise ValidationError(id_not_match_message("データ", "フォーム"))
+
+    return True
+    
+def save_step_three_child_spouse_or_ascendant(user, form_set, data):
+    """ステップ３の子の配偶者又は尊属の更新処理
+
+    Args:
+        user (_type_): _description_
+        form_set (_type_): _description_
+        data (_type_): _description_
+    """
+    try:
+        function_name = get_current_function_name()
+        form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
         data_dict = {d.id: d for d in data}
-        #idを比較してフォームセットから送られたデータが全て更新対象のものか確認する
-        update_target_ids_set = set(int(id_str) for id_str in update_target_ids if id_str.isdigit())
-        # data_dict のキーからセットを作成
-        data_ids_set = set(data_dict.keys())
-        # 両方のセットが完全に一致するか確認
-        if update_target_ids_set != data_ids_set:
-            missing_in_update_target = data_ids_set - update_target_ids_set
-            missing_in_data_ids = update_target_ids_set - data_ids_set
-            logger.error(
-                f"save_step_three_child_spouse_or_ascendant：{form_class_name} idの比較でエラー発生しました\n"
-                f"フォームセットに含まれていないID：{missing_in_update_target}\n"
-                f"データに含まれていないID：{missing_in_data_ids}"
-            )
-            raise ValueError("IDの比較で不一致が発生しました")
-        model_fields = model_to_dict(data[0]).keys()
-        exclude_fields = ['is_heir', "is_exist", "is_live", 'created_at', 'created_by']
-        # 内包表記を使用して除外したいフィールドをフィルタリング
-        filtered_fields = [field for field in model_fields if field not in exclude_fields]
+        update_fields = get_update_fields_for_form_set(data)
         for form in form_set:
             form_data = form.cleaned_data
-            if not form_data:
-                logger.error(f"save_step_three_child_spouse_or_ascendant：{form_class_name} にデータがありません")
-                raise ValueError("フォームにデータが入力されてません")
             update_target_data = data_dict.get(int(form_data.get("id")))
             form_data['updated_by'] = user
             for key, value in form_data.items():
-                if key in filtered_fields:
+                if key in update_fields:
                     setattr(update_target_data, key, value)
                 update_target_data.save()
+    except DatabaseError as e:
+        basic_log(function_name, e, user, form_class_name)
+        raise e
     except Exception as e:
-        logger.error(f"save_step_three_child_spouse_or_ascendant：{form_class_name} 保存時にエラーが発生しました。エラー詳細: {e}")
-        raise
+        basic_log(function_name, e, user, form_class_name)
+        raise e
     
-def save_step_three_descendant_or_collateral(decedent, user, form_set, content_type, relationship, data):
-    try:
-        form_class_name = form_set.forms[0].__class__.__name__  # formのクラス名を取得
-        update_target_ids = [form.cleaned_data.get("id") for form in form_set if form.cleaned_data.get('id')]
-        data_dict = {d.id: d for d in data}
-        #idを比較してフォームセットから送られたデータが全て更新対象のものか確認する
-        update_target_ids_set = set(int(id_str) for id_str in update_target_ids if id_str.isdigit())
-        # data_dict のキーからセットを作成
-        data_ids_set = set(data_dict.keys())
-        # 両方のセットが完全に一致するか確認
-        if update_target_ids_set != data_ids_set:
-            missing_in_update_target = data_ids_set - update_target_ids_set
-            missing_in_data_ids = update_target_ids_set - data_ids_set
-            logger.error(
-                f"save_step_three_descendant_or_collateral：{form_class_name} idの比較でエラー発生しました\n"
-                f"フォームセットに含まれていないID：{missing_in_update_target}\n"
-                f"データに含まれていないID：{missing_in_data_ids}"
-            )
-            raise ValueError("IDの比較で不一致が発生しました")
-        related_indivisual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
-        model_fields = model_to_dict(data[0]).keys()
+def get_update_fields_for_form_set(data):
+    """フォームセットの更新処理をする際の更新対象のフィールドを取得する
+    
+    モデルのクラス名に応じて更新から除外するフィールドを判別して更新対象のフィールドを確定する
+
+    Args:
+        data (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    d = data[0]
+    model_name = d._meta.model_name
+    model_fields = model_to_dict(d).keys()
+    exclude_fields = []
+    
+    if model_name in "descendant" or "collateral":
         exclude_fields = ['is_heir', "is_exist", "is_live", 'created_at', 'created_by']
-        # 内包表記を使用して除外したいフィールドをフィルタリング
-        filtered_fields = [field for field in model_fields if field not in exclude_fields]
+    elif model_name in "spouse" or "ascendant":
+        exclude_fields = ['is_heir', "is_exist", "is_live", 'created_at', 'created_by']
+    else:
+        basic_log(get_current_function_name(), None, None, "想定しないデータが渡されました")
+        raise ValidationError("想定しない形式のデータが参照されました")
+    
+    return [field for field in model_fields if field not in exclude_fields]
+
+def save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship):
+    """ステップ３の卑属又は傍系のデータ更新処理
+
+    Args:
+        decedent (_type_): _description_
+        user (_type_): _description_
+        form_set (_type_): _description_
+        content_type (_type_): _description_
+        relationship (_type_): _description_
+        data (_type_): _description_
+
+    Raises:
+        ValueError: _description_
+    """
+    function_name = get_current_function_name()
+    try:
+        form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
+        data_dict = {d.id: d for d in data}
+        related_indivisual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
+        update_fields = get_update_fields_for_form_set(data)
         for form in form_set:
             form_data = form.cleaned_data
-            if not form_data:
-                logger.error(f"save_step_three_descendant_or_collateral：{form_class_name} にデータがありません")
-                raise ValueError("フォームにデータが入力されてません")
-            #関係者の登録
-            if form_data.get("other_parent_name") != "" and form_data.get("object_id2") == "":
+            #関係者の登録（関係者は削除と新規のため、子のcontent_type2object_id2は常に更新する必要あり）
+            if form_data.get("other_parent_name") != "":
                 related_indivisual = RelatedIndividual(
                     decedent = decedent,
                     content_type = content_type,
@@ -1105,99 +1249,162 @@ def save_step_three_descendant_or_collateral(decedent, user, form_set, content_t
             update_target_data = data_dict.get(int(form_data.get("id")))
             form_data['updated_by'] = user
             for key, value in form_data.items():
-                if key in filtered_fields:
+                if key in update_fields:
                     setattr(update_target_data, key, value)
                 update_target_data.save()
+    except DatabaseError as e:
+        basic_log(function_name, e, user, form_class_name)
+        raise e
     except Exception as e:
-        logger.error(f"save_step_three_descendant_or_collateral：{form_class_name} 保存時にエラーが発生しました。エラー詳細: {e}")
-        raise
+        basic_log(function_name, e, user, form_class_name)
+        raise e
 
 def save_step_three_step_property(decedent, user, form_set):
+    """土地、建物、区分建物のデータ新規登録処理
+
+    Args:
+        decedent (_type_): _description_
+        user (_type_): _description_
+        form_set (_type_): _description_
+
+    Returns:
+        _type_: 不動産のフォームのindexとinstance（取得者、敷地権の登録処理で使用するため）
+    """
     try:
-        index_and_ids = []
-        form_class_name = form_set.forms[0].__class__.__name__
+        form_class_name = get_form_set_class_name(form_set)
+        function_name = get_current_function_name()
+        index_and_instance = []
         for form in form_set:
-            property = form.save(commit=False)
-            add_value_for_new_data(property, user, decedent)
-            property.save()
-            index_and_ids.append((form.cleaned_data.get("index"), property))
-        return index_and_ids
+            instance = form.save(commit=False)
+            add_required_for_data(instance, user, decedent)
+            instance.save()
+            index_and_instance.append((form.cleaned_data.get("index"), instance))
+        return index_and_instance
+    except DatabaseError as e:
+        basic_log(function_name, e, user, form_class_name)
+        raise e
     except Exception as e:
-        logger.error(f"save_step_three_step_property：{form_class_name} 保存時にエラーが発生しました。エラー詳細: {e}")
-        raise        
+        basic_log(function_name, e, user, form_class_name)
+        raise e   
 
 def save_step_three_acquirer(decedent, user, form_set, property_content_type, index_and_properties):
+    """不動産取得者、金銭取得者の新規登録処理
+
+    ・金銭取得者の場合は、targetがNoneのフォームをスキップする
+    Args:
+        decedent (_type_): _description_
+        user (_type_): _description_
+        form_set (_type_): _description_
+        property_content_type (_type_): _description_
+        index_and_properties (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+    """
     function_name = get_current_function_name()
     form_class_name = get_form_set_class_name(form_set)
     try:
         for form in form_set:
-            acquirer = form.save(commit=False)
-            add_value_for_new_data(acquirer, user, decedent)
-            acquirer.content_type1 = property_content_type
+            instance = form.save(commit=False)
+            add_required_for_data(instance, user, decedent)
+            instance.content_type1 = property_content_type
             matched = False
             target_val = form.cleaned_data.get("target")
+            
+            cash_acquirer_forms = ["StepThreeLandCashAcquirerForm", "StepThreeHouseCashAcquirerForm", "StepThreeBldgCashAcquirerForm"]
+            content_type_val = form.cleaned_data.get("content_type2")
+            if form_class_name in cash_acquirer_forms and not content_type_val:
+                continue
+            
             for idx, property in index_and_properties:
                 if target_val == idx:
                     matched = True
-                    acquirer.object_id1 = property.id
+                    instance.object_id1 = property.id
+                    instance.save()
                     break
             if not matched:
-                logger.error(
-                    f"{function_name}：{form_class_name} 保存時にエラーが発生しました。"
-                    f"詳細:target：{target_val}に一致する不動産のindexがありません"
-                )
-                raise ValidationError("不動産のindex又は取得者のtargetが不正に編集されました")
-            acquirer.save()
+                basic_log(
+                    function_name,
+                    None,
+                    user,
+                    f"content_type：{property_content_type}\n\
+                        フォームクラス：{form_class_name}\n\
+                        target：{target_val}に一致する不動産のindexがありません")
+                raise ValidationError("取得者と不動産の関連付けに失敗しました")
+    except DatabaseError as e:
+        basic_log(function_name, e, user, form_class_name)
+        raise e
     except Exception as e:
-        logger.error(f"{function_name}：{form_class_name} 保存時にエラーが発生しました。エラー詳細: {e}")
-        raise        
+        basic_log(function_name, e, user, form_class_name)
+        raise e     
 
-def save_step_three_site(decedent, user, form_set, index_and_properties):
+def save_step_three_site(decedent, user, form_set, index_and_instance):
+    """ステップ３の敷地権のデータ登録処理
+
+    Args:
+        decedent (_type_): _description_
+        user (_type_): _description_
+        form_set (_type_): _description_
+        index_and_instance (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+    """
     function_name = get_current_function_name()
     form_class_name = get_form_set_class_name(form_set)
     try:
-        for form in form_set:
+        for i, form in enumerate(form_set):
             site = form.save(commit=False)
-            add_value_for_new_data(site, user, decedent)
+            add_required_for_data(site, user, decedent)
             matched = False
             target_val = form.cleaned_data.get("target")
-            for idx, property in index_and_properties:
+            for idx, property in index_and_instance:
                 if target_val == idx:
                     matched = True
                     site.bldg = property
+                    site.save()
                     break
             if not matched:
-                logger.error(
-                    f"{function_name}：{form_class_name} 保存時にエラーが発生しました。"
-                    f"エラー詳細:target：{target_val}に一致する不動産のindexがありません"
-                )
-                raise ValidationError("区分建物のindex又は敷地権のtargetが不正に編集されました")
-            site.save()
+                raise ValidationError(f"form_num:{i + 1}\ntarget：{target_val}に一致する不動産のindexがありません")
+    except DatabaseError as e:
+        basic_log(function_name, e, user, form_class_name)
+        raise e
     except Exception as e:
-        logger.error(f"{function_name}：{form_class_name} 保存時にエラーが発生しました。エラー詳細: {e}")
-        raise     
+        basic_log(function_name, e, user, form_class_name)
+        raise e
 
 def save_step_three_form(decedent, user, form):
+    """ステップ３のモデルフォームのデータ保存処理
+
+    フォームセットは対象外
+    Args:
+        decedent (_type_): _description_
+        user (_type_): _description_
+        form (_type_): _description_
+    """
     try:
         form_class_name = form.__class__.__name__
         instance = form.save(commit=False)
-        add_value_for_new_data(instance, user, decedent)
+        add_required_for_data(instance, user, decedent)
         instance.save()
     except DatabaseError as e:
-        logger.error(f"save_step_three_form：{form_class_name} のデータ保存中にでエラー発生\n詳細: {e}")
-        raise         
+        basic_log(get_current_function_name(), e, user, form_class_name)
+        raise e
     except Exception as e:
-        logger.error(f"save_step_three_form：{form_class_name} の処理中にエラー発生\n詳細: {e}")
-        raise
+        basic_log(get_current_function_name(), e, user, form_class_name)
+        raise e
 
 def get_form_set_class_name(form_set):
     if (len(form_set.forms) > 0):
         return form_set.forms[0].__class__.__name__
     else:
-        return "フォームセットにフォームがありません"
+        raise ValidationError("フォームセットにフォームがありません")
 
 def is_data(data):
-    return len(data) > 0
+    if isinstance(data, (list, tuple, QuerySet)):
+        return bool(data)
+    else:
+        return data is not None
 
 def is_form_set(form_set):
     return form_set.management_form.cleaned_data["TOTAL_FORMS"] > 0
@@ -1214,6 +1421,84 @@ def get_current_function_name():
     """
     return inspect.currentframe().f_back.f_code.co_name
 
+def id_not_match_message(str1 = None, str2 = None):
+    """idが一致しないときのメッセージを返します
+    
+    str1とstr2のidが一致しない場合、それらのidを含んだエラーメッセージを返します。
+    どちらかまたは両方の引数がNoneの場合は、一般的なエラーメッセージを返します。
+    
+    Args:
+        str1 (str, optional): 比較するオブジェクト１. Defaults to None.
+        str2 (str, optional): 比較するオブジェクト２. Defaults to None.
+
+    Returns:
+        str: エラーメッセージ
+    """
+    if(str1 and str2):
+        return (f"{str1}と{str2}のidが一致しません")
+    else:
+        return ("idが一致しません")
+
+def save_step_three_spouse_data(data, form, decedent, user):
+    if is_data(data):
+        save_step_three_form(decedent, user, form)
+    else:
+        basic_log(get_current_function_name(), None, user, "配偶者データがないにもかかわらず配偶者フォームがPOSTに含まれてます")
+        raise ValidationError("配偶者データがありません")
+
+def basic_log(function_name, e, user, message = None):
+    """基本的なログ情報
+
+    Args:
+        function_name (str): 関数名
+        e (_type_): エラークラスから生成されたオブジェクト
+        user (User): 対象のユーザー
+        message (str, optional): 特記事項. Defaults to None.
+    """
+    traceback_info = traceback.format_exc()
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    user_id = user.id if user else ""
+    logger.error(f"エラー発生箇所:{function_name}\n\
+        開発者メッセージ:{message}\n\
+        詳細：{e}\n\
+        user_id:{user_id}\n\
+        発生時刻：{current_time}\n\
+        経路:{traceback_info}"
+    )
+
+def save_step_three_decedent_data(form, user):
+    try:
+        instance = form.save(commit=False)
+        instance.progress = 4
+        add_required_for_data(instance, user, instance)
+        instance.save()
+        return instance
+    except Exception as e:
+        basic_log(get_current_function_name(), e, user)
+        raise e
+
+def get_forms_idx_for_step_three():
+    return {
+        "decedent": 0,
+        "spouse": 1,
+        "type_of_division": 2,
+        "number_of_properties": 3,
+        "application": 4,
+    }
+
+def del_data_for_step_three(decedent):
+    """ステップ３で削除と新規登録するモデルのデータ削除処理
+
+    Args:
+        decedent (_type_): _description_
+    """
+    RelatedIndividual.objects.filter(decedent=decedent).delete()
+    Land.objects.filter(decedent=decedent).delete()
+    House.objects.filter(decedent=decedent).delete()
+    Bldg.objects.filter(decedent=decedent).delete()
+    PropertyAcquirer.objects.filter(decedent=decedent).delete()
+    CashAcquirer.objects.filter(decedent=decedent).delete()
+
 def save_step_three_datas(user, forms, form_sets, data, data_idx):
     """ステップ３のデータ登録・更新処理
 
@@ -1226,117 +1511,88 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
         _type_: _description_
     """
 
-    forms_idx = {
-        "decedent": 0,
-        "spouse": 1,
-        "type_of_division": 2,
-        "number_of_properties": 3,
-        "application": 4,
-    }
+    forms_idx = get_forms_idx_for_step_three()
     form_sets_idx = get_formsets_idx_for_step_three()
-    def_name = "save_step_three_datas"
+    function_name = get_current_function_name()
     try:
-        try:
-            decedent = forms[forms_idx["decedent"]].save(commit=False)
-            decedent.progress = 4
-            decedent.save()
-        except Exception as e:
-            logger.error(f"decedentでエラー発生\nエラー詳細: {e}")
-            raise
-        
+        #被相続人
+        decedent = save_step_three_decedent_data(forms[forms_idx["decedent"]], user)
+        #更新ではなく常に新規登録するモデルについてのデータ削除処理
+        del_data_for_step_three(decedent)
         # 配偶者
-        save_step_three_form(decedent, user, forms[forms_idx["spouse"]])
+        save_step_three_spouse_data(
+            data[data_idx["spouse"]], 
+            forms[forms_idx["spouse"]], 
+            decedent, 
+            user
+        )
         # 遺産分割方法
-        save_step_three_form(decedent, user, forms[forms_idx["type_of_division"]])
+        save_step_three_form(
+            decedent,
+            user,
+            forms[forms_idx["type_of_division"]]
+        )
         #不動産の数
-        save_step_three_form(decedent, user, forms[forms_idx["number_of_properties"]])
+        save_step_three_form(
+            decedent,
+            user,
+            forms[forms_idx["number_of_properties"]]
+        )
         #申請情報
-        save_step_three_form(decedent, user, forms[forms_idx["application"]])
+        save_step_three_form(
+            decedent,
+            user,
+            forms[forms_idx["application"]]
+        )
         # 登記簿上の氏名住所
-        if is_form_set(form_sets[form_sets_idx["registry_name_and_address"]]):
-            save_step_three_registry_name_and_address(
-                decedent,
-                user,
-                form_sets[form_sets_idx["registry_name_and_address"]],
-            )
-        else:
-            logger.error(f"{def_name}：登記簿上の氏名住所のフォームが存在しません")
-            raise ValidationError("登記簿上の氏名住所のフォームが存在しません")
-        
+        save_step_three_registry_name_and_address(
+            decedent,
+            user,
+            form_sets[form_sets_idx["registry_name_and_address"]],
+        )
         # 子（前配偶者がいるとき、前配偶者の新規登録又は更新をしてから更新する）
         descendant_content_type = ContentType.objects.get_for_model(Descendant)
-        #関係者は常に削除と新規登録
-        RelatedIndividual.objects.filter(decedent=decedent).delete()
-        if is_data(data[data_idx["child"]]):
-            if is_form_set_count_equal_to_data_count(form_sets[form_sets_idx["child"]], data[data_idx["child"]]):
-                save_step_three_descendant_or_collateral(
-                    decedent,
-                    user,
-                    form_sets[form_sets_idx["child"]],
-                    descendant_content_type,
-                    "前配偶者",
-                    data[data_idx["child"]],
-                )
-            else:
-                logger.error(f"{def_name}：子のフォームセットの数とデータの数が一致しません")
-                raise ValidationError("登録された子の数と入力されたフォームの数が一致しません")
-        
+        update_form_set(
+            data[data_idx["child"]], 
+            form_sets[form_sets_idx["child"]],
+            user,
+            decedent,
+            descendant_content_type,
+            "前配偶者",
+        )
         #子の配偶者
-        if is_data(data[data_idx["child_spouse"]]):
-            if is_form_set_count_equal_to_data_count(form_sets[form_sets_idx["child_spouse"]], data[data_idx["child_spouse"]]):
-                save_step_three_child_spouse_or_ascendant(
-                    user,
-                    form_sets[form_sets_idx["child_spouse"]],
-                    data[data_idx["child_spouse"]],
-                )
-            else:
-                logger.error(f"{def_name}：子のフォームセットの数とデータの数が一致しません")
-                raise ValidationError("登録された子の配偶者の数と入力されたフォームの数が一致しません")
-        
+        update_form_set(
+            data[data_idx["child_spouse"]],
+            form_sets[form_sets_idx["child_spouse"]],
+            user,
+            decedent,
+        )
         #孫
-        if is_data(data[data_idx["grand_child"]]):
-            if is_form_set_count_equal_to_data_count(form_sets[form_sets_idx["grand_child"]], data[data_idx["grand_child"]]):
-                save_step_three_descendant_or_collateral(
-                    decedent,
-                    user,
-                    form_sets[form_sets_idx["grand_child"]],
-                    descendant_content_type,
-                    "子の前配偶者",
-                    data[data_idx["grand_child"]],
-                )
-            else:
-                logger.error(f"{def_name}：孫のフォームセットの数とデータの数が一致しません")
-                raise ValidationError("登録された孫の数と入力されたフォームの数が一致しません")
-        
+        update_form_set(
+            data[data_idx["grand_child"]],
+            form_sets[form_sets_idx["grand_child"]],
+            user,
+            decedent,
+            descendant_content_type,
+            "子の前配偶者"
+        )
         #尊属
-        if is_data(data[data_idx["ascendant"]]):
-            if is_form_set_count_equal_to_data_count(form_sets[form_sets_idx["ascendant"]], data[data_idx["ascendant"]]):
-                save_step_three_child_spouse_or_ascendant(
-                    user,
-                    form_sets[form_sets_idx["ascendant"]],
-                    data[data_idx["ascendant"]],
-                )
-            else:
-                logger.error(f"{def_name}：尊属のフォームセットの数とデータの数が一致しません")
-                raise ValidationError("登録された尊属の数と入力されたフォームの数が一致しません")
-        
+        update_form_set(
+            data[data_idx["ascendant"]],
+            form_sets[form_sets_idx["ascendant"]],
+            user,
+            decedent
+        )
         #兄弟姉妹
-        if is_data(data[data_idx["collateral"]]):
-            if is_form_set_count_equal_to_data_count(form_sets[form_sets_idx["collateral"]], data[data_idx["collateral"]]):
-                collateral_content_type = ContentType.objects.get_for_model(Collateral)
-                save_step_three_descendant_or_collateral(
-                    decedent,
-                    user,
-                    form_sets[form_sets_idx["collateral"]],
-                    collateral_content_type,
-                    "異父又は異母",
-                    data[data_idx["collateral"]],
-                )
-            else:
-                logger.error(f"{def_name}：兄弟姉妹のフォームセットの数とデータの数が一致しません")
-                raise ValidationError("登録された兄弟姉妹の数と入力されたフォームの数が一致しません")
+        update_form_set(
+            data[data_idx["collateral"]],
+            form_sets[form_sets_idx["collateral"]],
+            user,
+            decedent,
+            ContentType.objects.get_for_model(Collateral),
+            "異父又は異母"
+        )
         #土地
-        Land.objects.filter(decedent=decedent).delete()
         if forms[forms_idx["number_of_properties"]].cleaned_data.get("land") > 0:
             land_index_and_properties = save_step_three_step_property(
                 decedent,
@@ -1362,7 +1618,6 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
                     land_index_and_properties,
                 )
         #建物
-        House.objects.filter(decedent=decedent).delete()
         if forms[forms_idx["number_of_properties"]].cleaned_data.get("house") > 0:
             house_index_and_properties = save_step_three_step_property(
                 decedent,
@@ -1388,7 +1643,6 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
                     house_index_and_properties,
                 )
         #区分建物
-        Bldg.objects.filter(decedent=decedent).delete()
         if forms[forms_idx["number_of_properties"]].cleaned_data.get("bldg") > 0:
             bldg_index_and_properties = save_step_three_step_property(
                 decedent,
@@ -1420,12 +1674,12 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
                     bldg_content_type,
                     bldg_index_and_properties,
                 )
-    except DatabaseError as e:
-        logger.error(f"save_step_three_datas：データ登録でエラー発生\n詳細: {e}")
-        raise 
+    except (DatabaseError, ValidationError) as e:
+        basic_log(function_name, e, user)
+        raise e
     except Exception as e:
-        logger.error(f"save_step_three_datas：エラー発生\n詳細: {e}")
-        raise
+        basic_log(function_name, e, user)
+        raise e
         
 def get_data_idx_for_step_three():
     idxs = {
@@ -1458,6 +1712,7 @@ def get_data_for_step_three(decedent):
     Args:
         decedent (Decedent): 被相続人のデータ
     """
+    function_name = get_current_function_name()
     try:
         registry_name_and_address_data = RegistryNameAndAddress.objects.filter(decedent=decedent).order_by('id')
         spouse_data = Spouse.objects.filter(object_id=decedent.id).first()
@@ -1493,15 +1748,12 @@ def get_data_for_step_three(decedent):
             bldg_data, site_data, bldg_acquirer_data, bldg_cash_acquirer_data,
             application_data,
         ]
-    except MultipleObjectsReturned:
-        logger.error(f"get_data_for_step_three：重複データが存在します")
-        return HttpResponse("get_data_for_step_three：重複データが存在します。", status=500)
-    except DatabaseError as e:
-        logger.error(f"get_data_for_step_three：データベースでの処理中にエラーが発生しました: {e}")
-        redirect(to='/toukiApp/step_three/')
+    except (MultipleObjectsReturned, DatabaseError) as e:
+        basic_log(function_name, e, None, f"被相続人id：{decedent.id}")
+        raise e
     except Exception as e:
-        logger.error(f"get_data_for_step_three：エラー詳細: {e}")
-        return HttpResponse(f"get_data_for_step_three： {e}", status=500)
+        basic_log(function_name, e, None, f"被相続人id：{decedent.id}")
+        raise e
 
 step_three_formset_configuration = [
     (StepThreeRegistryNameAndAddressForm, 1, 10),
@@ -1672,6 +1924,8 @@ def step_three(request):
         if not request.user.is_authenticated:
             return redirect(to='/account/login/')
         
+        function_name = get_current_function_name()
+        
         #ユーザーに紐づく被相続人データを取得する
         user = User.objects.get(email = request.user)
         decedent = user.decedent.first()
@@ -1712,22 +1966,25 @@ def step_three(request):
                     with transaction.atomic():
                         save_step_three_datas(user, forms, form_sets, data, data_idx)
                 except DatabaseError as e:
-                    logger.error(f"step_three：データベースでの処理中にエラーが発生しました: {e}")
+                    basic_log(function_name, e, user)
                     messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
                     return redirect('/toukiApp/step_three')
+                except ValidationError as e:
+                    basic_log(function_name, e, user)
+                    return HttpResponse("データと入力内容に不一致がありました\nお手数ですが、再度ご入力をお願いします", status=400)
                 except Exception as e:
-                    logger.error(f"step_three：エラー発生\n被相続人id: {decedent.id}\n詳細：{e}")
+                    basic_log(function_name, e, user)
                     messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
-                    return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご報告をお願いします", status=500)
+                    return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご連絡をお願いします", status=500)
                 else:
                     return redirect('/toukiApp/step_four')
             else:
                 for form in forms:
                     if not form.is_valid():
-                        logger.error(f"step_three：formバリデーションに失敗\n被相続人id: {decedent.id}\n詳細：Form {form} errors: {form.errors}")
+                        basic_log(function_name, None, user, f"Form {form} errors: {form.errors}")
                 for form_set in form_sets:
                     if not form_set.is_valid():
-                        logger.error(f"step_three：form_setバリデーションに失敗\n被相続人id: {decedent.id}\n詳細：Formset {form_set} errors: {form_set.errors}")
+                        basic_log(function_name, None, user, f"Formset {form_set} errors: {form_set.errors}")
                 return redirect('/toukiApp/step_three')
         
         #入力が完了している項目を取得するための配列
@@ -2038,9 +2295,22 @@ def step_three(request):
             "service_content" : Sections.SERVICE_CONTENT,
         }
         return render(request, "toukiApp/step_three.html", context)
+    except HTTPError as e:
+        basic_log(function_name, e, user)
+        messages.error(request, f'通信エラー（コード：{e.response.status_code}）が発生したため処理が中止されました。\
+                       \nコードが５００の場合は、お手数ですがお問い合わせからご連絡をお願いします。')
+        return render(request, "toukiApp/step_three.html", context)
+    except ConnectionError as e:
+        basic_log(function_name, e, user)
+        messages.error(request, '通信エラーが発生したため処理が中止されました。\nお手数ですが、再入力をお願いします。')
+        return render(request, "toukiApp/step_three.html", context)        
+    except Timeout as e:
+        basic_log(function_name, e, user)
+        messages.error(request, 'システムに接続できませんでした。\nお手数ですが、ネットワーク環境をご確認のうえ再入力をお願いします。')
+        return render(request, "toukiApp/step_three.html", context)   
     except Exception as e:
-        logger.error(f"step_three：エラー詳細: {e}")
-        return HttpResponse("step_three：エラーが発生しました", status=500)
+        basic_log(function_name, e, user)
+        return HttpResponse("想定しないエラーが発生しました\nお問い合わせからご連絡をお願いします", status=500)
 
 #ステップ4
 #書類印刷
@@ -2235,11 +2505,11 @@ def get_heirs_city_data(request):
         }
         return JsonResponse(repsonse_data)
     except (OperationalError, ConnectionError) as e:
-        return JsonResponse({'error': 'ネットワークエラーが発生しました', 'details': str(e)}, status=500)
+        return JsonResponse({'エラー原因': 'ネットワークエラー', '詳細': str(e)}, status=500)
     except ObjectDoesNotExist:
-        return JsonResponse({'error': 'データがありません'}, status=404)
+        return JsonResponse({'エラー原因': 'データがありません'}, status=404)
     except Exception as e:
-        return JsonResponse({'error': 'エラーが発生しました', 'details': str(e)}, status=500)
+        return JsonResponse({'エラー原因': '想定しないエラー', '詳細': str(e)}, status=500)
 
 # 選択された都道府県から市区町村データを取得する
 def get_city(request):
@@ -2304,7 +2574,6 @@ def step_back(request):
     decedent = Decedent.objects.filter(user=user).first()
     data = json.loads(request.body)
     progress = data.get('progress')
-    print(progress)
     if progress is not None:
         decedent.progress = int(progress)
         decedent.save()

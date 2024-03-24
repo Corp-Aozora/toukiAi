@@ -281,12 +281,14 @@ function resetInputValue(input) {
  */
 function iniInputsAndSelectValue(els) {
     // 単一の要素を配列に統一
-    if(!Array.isArray(els)){els = [els]};
+    if(!Array.isArray(els))
+        els = [els];
     
     els.forEach(el => {
         // 一時的にdisabledを解除
         const wasDisabled = el.disabled;
-        if(wasDisabled){el.disabled = false};
+        if(wasDisabled)
+            el.disabled = false;
 
         // タグ名による処理の分岐
         const tagName = el.tagName.toUpperCase(); // 大文字小文字を区別しない比較のため
@@ -297,7 +299,8 @@ function iniInputsAndSelectValue(els) {
         }
 
         // 元のdisabled状態に戻す
-        if(wasDisabled){el.disabled = true};
+        if(wasDisabled)
+            el.disabled = true;
     });
 }
 

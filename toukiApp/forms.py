@@ -8,6 +8,12 @@ from django.contrib.contenttypes.models import ContentType
 
 CustomUser = get_user_model()
 
+price_attr = {
+    "placeholder": "数字のみで入力（コンマ不要）",
+    "class": "form-control text-center rounded-end",
+    "maxlength": "16",
+}
+
 # 一般お問い合わせフォーム
 # created_by:メールアドレス, subject:件名, content:内容
 class OpenInquiryForm(forms.ModelForm):
@@ -442,7 +448,7 @@ class StepThreeRegistryNameAndAddressForm(forms.ModelForm):
                     field.initial
         super().__init__(*args, **kwargs)
         
-#相続人情報（配偶者）
+#相続人情報（配偶者、子の配偶者）
 class StepThreeSpouseForm(forms.ModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
@@ -511,7 +517,7 @@ class StepThreeSpouseForm(forms.ModelForm):
                 self.initial[field] = 'true' if self.initial[field] else 'false'
         
         
-#相続人情報（子）
+#相続人情報（子、孫）
 class StepThreeDescendantForm(forms.ModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
@@ -827,7 +833,7 @@ class StepThreeLandForm(forms.ModelForm):
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "placeholder": "数字のみで入力（コンマ不要）",
                     "class": "form-control text-center rounded-end",
                     "maxlength": "16",
                 })
@@ -943,7 +949,7 @@ class StepThreeHouseForm(forms.ModelForm):
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "placeholder": "数字のみで入力（コンマ不要）",
                     "class": "form-control text-center rounded-end",
                     "maxlength": "16",
                 })
@@ -1063,7 +1069,7 @@ class StepThreeBldgForm(forms.ModelForm):
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "placeholder": "数字のみで入力（コンマ不要）",
                     "class": "form-control text-center rounded-end",
                     "maxlength": "16",
                 })
@@ -1116,7 +1122,7 @@ class StepThreeSiteForm(forms.ModelForm):
                 })
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマは入力不要）",
+                    "placeholder": "数字のみで入力（コンマ不要）",
                     "maxlength": "16",
                     "class": "form-control text-center rounded-end",
                 })

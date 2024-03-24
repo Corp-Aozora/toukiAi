@@ -248,14 +248,14 @@ class LandChangeForm(forms.ModelForm):
 
 class LandAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ("decedent", 'register', 'number', "address", "land_number", "type", "size", 'purparty', 'price', "is_exchange", "office", 'created_by', 'updated_by')}),
+        (None, {'fields': ("decedent", 'register', 'number', "address", "land_number", 'purparty', 'price', "is_exchange", "office", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = LandChangeForm
-    list_display = ("id", "decedent", "register", 'updated_at', 'created_by', 'number', 'updated_by')
+    list_display = ("id", "decedent", "register", 'number', 'purparty', 'price', 'updated_at', 'created_by', 'updated_by')
     list_filter = ('updated_at', 'created_by', "decedent", "register", 'number', 'updated_by')
     search_fields = ('updated_at', 'created_by', "id", "decedent", "register", 'number', 'updated_by')
     ordering = ['-updated_at']
@@ -270,14 +270,14 @@ class HouseChangeForm(forms.ModelForm):
 
 class HouseAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('register', 'number', 'purparty', 'price', 'created_by', 'updated_by')}),
+        (None, {'fields': ("decedent", 'register', 'number', "address", "house_number", 'purparty', 'price', "is_exchange", "office", 'created_by', 'updated_by')}),
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
     readonly_fields = ('updated_at', 'created_at')
     
     form = HouseChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'number', 'updated_by')
+    list_display = ("id", "decedent", "register", 'number', 'purparty', 'price', 'updated_at', 'created_by', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'number', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'number', 'updated_by')
     ordering = ['-updated_at']
@@ -299,7 +299,7 @@ class BldgAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = BldgChangeForm
-    list_display = ("id", "decedent", "register", "number", 'updated_at', 'created_by', 'updated_by')
+    list_display = ("id", "decedent", "register", "number", 'purparty', 'price', 'updated_at', 'created_by', 'updated_by')
     list_filter = ('updated_at', 'created_by', "decedent", "register", 'number', 'updated_by')
     search_fields = ('updated_at', 'created_by', "decedent", "register", 'number', 'updated_by')
     ordering = ['-updated_at']
@@ -321,7 +321,7 @@ class SiteAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = SiteChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'decedent', "bldg", 'updated_by')
+    list_display = ("id", 'decedent', "bldg", "purparty_top", "purparty_bottom", 'price', 'updated_at', 'created_by', 'updated_by')
     list_filter = ('updated_at', 'created_by', 'decedent', "bldg", "address_and_land_number", 'updated_by')
     search_fields = ('updated_at', 'created_by', 'decedent', "bldg",  "address_and_land_number",'updated_by')
     ordering = ['-updated_at']
@@ -409,7 +409,7 @@ class PropertyAcquirerAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = PropertyAcquirerChangeForm
-    list_display = ("id", 'decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'updated_at', 'updated_by', 'created_by')
+    list_display = ("id", 'decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'percentage', 'updated_at', 'updated_by', 'created_by')
     list_filter = ('updated_at', 'decedent', 'updated_by', 'created_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']
@@ -431,7 +431,7 @@ class CashAcquirerAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', 'created_at')
     
     form = CashAcquirerChangeForm
-    list_display = ("id", 'decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'updated_at', 'updated_by', 'created_by')
+    list_display = ("id", 'decedent', "content_type1", "object_id1", "content_type2", 'object_id2', 'percentage', 'updated_at', 'updated_by', 'created_by')
     list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
     search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
     ordering = ['-updated_at']

@@ -166,9 +166,9 @@
                                 <div>
                                     {{ registry_name_and_address_forms.management_form }}
                                     {% for form in registry_name_and_address_forms %}
-                                        <fieldset id="id_registry_name_and_address-0-fieldset"  class="registryNameAndAddressFieldset d-flex mt-4">
+                                        <fieldset id="id_registry_name_and_address-{{forloop.counter0}}-fieldset"  class="registryNameAndAddressFieldset d-flex mt-4">
                                             <div class="my-auto fw-bold">
-                                                （１）
+                                                （{{ forloop.counter|to_full_width }}）
                                             </div>
                                             <div class="registry-name-and-address-div ms-3">
                                                 {% for field in form %}
@@ -598,7 +598,7 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value %} style="display: none;"{% endif %}>
+                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value and form.content_type2.value != 27 %} style="display: none;"{% endif %}>
                                         <span class="form-label fs-5 fw-bold">
                                             被相続人の前配偶者
                                         </span>
@@ -1340,7 +1340,7 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value %} style="display: none;"{% endif %}>
+                                    <div class="mt-4 otherParentDiv" {% if form.object_id2.value and form.content_type2.value != 27 %} style="display: none;"{% endif %}>
                                         <span class="form-label fs-5 fw-bold">
                                             被相続人と異父又は異母の方の氏名
                                         </span>
@@ -1448,6 +1448,27 @@
                 <h5>
                     ４．不動産情報
                 </h5>
+                <div class="mt-3 text-primary">
+                    <button type="button" class="border-bottom border-primary text-primary" data-bs-toggle="modal" data-bs-target="#landInfoModal">
+                        ※区分建物（マンションなど）がある場合（区分建物の登記簿例はこちら）
+                    </button>
+                    <p class="ps-3">
+                        区分建物の内容を入力するときに敷地権の入力欄がありますので、区分建物の敷地権は土地の数には含めないでください。
+                    </p>
+                </div>
+                <div class="modal fade" id="landInfoModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">区分建物の登記簿</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                （区分建物の登記情報を挿入）
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <fieldset id="id_number_of_properties-0-fieldset" class="mt-3">
                     <div>
                         {% for field in number_of_properties_form %}
@@ -1481,12 +1502,17 @@
                 <hr>
                 <div>
                     <div>
-                        <h5 class="form-label">
-                            ４－土地情報
-                        </h5>
-                        <button type="button" class="form-text text-primary" data-bs-toggle="modal" data-bs-target="#landInfoModal">
-                            ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力。
-                        </button>
+                        <div>
+                            <h5 class="form-label">
+                                ４－土地情報
+                            </h5>
+                            <div class="text-primary">
+                                ※登記情報又は全部事項証明書（登記簿）のとおりに入力
+                            </div>
+                            <button type="button" class="ps-3 text-primary" data-bs-toggle="modal" data-bs-target="#landInfoModal">
+                                こちらを参考にご入力ください
+                            </button>
+                        </div>
                         <div class="modal fade" id="landInfoModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">

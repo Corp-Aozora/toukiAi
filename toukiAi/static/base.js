@@ -428,7 +428,8 @@ function isOnlyZenkaku(el){
     const val = el.value;
     //スペースを削除
     let str = trimAllSpace(val, el);
-    if(str.length == 0) return "入力が必須です";
+    if(str.length == 0)
+        return "入力が必須です";
 
     //改行チェック
     toSingleLine(str, el);
@@ -599,12 +600,12 @@ function setEnterKeyFocusNext(e, el){
 
 /**
  * 年月から日数を取得する
- * @param {number} year 
- * @param {number} month 
- * @returns 日数（num）
+ * @param {string} year 
+ * @param {string} month 
+ * @returns {number} 日数
  */
 function getDaysInMonth(year, month) {
-    return new Date(year, month, 0).getDate();
+    return new Date(parseInt(year), parseInt(month), 0).getDate();
 }
 
 /**

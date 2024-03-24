@@ -447,7 +447,6 @@ async function loadData(){
 
     //配偶者
     if(userDataScope.includes("spouse")){
-        const event = new Event("change")
         loadNameData(spouse_data["name"], spouse.inputs[Spouse.idxs.name.input]);
 
         if(spouse_data["is_exist"] === true){
@@ -515,9 +514,9 @@ async function loadData(){
             //データがあるとき、データを反映させる
             loadNameData(childs_data[i]["name"], childs[i].inputs[Child.idxs.name.input]);
 
-            if(childs_data[i]["object_id2"] && childs[i].inputs[Child.idxs.isSameParents.input[yes]].disabled === false){
+            if(childs_data[i]["object_id2"] === spouse_data["id"] && childs[i].inputs[Child.idxs.isSameParents.input[yes]].disabled === false){
                 loadRbData(childs[i].inputs[Child.idxs.isSameParents.input[yes]]);
-            }else if(childs_data[i]["object_id2"] === null && childs[i].inputs[Child.idxs.isSameParents.input[no]].disabled === false){
+            }else if((childs_data[i]["object_id2"] === null || childs_data[i]["object_id2"] !== spouse_data["id"]) && childs[i].inputs[Child.idxs.isSameParents.input[no]].disabled === false){
                 loadRbData(childs[i].inputs[Child.idxs.isSameParents.input[no]]);
             }
 
@@ -630,9 +629,9 @@ async function loadData(){
                 //子の子のとき
                 loadNameData(child_heirs_data[i]["name"], childHeirs[i].inputs[GrandChild.idxs.name.input]);
     
-                if(child_heirs_data[i]["object_id2"]){
+                if(child_heirs_data[i]["content_type2"] && child_heirs_data[i]["content_type2"] == 21){
                     loadRbData(childHeirs[i].inputs[GrandChild.idxs.isSameParents.input[yes]]);
-                }else if(child_heirs_data[i]["object_id2"] === null){
+                }else if(child_heirs_data[i]["content_type2"] === null || child_heirs_data[i]["content_type2"] == 27){
                     loadRbData(childHeirs[i].inputs[GrandChild.idxs.isSameParents.input[no]]);
                 }
     
@@ -1842,7 +1841,7 @@ class ChildRbHandler extends CommonRbHandler{
                     //エラー要素を追加と次へボタンを無効化、配偶者確認欄を表示
                     pushInvalidElAndSDIfHidden(person, inputs[Child.idxs.count.input], Qs[Child.idxs.isSpouse.form]);
                 }
-                if(childCommons[0].inputs[ChildCommon.idxs.isRefuse.input[true]].checked && childs.every(child => child.inputs[Child.idxs.isRefuse.input[no]].checked))
+                if(childCommons[0].inputs[ChildCommon.idxs.isRefuse.input[yes]].checked && childs.every(child => child.inputs[Child.idxs.isRefuse.input[no]].checked))
                     alert("子供についてで「家庭裁判所で相続放棄をした方はいますか？」に「はい」にチェックがされてますが、子全員について「相続放棄してますか？」に「いいえ」がチェックされてます。\n\n間違いなければ、このまま進めていただいて大丈夫です。\n間違いがあれば、チェックミスがないかご確認ください。");
             }            
         )

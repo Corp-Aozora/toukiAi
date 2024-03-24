@@ -77,3 +77,6 @@ https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=01 HTTP/1.1" 2
 Starting new HTTPS connection (1): www.land.mlit.go.jp:443
 https://www.land.mlit.go.jp:443 "GET /webland/api/CitySearch?area=02 HTTP/1.1" 200 482
 Not Found: /favicon.ico
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+couldn't import psycopg 'c' implementation: No module named 'psycopg_c'
+Watching for file changes with StatReloader

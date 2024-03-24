@@ -3213,8 +3213,8 @@ function inputAndToggleDisable(input, val, toggle){
 }
 
 /**
- * 
- * @param {Land} instance 
+ * 換価するがチェックされたときの処理
+ * @param {Land|House|Bldg} instance 
  */
 function isExchangeChecked(instance){
     const TCA = instance.tempCashAcquirers[0];

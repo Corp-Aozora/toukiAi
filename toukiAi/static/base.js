@@ -146,9 +146,9 @@ const slideDown = (el, duration = 250) => {
  * slideDownの後にscrollToTargetを実行する
  * @param {HTMLElement} el 対象の要素
  */
-function slideDownAndScroll(el){
+async function slideDownAndScroll(el){
     slideDown(el);
-    scrollToTarget(el);
+    await scrollToTarget(el);
 }
 
 /**

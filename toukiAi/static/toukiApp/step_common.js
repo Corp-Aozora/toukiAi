@@ -272,6 +272,24 @@ function inputOrCheckAndDispatchChangeEvent(el, text = null){
 }
 
 /**
+ * 値が存在するときにイベントを発生させる
+ * @param {HTMLInputElement|HTMLSelectElement} input 
+ * @param {string} event "change", "input"など
+ * @returns 
+ */
+function dispatchEventIfValue(input, event){
+    if(!input) return;
+
+    const isInputTextWithValue = input.tagName.toUpperCase() === "INPUT" && input.type === "text" && input.value;
+    const isInputRadioChecked = input.tagName.toUpperCase() === "INPUT" && input.type === "radio" && input.checked;
+    const isSelectWithValue = input.tagName.toUpperCase() === "SELECT" && input.value;
+
+    if(isInputTextWithValue || isInputRadioChecked || isSelectWithValue){
+        input.dispatchEvent(new Event(event));
+    }
+}
+
+/**
  * input要素を初期化する
  * @param {HTMLInputElement} input 
  */

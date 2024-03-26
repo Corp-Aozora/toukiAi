@@ -1262,7 +1262,7 @@ function loadNOPData(){
  * @param {string} prefix 
  * @param {HTMLInputElement[]} inputs 
  */
-function reproducePropertyInputStatus(prefix, inputs){
+async function reproducePropertyInputStatus(prefix, inputs){
     try{
         //不動産のinputのイベントを発火させる
         const purpartyInputIdxs = prefix === "bldg"? BPurparty.input: LPurparty.input;
@@ -1362,7 +1362,7 @@ function reproduceTempInputsStatus(isCash, prefix, instance){
 /**
  * 不動産情報のデータを復元する
  */
-function loadPropertyData(prefix){
+async function loadPropertyData(prefix){
     try{
         const instances = getPropertyInstancesFromPrefix(prefix);
         const propertyOkBtn = prefix === "land"? landOkBtn:
@@ -1372,7 +1372,7 @@ function loadPropertyData(prefix){
         for(let i = 0, len = instances.length; i < len; i++){
             const instance = instances[i];
             //不動産欄の入力状況を再現する
-            reproducePropertyInputStatus(prefix, instance.inputs);
+            await reproducePropertyInputStatus(prefix, instance.inputs);
     
             //最後の不動産以外でエラー要素が存在するときエラー表示する
             if(i !== len && instance.noInputs.length !== 0)
@@ -1471,6 +1471,11 @@ function loadApplicationData(){
     const application = applications[0], inputs = application.inputs;
     const applicant = inputs[aObjectId.input].value + "_" + inputs[aContentType.input].value;
     inputs[aApplicant.input].value = applicant;
+    for(let i = 0, len = inputs.length; i < len; i++){
+        if(i === aObjectId)
+            break;
+        dispatchEventIfValue(inputs[i], "change");
+    }
     isActivateOkBtn(application);
 }
 
@@ -1511,17 +1516,17 @@ async function loadData(){
         
         //土地情報を反映する
         if(NOP.getLandCount(true) > 0 && lands[0].inputs[LId.input].value){
-            loadPropertyData("land");
+            await loadPropertyData("land");
             await handleAfterDataLoaded(isHouse? House.section: isBldg? Bldg.section: Application.section);
         }
         //建物情報を反映する
         if(NOP.getHouseCount(true) > 0 && houses[0].inputs[HId.input].value){
-            loadPropertyData("house");
+            await loadPropertyData("house");
             await handleAfterDataLoaded(isBldg? Bldg.section: Application.section);
         }
         //区分建物情報を反映する
         if(NOP.getBldgCount(true) > 0 && bldgs[0].inputs[BId.input].value){
-            loadPropertyData("bldg");
+            await loadPropertyData("bldg");
             await handleAfterDataLoaded(Application.section);
 
         }
@@ -4524,7 +4529,7 @@ function createTempAcquirerInstance(instance, prefix, idx){
 /**
  * 土地情報欄のイベントなど設定
  */
-function setLandSection(){
+async function setLandSection(){
     try{
         const TOD = typeOfDivisions[0];
         const isLandAcquirerAlone = TOD.isPropertyAcquirerAlone();
@@ -4604,7 +4609,7 @@ function setLandSection(){
             }
         }
         //最後に表示されている土地情報を有効化する
-        enableAndDisplayTargetPropertyWrapper(lands);
+        await enableAndDisplayTargetPropertyWrapper(lands);
     }catch(e){
         basicLog("setLandSection", e, "");
     }
@@ -4942,16 +4947,16 @@ function handleTODSectionOkBtn(section, preSection){
  * @param {HTMLElement} section 
  * @param {HTMLElement} preSection 
  */
-function handleNOPSectionOkBtn(section, preSection){
+async function handleNOPSectionOkBtn(section, preSection){
     const nextSectionIdx = 4;
     handleOkBtnEventCommon(section, preSection, nextSectionIdx);
 
     if(section.id === "land-section")
-        setLandSection();
+        await setLandSection();
     else if(section.id === "house-section")
-        setHouseSection();
+        await setHouseSection();
     else if(section.id === "bldg-section")
-        setBldgSection();
+        await setBldgSection();
     else
         console.error("handleNOPSectionOkBtn：想定されていないセクションが指定されました")
 }
@@ -4961,7 +4966,7 @@ function handleNOPSectionOkBtn(section, preSection){
  * @param {HTMLElement} section 
  * @param {HTMLElement} preSection 
  */
-function handlePropertySectionOkBtn(section, preSection){
+async function handlePropertySectionOkBtn(section, preSection){
     const nextSectionIdx = ["house-section", "bldg-section"].includes(section.id)? 4: 5;
     handleOkBtnEventCommon(section, preSection, nextSectionIdx);
     //一つ前の不動産セクションの最後の不動産欄のボタンを無効化
@@ -4980,11 +4985,11 @@ function handlePropertySectionOkBtn(section, preSection){
     }
     SynchronizePropertyHiddenForm(instances);
     if(section.id === "house-section")
-        setHouseSection();
+        await setHouseSection();
     else if(section.id === "bldg-section")
-        setBldgSection ();
+        await setBldgSection ();
     else if(section.id === "application-section")
-        setApplicationSection();
+        await setApplicationSection();
     else
         console.log("handlePropertySectionOkBtn：想定されていないセクションが指定されました")
 }
@@ -5004,7 +5009,7 @@ function handleIsExchangeNoProcess(instances, allLegalHeirs){
 /**
  * 建物情報欄を設定
  */
-function setHouseSection(){
+async function setHouseSection(){
     try{
         const TOD = typeOfDivisions[0];
         const isHouseAcquirerAlone = TOD.isPropertyAcquirerAlone();
@@ -5082,7 +5087,7 @@ function setHouseSection(){
             }
         }
         //最後に表示されている建物情報を有効化する
-        enableAndDisplayTargetPropertyWrapper(houses);
+        await enableAndDisplayTargetPropertyWrapper(houses);
     }catch(e){
         basicLog("setHouseSection", e, "");
     }
@@ -5092,12 +5097,12 @@ function setHouseSection(){
  * 最後に表示されている不動産情報を有効化する
  * @param {Land|House|Bldg} instances 
  */
-function enableAndDisplayTargetPropertyWrapper(instances){
+async function enableAndDisplayTargetPropertyWrapper(instances){
     for(let i = instances.length - 1; i >= 0; i --){
         const wrapper = instances[i].fieldset.parentElement.parentElement;
         if(wrapper.style.display !== "none"){
             enablePropertyWrapper(instances, i);
-            slideDownAndScroll(wrapper);
+            await slideDownAndScroll(wrapper);
             break;
         }
     }
@@ -5644,7 +5649,7 @@ function createPropertyInstanceAndFormForFirstTime(prefix, count){
 /**
  * 区分建物欄のイベントなど設定
  */
-function setBldgSection(){
+async function setBldgSection(){
     try{
         const TOD = typeOfDivisions[0];
         const isBldgAcquirerAlone = TOD.isPropertyAcquirerAlone();
@@ -5726,7 +5731,7 @@ function setBldgSection(){
             basicLog("setBldgSection", "", "区分建物の数が不正な値です");
         }
         //最後に表示されている土地情報を有効化する
-        enableAndDisplayTargetPropertyWrapper(bldgs);
+        await enableAndDisplayTargetPropertyWrapper(bldgs);
     }catch(e){
         basicLog("setBldgSection", e, "");
     }
@@ -5911,7 +5916,7 @@ function setApplicationEvent(instance){
 /**
  * 申請情報欄
  */
-function setApplicationSection(){
+async function setApplicationSection(){
     const applicationLength = applications.length;
     //初回表示
     if(applicationLength === 0){
@@ -5930,7 +5935,7 @@ function setApplicationSection(){
     }else{
         throw new Error("setApplicationSection：想定しない操作が行われました")
     }
-    scrollToTarget(Application.section);
+    await scrollToTarget(Application.section);
 }
 
 /**
@@ -5958,7 +5963,7 @@ async function handleOkBtnEvent(){
                 //土地が０のとき次のループへ
                 if(numberOfProperties[0].getLandCount(true) === 0)
                     continue;
-                handleNOPSectionOkBtn(section, preSection);
+                await handleNOPSectionOkBtn(section, preSection);
                 break;
             }else if(section.id === "house-section"){
                 const NOP = numberOfProperties[0];
@@ -5966,8 +5971,8 @@ async function handleOkBtnEvent(){
                 if(NOP.getHouseCount(true) === 0)
                     continue;
                 NOP.getLandCount(true) === 0 ?
-                    handleNOPSectionOkBtn(section, sections[i - 2]):
-                    handlePropertySectionOkBtn(section, preSection);
+                    await handleNOPSectionOkBtn(section, sections[i - 2]):
+                    await handlePropertySectionOkBtn(section, preSection);
                 break;
             }else if(section.id === "bldg-section"){
                 const NOP = numberOfProperties[0];
@@ -5978,8 +5983,8 @@ async function handleOkBtnEvent(){
                     continue;
                 const offset = isNoLand && isNoHouse ? -3 : (isNoHouse ? -2 : -1);
                 isNoLand && isNoHouse ?
-                    handleNOPSectionOkBtn(section, sections[i + offset]):
-                    handlePropertySectionOkBtn(section, sections[i + offset]);
+                    await handleNOPSectionOkBtn(section, sections[i + offset]):
+                    await handlePropertySectionOkBtn(section, sections[i + offset]);
                 break;
             }else if(section.id === "application-section"){
                 okBtn.disabled = true;
@@ -5989,7 +5994,7 @@ async function handleOkBtnEvent(){
                 const isNoHouse = NOP.getHouseCount(true) === 0;
                 const isNoBldg = NOP.getBldgCount(true) === 0;
                 const offset = isNoHouse && isNoBldg ? -3 : (isNoBldg ? -2 : -1);
-                handlePropertySectionOkBtn(section, sections[i + offset]);
+                await handlePropertySectionOkBtn(section, sections[i + offset]);
                 break;
             }else{
                 console.error("handleOkBtnEvent:想定されていないセクションでokBtnがクリックされました");

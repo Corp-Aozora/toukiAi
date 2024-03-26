@@ -832,11 +832,7 @@ class StepThreeLandForm(forms.ModelForm):
                     new_classes = f"{existing_classes} text-center"
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
-                field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマ不要）",
-                    "class": "form-control text-center rounded-end",
-                    "maxlength": "16",
-                })
+                field.widget.attrs.update(price_attr)
             elif field.label == "地目":
                 field.widget.attrs.update({
                     "class": "form-select text-center cursor-pointer rounded-end",
@@ -851,6 +847,9 @@ class StepThreeLandForm(forms.ModelForm):
                 field.initial = "番"
 
         super().__init__(*args, **kwargs)
+        for field in ["is_exchange"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
 
 #土地取得者
 class StepThreeLandAcquirerForm(forms.ModelForm):
@@ -948,11 +947,7 @@ class StepThreeHouseForm(forms.ModelForm):
                     new_classes = f"{existing_classes} text-center"
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
-                field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマ不要）",
-                    "class": "form-control text-center rounded-end",
-                    "maxlength": "16",
-                })
+                field.widget.attrs.update(price_attr)
             elif field.label == "種類":
                 field.widget.attrs.update({
                     "class": "form-select text-center cursor-pointer rounded-end",
@@ -967,6 +962,9 @@ class StepThreeHouseForm(forms.ModelForm):
                 field.initial = "番"
 
         super().__init__(*args, **kwargs)
+        for field in ["is_exchange"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
 
 #建物取得者
 class StepThreeHouseAcquirerForm(forms.ModelForm):
@@ -1068,11 +1066,7 @@ class StepThreeBldgForm(forms.ModelForm):
                     new_classes = f"{existing_classes} text-center"
                     field.widget.attrs.update({"class": new_classes})
             elif field.label == "固定資産評価額":
-                field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマ不要）",
-                    "class": "form-control text-center rounded-end",
-                    "maxlength": "16",
-                })
+                field.widget.attrs.update(price_attr)
             elif field.label == "種類":
                 field.widget.attrs.update({
                     "class": "form-select text-center cursor-pointer rounded-end",
@@ -1085,6 +1079,9 @@ class StepThreeBldgForm(forms.ModelForm):
                 field.initial = "分の"
 
         super().__init__(*args, **kwargs)
+        for field in ["is_exchange"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'
 
 # 敷地権        
 class StepThreeSiteForm(forms.ModelForm):
@@ -1121,11 +1118,7 @@ class StepThreeSiteForm(forms.ModelForm):
                     "maxlength": "10",
                 })
             elif field.label == "固定資産評価額":
-                field.widget.attrs.update({
-                    "placeholder": "数字のみで入力（コンマ不要）",
-                    "maxlength": "16",
-                    "class": "form-control text-center rounded-end",
-                })
+                field.widget.attrs.update(price_attr)
             elif field.label == "敷地権の種類":
                 field.widget.attrs.update({
                     "class": "form-select text-center cursor-pointer rounded-end",
@@ -1236,3 +1229,6 @@ class StepThreeApplicationForm(forms.ModelForm):
                 })
 
         super().__init__(*args, **kwargs)
+        for field in ["is_agent", "is_return", "is_mail"]:
+            if self.initial.get(field) is not None:
+                self.initial[field] = 'true' if self.initial[field] else 'false'

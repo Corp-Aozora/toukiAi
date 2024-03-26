@@ -999,6 +999,7 @@ def get_acquirer_initial_data(data):
     initial_data = []
     for d in data:
         data_dict = {
+            "id": d.id,
             "decedent": d.decedent,
             "content_type1": d.content_type1,
             "object_id1": d.object_id1,

@@ -250,15 +250,23 @@ function removeSpecificPatternClass(el, pattern){
 
 /**
  * インプット要素に入力してchangeイベントを発火させる
- * @param {HTMLElement} el 
+ * @param {HTMLInputElement|HTMLSelectElement} el 要素
  */
 function inputOrCheckAndDispatchChangeEvent(el, text = null){
-    if(el.type === "text")
-        el.value = text;
-    else if(el.type === "radio")
-        el.checked = true;
-    else
+    if(!el)
         return;
+
+    const tagName = el.tagName.toUpperCase();
+
+    if(tagName === "SELECT"){
+        el.value = text;
+    }else if(tagName === "INPUT"){
+        const type = el.type;
+        if(type === "text")
+            el.value = text;
+        else if(type === "radio")
+            el.checked = true;
+    }
 
     el.dispatchEvent(new Event("change"));
 }

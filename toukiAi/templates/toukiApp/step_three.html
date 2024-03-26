@@ -1531,7 +1531,7 @@
                     {% for form in land_forms %}
                         <div id="id_land-{{forloop.counter0}}-wrapper" class="landWrapper d-flex border rounded-3">
                             <div class="my-auto fw-bold">
-                                （１）
+                                （{{ forloop.counter|to_full_width }}）
                             </div>
                             <div class="me-3 mb-3">
                                 <fieldset id="id_land-{{forloop.counter0}}-fieldset"  class="landFieldset d-flex mt-4">
@@ -1773,7 +1773,7 @@
                     {% for form in house_forms %}
                         <div id="id_house-{{forloop.counter0}}-wrapper" class="houseWrapper d-flex border rounded-3">
                             <div class="my-auto fw-bold">
-                                （１）
+                                （{{ forloop.counter|to_full_width }}）
                             </div>
                             <div class="me-3 mb-3">
                                 <fieldset id="id_house-{{forloop.counter0}}-fieldset"  class="houseFieldset d-flex mt-4">
@@ -2015,7 +2015,7 @@
                     {% for form in bldg_forms %}
                         <div id="id_bldg-{{forloop.counter0}}-wrapper" class="bldgWrapper d-flex border rounded-3">
                             <div class="my-auto fw-bold">
-                                （１）
+                                （{{ forloop.counter|to_full_width }}）
                             </div>
                             <div class="me-3 mb-3">
                                 <fieldset id="id_bldg-{{forloop.counter0}}-fieldset"  class="bldgFieldset d-flex mt-4">

@@ -3,12 +3,21 @@
 /*
     変数
 */
+if (typeof window.linkToProgressArea === 'undefined') {
+    window.linkToProgressArea = '新しいヘッダーの値';
+}
+if (typeof window.header === 'undefined') {
+    window.header = '新しいヘッダーの値';
+}
 let resizeFlg;
 
 /**
  * サイドバーを更新する
  */
 function updateSideBar(){
+    if(!header)
+        return;
+
     setSideBarTop();
     setSidebarHeight();
 }
@@ -44,6 +53,9 @@ function setSideBarTop(){
 
 function hiddenSidebar(){
     let width = document.documentElement.clientWidth;
+    if(!linkToProgressArea)
+         return;
+
     if(width < 975){
         linkToProgressArea.style.display = "block";
         sidebar.classList.remove("d-flex");
@@ -57,6 +69,9 @@ function hiddenSidebar(){
 
 function setNavTogglerStyle(){
     let width = document.documentElement.clientWidth;
+
+    if(!linkToProgressArea)
+        return;
 
     //ハンバーガーメニューが表示されたとき
     if(width < 558){
@@ -380,8 +395,7 @@ function filterArr(targets, arr){
     イベント
 */
 window.addEventListener("load", ()=>{
-    setSidebarHeight();
-    setSideBarTop();
+    updateSideBar();
     hiddenSidebar();
     setNavTogglerStyle();
 })

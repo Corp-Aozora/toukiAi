@@ -1,0 +1,171 @@
+{% extends "toukiApp/base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_application_form.css' %}">
+{% endblock %}
+{% block header %}
+{% endblock %}
+{% load custom_filters %}
+{% block content %}
+<div class="d-flex container-xxl">
+    <fieldset class="container">
+        <div class="mt-5 text-center">
+            <div class="fw-bold">
+                こちらのページをそのまま印刷するか下記ボタンをクリックしてPDFをダウンロードして印刷してください。
+            </div>
+            <button type="button" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow mt-3">
+                PDFをダウンロードする
+            </button>
+        </div>
+        <div class="d-flex justify-content-center mt-5">
+            <div id="print_page" class="border">
+                <div>
+                    <h5 class="text-center">
+                        登記申請書
+                    </h5>
+                </div>
+                <div class="mt-4">
+                    <div>
+                        登記の目的
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        原因
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        相続人
+                    </div>
+                    <div>
+                        <div>
+                            <span>
+                                （被相続人
+                            </span>
+                            <span class="ms-3">
+                                {{decedent.name}}）
+                            </span>
+                        </div>
+                        <div>
+                            （申請人）（相続人住所）
+                        </div>
+                        <div>
+                            <div>
+                                （持分）
+                            </div>
+                            <div>
+                                （氏名）㊞
+                            </div>
+                        </div>
+                        <div>
+                            （電話番号）
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        添付情報
+                    </div>
+                    <div>
+                        <span>
+                            登記原因証明情報
+                        </span>
+                        <span>
+                            住所証明情報
+                        </span>
+                        <span>
+                            代理権限証明情報
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <span>
+                            令和
+                        </span>
+                        <span>
+                            年
+                        </span>
+                        <span>
+                            月
+                        </span>
+                        <span>
+                            日
+                        </span>
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        課税価格
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        登録免許税
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+                <div>
+                    不動産の表示
+                    <div>
+                        <div>
+                            不動産番号
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            土地の符号
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            敷地権の種類
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            敷地権の割合
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/step_application_form.js' %}"></script>
+{% endblock %}

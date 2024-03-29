@@ -8,7 +8,7 @@ const mdWidth = 767;
 const lgWidth = 991;
 const xlWidth = 1199;
 const xxlWidth = 1399;
-const header = document.getElementById("header");
+let header = document.getElementById("header");
 
 //bootstrapのツールチップを有効化
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');

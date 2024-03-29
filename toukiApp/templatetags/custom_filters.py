@@ -30,3 +30,7 @@ def to_full_width(value):
 @register.filter
 def get_item(list, index):
     return list[index]
+
+@register.filter(name='classname')
+def classname(obj):
+    return obj.__class__.__name__

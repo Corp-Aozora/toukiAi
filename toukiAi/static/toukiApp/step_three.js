@@ -4085,6 +4085,7 @@ function setPropertyOkBtnEvent(instances){
                     return;
                 }else{
                     //最後の土地が表示されているときに押されてしまった場合、何も処理をしない
+                    okBtn.disabled = true;
                     throw new Error("setPropertyOkBtnEvent：想定しない操作が行われました");
                 }
             }
@@ -5286,6 +5287,11 @@ function handleAddSiteBtnEvent(startIdx = 0){
             const addBtn = addSiteBtns[i];
             const bldg = bldgs[i];
             addBtn.addEventListener("click", ()=>{
+                if(Application.section.style.display !== "none"){
+                    addBtn.disabled = true;
+                    return;
+                }
+
                 //敷地権フォームを生成
                 const newIdx = Bldg.section.getElementsByClassName("siteFieldset").length;
                 const copyFrom = getLastElFromArray(bldg.sites).fieldset;
@@ -6181,4 +6187,3 @@ preBtn.addEventListener("click", ()=>{
 form.addEventListener("submit", (e)=>{
     handleSubmitBtnEvent(e);
 })
-

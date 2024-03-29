@@ -8,6 +8,8 @@ window.addEventListener("load", ()=>{
 })
 
 //お問い合わせボタンが押されたとき
-btnInquiry.addEventListener("click", ()=>{
-    //データベースに登録する
-})
+if(btnInquiry){
+    btnInquiry.addEventListener("click", ()=>{
+        //データベースに登録する
+    })
+}

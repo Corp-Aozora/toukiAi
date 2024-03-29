@@ -13,96 +13,172 @@
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
         <div>
-            <h4>下記の書類を指定の枚数印刷して署名押印してください。</h4>
+            <h4>下記書類を印刷してご署名押印ください</h4>
         </div>
         <hr>
-        <section class="container" id="agreementColumn">
-            <div>
-                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
-                    <h5 class="form-label">遺産分割協議証明書
-                        <span class="form-text">（拡大表示）</span>
-                    </h5>
-                </a>
-            </div>
-            <div class="mt-3">
-                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
-                    ダウンロード
-                </a>
-            </div>
-            <div class="mt-3">
-                拡大表示して内容に誤りがないか確認してください。<br>
-                間違いがなければダウンロードして
-                <span class="border-bottom border-dark">
-                    <span id="numberOfHeirs" class="fw-bold mx-2">
-                        ○○
-                    </span>
-                    枚印刷して下記相続人全員から署名押印をもらってください。
-                </span>
-            </div>
-            <div class="form-text">
-                ※住所は印鑑証明書のとおりに記載して、実印（印鑑証明書と同じ印鑑）で押印してください。
-            </div>
-            <div class="mt-3">
-                <ol id="heirsList" class="list-group">
-                    <span class="fw-bold">相続人一覧</span>
-                    <li id="heir1" class="list-group-item d-flex justify-content-between align-items-start border-0 ps-0">
-                        <div id="heir1Name" class="me-auto">
-                            ○○
+        <form action="{% url 'toukiApp:step_two' %}" method="POST" class="my-4" novalidate>
+            {% csrf_token %}
+            <section class="container">
+                <div class="form-check mt-3">
+                    <div class="ps-2">
+                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbDivisionAgreement">
+                    </div>
+                    <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbDivisionAgreement">
+                        遺産分割協議証明書
+                    </label>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'toukiApp:step_division_agreement' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
+                        こちらをクリックして内容をご確認ください
+                    </a>
+                </div>
+                <div class="mt-4">
+                    <p>
+                        <span class="fw-bold">
+                            上記ボタンをクリックして内容をご確認のうえ相続人全員に印刷したものを配布して各自の署名押印をもらってください。
+                        </span>
+                        <div class="modal fade" id="seal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">契印について</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        （契印の画像を挿入）
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </li>
-                </ol>
-            </div>
-        </section>
-        <hr>
-        <section class="container" id="relationshipColumn">
-            <div>
-                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
-                    <h5 class="form-label">相続関係図
-                        <span class="form-text">（拡大表示）</span>
-                    </h5>
-                </a>
-            </div>
-            <div class="mt-3">
-                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
-                    ダウンロード
-                </a>
-            </div>
-            <div class="mt-3">
-                拡大表示して内容に誤りがないか確認してください。<br>
-                間違いがなければダウンロードして
-                <span class="border-bottom border-dark">
-                    <span id="numberOfOffice" class="fw-bold mx-2">
-                        ○○
+                    </p>
+                    <p>
+                        <span class="fw-bold">
+                            各相続人の印鑑証明書と戸籍の全部事項証明書（謄本、抄本どちらでも可）も１通ずつ必要です。
+                        </span><br>
+                        ※不動産を取得する方は
+                        <span class="border-bottom border-secondary">
+                            住民票１通（マイナンバー不要）
+                        </span>
+                        も必要です。<br>
+                        ※ステップ２ですでに取得済みの場合は改めてご取得いただく必要はありません。
+                    </p>
+                </div>
+                <div class="mt-4">
+                    <ol id="heirsList" class="list-group">
+                        <span class="fw-bold">
+                            相続人一覧
+                        </span>
+                        {% for heir in heirs %}
+                            <li class="ms-3">
+                                {{heir.name}} さん
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                {% if minors|length > 0 %}
+                    <div>
+                        <span class="fw-bold border-bottom border-primary">
+                            以下の方は、未成年のため法定代理人の署名押印と印鑑証明書が必要です。<br>
+                            ただし、印鑑証明書を取得できる場合は、未成年者の署名押印と印鑑証明書で大丈夫です。
+                        </span>
+                        <ul>
+                            {% for minor in minors %}
+                                <li class="ms-3">
+                                    {{minor.name}} さん
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% if overseas|length > 0 %}
+                    <div>
+                        <span class="fw-bold border-bottom border-primary">
+                            以下の方は、日本に住民票がないため、現地の領事館又は大使館で署名証明が必要です。<br>
+                            日本に一時的に滞在している場合は、日本の公証人役場での署名証明でも大丈夫です。
+                        </span>
+                        <ul>
+                            {% for oversea in overseas %}
+                                <li class="ms-3">
+                                    {{oversea.name}} さん
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </section>
+            <hr>
+            <section class="container">
+                <div class="form-check mt-3">
+                    <div class="ps-2">
+                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbDiagram">
+                    </div>
+                    <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbDiagram">
+                        相続関係説明図
+                    </label>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'toukiApp:step_diagram' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
+                        こちらをクリックして内容をご確認ください
+                    </a>
+                </div>
+                <div class="mt-3">
+                    拡大表示して内容に誤りがないか確認してください。<br>
+                    間違いがなければダウンロードして
+                    <span class="border-bottom border-dark">
+                        <span id="numberOfOffice" class="fw-bold mx-2">
+                            ○○
+                        </span>
+                        枚印刷してしてください。
                     </span>
-                    枚印刷してしてください。
-                </span>
+                </div>
+            </section>
+            <hr>
+            <section class="container">
+                <div class="form-check mt-3">
+                    <div class="ps-2">
+                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbApplicationForm">
+                    </div>
+                    <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
+                        登記申請書
+                    </label>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'toukiApp:step_application_form' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
+                        こちらをクリックして内容をご確認ください
+                    </a>
+                </div>
+                <div class="mt-3">
+                    拡大表示して内容に誤りがないか確認してください。<br>
+                    間違いがなければ印刷してしてください。<br>
+                    申請日の日付はまだ空欄のままにしてください。
+                </div>
+            </section>
+            <hr>
+            <div class="mt-5">
+                <div class="d-flex justify-content-evenly px-3 pb-3">
+                    <div>
+                        <button id="preBtn" type="button" class="btn btn-secondary">
+                            ３．詳細データ入力に戻る
+                            <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            </span>
+                        </button>
+                    </div>
+                    <div>
+                        <button id="submitBtn" type="submit" class="btn btn-primary" disabled>
+                            ５．法務局に申請に進む
+                            <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="m-auto text-center">
+                    <span class="fw-bold">
+                        ※修正するボタンを押すと、不動産情報の入力内容が初期化される場合があります。<br>
+                        他のページの入力を確認したいだけの場合は、左の進捗状況からクリックしてください。
+                    </span>
+                </div>
             </div>
-        </section>
-        <hr>
-        <section class="container" id="relationshipColumn">
-            <div>
-                <a class="link-dark link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
-                    <h5 class="form-label">登記申請書
-                        <span class="form-text">（拡大表示）</span>
-                    </h5>
-                </a>
-            </div>
-            <div class="mt-3">
-                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
-                    ダウンロード
-                </a>
-            </div>
-            <div class="mt-3">
-                拡大表示して内容に誤りがないか確認してください。<br>
-                間違いがなければ印刷してしてください。<br>
-                申請日の日付はまだ空欄のままにしてください。
-            </div>
-        </section>
-        <div class="text-center my-5">
-            <a class="text-decoration-none" href="{% url 'toukiApp:step_five' %}">
-                <button id="completeBtn" type="button" class="btn btn-primary mt-3">完了</button>
-            </a>
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -114,4 +190,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_four.js' %}"></script>
+    <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

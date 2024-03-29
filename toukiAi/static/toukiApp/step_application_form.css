@@ -1,0 +1,27 @@
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #print_page, #print_page * {
+        visibility: visible;
+    }
+    #print_page {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        height: 297mm;
+    }
+}
+
+#print_page {
+    height: 297mm;
+    width: 210mm;
+    font-family: "Zen Old Mincho", serif;
+    padding-left: 30mm;
+    padding-right: 20mm;
+}
+
+#print_page > div:first-child{
+    margin-top:50mm;
+}

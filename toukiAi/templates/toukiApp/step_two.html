@@ -15,14 +15,14 @@
         <div>
             <h4>下記に列挙した書類を取得して☑してください</h4>
             <div class="mt-3">
-                <span class="fw-bold border-bottom">※以下の方が相続人に該当します</span>
+                <span class="fw-bold border-bottom">※本件では以下の方が相続人です</span>
             </div>
             {% if heirs %}
-            <ul>
-                {% for heir in heirs %}
-                    <li>{{heir.name}}　さん</li>
-                {% endfor %}
-            </ul>
+                <ul>
+                    {% for heir in heirs %}
+                        <li>{{heir.name}}　さん</li>
+                    {% endfor %}
+                </ul>
             {% endif %}
             <span class="fw-bold text-success">※ご不明な点がありましたらお気軽にお問い合わせをご利用ください！</span>
         </div>
@@ -547,7 +547,12 @@
                     不動産を取得する方の住民票又は戸籍の附票　いずれか１通
                 </span>
                 <div class="mt-3">
-                    日本に住民票がない場合は、在住している国にある大使館又は領事館で在留証明書が必要です。
+                    ※住民票は、
+                    <span class="fw-bold">
+                        マイナンバー無記載のもの
+                    </span>
+                    をご取得ください。
+                    ※日本に住民票がない場合は、在住している国にある大使館又は領事館で在留証明書が必要です。
                 </div>
             </div>
             <hr>

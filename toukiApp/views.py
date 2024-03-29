@@ -27,7 +27,7 @@ import socket
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import model_to_dict
-from django.db.models import Q
+from django.db.models import Q, F
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -46,6 +46,7 @@ import inspect
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 import traceback
 from django.db.models.query import QuerySet
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -1682,7 +1683,7 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
         basic_log(function_name, e, user)
         raise e
         
-def get_data_idx_for_step_three():
+def get_data_idx_for_document():
     idxs = {
         "registry_name_and_address": 0,
         "spouse": 1,
@@ -1707,7 +1708,7 @@ def get_data_idx_for_step_three():
     }
     return idxs
 
-def get_data_for_step_three(decedent):
+def get_data_for_document(decedent):
     """_summary_
     被相続人に紐づくステップ３で使用するデータを取得する
     Args:
@@ -1925,8 +1926,6 @@ def step_three(request):
         if not request.user.is_authenticated:
             return redirect(to='/account/login/')
         
-        function_name = get_current_function_name()
-        
         #ユーザーに紐づく被相続人データを取得する
         user = User.objects.get(email = request.user)
         decedent = user.decedent.first()
@@ -1935,9 +1934,11 @@ def step_three(request):
         if not decedent:
             return redirect(to='/toukiApp/step_one/')
         
+        function_name = get_current_function_name()
+        
         #被相続人に紐づくデータを取得する
-        data = get_data_for_step_three(decedent)
-        data_idx = get_data_idx_for_step_three()
+        data = get_data_for_document(decedent)
+        data_idx = get_data_idx_for_document()
         
         #フォームセットを生成
         form_sets = get_formsets_for_step_three()
@@ -2313,22 +2314,586 @@ def step_three(request):
         basic_log(function_name, e, user)
         return HttpResponse("想定しないエラーが発生しました\nお問い合わせからご連絡をお願いします", status=500)
 
-#ステップ4
-#書類印刷
+#
+# ステップ4
+# 
+
 def step_four(request):
+    """ステップ４のメイン処理
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
+    decedent = user.decedent.first()
     
+    if not decedent:
+        return redirect(to='/toukiApp/step_one/')
+    
+    data = get_data_for_document(decedent)
+    data_idx = get_data_idx_for_document()
+    heirs = get_heirs(decedent)
+    minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
+    overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
     context = {
         "title" : "４．書類の印刷",
         "user" : user,
+        "decedent": decedent,
+        "progress": decedent.progress,
+        "heirs": heirs,
+        "minors": minors,
+        "overseas": overseas,
         "sections" : Sections.SECTIONS[Sections.STEP4],
         "service_content" : Sections.SERVICE_CONTENT,
     }
     return render(request, "toukiApp/step_four.html", context)
 
+def step_division_agreement(request):
+    """遺産分割協議証明書の表示
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    try:
+        if not request.user.is_authenticated:
+            return redirect(to='/account/login/')
+        
+        user = User.objects.get(email = request.user)
+        decedent = user.decedent.first()
+        
+        if not decedent:
+            return redirect(to='/toukiApp/step_one/')
+        
+        function_name = get_current_function_name()
+        
+        #被相続人の氏名、死亡年月日、死亡時の住所
+        decedent_info = get_decedent_info_for_division_agreement(decedent)
+        
+        property_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
+        cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
+        sites = Site.objects.filter(decedent=decedent)
+        
+        #区分建物データがあるとき、敷地権データも存在するかチェック
+        check_bldg_and_site_related(property_acquirer_data, sites)
+        
+        #換価しない不動産と相続人を紐づける
+        normal_division_properties = get_normal_division_properties(property_acquirer_data, cash_acquirer_data)
+        
+        #換価する不動産と相続人を紐づける
+        exchange_division_properties = None
+        if cash_acquirer_data.exists():
+            exchange_division_properties = get_exchange_division_properties(property_acquirer_data, cash_acquirer_data)
+        
+        context = {
+            "title" : "遺産分割協議証明書",
+            "decedent_info": decedent_info,
+            "normal_division_properties": normal_division_properties,
+            "exchange_division_properties": exchange_division_properties,
+            "sites": sites,
+        }
+        return render(request, "toukiApp/step_division_agreement.html", context)
+    except DatabaseError as e:
+        messages.error(request, 'データベース処理でエラーが発生しました。\n再度このエラーが出る場合は、お問い合わせからお知らせお願いします。')
+        return redirect('/toukiApp/step_three')
+    except HTTPError as e:
+        basic_log(function_name, e, user)
+        messages.error(request, f'通信エラー（コード：{e.response.status_code}）が発生したため処理が中止されました。\
+                       \nコードが５００の場合は、お手数ですがお問い合わせからご連絡をお願いします。')
+        return render(request, "toukiApp/step_three.html", context)
+    except ConnectionError as e:
+        basic_log(function_name, e, user)
+        messages.error(request, '通信エラーが発生したため処理が中止されました。\nお手数ですが、再入力をお願いします。')
+        return render(request, "toukiApp/step_three.html", context)        
+    except Timeout as e:
+        basic_log(function_name, e, user)
+        messages.error(request, 'システムに接続できませんでした。\nお手数ですが、ネットワーク環境をご確認のうえ再入力をお願いします。')
+        return render(request, "toukiApp/step_three.html", context)   
+    except ValidationError as e:
+        basic_log(function_name, e, user)
+        return HttpResponse("登録されているデータに誤りがあります\nお手数ですが、お問い合わせをお願いします", status=400)
+    except Exception as e:
+        basic_log(function_name, e, user)
+        return HttpResponse("想定しないエラーが発生しました\nお手数ですが、お問い合わせをお願いします", status=500)
+
+def check_bldg_and_site_related(acquirer_data, site_data):
+    """区分建物と敷地権のデータが正確に紐づいているか判別する
+
+    Args:
+        acquirer_data (_type_): _description_
+        site_data (_type_): _description_
+    """
+    function_name = get_current_function_name()
+    bldg_content_type = ContentType.objects.get_for_model(Bldg)
+    bldg_related_acquirers = acquirer_data.filter(content_type1=bldg_content_type)
+    #区分建物も敷地権もないとき処理をしない
+    if not bldg_related_acquirers.exists() and not site_data.exists():
+        return True
+    
+    #区分建物もしくは敷地権のどちらかしかないときエラー
+    if bldg_related_acquirers.exists() != site_data.exists():
+        raise ValidationError(function_name + "区分建物と敷地権のデータの数が不正です")
+    
+    #敷地権が全て区分建物と関連付けされているか判別する
+    bldg_ids = set(bldg.object_id1 for bldg in bldg_related_acquirers)
+    for site in site_data:
+        if site.bldg.id not in bldg_ids:
+            raise ValidationError(f"{function_name}: 区分建物と関連付けされてない敷地権があります。")
+        
+    # フィルタリングされたクエリセットにレコードが存在するか判別
+    return True
+
+def get_unique_property_acquirer_data(property_acquirer_data, cash_acquirer_data):
+    """通常分割の不動産データを取得する
+
+    Args:
+        property_acquirer_data (_type_): _description_
+        cash_acquirer_data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # Step 1: CashAcquirerのcontent_type1とobject_id1の組み合わせのセットを作成
+    cash_content_object1_set = {
+        (obj.content_type1_id, obj.object_id1) for obj in cash_acquirer_data
+    }
+
+    # Step 2: PropertyAcquirerのレコードをループして、cash_acquirer_dataに含まれないcontent_object1を持つレコードのみを抽出
+    return [
+        obj for obj in property_acquirer_data
+        if (obj.content_type1_id, obj.object_id1) not in cash_content_object1_set
+    ]
+
+def get_base_normal_division_data(data):
+    """_summary_
+
+    Args:
+        data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # PropertyAcquirer インスタンスをループ
+    formatted_data = defaultdict(list)
+    for d in data:
+        content_object1 = d.content_object1
+        name = d.content_object2.name
+        percentage = d.percentage
+        # content_object1をキーとして、content_object2の名前と取得割合のマッピングを追加
+        formatted_data[content_object1].append({name: percentage})
+        
+    return formatted_data
+
+def get_content_object1_duplicate_checked_data(data):
+    """_summary_
+
+    Args:
+        data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    formatted_data = []
+    for content_object1, mappings in data.items():
+        formatted_data.append((content_object1, mappings))
+        
+    return formatted_data
+
+def get_group_properties_by_mappings(data):
+    """_summary_
+
+    Args:
+        data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    formatted_data = defaultdict(list)
+
+    # content_object1_duplicate_checked_dataはステップ1で作成したデータ
+    for content_object1, mappings in data:
+        # mappingsは[{content_object2.name: percentage}, ...]のリスト
+        # mappingsを一意のキーとして使用
+        key = frozenset((name, percentage) for mapping in mappings for name, percentage in mapping.items())
+        formatted_data[key].append(content_object1)
+        
+    return formatted_data
+
+def get_normal_division_properties(property_acquirer_data, cash_acquirer_data):
+    """換価しない不動産情報を取得する
+    
+    取得者が重複する不動産はまとめて表示する
+    返すデータ形式(
+        [不動産データ],
+        [{"不動産取得者名": "取得割合"}]
+    )
+    
+    Args:
+        decedent (_type_): _description_
+    """
+    try:
+        #通常分割の不動産データを取得する
+        first_data = get_unique_property_acquirer_data(property_acquirer_data, cash_acquirer_data)
+        
+        # PropertyAcquirer インスタンスをループ
+        second_data = get_base_normal_division_data(first_data)
+
+        # 最終的なデータ構造を準備
+        third_data = get_content_object1_duplicate_checked_data(second_data)
+
+        # ステップ1: グループ化のための辞書を準備
+        fourth_data = get_group_properties_by_mappings(third_data)
+
+        # ステップ2: 最終的なデータ構造を生成
+        return [(content_objects, [dict([item]) for item in key]) for key, content_objects in fourth_data.items()]
+     
+    except (HTTPError, ConnectionError, Timeout, DatabaseError) as e:
+        raise e
+    except Exception as e:
+        raise e
+
+def get_integrated_acquirers(property_acquirers, cash_acquirers):
+    """不動産、不動産取得者、金銭取得者を関連付けして不動産の重複をなくしたデータを返す
+
+    Args:
+        property_acquirers (_type_): _description_
+        cash_acquirers (_type_): _description_
+    """
+    formatted_data = defaultdict(lambda: {'property_acquirers': {}, 'cash_acquirers': {}})
+    
+    # content_object1をキーとする辞書を作成
+    property_dict = defaultdict(dict)
+    for acquirer in property_acquirers:
+        key = (acquirer.content_type1.model, acquirer.object_id1)
+        property_dict[key][acquirer.content_object2.name] = acquirer.percentage
+
+    cash_dict = defaultdict(dict)
+    for acquirer in cash_acquirers:
+        key = (acquirer.content_type1.model, acquirer.object_id1)
+        cash_dict[key][acquirer.content_object2.name] = acquirer.percentage
+
+    # property_acquirers と cash_acquirers の共通キーでデータをマージ
+    for key in property_dict.keys() & cash_dict.keys():
+        formatted_data[key]['property_acquirers'] = property_dict[key]
+        formatted_data[key]['cash_acquirers'] = cash_dict[key]
+                
+    return formatted_data
+
+def get_base_exchange_data(data):
+    """換価データの形式に変換したデータを返す
+
+    Args:
+        data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return [
+        ([{ct1_model: obj_id1}],
+         [{key: value} for key, value in acquirers['property_acquirers'].items()],
+         [{key: value} for key, value in acquirers['cash_acquirers'].items()])
+        for (ct1_model, obj_id1), acquirers in data.items()
+    ]
+
+def get_unique_exchange_data(data):
+    """取得者の重複を解消したデータを返す
+
+    Args:
+        data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    formatted_data = defaultdict(lambda: {'models': [], 'property_acquirers': [], 'cash_acquirers': []})
+
+    for record in data:
+        ct1_model_obj_id_list, property_acquirers, cash_acquirers = record
+        # 辞書型からリストへ変換して比較可能な形式にする
+        property_acquirers_dict = {list(item.keys())[0]: list(item.values())[0] for item in property_acquirers}
+        cash_acquirers_dict = {list(item.keys())[0]: list(item.values())[0] for item in cash_acquirers}
+        
+        # property_acquirersとcash_acquirersの組み合わせをキーとする
+        key = (frozenset(property_acquirers_dict.items()), frozenset(cash_acquirers_dict.items()))
+        
+        # すでに存在する組み合わせの場合は、modelsのリストにct1_modelとobj_id1を追加
+        formatted_data[key]['models'].extend(ct1_model_obj_id_list)
+        if not formatted_data[key]['property_acquirers']:
+            formatted_data[key]['property_acquirers'].extend(property_acquirers)
+        if not formatted_data[key]['cash_acquirers']:
+            formatted_data[key]['cash_acquirers'].extend(cash_acquirers)
+    
+    return formatted_data
+
+def get_completed_exchange_data(data):
+    """テンプレートに渡す形に整形した換価不動産データを返す
+
+    Args:
+        data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # モデルインスタンスを格納するための辞書を用意
+    model_instances_cache = {}
+
+    # ContentTypeのキャッシュを用意
+    content_type_cache = {}
+
+    formatted_data = []
+
+    for key, value in data.items():
+        real_models = []
+
+        for model_dict in value['models']:
+            for model_name, model_id in model_dict.items():
+                # ContentTypeとモデルインスタンスのキャッシュを使用
+                model_key = (model_name, model_id)
+                if model_key not in model_instances_cache:
+                    if model_name not in content_type_cache:
+                        content_type_cache[model_name] = ContentType.objects.get(model=model_name)
+                    ct = content_type_cache[model_name]
+                    model_class = ct.model_class()
+                    model_instance = model_class.objects.get(id=model_id)
+                    model_instances_cache[model_key] = model_instance
+                else:
+                    model_instance = model_instances_cache[model_key]
+                
+                real_models.append(model_instance)
+
+        value['models'] = real_models
+        formatted_data.append((value['models'], value['property_acquirers'], value['cash_acquirers']))
+
+    return formatted_data
+            
+def get_exchange_division_properties(property_acquirer_data, cash_acquirer_data):
+    """換価する不動産情報を取得する
+    
+    取得者が重複する不動産はまとめて表示する
+    返すデータ形式(
+        [不動産データ],
+        [{"不動産取得者名": "取得割合"}],
+        [{"金銭取得者名": "取得割合"}]
+    )
+    Args:
+        decedent (_type_): _description_
+    """
+    try:
+        # 不動産、不動産取得者、金銭取得者を連結して不動産の重複をなくす
+        first_data = get_integrated_acquirers(property_acquirer_data, cash_acquirer_data)
+        
+        # テンプレートに渡すデータ形式に変換
+        second_data = get_base_exchange_data(first_data)
+
+        # 取得者の重複をなくす
+        third_data = get_unique_exchange_data(second_data)
+
+        # 不動産のデータに入れ替えて完成させる
+        return get_completed_exchange_data(third_data)
+    
+    except (HTTPError, ConnectionError, Timeout, DatabaseError) as e:
+        raise e
+    except Exception as e:
+        raise e
+
+def get_decedent_info_for_division_agreement(decedent):
+    """遺産分割協議証明書に書く被相続人情報を取得する
+    
+    取得する情報：被相続人氏名、死亡年月日、死亡時の住所
+
+    Args:
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    info = []
+    info.append(decedent.name)
+    death_date = decedent.death_year[:4] + "年" + decedent.death_month + "月" + decedent.death_date + "日"
+    info.append(death_date)
+    prefecture = next((name for code, name in PREFECTURES if code == decedent.prefecture), "不明")
+    address = prefecture + decedent.city + decedent.address + decedent.bldg
+    info.append(address)
+    return info
+
+def step_diagram(request):
+    """相続関係説明図の表示
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
+    user = User.objects.get(email = request.user)
+    decedent = user.decedent.first()
+    
+    if not decedent:
+        return redirect(to='/toukiApp/step_one/')
+
+
+    context = {
+        "title" : "相続関係図",
+    }
+    return render(request, "toukiApp/step_diagram.html", context)
+
+def step_application_form(request):
+    """登記申請書の表示
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if not request.user.is_authenticated:
+        return redirect(to='/account/login/')
+    
+    user = User.objects.get(email = request.user)
+    decedent = user.decedent.first()
+    
+    if not decedent:
+        return redirect(to='/toukiApp/step_one/')
+    
+    application_form_data = [
+        {
+            "purpose_of_registration": "",
+            "cause": "",
+            "acquirers": [
+                {
+                    "address": "",
+                    "percentage": "",
+                    "name": "",
+                    "phone_number": "",
+                }
+            ],
+            "office": "",
+            "agent": {
+                "address": "",
+                "name": "",
+                "phone_number": "",
+            },
+            "price": "",
+            "tax": "",
+            "property": [
+                {
+                    "number": "",
+                    "purparty": "",
+                    "site_number": "",
+                    "site_type": "",
+                    "site_purparty": "",
+                }
+            ],
+        },
+    ]
+    
+    lands = Land.objects.filter(decedent=decedent)
+    houses = House.objects.filter(decedent=decedent)
+    bldgs = Bldg.objects.filter(decedent=decedent)
+    
+    #管轄別に不動産をまとめる
+    
+    
+    #取得者別に不動産をまとめる
+    
+    #登記の目的
+    purpose_of_registration = get_purpose_of_registration(decedent)
+    #原因
+    cause = decedent.death_year + decedent.death_month + "月" + decedent.death_date + "日"
+    #相続人
+    acquirers = get_acquirers_for_application_form(decedent)
+    
+    data = get_data_for_document(decedent)
+    data_idx = get_data_idx_for_document()
+
+    context = {
+        "title" : "登記申請書",
+        "purpose_of_registration": purpose_of_registration,
+        "cause": cause,
+    }
+    return render(request, "toukiApp/step_application_form.html", context)
+
+def get_acquirers_for_application_form(decedent):
+    """申請書に記載する相続人情報を取得する
+    
+    
+
+    Args:
+        decedent (_type_): _description_
+    """
+
+def get_purpose_of_registration(decedent):
+    """登記の目的を取得する
+    
+    被相続人が持分のみの不動産を持っているかどうかで変わる
+
+    Args:
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    function_name = get_current_function_name()
+    
+    lands = Land.objects.filter(decedent=decedent)
+    houses = House.objects.filter(decedent=decedent)
+    bldgs = Bldg.objects.filter(decedent=decedent)
+    
+    if not lands.exists() and not houses.exists() and not bldgs.exists():
+        raise ValidationError(function_name + "：不動産がありません")
+
+    is_owner = False
+    is_purparty = False
+    
+    if lands.exists():
+        for x in lands:
+            if x.purparty == "１分の１":
+                is_owner = True
+            else:
+                is_purparty = True
+                
+            if is_owner and is_purparty:
+                break
+    
+    if houses.exists() and not is_owner and not is_purparty:
+        for x in houses:
+            if x.purparty == "１分の１":
+                is_owner = True
+            else:
+                is_purparty = True
+            
+            if is_owner and is_purparty:
+                break
+
+    if bldgs.exists() and not is_owner and not is_purparty:
+        for x in bldgs:
+            if x.purparty == "１分の１":
+                is_owner = True
+            else:
+                is_purparty = True
+                
+            if is_owner and is_purparty:
+                break
+    
+    if is_owner and not is_purparty:
+        return "所有権移転"
+    elif is_owner and is_purparty:
+        return "所有権移転及び" + decedent.name + "持分全部移転"
+    elif not is_owner and is_purparty:
+        return decedent.name + "持分全部移転"
+    else:
+        raise ValidationError(function_name + "所有権割合が登録されてません")
+    
 #ステップ5
 #申請
 def step_five(request):

@@ -1,0 +1,334 @@
+{% extends "toukiApp/base.html" %}
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_division_agreement.css' %}">
+{% endblock %}
+{% block header %}
+{% endblock %}
+{% load custom_filters %}
+{% block content %}
+<div class="d-flex container-xxl">
+    <fieldset class="container">
+        <div class="top">
+            <p class="fw-bold text-center">
+                こちらのページをそのまま印刷するかPDFをダウンロードして印刷してください。
+            </p>
+            <p class="text-center mt-3">
+                <button id="downloadBtn" type="button" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
+                    PDFをダウンロードする
+                </button>
+            </p>
+            <div class="mt-4 d-flex justify-content-center">
+                <div class="d-inline-block border rounded-3 p-3">
+                    <p class="text-danger fw-bold">
+                        ※注意事項
+                    </p>
+                    <p class="ms-3">
+                        <span class="fw-bold border-bottom border-secondary">
+                            押印について
+                        </span><br>
+                        <span class="ms-3">
+                            実印を使って印鑑登録証明書と照合できるように鮮明に押印ください。
+                        </span>
+                    </p>
+                    <div class="ms-3">
+                        <span class="fw-bold border-bottom border-secondary">
+                            遺産分割協議証明書が２枚以上になっているとき
+                        </span><br>
+                        <div class="ms-3">
+                            署名欄の押印以外に
+                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#seal">
+                                契印（こちらをクリック）
+                            </button>
+                            も必要です。
+                        </div>
+                        <div class="ms-3">
+                            契印とは、複数枚が一連の文書のものであることを確認したことを証明するための押印です。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="seal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">契印のしかた</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <img class="modal-image" src="{% static 'toukiApp/img/契印.png' %}" alt="契印の説明画像">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-5">
+            <div id="print_page">
+                <div class="mt-5">
+                    <h5 class="text-center">
+                        遺産分割協議証明書
+                    </h5>
+                </div>
+                <div class="decedent_info">
+                    <div>
+                        <div>
+                            被相続人
+                        </div>
+                        <div>
+                            {{decedent_info.0}}
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            死亡年月日
+                        </div>
+                        <div>
+                            {{decedent_info.1}}
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            死亡時の住所
+                        </div>
+                        <div>
+                            {{decedent_info.2}}
+                        </div>
+                    </div>
+                </div>
+                <div class="sentence">
+                    上記被相続人が死亡したことにより開始した相続について、共同相続人全員は、下記の通り遺産を分割することに合意した。
+                </div>
+                <div class="text-center mt-3">
+                    <span>
+                        記
+                    </span>
+                </div>
+                {% if normal_division_properties %}
+                    {% for d in normal_division_properties %}
+                        <div class="content mt-3">
+                            <p>
+                                下記不動産は、
+                                {% for acquirer in d.1 %}
+                                    {% if forloop.last %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {% if percentage == "１分の１" %}
+                                                {{ name }}が
+                                            {% else %}
+                                                {{ name }}が{{ percentage }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {{ name }}が{{ percentage }}、
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                取得する。
+                            </p>
+                            <div class="property">
+                                {% for property in d.0 %}
+                                    <div>
+                                        <div>
+                                            {{ property.address }}
+                                            {% if property|classname == "Land" %}
+                                                {{ property.land_number }}の土地
+                                            {% elif property|classname == "House" %}
+                                                {{ property.house_number }}の建物
+                                            {% elif property|classname == "Bldg" %}
+                                                {{ property.bldg_number }}の区分建物
+                                            {% endif %}
+                                        </div>
+                                        {% if property.purparty != "１分の１" %}
+                                            <div class="ms-3">
+                                                （{{decedent_info.0}}の持分{{ property.purparty }}）
+                                            </div>
+                                        {% endif %}
+                                        {% if property|classname == "Bldg" %}
+                                            {% for site in sites %}
+                                                {% if site.bldg.id == property.id %}
+                                                <div class="site">
+                                                    <div>
+                                                        <div>
+                                                            土地の符号{{site.number}}
+                                                        </div>
+                                                        <div>
+                                                            {{site.address_and_land_number}}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            敷地権の種類
+                                                        </div>
+                                                        <div>
+                                                            {{site.type}}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            敷地権の割合
+                                                        </div>
+                                                        <div>
+                                                            {{site.purparty_bottom}}分の{{site.purparty_top}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                {% if exchange_division_properties %}
+                    {% for d in exchange_division_properties %}
+                        <div class="content mt-3">
+                            <p>
+                                下記不動産は、
+                                {% for acquirer in d.1 %}
+                                    {% if forloop.last %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {% if percentage == "１分の１" %}
+                                                {{ name }}が
+                                            {% else %}
+                                                {{ name }}が{{ percentage }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {{ name }}が{{ percentage }}、
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                取得する。<br>
+                                <span class="ms-3">
+                                    なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
+                                </span>
+                                {% for cash_acquirer in d.2 %}
+                                    {% if forloop.last %}
+                                        {% for name, percentage in cash_acquirer.items %}
+                                            {% if percentage == "１分の１" %}
+                                                {{ name }}が
+                                            {% else %}
+                                                {{ name }}が{{ percentage }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for name, percentage in cash_acquirer.items %}
+                                            {{ name }}が{{ percentage }}、
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                の割合で取得する。
+                            </p>
+                            <div class="property">
+                                {% for property in d.0 %}
+                                    <div>
+                                        <div>
+                                            {{ property.address }}
+                                            {% if property|classname == "Land" %}
+                                                {{ property.land_number }}の土地
+                                            {% elif property|classname == "House" %}
+                                                {{ property.house_number }}の建物
+                                            {% elif property|classname == "Bldg" %}
+                                                {{ property.bldg_number }}の区分建物
+                                            {% endif %}
+                                        </div>
+                                        {% if property.purparty != "１分の１" %}
+                                            <div class="ms-3">
+                                                （{{decedent_info.0}}の持分{{ property.purparty }}）
+                                            </div>
+                                        {% endif %}
+                                        {% if property|classname == "Bldg" %}
+                                            {% for site in sites %}
+                                                {% if site.bldg.id == property.id %}
+                                                <div class="site">
+                                                    <div>
+                                                        <div>
+                                                            土地の符号{{site.number}}
+                                                        </div>
+                                                        <div>
+                                                            {{site.address_and_land_number}}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            敷地権の種類
+                                                        </div>
+                                                        <div>
+                                                            {{site.type}}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            敷地権の割合
+                                                        </div>
+                                                        <div>
+                                                            {{site.purparty_bottom}}分の{{site.purparty_top}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="end text-end">
+                    <span>
+                        以上
+                    </span>
+                </div>
+                <div class="signature">
+                    <div>
+                        <span>
+                            令和
+                        </span>
+                        <span>
+                            年
+                        </span>
+                        <span>
+                            月
+                        </span>
+                        <span>
+                            日（記入日）
+                        </span>
+                    </div>
+                    <div>
+                        住所
+                    </div>
+                    <div>
+                        <div>
+                            氏名
+                        </div>
+                        <div class="stamp_box">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-text">
+                            ※実印（印鑑登録証明書と同じ印鑑）<br>
+                            ※不鮮明なときは、丸枠の近くに押しなおす
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <script src="{% static 'toukiApp/zenOldMinchoBase64.js' %}"></script>
+    <script type="module" src="{% static 'toukiApp/step_division_agreement.js' %}"></script>
+{% endblock %}

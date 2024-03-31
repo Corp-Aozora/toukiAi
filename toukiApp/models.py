@@ -12,7 +12,7 @@ from .company_data import Service
 import datetime
 from django.conf import settings
 from .customDate import *
-from .prefectures import *
+from .prefectures_and_city import *
 from .common_model import *
 from .landCategorys import *
 from accounts.models import User

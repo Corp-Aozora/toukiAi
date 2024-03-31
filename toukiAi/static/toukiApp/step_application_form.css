@@ -42,9 +42,17 @@
     display: flex!important;
 }
 
-/* 不動産の表示の子要素 */
-.print_per_section > :last-child > *{
+/* 各不動産の表示 */
+.print_per_section > :last-child > div > *{
     display: flex!important;
+}
+
+.property{
+    margin-left: 1rem!important;
+}
+
+.property:not(:first-child){
+    margin-top: 1rem!important;
 }
 
 /* モーダルのサイズ */

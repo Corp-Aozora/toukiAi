@@ -147,6 +147,29 @@
             <section class="container">
                 <div class="form-check mt-3">
                     <div class="ps-2">
+                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbApplicationForm">
+                    </div>
+                    <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
+                        委任状
+                        <span class="ms-3">
+                            ◯通
+                        </span>
+                    </label>
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'toukiApp:step_POA' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
+                        委任状を確認する
+                    </a>
+                </div>
+                <div class="mt-3">
+                    受任者（代理人）の住所氏名に誤りがないかご確認ください。<br>
+                    不動産を取得する方全員から署名押印（実印）をもらってください。
+                </div>
+            </section>
+            <hr>
+            <section class="container">
+                <div class="form-check mt-3">
+                    <div class="ps-2">
                         <input class="form-check-input fs-5" type="checkbox" value="" id="CbDiagram">
                     </div>
                     <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbDiagram">
@@ -185,31 +208,9 @@
                     </a>
                 </div>
                 <div class="mt-3">
-                    電話番号に誤りがないかご確認ください。<br>
+                    ご住所が政令指定都市の場合、都道府県を削除してますが法務局指定の記載方法です。<br>
+                    お電話番号に誤りがないかご確認ください。<br>
                     申請人（代理人がいるときは代理人）のところにある㊞に押印（認印可）をお願いします。
-                </div>
-            </section>
-            <hr>
-            <section class="container">
-                <div class="form-check mt-3">
-                    <div class="ps-2">
-                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbApplicationForm">
-                    </div>
-                    <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
-                        委任状
-                        <span class="ms-3">
-                            ◯通
-                        </span>
-                    </label>
-                </div>
-                <div class="mt-4">
-                    <a href="{% url 'toukiApp:step_POA' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
-                        委任状を確認する
-                    </a>
-                </div>
-                <div class="mt-3">
-                    受任者（代理人）の住所氏名に誤りがないかご確認ください。<br>
-                    不動産を取得する方全員から署名押印（実印）をもらってください。
                 </div>
             </section>
             <hr>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .prefectures import PREFECTURES
+from .prefectures_and_city import *
 from .landCategorys import LANDCATEGORYS
 from .customDate import *
 from .sections import *
@@ -22,6 +22,8 @@ from django.contrib import messages
 import textwrap
 import itertools
 import mojimoji
+from fractions import Fraction
+import unicodedata
 from django.core.mail import BadHeaderError, EmailMessage
 from django.http import HttpResponse
 # from django.template.loader import render_to_string
@@ -3134,6 +3136,7 @@ def step_application_form(request):
         context = {
             "title" : "登記申請書",
             "application_data": application_data,
+            "decedent_name": decedent.name,
         }
         return render(request, render_html, context)
     except Exception as e:
@@ -3171,33 +3174,25 @@ def get_application_form():
     return {
         "purpose_of_registration": "",
         "cause": "",
-        "acquirers": [
-            {
-                "address": "",
-                "percentage": "",
-                "name": "",
-                "phone_number": "",
-            }
-        ],
-        "document": "",
+        "acquirers": [],
+        "document": "登記原因証明情報　住所証明情報　",
         "office": "",
-        "is_agent": "",
+        "is_agent": "false",
         "agent": {
             "address": "",
             "name": "",
             "phone_number": "",
         },
-        "price": "",
+        "total_price": "",
+        "owner_price": "",
+        "other_price": "",
+        "is_all_tax_free": "false",
+        "all_tax_free_phrase": "租税特別措置法第８４条の２の３第２項により非課税",
+        "is_partially_tax_free": "false",
+        "partially_tax_free_phrase": "以下の土地について租税特別措置法第８４条の２の３第２項により非課税",
+        "tax_free_land_numbers": [],
         "tax": "",
-        "property": [
-            {
-                "number": "",
-                "purparty": "",
-                "site_number": "",
-                "site_type": "",
-                "site_purparty": "",
-            }
-        ],
+        "properties": [],
     }
 
 def get_application_form_data(data, decedent):
@@ -3214,14 +3209,302 @@ def get_application_form_data(data, decedent):
     cause = get_wareki(decedent, False)
     for properties, acquirers, applications, sites in data:
         application_form = get_application_form()
+        application = applications[0]
         #登記の目的
         application_form["purpose_of_registration"] = get_purpose_of_registration(properties, decedent.name)
         #登記の原因
         application_form["cause"] = cause
         #相続人
-        
+        application_form["acquirers"] = get_acquirers_info(application_form["purpose_of_registration"], acquirers, applications)
+        #添付情報
+        application_form["document"] += "代理権限証明情報" if application["is_agent"] else ""
+        #法務局
+        application_form["office"] = properties[0]["office"]
+        #代理人情報
+        assign_agent_data(application_form, application)
+        #課税価格、土地の租税特別措置法対象の不動産番号、不動産情報
+        assign_price_and_property(application_form, properties, sites, acquirers)
+        #登録免許税、敷地権の種類（所有権は１０００分の４、免税対象、地上権は１０００分の２、免税不可）
+        #金額の表示を申請書形式に合わせる
+
         formatted_data.append(application_form)
+        
     return formatted_data
+
+def assign_price_and_property(form, properties, sites, acquirers):
+    #各不動産の評価額を合計する（被相続人の持分も考慮する）
+    owner_price = 0
+    other_price = 0
+    tax_free_limit = 1000000
+    tax_free_land_numbers = []
+
+    for p in properties:
+        property_form = get_property_form()
+        property_form["number"] = p["number"] #不動産番号
+        
+        #各不動産の課税価格を算出する
+        actual_price = get_actual_price(p["price"], p["purparty"])
+        
+        #取得者の氏名と持分を取得する
+        assign_acquirer_name_and_actual_percentage(property_form, acquirers, p)
+
+        #土地かつ評価額（被相続人の持分も考慮）が１００万円以下のとき免税対象
+        if p["property_type"] == "Land" and actual_price <= tax_free_limit:
+            tax_free_land_numbers.append(p["number"])
+            property_form["is_tax_free"] = "true"
+            continue
+        
+        #区分建物のとき、敷地権の評価額も算出する
+        if p["property_type"] == "Bldg":
+            #敷地権の種類と敷地権の割合も考慮する
+            for s in sites:
+                if p["id"] == s["bldg"]:
+                    site_data = {
+                        "site_number": s["number"],
+                        "site_type": s["type"],
+                        "site_purparty": s["purparty"],
+                        "is_tax_free": "false",
+                    }
+                    site_actual_price = get_actual_price(s["price"], p["purparty"], s["purparty"])
+                    if s["type"] == "所有権" and site_actual_price <= tax_free_limit:
+                        tax_free_land_numbers.append(p["number"] + "の土地の符号" + s["number"] + "の土地")
+                        site_data["is_tax_free"] = "true"
+                        property_form["sites"].append(site_data)
+                        continue
+                    
+                    if s["type"] == "所有権":
+                        owner_price += site_actual_price
+                    else:
+                        other_price += site_actual_price
+                        
+                    property_form["sites"].append(site_data)
+                    
+            
+        owner_price += actual_price
+        form["properties"].append(property_form)
+    
+    form["tax_free_land_numbers"].extend(tax_free_land_numbers)
+        
+    total_price = owner_price + other_price
+    form["total_price"] = total_price
+    form["owner_price"] = owner_price
+    form["other_price"] = other_price
+    #全て非課税対象（１００万以下の土地のみ）か一部非課税対象か判別する
+    check_tax_free_status(form, properties, tax_free_land_numbers)
+
+def check_tax_free_status(form, properties, tax_free_land_numbers):
+    """非課税の土地があるかチェックし、フォームに非課税ステータスを記録する
+
+    Args:
+        form (dict): フォームデータを格納する辞書
+        properties (list): 不動産リスト（辞書のリスト）
+        tax_free_land_numbers (list): 非課税の土地番号リスト
+    """
+    if not is_data(tax_free_land_numbers):
+        return
+    
+    #土地のみかチェック
+    is_not_land_only = any(property["property_type"] != "Land" for property in properties)
+    
+    #土地以外があるとき
+    if is_not_land_only:
+        form["is_partially_tax_free"] = "true"
+    elif len(properties) == len(tax_free_land_numbers):
+        form["is_all_tax_free"] = "true"
+    else:
+        form["is_partially_tax_free"] = "true"
+    
+def assign_acquirer_name_and_actual_percentage(form, acquirers, property):
+    """不動産の表示に表示する取得者の氏名と持分をフォームに代入する
+
+    Args:
+        form (dict): フォームデータを格納する辞書
+        acquirers (list): 取得者のリスト（辞書のリスト）
+        property (dict): 不動産に関する情報を格納する辞書
+    """
+    # 複数の取得者が存在する場合、特定の不動産に関連する取得者のみをフォームに追加する
+    for acquirer in acquirers:
+        # 不動産の種類とIDが一致する取得者、または取得者が1人しかいない場合に処理を実行
+        if len(acquirers) == 1 or\
+            (property["property_type"] == acquirer["property_type"] and\
+            property["id"] == acquirer["property_id"]):
+                
+            name = acquirer["name"]
+            percentage = multiple_fullwidth_fractions(acquirer["percentage"], property["purparty"])
+            form["acquirers"].append({
+                "percentage": percentage,
+                "name": name,
+            })
+
+def multiple_fullwidth_fractions(a, b):
+    """（全角数字）分の（全角数字）の形式同士の掛け算の結果を返す
+
+    Args:
+        a (str): （全角数字）分の（全角数字）の形式
+        b (str): （全角数字）分の（全角数字）の形式
+
+    Returns:
+        str: 結果を（全角数字）分の（全角数字）に変換した文字列
+    """
+    result = fullwidth_fraction_to_fraction(a) * fullwidth_fraction_to_fraction(b)
+    return fraction_to_fullwidth_fraction(result)
+    
+def fraction_to_fullwidth_fraction(frac):
+    """分数を（全角数字）分の（全角数字）形式の文字列に変換する
+
+    Args:
+        frac (_type_): 分数
+
+    Returns:
+        str: "所有権"または（全角数字）分の（全角数字）に変換した文字列
+    """
+    if frac.numerator == frac.denominator:
+        return "所有権"
+    numerator = unicodedata.normalize('NFKC', str(frac.numerator))
+    denominator = unicodedata.normalize('NFKC', str(frac.denominator))
+    return f"{mojimoji.han_to_zen(numerator)}分の{mojimoji.han_to_zen(denominator)}"
+
+def get_property_form():
+    """登記申請書の不動産の表示のデータ形式
+
+    Returns:
+        _type_: _description_
+    """
+    return {
+        "number": "",
+        "acquirers": [],
+        "sites": [],
+        "is_tax_free": "false",
+        "tax_free_phrase": "※租税特別措置法第８４条の２の３第２項により非課税",
+    }
+
+def get_actual_price(price, purparty, site_purparty = None):
+    """各不動産の課税価格を算出する（小数点切り捨て）
+
+    Args:
+        price (str): 全角数字とコンマで表された価格
+        purparty (str): 全角数字の分数で表された持分（例: "１分の２"）
+        site_purparty (str, optional): 全角数字の分数で表された敷地の持分（例: "１分の２"）。指定されない場合はNone。
+
+    Returns:
+        int: 課税価格（整数、小数点切り捨て）
+    """
+    actual_price = fullwidth_num_and_comma_to_int(price)
+    fraction_purparty = fullwidth_fraction_to_fraction(purparty)
+    
+    if site_purparty:
+        fraction_site_purparty = fullwidth_fraction_to_fraction(site_purparty)
+        return int(actual_price * fraction_purparty * fraction_site_purparty)
+    else:
+        return int(actual_price * fraction_purparty)
+
+def fullwidth_fraction_to_fraction(s):
+    """（全角数字）分の（全角数字）形式の文字列を分数に変換する
+
+    Args:
+        s (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # 全角の数字とスペースを半角に変換
+    s_half_width = unicodedata.normalize('NFKC', s)
+    
+    # 「分の」で分割して分子と分母を取得
+    numerator, denominator = s_half_width.split('分の')
+    
+    # 分子と分母を整数に変換
+    numerator = int(numerator)
+    denominator = int(denominator)
+    
+    # Fractionオブジェクトを作成して返す
+    return Fraction(numerator, denominator)
+
+def fullwidth_num_and_comma_to_int(s):
+    """全角のコンマ付きの数字を整数型に変えて返す
+
+    Args:
+        price_data (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # 全角数字とコンマを半角に変換
+    half_width = unicodedata.normalize('NFKC', s)
+    # コンマを削除
+    no_commas = half_width.replace(',', '')
+    # 整数に変換
+    return int(no_commas)    
+
+def assign_agent_data(form, application):
+    """代理人情報を登録する
+
+    Args:
+        form (_type_): _description_
+        application (_type_): _description_
+    """
+    if application["is_agent"]:
+        form["is_agent"] = "true"
+        form["agent"]["address"] = application["agent_address"]
+        form["agent"]["name"] = application["name"]
+        form["agent"]["phone_number"] = application["phone_number"]
+    else:
+        form["is_agent"] = "false"
+
+def get_acquirers_info(purpose_of_registration, acquirers, applications):
+    """相続人欄の情報を取得する
+
+    Args:
+        purpose_of_registration (_type_): _description_
+        acquirers (_type_): _description_
+        applications (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    acquirer_infos = []
+    
+    application = applications[0]
+    applicant_content_type = type(application["content_object"]).__name__
+    applicant_object_id = application["content_object"].pk
+    for acquirer in acquirers:
+        acquirer_info = get_acquirer_info_form()
+        
+        acquirer_info["address"] = format_address(acquirer["address"])
+        acquirer_info["name"] = acquirer["name"]
+        
+        if acquirer["acquirer_type"] == applicant_content_type and\
+            acquirer["acquirer_id"] == applicant_object_id:
+            
+            if len(acquirers) > 1:
+                acquirer_info["is_applicant"] = "true"
+            
+            if not application["is_agent"]:
+                acquirer_info["phone_number"] = application["phone_number"]
+        
+        if len(acquirers) > 1 or purpose_of_registration != "所有権移転":
+            acquirer_info["is_share"] = "true"
+        
+        if acquirer_info not in acquirer_infos:
+            acquirer_infos.append(acquirer_info)
+    
+    return acquirer_infos
+
+def get_acquirer_info_form():
+    """相続人欄に必要なデータのフォーム
+
+    Returns:
+        _type_: _description_
+    """
+    return {
+        "is_applicant": "false",
+        "applicant_phrase": "（申請人）",
+        "address": "",
+        "is_share": "false",
+        "percentage_phrase": "持分後記のとおり",
+        "name": "",
+        "phone_number": "",
+    }
 
 def get_purpose_of_registration(properties, decedent_name):
     """登記の目的を取得する
@@ -3380,6 +3663,8 @@ def relate_property_and_property_acquirer(decedent):
             "property_id": x.object_id1,
             "acquirer_type": type(x.content_object2).__name__,
             "acquirer_id": x.object_id2,
+            "name": x.content_object2.name,
+            "address": "".join(filter(None, [get_prefecture_name(x.content_object2.prefecture), x.content_object2.city, x.content_object2.address, x.content_object2.bldg])),
             "percentage": x.percentage,
         } for x in get_queryset_by_decedent(PropertyAcquirer, decedent, related_fields)]
 

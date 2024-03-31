@@ -12,16 +12,54 @@
         width: 210mm;
         height: 297mm;
     }
+    .print_per_section{
+        break-after: page;
+        margin-top:50mm;
+    }
+    @page {
+        margin-top: 20mm;
+        margin-bottom: 15mm;
+    }
 }
 
-#print_page {
-    height: 297mm;
+.top {
+    margin-top: 3rem!important;
+}
+
+.print_per_section {
+    /* height: 297mm; */
     width: 210mm;
     font-family: "Zen Old Mincho", serif;
-    padding-left: 30mm;
-    padding-right: 20mm;
 }
 
-#print_page > div:first-child{
-    margin-top:50mm;
+/* タイトル以外 */
+.print_per_section > *:not(:first-child) {
+    padding-left: 25mm;
+}
+
+/* タイトルと不動産の表示以外 */
+.print_per_section > *:not(:first-child):not(:last-child) {
+    display: flex!important;
+}
+
+/* 不動産の表示の子要素 */
+.print_per_section > :last-child > *{
+    display: flex!important;
+}
+
+/* モーダルのサイズ */
+.modal{
+    --bs-modal-width: 800px;
+}
+
+/* 登記の目的、原因、相続人、添付情報の幅 */
+.width100px{
+    width: 100px!important;
+    display: block!important;
+    text-align: justify!important;
+    text-align-last: justify!important;
+}
+
+.width100px + * {
+    margin-left:1rem!important;
 }

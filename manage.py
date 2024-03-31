@@ -3,6 +3,13 @@
 import os
 import sys
 
+environment = os.getenv("ENVIRONMENT", "windows")
+
+if environment == "windows":
+    # os.add_dll_directory は Python 3.8 以降の Windows でのみ利用可能
+    if sys.platform == "win32" and hasattr(os, 'add_dll_directory'):
+        os.add_dll_directory(r"C:\Program Files\PostgreSQL\16rc1\bin")
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'toukiAi.settings.local')

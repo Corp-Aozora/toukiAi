@@ -12,12 +12,8 @@
     <fieldset class="container">
         <div class="top">
             <p class="fw-bold text-center">
-                こちらのページをそのまま印刷するかPDFをダウンロードして印刷してください。
-            </p>
-            <p class="text-center mt-3">
-                <button id="downloadBtn" type="button" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
-                    PDFをダウンロードする
-                </button>
+                こちらのページをA4の縦方向でご印刷ください。<br>
+                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせからお知らせお願いします。
             </p>
             <div class="mt-4 d-flex justify-content-center">
                 <div class="d-inline-block border rounded-3 p-3">
@@ -76,7 +72,15 @@
                             被相続人
                         </div>
                         <div>
-                            {{decedent_info.0}}
+                            {{decedent_info.name}}
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            生年月日
+                        </div>
+                        <div>
+                            {{decedent_info.birth_date}}
                         </div>
                     </div>
                     <div>
@@ -84,7 +88,15 @@
                             死亡年月日
                         </div>
                         <div>
-                            {{decedent_info.1}}
+                            {{decedent_info.death_date}}
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            死亡時の本籍
+                        </div>
+                        <div>
+                            {{decedent_info.permanent_address}}
                         </div>
                     </div>
                     <div>
@@ -92,7 +104,7 @@
                             死亡時の住所
                         </div>
                         <div>
-                            {{decedent_info.2}}
+                            {{decedent_info.address}}
                         </div>
                     </div>
                 </div>
@@ -141,7 +153,7 @@
                                         </div>
                                         {% if property.purparty != "１分の１" %}
                                             <div class="ms-3">
-                                                （{{decedent_info.0}}の持分{{ property.purparty }}）
+                                                （{{decedent_info.name}}の持分{{ property.purparty }}）
                                             </div>
                                         {% endif %}
                                         {% if property|classname == "Bldg" %}
@@ -238,7 +250,7 @@
                                         </div>
                                         {% if property.purparty != "１分の１" %}
                                             <div class="ms-3">
-                                                （{{decedent_info.0}}の持分{{ property.purparty }}）
+                                                （{{decedent_info.name}}の持分{{ property.purparty }}）
                                             </div>
                                         {% endif %}
                                         {% if property|classname == "Bldg" %}

@@ -13,15 +13,20 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 import datetime
 import json
-from django.http import JsonResponse
+import copy
+from django.http import JsonResponse, HttpResponseServerError
 import requests
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 import textwrap
+import itertools
+import mojimoji
 from django.core.mail import BadHeaderError, EmailMessage
 from django.http import HttpResponse
-from django.db import transaction, DatabaseError, OperationalError
+# from django.template.loader import render_to_string
+# from weasyprint import HTML
+from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
 from smtplib import SMTPException
 import socket
 from django.views.decorators.csrf import csrf_exempt
@@ -51,105 +56,316 @@ from collections import defaultdict
 logger = logging.getLogger(__name__)
 
 def index(request):
-    is_inquiry = False
-    
-    if "post_success" in request.session and request.session["post_success"]:
-        is_inquiry = True
-        del request.session["post_success"]
-    
-    if request.method == "POST":
-        form = OpenInquiryForm(request.POST)
-        if form.is_valid():
-            with transaction.atomic():
-                function_name = get_current_function_name()
-                try:
-                    form.save()
-                    subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
-                    content = textwrap.dedent('''
-                        このメールはシステムからの自動返信です。
-                        送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
+    """トップページの処理
 
-                        以下の内容でお問い合わせを受け付けました。
-                        
-                        原則２４時間以内にご回答いたしますので、恐れ入りますが今少しお時間をください。
-                        ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。
-                        
-                        ----------------------------------
+    Args:
+        request (_type_): _description_
 
-                        件名
-                        {subject}
-
-                        お問い合わせ内容
-                        {content}
-                        
-                        -----------------------------------
-                        {company_sub_name}
-                        {company_name}
-                        {company_post_number}
-                        {company_address}
-                        受信専用電話番号 {company_receiving_phone_number}
-                        発信専用電話番号 {company_calling_phone_number}
-                        営業時間 {company_opening_hours}
-                        ホームページ {company_url}
-                    ''').format(
-                        subject=form.cleaned_data["subject"],
-                        content=form.cleaned_data["content"],
-                        company_name=CompanyData.NAME,
-                        company_post_number=CompanyData.POST_NUMBER,
-                        company_address=CompanyData.ADDRESS,
-                        company_receiving_phone_number=CompanyData.RECEIVING_PHONE_NUMBER,
-                        company_calling_phone_number=CompanyData.CALLING_PHONE_NUMBER,
-                        company_opening_hours=CompanyData.OPENING_HOURS,
-                        company_url=CompanyData.URL,
-                    )
-                    to_list = [form.cleaned_data["created_by"]]
-                    bcc_list = ["toukiaidev@gmail.com"]
-                    message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
-                    message.send()
-                    request.session["post_success"] = True
-                    
-                except BadHeaderError as e:
-                    basic_log(function_name, e, None, "無効なヘッダ")
-                    messages.error(request, f'無効なヘッダが検出されました {e}')
-                except SMTPException as e:
-                    basic_log(function_name, e, None, "SMTPエラー")
-                    messages.error(request, f'SMTPエラーが発生しました {e}')
-                except socket.error as e:
-                    basic_log(function_name, e, None, "ネットワークエラー")
-                    messages.error(request, f'ネットワークエラーが発生しました {e}')
-                except ValidationError as e:
-                    basic_log(function_name, e, None)
-                    messages.error(request, "データの保存に失敗しました。入力内容を確認してください。")
-                except Exception as e:
-                    basic_log(function_name, e, None)
-                    messages.error(request, f'予期しないエラーが発生しました {e}')
-            
-        else:
-            basic_log(function_name, None, None, "入力内容に誤り")
-            messages.warning(request, "入力内容に誤りがあったため受付できませんでした")
-            
-        return redirect("/toukiApp/index")
-            
-    else:
-        forms = OpenInquiryForm()
+    Returns:
+        _type_: _description_
+    """
+    try:
+        is_inquiry = False
+        render_html = "toukiApp/index.html"
         
-    update_articles = UpdateArticle.objects.order_by("-updated_by")[:2]
-    
-    context = {
-        "title" : "トップページ",
-        "update_articles": update_articles,
-        "forms": forms,
-        "company_app_name": CompanyData.APP_NAME,
-        "company_mail_address": CompanyData.MAIL_ADDRESS,
-        "company_service": Service,
-        "is_inquiry": is_inquiry,
-    }
-    
-    return render(request, "toukiApp/index.html", context)
+        if "post_success" in request.session and request.session["post_success"]:
+            is_inquiry = True
+            del request.session["post_success"]
+        
+        if request.method == "POST":
+            form = OpenInquiryForm(request.POST)
+            if form.is_valid():
+                with transaction.atomic():
+                    function_name = get_current_function_name()
+                    try:
+                        form.save()
+                        subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
+                        content = textwrap.dedent('''
+                            このメールはシステムからの自動返信です。
+                            送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
 
-# ステップ１のデータ登録処理
+                            以下の内容でお問い合わせを受け付けました。
+                            
+                            原則２４時間以内にご回答いたしますので、恐れ入りますが今少しお時間をください。
+                            ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。
+                            
+                            ----------------------------------
+
+                            件名
+                            {subject}
+
+                            お問い合わせ内容
+                            {content}
+                            
+                            -----------------------------------
+                            {company_sub_name}
+                            {company_name}
+                            {company_post_number}
+                            {company_address}
+                            受信専用電話番号 {company_receiving_phone_number}
+                            発信専用電話番号 {company_calling_phone_number}
+                            営業時間 {company_opening_hours}
+                            ホームページ {company_url}
+                        ''').format(
+                            subject=form.cleaned_data["subject"],
+                            content=form.cleaned_data["content"],
+                            company_name=CompanyData.NAME,
+                            company_post_number=CompanyData.POST_NUMBER,
+                            company_address=CompanyData.ADDRESS,
+                            company_receiving_phone_number=CompanyData.RECEIVING_PHONE_NUMBER,
+                            company_calling_phone_number=CompanyData.CALLING_PHONE_NUMBER,
+                            company_opening_hours=CompanyData.OPENING_HOURS,
+                            company_url=CompanyData.URL,
+                        )
+                        to_list = [form.cleaned_data["created_by"]]
+                        bcc_list = ["toukiaidev@gmail.com"]
+                        message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
+                        message.send()
+                        request.session["post_success"] = True
+                        
+                    except BadHeaderError as e:
+                        basic_log(function_name, e, None, "無効なヘッダ")
+                        messages.error(request, f'無効なヘッダが検出されました {e}')
+                    except SMTPException as e:
+                        basic_log(function_name, e, None, "SMTPエラー")
+                        messages.error(request, f'SMTPエラーが発生しました {e}')
+                    except socket.error as e:
+                        basic_log(function_name, e, None, "ネットワークエラー")
+                        messages.error(request, f'ネットワークエラーが発生しました {e}')
+                    except ValidationError as e:
+                        basic_log(function_name, e, None)
+                        messages.error(request, "データの保存に失敗しました。入力内容を確認してください。")
+                    except Exception as e:
+                        basic_log(function_name, e, None)
+                        messages.error(request, f'予期しないエラーが発生しました {e}')
+                
+            else:
+                messages.warning(request, "入力内容に誤りがあったため受付できませんでした")
+                
+            return redirect("/toukiApp/index")
+                
+        else:
+            forms = OpenInquiryForm()
+            
+        update_articles = UpdateArticle.objects.order_by("-updated_by")[:2]
+        
+        context = {
+            "title" : "トップページ",
+            "update_articles": update_articles,
+            "forms": forms,
+            "company_app_name": CompanyData.APP_NAME,
+            "company_mail_address": CompanyData.MAIL_ADDRESS,
+            "company_service": Service,
+            "is_inquiry": is_inquiry,
+        }
+        return render(request, render_html, context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request,
+            None, 
+            get_current_function_name(), 
+            "", 
+            render_html, 
+            None,
+            None
+        )
+
+def  handle_error(e, request, user, function_name, redirect_to, render_html, context=None, Notices=None):
+    """親関数でのエラーハンドリング
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if isinstance(e, DatabaseError):
+        return handle_data_base_error(e, request, user, function_name, render_html, context, Notices)
+    elif isinstance(e, HTTPError):
+        return handle_http_error(e, request, user, function_name, render_html, context, Notices)
+    elif isinstance(e, ConnectionError):
+        return handle_connection_error(e, request, user, function_name, render_html, context, Notices)
+    elif isinstance(e, Timeout):
+        return handle_time_out_error(e, request, user, function_name, render_html, context, Notices)
+    elif isinstance(e, ValidationError):
+        return handle_validation_error(e, request, user, function_name, render_html, context, Notices)
+    else:
+        return handle_exception_error(e, request, user, function_name, render_html, context, Notices)
+
+def handle_exception_error(e, request, user, function_name, render_html, context, Notices):
+    """汎用エラーハンドリング
+
+    Args:
+        e (_type_): _description_
+        request (_type_): _description_
+        user (_type_): _description_
+        function_name (_type_): _description_
+        render_html (_type_): _description_
+        context (_type_): _description_
+        Notices (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    basic_log(function_name, e, user, Notices)
+    messages.error(
+        request,
+        'システムに問題が発生した可能性があります\n\
+        お手数ですが、お問い合わせをお願いします'
+    )
+    
+    return render(request, render_html, context)    
+
+def handle_validation_error(e, request, function_name, user, render_html, context={}, Notices=None):
+    """入力内容や登録されているデータが不正なときのエラーハンドリング
+
+    Args:
+        e (_type_): _description_
+        request (_type_): _description_
+        function_name (_type_): _description_
+        user (_type_): _description_
+        render_html (_type_): _description_
+        context (dict, optional): _description_. Defaults to {}.
+        Notices (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    basic_log(function_name, e, user, Notices)
+    messages.error(
+        request,
+        '入力内容が登録されているデータと一致しません\n\
+        お手数ですが、お問い合わせをお願いします'
+    )
+    
+    return render(request, render_html, context)    
+
+def handle_time_out_error(e, request, function_name, user, render_html, context={}, Notices=None):
+    """タイムアウトエラーハンドリング
+
+    Args:
+        e (_type_): _description_
+        request (_type_): _description_
+        function_name (_type_): _description_
+        user (_type_): _description_
+        render_html (_type_): _description_
+        context (dict, optional): _description_. Defaults to {}.
+        Notices (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    basic_log(function_name, e, user, Notices)
+    messages.error(
+        request,
+        'システムに接続できませんでした。\n\
+        お手数ですが、ネットワーク環境をご確認ください。'
+    )
+    
+    return render(request, render_html, context)    
+
+def handle_connection_error(e, request, function_name, user, render_html, context={}, Notices=None):
+    """接続エラーハンドリング
+
+    Args:
+        request (_type_): _description_
+        e (_type_): _description_
+        function_name (_type_): _description_
+        user (_type_): _description_
+        render_html (_type_): _description_
+        Notices (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    basic_log(function_name, e, user, Notices)
+    messages.error(
+        request, 
+        '通信エラーが発生しました。システムへの接続に問題があるようです。\n'
+        '数分あけてから更新ボタンを押しても問題が解決しない場合は、'
+        'お手数ですがお問い合わせをお願いします。'
+    )
+
+    return render(request, render_html, context) 
+
+def handle_data_base_error(e, request, user, function_name, render_html, context={}, Notices=None):
+    """データベース関連のエラーハンドリング
+
+    Args:
+        e (_type_): _description_
+        request (_type_): _description_
+        user (_type_): _description_
+        function_name (_type_): _description_
+        render_html (_type_): _description_
+        Notices (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    basic_log(function_name, e, user, Notices)
+    messages.error(
+        request,
+        'システムにエラーが発生しました。\n'
+        '数分後に再試行しても同じエラーになる場合は、お手数ですがお問い合わせをお願いします。'
+    )
+    
+    return render(request, render_html, context) 
+
+def handle_http_error(e, request, user, function_name, render_html, context={}, Notices=None):
+    """httpエラーハンドリング
+
+    Args:
+        e (_type_): _description_
+        request (_type_): _description_
+        user (_type_): _description_
+        function_name (_type_): _description_
+        render_html (_type_): _description_
+        Notices (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    basic_log(function_name, e, user, Notices)
+
+    # HTTPErrorのresponse属性が存在するかをチェック
+    status_code = getattr(e.response, 'status_code', None)
+
+    # status_codeが取得できた場合、それを基にエラーメッセージを生成
+    if status_code and status_code == 500:
+        if status_code == 500:
+            message = 'システムにエラーが発生しました。\nお手数ですが、お問い合わせをお願いします。'
+        else:
+            message = f'通信エラー（コード：{status_code}）が発生しました。数分後に再試行してください。'
+    else:
+        message = '通信エラーが発生しました。数分後に再試行してください。'
+
+    messages.error(request, message)
+
+    # HTTP 500 エラーの場合は、専用のエラーページを表示することも検討する
+    # if status_code == 500:
+    #     return HttpResponseServerError()
+    
+    # 通常のエラーメッセージ表示用に指定されたテンプレートをレンダリング
+    return render(request, render_html, context)
+
+"""
+
+    ステップ１関連
+
+"""
+
 def save_step_one_datas(user, forms, form_sets):
-    # すべてのデータを削除する
+    """ステップ１のデータ登録処理
+
+    常に被相続人のデータ削除と新規登録
+    他のデータは全て被相続人と紐づいてるため全データが削除される
+    
+    Args:
+        user (_type_): _description_
+        forms (_type_): _description_
+        form_sets (_type_): _description_
+    """
     
     decedent = forms[0].save(commit=False)
     Decedent.objects.filter(user=user).delete()
@@ -160,51 +376,46 @@ def save_step_one_datas(user, forms, form_sets):
     decedent.save()
     
     # 配偶者
+    decedent_content_type = ContentType.objects.get_for_model(Decedent)
     spouse = forms[1].save(commit=False)
-    spouse.decedent = decedent
-    spouse.content_type = ContentType.objects.get_for_model(Decedent)
+    add_required_for_data(spouse, user, decedent)
+    spouse.content_type = decedent_content_type
     spouse.object_id = decedent.id
-    spouse.is_heir = forms[1].cleaned_data.get("is_live") and forms[1].cleaned_data.get("is_refuse") == False
-    spouse.created_by = user
-    spouse.updated_by = user
+    spouse.is_heir = check_is_heir(form[1])
     spouse.save()
     
     # 子共通
     child_common = forms[2].save(commit=False)
-    child_common.decedent = decedent
-    child_common.created_by = user
-    child_common.updated_by = user
+    add_required_for_data(child_common, user, decedent)
     child_common.save()
     
     # 子
     child_dict = {}
+    spouse_content_type = ContentType.objects.get_for_model(Spouse)
     for form in form_sets[0]:
         if form.cleaned_data.get("name"):
             child = form.save(commit=False)
-            child.decedent = decedent
-            child.content_type1 = ContentType.objects.get_for_model(Decedent)
+            add_required_for_data(child, user, decedent)
+            child.content_type1 = decedent_content_type
             child.object_id1 = decedent.id
             if(form.cleaned_data.get("target2") != ""):
-                child.content_type2 = ContentType.objects.get_for_model(Spouse)
+                child.content_type2 = spouse_content_type
                 child.object_id2 = spouse.id
-            child.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
-            child.created_by = user
-            child.updated_by = user
+            child.is_heir = check_is_heir(form)
             child.save()
             child_dict[form.cleaned_data.get("index")] = child
             
     # 子の配偶者
     child_spouse_dict = {}
+    descendant_content_type = ContentType.objects.get_for_model(Descendant)
     for form in form_sets[1]:
         if form.cleaned_data.get("name"):
             child_spouse = form.save(commit=False)
-            child_spouse.decedent = decedent
+            add_required_for_data(child_spouse, user, decedent)
             if form.cleaned_data.get("target") in child_dict:
-                child_spouse.content_type = ContentType.objects.get_for_model(Descendant)
+                child_spouse.content_type = descendant_content_type
                 child_spouse.object_id = child_dict[form.cleaned_data.get("target")].id
-            child_spouse.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
-            child_spouse.created_by = user
-            child_spouse.updated_by = user
+            child_spouse.is_heir = check_is_heir(form)
             child_spouse.save()
             child_spouse_dict[form.cleaned_data.get("index")] = child_spouse
 
@@ -213,77 +424,83 @@ def save_step_one_datas(user, forms, form_sets):
     for form in form_sets[2]:
         if form.cleaned_data.get("name"):
             grand_child = form.save(commit=False)
-            grand_child.decedent = decedent
+            add_required_for_data(grand_child, user, decedent)
             if form.cleaned_data.get("target1") in child_dict:
-                grand_child.content_type1 = ContentType.objects.get_for_model(Descendant)
+                grand_child.content_type1 = descendant_content_type
                 grand_child.object_id1 = child_dict[form.cleaned_data.get("target1")].id
             if form.cleaned_data.get("target2") in child_spouse_dict:
-                grand_child.content_type2 = ContentType.objects.get_for_model(Spouse)
+                grand_child.content_type2 = spouse_content_type
                 grand_child.object_id2 = child_spouse_dict[form.cleaned_data.get("target2")].id
-            grand_child.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
-            grand_child.created_by = user
-            grand_child.updated_by = user
+            grand_child.is_heir = check_is_heir(form)
             grand_child.save()
             
     # 尊属
     ascendant_dict = {}
+    ascendant_content_type = ContentType.objects.get_for_model(Ascendant)
     for idx, form in enumerate(form_sets[3]):
         
         if form.cleaned_data.get("name"):
             ascendant = form.save(commit=False)
-            ascendant.decedent = decedent
-            ascendant.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") == False
+            add_required_for_data(ascendant, user, decedent)
+            ascendant.is_heir = check_is_heir(form)
             
             if idx < 2:
-                ascendant.content_type = ContentType.objects.get_for_model(Decedent)
+                ascendant.content_type = decedent_content_type
                 ascendant.object_id = decedent.id
             else:
                 target = form.cleaned_data.get("target")
                 if target in ascendant_dict:
-                    ascendant.content_type = ContentType.objects.get_for_model(Ascendant)
+                    ascendant.content_type = ascendant_content_type
                     ascendant.object_id = ascendant_dict[target].id
-            ascendant.created_by = user
-            ascendant.updated_by = user
             ascendant.save()
             ascendant_dict[form.cleaned_data.get("index")] = ascendant
             
     # 兄弟姉妹共通
     if forms[3].cleaned_data.get("is_exist") is not None:
         collateral_common = forms[3].save(commit=False)
-        collateral_common.decedent = decedent
-        collateral_common.created_by = user
-        collateral_common.updated_by = user
+        add_required_for_data(collateral_common, user, decedent)
         collateral_common.save()
         
     # 兄弟姉妹
     for form in form_sets[4]:
         if form.cleaned_data.get("name"):
             collateral = form.save(commit=False)
-            collateral.decedent = decedent
+            add_required_for_data(collateral, user, decedent)
             if form.cleaned_data.get("target1") != "":
-                collateral.content_type1 = ContentType.objects.get_for_model(Ascendant)
+                collateral.content_type1 = ascendant_content_type
                 collateral.object_id1 = ascendant_dict[form.cleaned_data.get("target1")].id
             if form.cleaned_data.get("target2") != "":
-                collateral.content_type2 = ContentType.objects.get_for_model(Ascendant)
+                collateral.content_type2 = ascendant_content_type
                 collateral.object_id2 = ascendant_dict[form.cleaned_data.get("target2")].id
-            collateral.is_heir = form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False
-            collateral.created_by = user
-            collateral.updated_by = user
+            collateral.is_heir = check_is_heir(form)
             collateral.save()
+            
+    def check_is_heir(form):
+        return form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False
 
-# ステップ１
-# 被相続人情報と相続人情報の入力
 def step_one(request):
+    """ステップ１のメイン処理
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    
     if not request.user.is_authenticated:
+        messages("ユーザー登録が必要です")
         return redirect(to='/account/login/')
     
-    function_name = get_current_function_name()
     user = User.objects.get(email = request.user)
     child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
     ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
     child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
     collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
+    
+    function_name = get_current_function_name()
+    
     if request.method == "POST":
         forms = [
             StepOneDecedentForm(request.POST, prefix="decedent"),
@@ -299,14 +516,6 @@ def step_one(request):
             collateral_form_set(request.POST or None, prefix="collateral")
         ]
 
-        # if not all(form.is_valid() for form in forms) or not all(form_set.is_valid() for form_set in form_sets):
-        #     for form in forms:
-        #         if not form.is_valid():
-        #             print(f"Form {form} errors: {form.errors}")
-        #     for form_set in form_sets:
-        #         if not form_set.is_valid():
-        #             print(f"Formset {form_set} errors: {form_set.errors}")
-        #     return redirect('/toukiApp/step_one')
         if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
             try:
                 with transaction.atomic():
@@ -474,8 +683,15 @@ def step_one(request):
     
     return render(request, "toukiApp/step_one.html", context)
 
-# 死亡している相続人候補を取得する
 def get_deceased_persons(decedent):
+    """手続前に死亡した法定相続人を取得する
+
+    Args:
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     deceased_persons = []
     
     spouse = Spouse.objects.filter(decedent=decedent).first()
@@ -512,7 +728,15 @@ def get_deceased_persons(decedent):
     
     return deceased_persons
 
-def get_heirs(decedent):
+def get_legal_heirs(decedent):
+    """法定相続人全員を取得する
+
+    Args:
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     heirs = []
     
     spouse = Spouse.objects.filter(decedent=decedent).first()
@@ -552,152 +776,194 @@ def get_heirs(decedent):
     return heirs
 
 def get_prefecture_name(prefecture_code):
-    for code, name in PREFECTURES:
-        if code == prefecture_code:
-            return name
-    return '該当の都道府県番号がありません'  # キーが見つからない場合のデフォルト値
+    """都道府県コードから都道府県名を取得する
 
-#ステップ２のデータを登録する
-def save_step_two_datas(request):
-    pass
+    Args:
+        prefecture_code (_type_): _description_
 
-# GoogleドライブのダウンロードリンクからファイルIDを抽出
+    Returns:
+        str: prefecture 都道府県
+    """
+    return next((name for code, name in PREFECTURES if code == prefecture_code), "該当なし")
+
+"""
+
+    ステップ２関連
+
+"""
+
 def extract_file_id_from_url(url):
+    """GoogleドライブのダウンロードリンクからファイルIDを抽出
+
+    Args:
+        url (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     query = urlparse(url).query
     params = parse_qs(query)
     return params['id'][0]
 
-#ステップ２
-#必要書類リスト
 def step_two(request):
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-
-    function_name = get_current_function_name()
+    """ステップ２メイン処理
     
-    user = User.objects.get(email = request.user)
-    decedent = user.decedent.first()
-    registry_files = Register.objects.filter(decedent=decedent)
+    必要書類の案内
     
-    if request.method == "POST":
-        try:
-            with transaction.atomic():
-                decedent.progress = 3
-                decedent.save()
+    Args:
+        url (_type_): _description_
 
-                # if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
+    Returns:
+        _type_: _description_
+    """
+    try:
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+        
+        function_name = get_current_function_name()
+        registry_files = Register.objects.filter(decedent=decedent)
+        
+        if request.method == "POST":
+            try:
+                with transaction.atomic():
+                    decedent.progress = 3
+                    decedent.save()
+
+                    # if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
+                        
+                    # サービスアカウントの認証情報ファイルのパス
+                    SERVICE_ACCOUNT_FILE = 'toukiai-development-7bf1692a5215.json'
                     
-                # サービスアカウントの認証情報ファイルのパス
-                SERVICE_ACCOUNT_FILE = 'toukiai-development-7bf1692a5215.json'
+                    # サービスアカウント認証情報をロード
+                    credentials = service_account.Credentials.from_service_account_file(
+                        SERVICE_ACCOUNT_FILE,
+                        scopes=['https://www.googleapis.com/auth/drive'])
+                    
+                    # GoogleAuth オブジェクトの初期化
+                    gauth = GoogleAuth()
+                    gauth.credentials = credentials
+                    service = build('drive', 'v3', credentials=credentials)
+                        
+                    #不動産登記簿は常に全削除と全登録を行う
+                    if registry_files.exists():
+                        for file in registry_files:
+                            # Googleドライブからファイルを削除
+                            file_id = extract_file_id_from_url(file.path)
+                            service.files().delete(fileId=file_id).execute()
+                        registry_files.delete()
+                        
+                    for i in range(len(request.FILES)):
+                        pdf = request.FILES['pdf' + str(i)]
+                        if not pdf:
+                            continue
+                        relative_path = default_storage.save(os.path.join('tmp/', pdf.name), pdf)
+                        absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+                        # ファイルのメタデータ
+                        file_metadata = {
+                            'name': pdf.name,
+                            'parents': ['1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl']  # 親フォルダのID
+                        }
+                        # ファイルのアップロードを実行
+                        media = MediaFileUpload(absolute_path, mimetype='application/pdf')
+                        file_drive = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+                        # ファイルのアクセス権限を設定
+                        service.permissions().create(
+                                    fileId=file_drive['id'],
+                                    body={'type': 'anyone', 'role': 'reader'},
+                                    fields='id'
+                                ).execute()
+                        # 新しいRegisterオブジェクトを作成し、属性に値を設定
+                        register = Register(
+                            decedent=decedent,
+                            title=pdf.name,
+                            path=f'https://drive.google.com/uc?export=download&id={file_drive["id"]}',  # Gドライブ上のファイルへのダウンロードリンク
+                            file_size=os.path.getsize(absolute_path),
+                            extension=os.path.splitext(pdf.name)[1][1:],  # 拡張子を取得
+                            created_by=user,
+                            updated_by=user
+                        )
+                        register.save()  # データベースに保存
+            except googleapiclient.errors.HttpError as e:
+                basic_log(function_name, e, user, "googleapiclientエラー")
+                messages.error(request, 'データの保存中にエラーが発生しました。')
+                return JsonResponse({'status': 'error'})
+            except Exception as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データの保存中にエラーが発生しました。')
+                return JsonResponse({'status': 'error'})
+            else:
+                return JsonResponse({'status': 'success'})
+        
+        # 不動産登記簿があるとき
+        file_server_file_name_and_file_path = []
+        if registry_files.exists():
+            for file in registry_files:
+                # ファイルの保存先のパスを追加
+                file_server_file_name_and_file_path.append({"name": file.title, "path": file.path})
                 
-                # サービスアカウント認証情報をロード
-                credentials = service_account.Credentials.from_service_account_file(
-                    SERVICE_ACCOUNT_FILE,
-                    scopes=['https://www.googleapis.com/auth/drive'])
-                
-                # GoogleAuth オブジェクトの初期化
-                gauth = GoogleAuth()
-                gauth.credentials = credentials
-                service = build('drive', 'v3', credentials=credentials)
-                    
-                #不動産登記簿は常に全削除と全登録を行う
-                if registry_files.exists():
-                    for file in registry_files:
-                        # Googleドライブからファイルを削除
-                        file_id = extract_file_id_from_url(file.path)
-                        service.files().delete(fileId=file_id).execute()
-                    registry_files.delete()
-                    
-                for i in range(len(request.FILES)):
-                    pdf = request.FILES['pdf' + str(i)]
-                    if not pdf:
-                        continue
-                    relative_path = default_storage.save(os.path.join('tmp/', pdf.name), pdf)
-                    absolute_path = os.path.join(settings.MEDIA_ROOT, relative_path)
-                    # ファイルのメタデータ
-                    file_metadata = {
-                        'name': pdf.name,
-                        'parents': ['1iEOCvgmg8tzYyWMV_LFGvbVsJK8_wxRl']  # 親フォルダのID
-                    }
-                    # ファイルのアップロードを実行
-                    media = MediaFileUpload(absolute_path, mimetype='application/pdf')
-                    file_drive = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-                    # ファイルのアクセス権限を設定
-                    service.permissions().create(
-                                fileId=file_drive['id'],
-                                body={'type': 'anyone', 'role': 'reader'},
-                                fields='id'
-                            ).execute()
-                    # 新しいRegisterオブジェクトを作成し、属性に値を設定
-                    register = Register(
-                        decedent=decedent,
-                        title=pdf.name,
-                        path=f'https://drive.google.com/uc?export=download&id={file_drive["id"]}',  # Gドライブ上のファイルへのダウンロードリンク
-                        file_size=os.path.getsize(absolute_path),
-                        extension=os.path.splitext(pdf.name)[1][1:],  # 拡張子を取得
-                        created_by=user,
-                        updated_by=user
-                    )
-                    register.save()  # データベースに保存
-        except googleapiclient.errors.HttpError as e:
-            basic_log(function_name, e, user, "googleapiclientエラー")
-            messages.error(request, 'データの保存中にエラーが発生しました。')
-            return JsonResponse({'status': 'error'})
-        except Exception as e:
-            basic_log(function_name, e, user)
-            messages.error(request, 'データの保存中にエラーが発生しました。')
-            return JsonResponse({'status': 'error'})
-        else:
-            return JsonResponse({'status': 'success'})
+        app_server_file_name_and_file_path = []
+        for file_name_and_file_path in file_server_file_name_and_file_path:
+            # ダウンロード先のパス
+            output = os.path.join(settings.MEDIA_ROOT, 'download_tmp', file_name_and_file_path["name"])
+
+            # ファイルをダウンロード
+            gdown.download(file_name_and_file_path["path"], output, quiet=True)
+
+            # ダウンロードしたファイルの名前とパスを配列に追加
+            app_server_file_name_and_file_path.append({"name": file_name_and_file_path["name"], "path": settings.MEDIA_URL + 'download_tmp/' + file_name_and_file_path["name"]})
+
+        # 配列をJSON形式に変換
+        app_server_file_name_and_file_path = json.dumps(app_server_file_name_and_file_path)
+        
+        progress = decedent.progress
+        deceased_persons = get_deceased_persons(decedent)
+        heirs = get_legal_heirs(decedent)
+        minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
+        overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
+        family_registry_search_word = "戸籍 郵送請求"
+        family_registry_query = f"{decedent.domicile_prefecture}{decedent.domicile_city} {family_registry_search_word}"
+        response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={family_registry_query}")
+        data = response.json()
+        top_link = data["items"][0]["link"]
+        context = {
+            "title" : "２．必要書類一覧",
+            "user" : user,
+            "progress": progress,
+            "prefectures": PREFECTURES,
+            "decedent": decedent,
+            "app_server_file_name_and_file_path": app_server_file_name_and_file_path,
+            "file_server_file_name_and_file_path": file_server_file_name_and_file_path,
+            "top_link": top_link,
+            "deceased_persons": deceased_persons,
+            "heirs": heirs,
+            "minors": minors,
+            "overseas": overseas,
+            "sections" : Sections.SECTIONS[Sections.STEP2],
+            "service_content" : Sections.SERVICE_CONTENT,
+        }
+        return render(request, "toukiApp/step_two.html", context)
     
-    # 不動産登記簿があるとき
-    file_server_file_name_and_file_path = []
-    if registry_files.exists():
-        for file in registry_files:
-            # ファイルの保存先のパスを追加
-            file_server_file_name_and_file_path.append({"name": file.title, "path": file.path})
-            
-    app_server_file_name_and_file_path = []
-    for file_name_and_file_path in file_server_file_name_and_file_path:
-        # ダウンロード先のパス
-        output = os.path.join(settings.MEDIA_ROOT, 'download_tmp', file_name_and_file_path["name"])
+    except DatabaseError as e:
+        messages.error(request, 'データベース処理でエラーが発生しました。\n再度このエラーが出る場合は、お問い合わせからお知らせお願いします。')
+        return redirect('/toukiApp/step_two')
+    except HTTPError as e:
+        basic_log(function_name, e, user)
+        messages.error(request, f'通信エラー（コード：{e.response.status_code}）が発生したため処理が中止されました。\
+                       \nコードが５００の場合は、お手数ですがお問い合わせからご連絡をお願いします。')
+        return render(request, "toukiApp/step_two.html", context)
+    except ConnectionError as e:
+        basic_log(function_name, e, user)
+        messages.error(request, '通信エラーが発生したため処理が中止されました。\nお手数ですが、再入力をお願いします。')
+        return render(request, "toukiApp/step_two.html", context)        
+    except Timeout as e:
+        basic_log(function_name, e, user)
+        messages.error(request, 'システムに接続できませんでした。\nお手数ですが、ネットワーク環境をご確認のうえ再入力をお願いします。')
+        return render(request, "toukiApp/step_two.html", context)   
+    except Exception as e:
+        basic_log(function_name, e, user)
+        return HttpResponse("想定しないエラーが発生しました\nお手数ですが、お問い合わせをお願いします", status=500)
 
-        # ファイルをダウンロード
-        gdown.download(file_name_and_file_path["path"], output, quiet=True)
-
-        # ダウンロードしたファイルの名前とパスを配列に追加
-        app_server_file_name_and_file_path.append({"name": file_name_and_file_path["name"], "path": settings.MEDIA_URL + 'download_tmp/' + file_name_and_file_path["name"]})
-
-    # 配列をJSON形式に変換
-    app_server_file_name_and_file_path = json.dumps(app_server_file_name_and_file_path)
-    
-    progress = decedent.progress
-    deceased_persons = get_deceased_persons(decedent)
-    heirs = get_heirs(decedent)
-    minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
-    overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
-    family_registry_search_word = "戸籍 郵送請求"
-    family_registry_query = f"{decedent.domicile_prefecture}{decedent.domicile_city} {family_registry_search_word}"
-    response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={family_registry_query}")
-    data = response.json()
-    top_link = data["items"][0]["link"]
-    context = {
-        "title" : "２．必要書類一覧",
-        "user" : user,
-        "progress": progress,
-        "prefectures": PREFECTURES,
-        "decedent": decedent,
-        "app_server_file_name_and_file_path": app_server_file_name_and_file_path,
-        "file_server_file_name_and_file_path": file_server_file_name_and_file_path,
-        "top_link": top_link,
-        "deceased_persons": deceased_persons,
-        "heirs": heirs,
-        "minors": minors,
-        "overseas": overseas,
-        "sections" : Sections.SECTIONS[Sections.STEP2],
-        "service_content" : Sections.SERVICE_CONTENT,
-    }
-    return render(request, "toukiApp/step_two.html", context)
 
 """
 
@@ -1027,6 +1293,7 @@ def add_required_for_data(instance, user, decedent):
     if not instance.id:
         instance.decedent = decedent
         instance.created_by = user
+        
 def form_and_data_not_match_http_response():
     return HttpResponse("入力内容と登録データに齟齬があります。\n解決方法をご案内いたしますので、お手数ですがお問い合わせをお願いします", status=400)
     
@@ -1403,8 +1670,24 @@ def get_form_set_class_name(form_set):
         raise ValidationError("フォームセットにフォームがありません")
 
 def is_data(data):
-    if isinstance(data, (list, tuple, QuerySet)):
-        return bool(data)
+    """データが存在するかどうかを判定する。
+
+    Args:
+        data (list, tuple, QuerySet, or any): チェックするデータ。
+
+    Returns:
+        bool: データが存在する場合はTrue、そうでない場合はFalse。
+    """
+    if isinstance(data, QuerySet):
+        return data.exists()
+    elif isinstance(data, (list, tuple)):
+        for x in data:
+            if isinstance(x, QuerySet):
+                if x.exists():
+                    return True
+            elif x:
+                return True
+        return False
     else:
         return data is not None
 
@@ -2314,6 +2597,36 @@ def step_three(request):
         basic_log(function_name, e, user)
         return HttpResponse("想定しないエラーが発生しました\nお問い合わせからご連絡をお願いします", status=500)
 
+def check_user_and_decedent(request):
+    """認証されている（購入した）ユーザーチェックと被相続人の存在チェック
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: redirect
+        _type_: user
+        _type_: decedent
+    """
+    function_name = get_current_function_name()
+    if not request.user.is_authenticated:
+        messages.error(request, "会員専用ページです。")
+        basic_log(function_name, None, "anonymouse", "非会員が会員登録ページにアクセスを試みました")
+        return redirect(to='/account/login/'), None, None
+    
+    try:
+        user = User.objects.get(email=request.user.email)
+        decedent = user.decedent.first()
+        
+        if not decedent:
+            messages.error(request, "被相続人のデータがありません")
+            basic_log(function_name, None, user, "step_oneが未了の会員が先のページにアクセスを試みました")
+            return redirect(to="/toukiApp/step_one"), None, None
+    except Exception as e:
+        raise e
+
+    return None, user, decedent
+
 #
 # ステップ4
 # 
@@ -2327,32 +2640,56 @@ def step_four(request):
     Returns:
         _type_: _description_
     """
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
+    try:
+        render_html = "toukiApp/step_four.html"
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+        
+        function_name = get_current_function_name()
+
+        #相続人情報
+        heirs = get_legal_heirs(decedent)
+        minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
+        overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
+        
+        context = {
+            "title" : "４．書類の印刷",
+            "user" : user,
+            "decedent": decedent,
+            "progress": decedent.progress,
+            "heirs": heirs,
+            "minors": minors,
+            "overseas": overseas,
+            "sections" : Sections.SECTIONS[Sections.STEP4],
+            "service_content" : Sections.SERVICE_CONTENT,
+        }
+        return render(request, render_html, context)
     
-    user = User.objects.get(email = request.user)
-    decedent = user.decedent.first()
-    
-    if not decedent:
-        return redirect(to='/toukiApp/step_one/')
-    
-    data = get_data_for_document(decedent)
-    data_idx = get_data_idx_for_document()
-    heirs = get_heirs(decedent)
-    minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
-    overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
-    context = {
-        "title" : "４．書類の印刷",
-        "user" : user,
-        "decedent": decedent,
-        "progress": decedent.progress,
-        "heirs": heirs,
-        "minors": minors,
-        "overseas": overseas,
-        "sections" : Sections.SECTIONS[Sections.STEP4],
-        "service_content" : Sections.SERVICE_CONTENT,
-    }
-    return render(request, "toukiApp/step_four.html", context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            function_name, 
+            "toukiApp/step_four", 
+            render_html, 
+            None,
+            None,
+        )
+# def generate_division_agreement_pdf(request):
+#     # テンプレートをレンダリングしてHTMLを取得
+#     html_string = render_to_string('step_division_agreement.html', {'some': 'context'})
+
+#     # HTMLをPDFに変換
+#     html = HTML(string=html_string)
+#     pdf = html.write_pdf()
+
+#     # PDFをレスポンスとして返す
+#     response = HttpResponse(pdf, content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename="遺産分割協議証明書.pdf"'
+
+#     return response
 
 def step_division_agreement(request):
     """遺産分割協議証明書の表示
@@ -2364,18 +2701,12 @@ def step_division_agreement(request):
         _type_: _description_
     """
     try:
-        if not request.user.is_authenticated:
-            return redirect(to='/account/login/')
+        render_html = "toukiApp/step_division_agreement.html"
+        responese, user, decedent = check_user_and_decedent(request)
+        if responese:
+            return responese
         
-        user = User.objects.get(email = request.user)
-        decedent = user.decedent.first()
-        
-        if not decedent:
-            return redirect(to='/toukiApp/step_one/')
-        
-        function_name = get_current_function_name()
-        
-        #被相続人の氏名、死亡年月日、死亡時の住所
+        #被相続人の氏名、生年月日、死亡年月日、死亡時の本籍、死亡時の住所
         decedent_info = get_decedent_info_for_division_agreement(decedent)
         
         property_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
@@ -2400,29 +2731,18 @@ def step_division_agreement(request):
             "exchange_division_properties": exchange_division_properties,
             "sites": sites,
         }
-        return render(request, "toukiApp/step_division_agreement.html", context)
-    except DatabaseError as e:
-        messages.error(request, 'データベース処理でエラーが発生しました。\n再度このエラーが出る場合は、お問い合わせからお知らせお願いします。')
-        return redirect('/toukiApp/step_three')
-    except HTTPError as e:
-        basic_log(function_name, e, user)
-        messages.error(request, f'通信エラー（コード：{e.response.status_code}）が発生したため処理が中止されました。\
-                       \nコードが５００の場合は、お手数ですがお問い合わせからご連絡をお願いします。')
-        return render(request, "toukiApp/step_three.html", context)
-    except ConnectionError as e:
-        basic_log(function_name, e, user)
-        messages.error(request, '通信エラーが発生したため処理が中止されました。\nお手数ですが、再入力をお願いします。')
-        return render(request, "toukiApp/step_three.html", context)        
-    except Timeout as e:
-        basic_log(function_name, e, user)
-        messages.error(request, 'システムに接続できませんでした。\nお手数ですが、ネットワーク環境をご確認のうえ再入力をお願いします。')
-        return render(request, "toukiApp/step_three.html", context)   
-    except ValidationError as e:
-        basic_log(function_name, e, user)
-        return HttpResponse("登録されているデータに誤りがあります\nお手数ですが、お問い合わせをお願いします", status=400)
+        return render(request, render_html, context)
     except Exception as e:
-        basic_log(function_name, e, user)
-        return HttpResponse("想定しないエラーが発生しました\nお手数ですが、お問い合わせをお願いします", status=500)
+        return handle_error(
+            e, 
+            request,
+            request.user,
+            get_current_function_name(), 
+            "/toukiApp/step_division_agreement",
+            render_html,
+            None,
+            None
+        )
 
 def check_bldg_and_site_related(acquirer_data, site_data):
     """区分建物と敷地権のデータが正確に紐づいているか判別する
@@ -2703,6 +3023,27 @@ def get_exchange_division_properties(property_acquirer_data, cash_acquirer_data)
     except Exception as e:
         raise e
 
+def get_wareki(instance, is_birth):
+    """和暦を取得する
+    
+    0000(元号0年)
+
+    Args:
+        instance (_type_): _description_
+        is_birth (bool): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    end_idx = len(instance.birth_year) - 1 if is_birth else len(instance.death_year) - 1
+    if is_birth:
+        birth_date = instance.birth_year[5:end_idx] + instance.birth_month + "月" + instance.birth_date + "日"
+        return mojimoji.han_to_zen(birth_date)
+    else:
+        death_date = instance.death_year[5:end_idx] + instance.death_month + "月" + instance.death_date + "日"
+        return mojimoji.han_to_zen(death_date)
+
+
 def get_decedent_info_for_division_agreement(decedent):
     """遺産分割協議証明書に書く被相続人情報を取得する
     
@@ -2714,13 +3055,21 @@ def get_decedent_info_for_division_agreement(decedent):
     Returns:
         _type_: _description_
     """
-    info = []
-    info.append(decedent.name)
-    death_date = decedent.death_year[:4] + "年" + decedent.death_month + "月" + decedent.death_date + "日"
-    info.append(death_date)
-    prefecture = next((name for code, name in PREFECTURES if code == decedent.prefecture), "不明")
-    address = prefecture + decedent.city + decedent.address + decedent.bldg
-    info.append(address)
+    info = defaultdict(dict)
+    info["name"] = decedent.name
+    end_idx = len(decedent.birth_year) - 1
+    info["birth_date"] = decedent.birth_year[5:end_idx] + decedent.birth_month + "月" + decedent.birth_date + "日"
+    end_idx = len(decedent.death_year) - 1
+    info["death_date"] = decedent.death_year[5:end_idx] + decedent.death_month + "月" + decedent.death_date + "日"
+    domicile_prefecture = get_prefecture_name(decedent.domicile_prefecture)
+    if domicile_prefecture == "該当なし":
+        raise ValidationError("本籍の都道府県の値が不正です")
+    info["permanent_address"] = domicile_prefecture + decedent.domicile_city + decedent.domicile_address
+    prefecture = get_prefecture_name(decedent.prefecture)
+    if prefecture == "該当なし":
+        raise ValidationError("住所の都道府県の値が不正です")
+    info["address"] = prefecture + decedent.city + decedent.address + decedent.bldg
+    
     return info
 
 def step_diagram(request):
@@ -2756,84 +3105,433 @@ def step_application_form(request):
     Returns:
         _type_: _description_
     """
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-    
-    user = User.objects.get(email = request.user)
-    decedent = user.decedent.first()
-    
-    if not decedent:
-        return redirect(to='/toukiApp/step_one/')
-    
-    application_form_data = [
-        {
-            "purpose_of_registration": "",
-            "cause": "",
-            "acquirers": [
-                {
-                    "address": "",
-                    "percentage": "",
-                    "name": "",
-                    "phone_number": "",
-                }
-            ],
-            "office": "",
-            "agent": {
+    try:
+        render_html = "toukiApp/step_application_form.html"
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+
+        #不動産、不動産取得者を紐づける
+        a = relate_property_and_property_acquirer(decedent)
+        
+        #敷地権を追加する
+        b = None
+        if any(property_item["property_type"] == "Bldg" for property_item, _ in a):
+            b = add_site_data_for_application_data(a, decedent)
+        
+        #管轄別に不動産をまとめる
+        c = sort_application_data_by_office(a if b == None else b)
+        
+        #取得者別に不動産をまとめる
+        d = sort_application_data_by_acquirers(c)
+        
+        #申請情報を追加する
+        e = add_application_data(d, decedent)
+
+        #まとまった不動産別に申請データを作成する
+        application_data = get_application_form_data(e, decedent)
+        
+        context = {
+            "title" : "登記申請書",
+            "application_data": application_data,
+        }
+        return render(request, render_html, context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            get_current_function_name(), 
+            "/toukiApp/step_application_form", 
+            render_html,
+            None, 
+            None
+        )
+
+# def generate_application_form_pdf(request):
+#     # テンプレートをレンダリングしてHTMLを取得
+#     html_string = render_to_string('step_application_form.html', {'some': 'context'})
+
+#     # HTMLをPDFに変換
+#     html = HTML(string=html_string)
+#     pdf = html.write_pdf()
+
+#     # PDFをレスポンスとして返す
+#     response = HttpResponse(pdf, content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename="登記申請書.pdf"'
+
+#     return response
+
+def get_application_form():
+    """申請書に必要なデータ形式
+
+    Returns:
+        _type_: _description_
+    """
+    return {
+        "purpose_of_registration": "",
+        "cause": "",
+        "acquirers": [
+            {
                 "address": "",
+                "percentage": "",
                 "name": "",
                 "phone_number": "",
-            },
-            "price": "",
-            "tax": "",
-            "property": [
-                {
-                    "number": "",
-                    "purparty": "",
-                    "site_number": "",
-                    "site_type": "",
-                    "site_purparty": "",
-                }
-            ],
+            }
+        ],
+        "document": "",
+        "office": "",
+        "is_agent": "",
+        "agent": {
+            "address": "",
+            "name": "",
+            "phone_number": "",
         },
-    ]
-    
-    lands = Land.objects.filter(decedent=decedent)
-    houses = House.objects.filter(decedent=decedent)
-    bldgs = Bldg.objects.filter(decedent=decedent)
-    
-    #管轄別に不動産をまとめる
-    
-    
-    #取得者別に不動産をまとめる
-    
-    #登記の目的
-    purpose_of_registration = get_purpose_of_registration(decedent)
-    #原因
-    cause = decedent.death_year + decedent.death_month + "月" + decedent.death_date + "日"
-    #相続人
-    acquirers = get_acquirers_for_application_form(decedent)
-    
-    data = get_data_for_document(decedent)
-    data_idx = get_data_idx_for_document()
-
-    context = {
-        "title" : "登記申請書",
-        "purpose_of_registration": purpose_of_registration,
-        "cause": cause,
+        "price": "",
+        "tax": "",
+        "property": [
+            {
+                "number": "",
+                "purparty": "",
+                "site_number": "",
+                "site_type": "",
+                "site_purparty": "",
+            }
+        ],
     }
-    return render(request, "toukiApp/step_application_form.html", context)
 
-def get_acquirers_for_application_form(decedent):
-    """申請書に記載する相続人情報を取得する
+def get_application_form_data(data, decedent):
+    """登記申請書に反映する情報を取得する
+
+    Args:
+        data (_type_): _description_
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    formatted_data = []
+    cause = get_wareki(decedent, False)
+    for properties, acquirers, applications, sites in data:
+        application_form = get_application_form()
+        #登記の目的
+        application_form["purpose_of_registration"] = get_purpose_of_registration(properties, decedent.name)
+        #登記の原因
+        application_form["cause"] = cause
+        #相続人
+        
+        formatted_data.append(application_form)
+    return formatted_data
+
+def get_purpose_of_registration(properties, decedent_name):
+    """登記の目的を取得する
+
+    Args:
+        properties (_type_): _description_
+        decedent_name (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    is_owner = False
+    is_sharer = False
+    for x in properties:
+        if x["purparty"] == "１分の１":
+            is_owner = True
+        elif x["purparty"]:
+            is_sharer = True
+        else:
+            raise ValidationError(f"{x['property_type']}の{x['id']}所有権割合の入力がありません")
     
+    if is_owner and is_sharer:
+        return f"所有権移転及び{decedent_name}持分全部移転"
+    if is_owner:
+        return "所有権移転"
+    if is_sharer:
+        return f"{decedent_name}持分全部移転"
     
+
+def add_application_data(data, decedent):
+    """申請情報を追加する
+
+    Args:
+        data (_type_): _description_
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    application = Application.objects.filter(decedent=decedent).first()
+    application_data = {
+        "content_object": application.content_object,
+        "phone_number": application.phone_number,
+        "is_agent": application.is_agent,
+        "agent_name": application.agent_name,
+        "agent_address": application.agent_address,
+        "agent_phone_number": application.agent_phone_number,
+        "is_return": application.is_return,
+        "is_mail": application.is_mail,
+    }
+    formatted_data = []
+    for d in data:
+        properties, acquirers_list = d[:2]
+        sites_list = d[2] if len(d) > 2 else []
+        
+        formatted_data.append((properties, acquirers_list, [application_data], sites_list))
+    
+    return formatted_data
+
+def add_site_data_for_application_data(data, decedent):
+    """申請データに敷地権を追加する
+
+    Args:
+        data (_type_): _description_
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    sites = get_queryset_by_decedent(Site, decedent)
+
+    formatted_data = []    
+    for d in data:
+        if d[0]["property_type"] == "Bldg":
+            related_sites = []
+            for site in sites:
+                if d[0]["id"] == site.bldg_id:
+                    add_data = {
+                        "bldg": site.bldg_id,
+                        "id": site.id,
+                        "number": site.number,
+                        "type": site.type,
+                        "purparty": site.purparty_bottom + "分の" + site.purparty_top,
+                        "price": site.price,
+                    }
+                    related_sites.append(add_data)
+            if related_sites:
+                formatted_data.append((d[0], d[1], related_sites))
+        else:
+            formatted_data.append((d[0], d[1]))
+    
+    is_all_site_related(formatted_data, sites)
+    
+    return formatted_data
+            
+def is_all_site_related(data, sites):
+    """敷地権が全て関連付けされたか確認する
+
+    Args:
+        data (_type_): _description_
+        sites (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+    """
+    result_site_ids = set()
+    for d in data:
+        if d[0]["property_type"] == "Bldg":
+            result_site_ids.update(x["id"] for x in d[2])
+
+    all_site_ids = set(site.id for site in sites)
+    missing_site_ids = all_site_ids - result_site_ids
+
+    if missing_site_ids:
+        missing_ids_str = ", ".join(str(id) for id in missing_site_ids)
+        raise ValidationError(f"関連付けられていない敷地権があります: {missing_ids_str}")
+
+def get_queryset_by_decedent(model, decedent, related_fields=None):
+    """指定されたモデルに対してdecedentでフィルタし、関連フィールドを結合するクエリセットを返す。
+
+    Args:
+        model (Django model): Djangoのモデルクラス。
+        decedent (_type_): 被相続人。
+        related_fields (list of str, optional): select_relatedで取得するフィールド名のリスト。
+
+    Returns:
+        Django queryset: フィルタリングされ、関連フィールドが結合されたクエリセット。
+    """
+    queryset = model.objects.filter(decedent=decedent)
+    if related_fields:
+        queryset = queryset.select_related(*related_fields)
+    return queryset
+
+def relate_property_and_property_acquirer(decedent):
+    """不動産情報、不動産取得者、申請情報を紐づける
 
     Args:
         decedent (_type_): _description_
     """
+    try:
+        related_fields = ["content_type1", "content_type2"]
+        property_types = [Land, House, Bldg]
+        properties = [{
+            "property_type": property_type.__name__,
+            "id": x.id,
+            "number": x.number,
+            "purparty": x.purparty,
+            "price": x.price,
+            "office": x.office,
+        } for property_type in property_types for x in get_queryset_by_decedent(property_type, decedent)]
+        acquirers = [{
+            "property_type": type(x.content_object1).__name__,
+            "property_id": x.object_id1,
+            "acquirer_type": type(x.content_object2).__name__,
+            "acquirer_id": x.object_id2,
+            "percentage": x.percentage,
+        } for x in get_queryset_by_decedent(PropertyAcquirer, decedent, related_fields)]
 
-def get_purpose_of_registration(decedent):
-    """登記の目的を取得する
+        is_properties_and_property_acquirers(properties, acquirers)
+        
+        formatted_data = []
+        for property_item in properties:
+            matching_acquirers = [acquirer for acquirer in acquirers if acquirer["property_type"] == property_item["property_type"] and acquirer["property_id"] == property_item["id"]]
+            if matching_acquirers:
+                formatted_data.append((property_item, matching_acquirers))
+        
+        is_all_properties_and_property_acquirers_related(formatted_data, properties, acquirers)
+
+        return formatted_data
+    except Exception as e:
+        raise e
+
+def is_all_properties_and_property_acquirers_related(data, properties, acquirers):
+    """不動産と不動産取得者が全て関連付けられたかチェックする
+
+    Args:
+        data (_type_): _description_
+        properties (_type_): _description_
+        acquirers (_type_): _description_
+    """
+    # properties と acquirers が全て関連付けられたかを確認する
+    properties_ids_set = {item["id"] for item in properties}
+    acquirers_ids_set = {item["property_id"] for item in acquirers}
+
+    # 関連データから properties と acquirers の ID を集める
+    related_properties_ids = {item[0]["id"] for item in data}
+    related_acquirers_ids = {acq["property_id"] for _, acqs in data for acq in acqs}
+
+    # 未関連の properties と acquirers を見つける
+    unrelated_properties_ids = properties_ids_set - related_properties_ids
+    unrelated_acquirers_ids = acquirers_ids_set - related_acquirers_ids
+
+    if unrelated_properties_ids:
+        raise ValidationError(f"関連付けられなかった properties のID: {unrelated_properties_ids}")
+    if unrelated_acquirers_ids:
+        raise ValidationError(f"関連付けられなかった acquirers のID: {unrelated_acquirers_ids}")    
+
+def is_properties_and_property_acquirers(properties, acquirers):
+    """不動産と不動産取得者の存在チェック
+
+    Args:
+        properties (Land, House, Bldg[]): _description_
+        acquirers (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if not is_data(properties):
+        raise ValidationError("不動産データがありません")
+    if not is_data(acquirers):
+        raise ValidationError("不動産取得者データがありません")
+
+def sort_application_data_by_office(data):
+    """管轄別に不動産を分ける
+
+    Args:
+        lands (_type_): _description_
+        houses (_type_): _description_
+        bldgs (_type_): _description_
+    """
+    # data のデータを office の値に基づいてグループ化
+    office_groups = defaultdict(list)
+    for d in data:
+        office = d[0]['office']  # 仮に d[0] が property の情報を持ち、その中に 'office' キーが存在すると仮定
+        office_groups[office].append(d)
+
+    # 新しいリストを office のグループに基づいて構築
+    formatted_data = []
+    for office, items in office_groups.items():
+        properties = [item[0] for item in items]  # 同じ office を持つ property データ
+        acquirers_list = [item[1] for item in items]  # 同じ office を持つ acquirers データ
+        # data[2] が存在する場合はそれも含める
+        additional_data = [item[2] for item in items if len(item) > 2]
+        formatted_data.append((properties, acquirers_list, additional_data))
+
+    return formatted_data
+
+def sort_application_data_by_acquirers(data):
+    """取得者別に不動産を分ける
+
+    Args:
+        data (_type_): _description_
+    """
+    formatted_data = [] 
+    for d in data:
+        properties, acquirers_list = d[:2]
+        sites_list = d[2] if len(d) > 2 else []
+        
+        compare_list = copy.deepcopy(acquirers_list)
+        integrated_data = copy.deepcopy(acquirers_list)
+        for i, acquirers in enumerate(acquirers_list):
+            #同じ取得者をまとめる
+            for j, compares in enumerate(compare_list):
+                if i == j:
+                    continue
+                
+                if len(acquirers) == len(compares):
+                    for k, acquirer in enumerate(acquirers):
+                        is_match = False
+                        for l, c in enumerate(compares):
+                            if acquirer["acquirer_type"] == c["acquirer_type"] and\
+                                acquirer["acquirer_id"] == c["acquirer_id"]:
+                                is_match = True
+                                if k == len(acquirers) - 1:
+                                    for x in acquirers:
+                                        integrated_data[j].append(x)
+                                else:
+                                    break
+                        if not is_match:
+                            break
+        
+        #取得者の重複解消                    
+        seen = set()
+        unique_list = []
+        for lst in integrated_data:
+            ident = frozenset(tuple(sorted(d.items())) for d in lst)
+            if ident not in seen:
+                seen.add(ident)
+                unique_list.append(lst)
+
+        #他のデータを追加する
+        for uniques in unique_list:
+            property_data = []
+            site_data = []
+            for u in uniques:
+                for p in properties:
+                    if u["property_type"] == p["property_type"] and\
+                        u["property_id"] == p["id"]:
+                        if p not in property_data:
+                            property_data.append(p)
+                        break
+                    
+                if u["property_type"] == "Bldg":
+                    for sites in sites_list:
+                        if sites[0]["bldg"] == u["property_id"]:
+                            for site in sites:
+                                if site not in site_data:                                
+                                    site_data.append(site)
+            formatted_data.append((property_data, uniques, site_data))
+    
+    return formatted_data
+
+def step_POA(request):
+    """委任状を表示する
     
     被相続人が持分のみの不動産を持っているかどうかで変わる
 
@@ -2843,64 +3541,19 @@ def get_purpose_of_registration(decedent):
     Returns:
         _type_: _description_
     """
-    function_name = get_current_function_name()
-    
-    lands = Land.objects.filter(decedent=decedent)
-    houses = House.objects.filter(decedent=decedent)
-    bldgs = Bldg.objects.filter(decedent=decedent)
-    
-    if not lands.exists() and not houses.exists() and not bldgs.exists():
-        raise ValidationError(function_name + "：不動産がありません")
-
-    is_owner = False
-    is_purparty = False
-    
-    if lands.exists():
-        for x in lands:
-            if x.purparty == "１分の１":
-                is_owner = True
-            else:
-                is_purparty = True
-                
-            if is_owner and is_purparty:
-                break
-    
-    if houses.exists() and not is_owner and not is_purparty:
-        for x in houses:
-            if x.purparty == "１分の１":
-                is_owner = True
-            else:
-                is_purparty = True
-            
-            if is_owner and is_purparty:
-                break
-
-    if bldgs.exists() and not is_owner and not is_purparty:
-        for x in bldgs:
-            if x.purparty == "１分の１":
-                is_owner = True
-            else:
-                is_purparty = True
-                
-            if is_owner and is_purparty:
-                break
-    
-    if is_owner and not is_purparty:
-        return "所有権移転"
-    elif is_owner and is_purparty:
-        return "所有権移転及び" + decedent.name + "持分全部移転"
-    elif not is_owner and is_purparty:
-        return decedent.name + "持分全部移転"
-    else:
-        raise ValidationError(function_name + "所有権割合が登録されてません")
-    
-#ステップ5
-#申請
+#
+# ステップ5
+#
 def step_five(request):
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-    
-    user = User.objects.get(email = request.user)
+    """ステップ５のメイン処理
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    response, user, decedent = check_user_and_decedent(request)
     
     context = {
         "title" : "５．法務局に郵送",
@@ -2910,9 +3563,18 @@ def step_five(request):
     }
     return render(request, "toukiApp/step_five.html", context)
 
-#ステップ6
-#申請後について
+#
+# ステップ6
+#
 def step_six(request):
+    """申請後のメイン処理
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     if not request.user.is_authenticated:
         return redirect(to='/account/login/')
     

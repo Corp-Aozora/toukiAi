@@ -391,6 +391,104 @@ function filterArr(targets, arr){
     return arr.filter(x => !targets.includes(x));
 }
 
+/**
+ * 都道府県の値をチェック
+ * @param {string} val 
+ * @param {HTMLElement} el 
+ * @returns 適正なときtrue、空欄のときfalse
+ */
+function checkPrefecture(val, el){
+    if(val === ""){
+        while (el.firstChild) {
+            el.removeChild(el.firstChild);
+        }
+        el.disabled = true;
+        return false;
+    }
+    return true;
+}
+
+/**
+ * 選択された都道府県に存在する市区町村を取得する
+ * @param {string} val 都道府県欄の値
+ * @param {HTMLElement} el 市区町村欄
+ * @param {Fieldset} instance インスタンス
+ * @returns 
+ */
+async function getCityData(val, el, instance){
+    //未選択のとき、市町村データを全て削除して無効化する
+    if(!checkPrefecture(val, el))
+        return;
+    //エラー要素から都道府県を削除する
+    instance.noInputs = instance.noInputs.filter(x => x.id !== el.id);
+    //市区町村欄を有効化してフォーカスを移動する
+    el.disabled = false;
+    //データ取得中ツールチップを表示する
+    const verifyingEl = `<div id="${el.id}_verifyingEl" class="verifying emPosition" style="z-index: 100; position: absolute;">
+    市区町村データ取得中
+    <div class="spinner-border text-white spinner-border-sm" role="status">
+    </div>
+    </div>`;
+    el.insertAdjacentHTML('afterend', verifyingEl);
+    //都道府県に紐づく市区町村データを取得して表示できるようにする
+    const url = 'get_city';
+    await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({"prefecture" : val}),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        mode: "same-origin"
+    }).then(response => {
+        if (!response.ok) {
+            // HTTPエラーを投げ、それをcatchブロックで捕捉
+            throw new Error(
+                `関数：getCityDataの${instance.constructor}\n
+                詳細：api通信エラー ${response.status}`
+            );
+        }
+        return response.json();
+    }).then(response => {
+        //エラーメッセージを表示する要素
+        const errorMessageEl = document.getElementById(`${el.id}_message`);
+        //取得できたとき
+        const data = response.data;
+        if(data !== ""){
+            //市区町村データ
+            let option = "";
+            //東京都のときは市区町村に区があってもいいようにする
+            for(let i = 0, len = data.length; i < len; i++){
+                const prefCode = data[i].prefCode;
+                const cityName = data[i].cityName;
+                if(prefCode !== 13 && cityName.slice(-1) === "区")
+                    continue;
+                option += `<option value="${cityName}">${cityName}</option>`;
+            }
+            //市区町村データを表示して、エラーメッセージを非表示にする
+            el.innerHTML = option;
+            errorMessageEl.style.display = "none";
+        }else{
+            //取得できなかったときは、エラーメッセージを表示してエラー要素として市区町村要素を取得する
+            errorMessageEl.style.display = "block";
+            instance.noInputs.push(el);
+            throw new Error(                
+                `関数：getCityDataの${instance.constructor}\n
+                詳細：市区町村データを取得できませんでした`
+            )
+        }
+    }).catch(e => {
+        throw new Error(
+            `関数：getCityDataの${instance.constructor}\n
+            詳細：${e}`
+        );
+    }).finally(()=>{
+        //データ取得中ツールチップを削除する
+        document.getElementById(`${el.id}_verifyingEl`).remove();
+        isActivateOkBtn(instance);
+    });
+}
+
 /*
     イベント
 */

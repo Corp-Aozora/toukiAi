@@ -429,7 +429,7 @@ async function loadData(){
                 decedent.noInputs = decedent.noInputs.filter(x => x.id !== decedent.inputs[i].id)
                 //都道府県のとき、市区町村データを取得する
                 if(i === Decedent.idxs.prefecture || i === Decedent.idxs.domicilePrefecture){
-                    await getCityData(decedent.inputs[i].value, decedent.inputs[i + 1]);
+                    await getCityData(decedent.inputs[i].value, decedent.inputs[i + 1], decedent);
                 }
                 if(i === Decedent.idxs.city || i === Decedent.idxs.domicileCity){
                     getDecedentCityData();
@@ -817,86 +817,8 @@ async function initialize(){
     await loadData();
 }
 
-/**
- * 都道府県の値をチェック
- * @param {string} val 
- * @param {HTMLElement} el 
- * @returns 適正なときtrue、空欄のときfalse
- */
-function checkPrefecture(val, el){
-    if(val === ""){
-        while (el.firstChild) {
-            el.removeChild(el.firstChild);
-        }
-        el.disabled = true;
-        // document.getElementById(`${el.id}_verifyingEl`).remove();
-        return false;
-    }
-    return true;
-}
-
-/**
- * 選択された都道府県に存在する市区町村を取得する
- * @param {string} val 都道府県欄の値
- * @param {HTMLElement} el 市区町村欄
- * @returns 
- */
-async function getCityData(val, el){
-    //未選択のとき、市町村データを全て削除して無効化する
-    if(!checkPrefecture(val, el))
-        return;
-    //エラー要素から都道府県を削除する
-    decedent.noInputs = decedent.noInputs.filter(x => x.id !== el.id);
-    //市区町村欄を有効化してフォーカスを移動する
-    el.disabled = false;
-    el.focus();
-    //データ取得中ツールチップを表示する
-    const verifyingEl = `<span id="${el.id}_verifyingEl" class="verifying emPosition">
-    市区町村データ取得中
-    <div class="spinner-border text-white spinner-border-sm" role="status">
-    </div>
-    </span>`;
-    el.insertAdjacentHTML('afterend', verifyingEl);
-    //都道府県に紐づく市区町村データを取得して表示できるようにする
-    const url = 'get_city';
-    await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({"prefecture" : val}),
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        //エラーメッセージを表示する要素
-        const errorMessageEl = document.getElementById(`${el.id}_message`);
-        //取得できたとき
-        if(response.city !== ""){
-            //市区町村データ
-            let option = "";
-            //東京都以外の区は表示しない
-            for(let i = 0, len = response.city.length; i < len; i++){
-                if(response.city[i]["id"].slice(0, 2) !== "13" && response.city[i]["name"].slice(-1) === "区") continue;
-                option += `<option value="${response.city[i]["name"]}">${response.city[i]["name"]}</option>`;
-            }
-            //市区町村データを表示して、エラーメッセージを非表示にする
-            el.innerHTML = option;
-            errorMessageEl.style.display = "none";
-        }else{
-            //取得できなかったときは、エラーメッセージを表示してエラー要素として市区町村要素を取得する
-            errorMessageEl.style.display = "block";
-            decedent.noInputs.push(el);
-        }
-    }).catch(error => {
-        console.log(error);
-    }).finally(()=>{
-        //データ取得中ツールチップを削除する
-        document.getElementById(`${el.id}_verifyingEl`).remove();
-        //次へボタンの表示判別
-        decedent.nextBtn.disabled = decedent.noInputs.length === 0 ? false: true;
-    });
+function isActivateOkBtn(instance){
+    instance.nextBtn.disabled = instance.noInputs.length === 0 ? false: true;
 }
 
 /**
@@ -4142,7 +4064,7 @@ window.addEventListener("load",async ()=>{
                 //住所又は本籍地のの都道府県のとき、市町村データを取得する
                 if(el === decedent.inputs[Decedent.idxs.prefecture] || el === decedent.inputs[Decedent.idxs.domicilePrefecture]){
                     const val = el.value;
-                    await getCityData(val, decedent.inputs[i + 1]);
+                    await getCityData(val, decedent.inputs[i + 1], decedent);
                 }
             })
         }

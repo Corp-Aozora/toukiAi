@@ -61,13 +61,13 @@
 }
 
 /* 登記の目的、原因、相続人、添付情報の幅 */
-.width100px{
-    width: 100px!important;
+.headword{
+    width: 115px!important;
     display: block!important;
     text-align: justify!important;
     text-align-last: justify!important;
 }
 
-.width100px + * {
+.headword + * {
     margin-left:1rem!important;
 }

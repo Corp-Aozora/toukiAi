@@ -4,6 +4,7 @@ from .landCategorys import LANDCATEGORYS
 from .customDate import *
 from .sections import *
 from .company_data import *
+from .toukiAi_commons import *
 from .forms import *
 from django.forms import formset_factory
 from .models import *
@@ -14,6 +15,7 @@ from django.http import HttpResponseForbidden
 import datetime
 import json
 import copy
+from time import sleep
 from django.http import JsonResponse, HttpResponseServerError
 import requests
 from django.core.validators import validate_email
@@ -3179,13 +3181,14 @@ def get_application_form():
         "office": "",
         "is_agent": "false",
         "agent": {
+            "position": "",
             "address": "",
             "name": "",
             "phone_number": "",
         },
-        "total_price": "",
-        "owner_price": "",
-        "other_price": "",
+        "total_price": 0,
+        "owner_price": 0,
+        "other_price": 0,
         "is_all_tax_free": "false",
         "all_tax_free_phrase": "租税特別措置法第８４条の２の３第２項により非課税",
         "is_partially_tax_free": "false",
@@ -3226,12 +3229,43 @@ def get_application_form_data(data, decedent):
         assign_price_and_property(application_form, properties, sites, acquirers)
         #登録免許税、敷地権の種類（所有権は１０００分の４、免税対象、地上権は１０００分の２、免税不可）
         #金額の表示を申請書形式に合わせる
+        assign_tax(application_form)
 
         formatted_data.append(application_form)
         
     return formatted_data
 
+def assign_tax(form):
+    """登録免許税額の算出して課税価格と登録免許税額を全角にして申請フォームに登録する
+
+    Args:
+        form (_type_): 申請書形式のデータ
+    """
+    #地上権、賃借権の課税価格から登録免許税を算出
+    other_tax = 0
+    if form["other_price"] > 0:
+        other_tax = form["other_price"] * 2 / 1000
+    #所有権の課税価格から登録免許税を算出
+    owner_tax = 0
+    if form["owner_price"] > 0:
+        owner_tax = form["owner_price"] * 4 / 1000
+        
+    total_tax = ((owner_tax + other_tax) // 100) * 100
+    
+    #課税価格を全角にする
+    form["total_price"] = format_currency_for_application_form(form["total_price"])
+    #登録免許税額を全角に変換する
+    form["tax"] = format_currency_for_application_form(total_tax)
+
 def assign_price_and_property(form, properties, sites, acquirers):
+    """課税価格と不動産情報を登録する
+
+    Args:
+        form (_type_): application_form
+        properties (_type_): 対象の申請書の不動産情報
+        sites (_type_): 対象の申請書の敷地権情報
+        acquirers (_type_): 対象の申請書の取得者情報
+    """
     #各不動産の評価額を合計する（被相続人の持分も考慮する）
     owner_price = 0
     other_price = 0
@@ -3445,9 +3479,10 @@ def assign_agent_data(form, application):
     """
     if application["is_agent"]:
         form["is_agent"] = "true"
+        form["agent"]["position"] = application["position"]
         form["agent"]["address"] = application["agent_address"]
-        form["agent"]["name"] = application["name"]
-        form["agent"]["phone_number"] = application["phone_number"]
+        form["agent"]["name"] = application["agent_name"]
+        form["agent"]["phone_number"] = application["agent_phone_number"]
     else:
         form["is_agent"] = "false"
 
@@ -3476,10 +3511,7 @@ def get_acquirers_info(purpose_of_registration, acquirers, applications):
         if acquirer["acquirer_type"] == applicant_content_type and\
             acquirer["acquirer_id"] == applicant_object_id:
             
-            if len(acquirers) > 1:
-                acquirer_info["is_applicant"] = "true"
-            
-            if not application["is_agent"]:
+            if not application["is_agent"] and len(acquirers) == 1:
                 acquirer_info["phone_number"] = application["phone_number"]
         
         if len(acquirers) > 1 or purpose_of_registration != "所有権移転":
@@ -3497,8 +3529,6 @@ def get_acquirer_info_form():
         _type_: _description_
     """
     return {
-        "is_applicant": "false",
-        "applicant_phrase": "（申請人）",
         "address": "",
         "is_share": "false",
         "percentage_phrase": "持分後記のとおり",
@@ -3535,11 +3565,36 @@ def get_purpose_of_registration(properties, decedent_name):
         return "所有権移転"
     if is_sharer:
         return f"{decedent_name}持分全部移転"
-    
+
+def get_applicant_form():
+    """申請人データ用のフォーム
+
+    Returns:
+        dict: Applicationのデータを格納する
+    """
+    return {
+        "content_object": "",
+        "phone_number": "",
+        "is_agent": "false",
+        "position": "",
+        "agent_name": "",
+        "agent_address": "",
+        "agent_phone_number": "",
+        "is_return": "",
+        "is_mail": "",
+    }
 
 def add_application_data(data, decedent):
-    """申請情報を追加する
+    """申請人情報を追加する
 
+    pattern 0:データをそのまま反映する
+        代理人を使用するとき
+        代理人を使用しない、かつ取得者が１人のとき
+    pattern 1:申請人兼代理人扱い
+        申請人、かつ取得者が２人以上のとき
+    pattern 2:申請人を代理人扱い
+        申請人、かつ取得者ではないとき
+    
     Args:
         data (_type_): _description_
         decedent (_type_): _description_
@@ -3548,24 +3603,76 @@ def add_application_data(data, decedent):
         _type_: _description_
     """
     application = Application.objects.filter(decedent=decedent).first()
-    application_data = {
-        "content_object": application.content_object,
-        "phone_number": application.phone_number,
-        "is_agent": application.is_agent,
-        "agent_name": application.agent_name,
-        "agent_address": application.agent_address,
-        "agent_phone_number": application.agent_phone_number,
-        "is_return": application.is_return,
-        "is_mail": application.is_mail,
-    }
+    if not application:
+        raise ValidationError("申請情報データがありません")
+    
+    applicant_content_type = type(application.content_object).__name__
+    applicant_object_id = application.object_id
+    
     formatted_data = []
     for d in data:
-        properties, acquirers_list = d[:2]
+        properties, acquirers = d[:2]
         sites_list = d[2] if len(d) > 2 else []
-        
-        formatted_data.append((properties, acquirers_list, [application_data], sites_list))
+
+        pattern = 2
+        if application.is_agent:
+            pattern = 0
+        elif any(
+                acquirer["acquirer_type"] == applicant_content_type and
+                acquirer["acquirer_id"] == applicant_object_id
+                for acquirer in acquirers
+            ):
+            pattern = 0 if len(acquirers) == 1 else 1
+            
+        #取得者になっていないとき代理人に変更する
+        applicant_form = assign_applicant_data(pattern, application)
+        formatted_data.append((properties, acquirers, [applicant_form], sites_list))
     
     return formatted_data
+
+def assign_applicant_data(pattern, data):
+    """申請人データを登録する
+    
+    pattern 0:データをそのまま反映する
+    pattern 1:申請人兼代理人扱い
+    pattern 2:申請人を代理人扱い
+
+    Args:
+        pattern (num): 上記patternのとおり
+        data (Application): Applicationから取得したクエリセット
+    """
+    form = get_applicant_form()
+    form.update({
+        "content_object": data.content_object,
+        "is_return": data.is_return,
+        "is_mail": data.is_mail,
+    })
+    
+    if pattern == 0:
+        form.update({
+            "position": "代理人" if data.is_agent else "",
+            "phone_number": data.phone_number,
+            "is_agent": data.is_agent,
+            "agent_name": data.agent_name,
+            "agent_address": data.agent_address,
+            "agent_phone_number": data.agent_phone_number,
+        })
+    else:
+        address = "".join([
+            get_prefecture_name(data.content_object.prefecture),
+            data.content_object.city,
+            data.content_object.address,
+            data.content_object.bldg or ""
+        ])
+        form.update({
+            "position": "申請人兼代理人" if pattern == 1 else "代理人",
+            "is_agent": "true",
+            "agent_name": data.content_object.name,
+            "agent_address": address,
+            "agent_phone_number": data.phone_number,
+        })
+        
+    return form
 
 def add_site_data_for_application_data(data, decedent):
     """申請データに敷地権を追加する
@@ -4023,27 +4130,93 @@ def get_heirs_city_data(request):
         return JsonResponse({'エラー原因': 'データがありません'}, status=404)
     except Exception as e:
         return JsonResponse({'エラー原因': '想定しないエラー', '詳細': str(e)}, status=500)
+    
+def fetch_data_with_retry(url, max_retries=3, delay=5, headers=None):
+    """api通信の際のリトライ処理
+
+    Args:
+        url (_type_): _description_
+        max_retries (int, optional): _description_. Defaults to 3.
+        delay (int, optional): _description_. Defaults to 5.
+
+    Returns:
+        _type_: _description_
+    """
+    for _ in range(max_retries):
+        response = requests.get(url, headers=headers) if headers else requests.get(url)
+        if response.status_code == 200:
+            return response
+        else:
+            sleep(delay)  # 指定秒数待つ
+    # リトライしても成功しない場合
+    return None
+    
+def get_city(request):
+    """RESASapiから都道府県コードに紐づく市区町村データを取得する
+
+    国土地理院のものが使用できないときのためのサブ
+    
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    try:
+        data = json.loads(request.body)
+        prefecture = int(data["prefecture"])
+        
+        url = f"https://opendata.resas-portal.go.jp/api/v1/cities?prefCode={prefecture}"
+        
+        # APIキー（環境変数から取得するなど、安全に管理してください）
+        api_key = os.getenv("RESAS_API_KEY")
+        # リクエストヘッダー
+        headers = {"X-API-KEY": api_key}
+        
+        # APIリクエストを実行
+        response = fetch_data_with_retry(url, headers=headers)
+
+        if response.status_code == 200:
+            #[{"prefCode": val}, {"cityName": val}]の形式にして返す
+            data = response.json()
+            result = data["result"]
+            data = [{'prefCode': r.get('prefCode'), 'cityName': r.get('cityName')} for r in result if 'cityName' in r]
+            return JsonResponse({"data": data,})
+            
+        else:
+            basic_log(get_current_function_name(), {response.status_code}, request.user, "RESASのapi通信エラー")
+            return JsonResponse({"詳細": f"サブの市区町村取得API通信エラー {response.status_code}"}, status=response.status_code)
+    except Exception as e:
+        return JsonResponse({"e": str(e)}, status=500)
 
 # 選択された都道府県から市区町村データを取得する
-def get_city(request):
-    data = json.loads(request.body)
-    prefecture = data["prefecture"]
+# def get_city(request):
+#     """入力された都道府県コードを使って国交省の不動産情報ライブラリから市区町村データを取得する
+
+#     Args:
+#         request (_type_): _description_
+
+#     Returns:
+#         _type_: _description_
+#     """
+#     try:
+#         data = json.loads(request.body)
+#         prefecture = data["prefecture"]
+            
+#         url = "https://www.land.mlit.go.jp/webland/api/CitySearch?area=" + prefecture
+
+#         response = fetch_data_with_retry(url)
         
-    url = "https://www.land.mlit.go.jp/webland/api/CitySearch?area=" + prefecture
-    r = requests.get(url)
-    r = r.json()
-    r = r['data']
-    
-    if r:
-        context = {
-            "city": r,
-        }
-    else:
-        context = {
-            "city" : "",
-        }
-        
-    return JsonResponse(context)
+#         if response:
+#             response = response.json()
+#             result = response['data']
+#             # data = [{'prefCode': r.get('prefCode'), 'cityName': r.get('cityName')} for r in result if 'cityName' in r]
+#             return JsonResponse({"data": ""})
+#         else:
+#             basic_log(get_current_function_name(), {response.status_code}, request.user, "不動産情報ライブラリのapi通信エラー")
+#             return JsonResponse({"詳細": f"市区町村取得API通信エラー {response.status_code}"}, status=response.status_code)
+#     except Exception as e:
+#         return JsonResponse({"e": str(e)}, status=500)
 
 # 入力された不動産番号から法務局データを取得する
 def get_office(request):

@@ -812,22 +812,7 @@ const statusText = document.getElementById("statusText");
 //２を修正するボタンと４へ進むボタン
 const preBtn = document.getElementById("preBtn");
 
-/**
- * 都道府県の値をチェック
- * @param {string} val 
- * @param {HTMLElement} el 
- * @returns 適正なときtrue、空欄のときfalse
- */
-function checkPrefecture(val, el){
-    if(val === ""){
-        while (el.firstChild) {
-            el.removeChild(el.firstChild);
-        }
-        el.disabled = true;
-        return false;
-    }
-    return true;
-}
+
 
 /**
  * 分数を加算する処理
@@ -971,6 +956,7 @@ function isActivateOkBtn(instance){
         }else if(isFormsVerified){
             //最後以外の不動産欄の検証が通ったとき
             propertyOkBtn.disabled = false;
+            okBtn.disabled = true;
         }else{
             //検証が通らないインスタンスがあるとき、次の不動産へボタンと次の項目へボタンを無効化する
             propertyOkBtn.disabled = true;
@@ -993,73 +979,6 @@ function isActivateOkBtn(instance){
         }
     }
 
-}
-
-/**
- * 選択された都道府県に存在する市区町村を取得する
- * @param {string} val 都道府県欄の値
- * @param {HTMLElement} el 市区町村欄
- * @param {Fieldset} instance インスタンス
- * @returns 
- */
-async function getCityData(val, el, instance){
-    //未選択のとき、市町村データを全て削除して無効化する
-    if(!checkPrefecture(val, el))
-        return;
-    //エラー要素から都道府県を削除する
-    instance.noInputs = instance.noInputs.filter(x => x.id !== el.id);
-    //市区町村欄を有効化してフォーカスを移動する
-    el.disabled = false;
-    //データ取得中ツールチップを表示する
-    const verifyingEl = `<div id="${el.id}_verifyingEl" class="verifying emPosition" style="z-index: 100; position: absolute;">
-    市区町村データ取得中
-    <div class="spinner-border text-white spinner-border-sm" role="status">
-    </div>
-    </div>`;
-    el.insertAdjacentHTML('afterend', verifyingEl);
-    //都道府県に紐づく市区町村データを取得して表示できるようにする
-    const url = 'get_city';
-    await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({"prefecture" : val}),
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        if (!response.ok) {
-            // HTTPエラーを投げ、それをcatchブロックで捕捉
-            throw new Error(`サーバーエラー: ${response.status}`);
-        }
-        return response.json();
-    }).then(response => {
-        //エラーメッセージを表示する要素
-        const errorMessageEl = document.getElementById(`${el.id}_message`);
-        //取得できたとき
-        if(response.city !== ""){
-            //市区町村データ
-            let option = "";
-            //東京都以外の区は表示しない
-            for(let i = 0, len = response.city.length; i < len; i++){
-                if(response.city[i]["id"].slice(0, 2) !== "13" && response.city[i]["name"].slice(-1) === "区") continue;
-                option += `<option value="${response.city[i]["name"]}">${response.city[i]["name"]}</option>`;
-            }
-            //市区町村データを表示して、エラーメッセージを非表示にする
-            el.innerHTML = option;
-            errorMessageEl.style.display = "none";
-        }else{
-            //取得できなかったときは、エラーメッセージを表示してエラー要素として市区町村要素を取得する
-            errorMessageEl.style.display = "block";
-            instance.noInputs.push(el);
-        }
-    }).catch(error => {
-        throw new Error(`getCityData：${instance.constructor}の市区町村データ取得処理でエラーが発生\n詳細：${error}`);
-    }).finally(()=>{
-        //データ取得中ツールチップを削除する
-        document.getElementById(`${el.id}_verifyingEl`).remove();
-        isActivateOkBtn(instance);
-    });
 }
 
 /**
@@ -4117,6 +4036,8 @@ function setPropertyCorrectBtnEvent(instances){
                 slideUp(wrapper);
                 enablePropertyWrapper(instances, i - 1);
                 scrollToTarget(preWrapper);
+                //次の項目へボタンを無効化する
+                okBtn.disabled = true;
                 break;
             }
         }
@@ -5525,15 +5446,22 @@ function handleSetPropertySectionIfData(prefix){
 
     //不動産に所属する取得者の数が一致しないときエラーにする
     function isAcquirersRelated(){
+        const functionName = "isAcquirersRelated";
         const instances = getPropertyInstancesFromPrefix(prefix);
-        const relatedAcquirersCount = instances.reduce((sum, instance) => {
-            return sum + instance.acquirers.length;
-        }, 0);
-        const relatedCashAcquirersCount = instances.reduce((sum, instance) => {
-            return sum + instance.cashAcquirers.length;
-        }, 0);
-        if(relatedAcquirersCount !== propertyAcquirers.length || relatedCashAcquirersCount !== cashAcquirers.length)
-            throw new Error("不動産と関連付けできてない取得者があります");
+
+        //不動産取得者チェック
+        const relatedAcquirersCount = instances.reduce((sum, x) => sum + x.acquirers.length, 0);
+
+        if(relatedAcquirersCount !== propertyAcquirers.length)
+            throw new Error(`${functionName}/不動産と関連付けできてない不動産取得者があります`);
+    
+        //金銭取得者チェック
+        const relatedCashAcquirersCount = instances.reduce((sum, x) => sum + x.cashAcquirers.length, 0);
+        const hasExchangeableInstance = instances.some(x => x.inputs[x.constructor.idxs.isExchange.input[yes]].checked);
+
+        if (hasExchangeableInstance && relatedCashAcquirersCount !== cashAcquirers.length) {
+            throw new Error(`${functionName}/不動産と関連付けできてない金銭取得者があります`);
+        }
     }
 }
 
@@ -5751,9 +5679,9 @@ async function setBldgSection(){
  */
 function basicLog(functionName, e = null, message = null){
     console.error(
-        `エラー発生箇所：${functionName}\n
-        詳細：${e}\n
-        開発者メッセージ：${message}`
+        `エラーを補足した関数：${functionName}\n
+        開発者メッセージ：${message}\n
+        ${e}`
     )
 }
 

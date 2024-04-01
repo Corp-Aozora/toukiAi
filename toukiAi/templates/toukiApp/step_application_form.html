@@ -20,27 +20,33 @@
                     <p class="text-danger fw-bold">
                         ※注意事項
                     </p>
-                    <p class="ms-3">
+                    <div class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
-                            押印について
-                        </span><br>
-                        <span class="ms-3">
-                            指定はありませんので、認印でも大丈夫です。
-                        </span><br>
-                        <span class="ms-3">
-                            ただし、全て同じ印鑑で押印してください。
+                            使用する印鑑について
                         </span>
-                    </p>
+                        <p class="ms-3">
+                            認印でも大丈夫ですが、全ての押印は同じ印鑑を使用してください。
+                        </p>
+                    </div>
                     <div class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
                             登記申請書のまとめかたと押印について
-                        </span><br>
-                        <div class="ms-3">
+                        </span>
+                        <p class="ms-3">
                             <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#howto">
                                 こちら
                             </button>
                             を参考に登記申請書をまとめてください。
-                        </div>
+                        </p>
+                    </div>
+                    <div class="ms-3">
+                        <span class="fw-bold border-bottom border-secondary">
+                            「登記申請書」の右側にある㊞（捨印）について
+                        </span>
+                        <p class="ms-3">
+                            捨印があると軽微な修正を法務局側でしてもらえることがあります。<br>
+                            ※法務局の任意なので絶対ではありません。
+                        </p>
                     </div>
                 </div>
             </div>
@@ -49,7 +55,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h1 class="modal-title fs-5">登記申請書のまとめかたと押印について</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-headword="Close"></button>
                         </div>
                         <div class="modal-body">
                             <img class="modal-image" src="{% static 'toukiApp/img/登記申請書のまとめかたと押印.png' %}" alt="契印の説明画像">
@@ -62,13 +68,16 @@
             {% for data in application_data %}
                 <div class="d-flex justify-content-center mt-5">
                     <div class="print_per_section">
-                        <div>
+                        <div class="position-relative">
                             <h5 class="text-center">
                                 登記申請書
                             </h5>
+                            <span style="position: absolute; top:0mm; right: 50mm;">
+                                ㊞
+                            </span>
                         </div>
                         <div class="mt-4">
-                            <div class="width100px">
+                            <div class="headword">
                                 登記の目的
                             </div>
                             <div>
@@ -76,7 +85,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="width100px">
+                            <div class="headword">
                                 原因
                             </div>
                             <div>
@@ -84,7 +93,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="width100px">
+                            <div class="headword">
                                 相続人
                             </div>
                             <div>
@@ -98,9 +107,6 @@
                                 </div>
                                 {% for acquirer in data.acquirers %}
                                     <div>
-                                        {% if acquirer.is_applicant == "true" %}
-                                            {{acquirer.applicant_phrase}}
-                                        {% endif %}
                                         {{acquirer.address}}
                                     </div>
                                     <div class="ms-4 d-flex">
@@ -132,7 +138,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="width100px">
+                            <div class="headword">
                                 添付情報
                             </div>
                             <div>
@@ -145,7 +151,7 @@
                                     送付の方法により登記識別情報通知書及び登記完了証の交付を希望します。
                                 </div>
                                 <div class="d-flex">
-                                    <div class="width100px">
+                                    <div class="headword">
                                         送付先の区分
                                     </div>
                                     <div class="ms-3">
@@ -175,31 +181,37 @@
                             </div>
                             <div class="ms-4">
                                 {{data.office}}
+                                <span class="ms-3">
+                                    御中
+                                </span>
                             </div>
                         </div>
                         {% if data.is_agent == "true" %}
                             <div class="mt-3">
-                                <div class="width100px">
-                                    代理人
+                                <div class="headword">
+                                    {{data.agent.position}}
                                 </div>
                                 <div>
                                     <div>
-                                        （住所）
+                                        {{data.agent.address}}
                                     </div>
                                     <div class="ms-4">
-                                        （氏名）㊞
+                                        {{data.agent.name}}
+                                        <span class="ms-4">
+                                            ㊞
+                                        </span>
                                     </div>
                                     <div class="ms-4">
                                         連絡先の電話番号
                                         <span>
-                                            （電話番号）
+                                            {{data.agent.phone_number}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         {% endif %}
                         <div class="mt-3">
-                            <div class="width100px">
+                            <div class="headword">
                                 課税価格
                             </div>
                             <div>
@@ -209,7 +221,7 @@
                         <div>
                             <div>
                                 <div class="d-flex">
-                                    <div class="width100px">
+                                    <div class="headword">
                                         登録免許税
                                     </div>
                                     <div>
@@ -241,7 +253,7 @@
                             {% for property in data.properties %}
                                 <div class="property">
                                     <div>
-                                        <div class="width100px">
+                                        <div class="headword">
                                             不動産番号
                                         </div>
                                         <div>
@@ -256,7 +268,7 @@
                                     {% if property.sites %}
                                         {% for site in property.sites %}
                                             <div class="ms-3">
-                                                <div class="width100px">
+                                                <div class="headword">
                                                     土地の符号
                                                 </div>
                                                 <div>
@@ -264,7 +276,7 @@
                                                 </div>
                                             </div>
                                             <div class="ms-3">
-                                                <div class="width100px">
+                                                <div class="headword">
                                                     敷地権の種類
                                                 </div>
                                                 <div>
@@ -272,7 +284,7 @@
                                                 </div>
                                             </div>
                                             <div class="ms-3">
-                                                <div class="width100px">
+                                                <div class="headword">
                                                     敷地権の割合
                                                 </div>
                                                 <div>

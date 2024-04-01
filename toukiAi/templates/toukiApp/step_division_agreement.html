@@ -22,10 +22,10 @@
                     </p>
                     <p class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
-                            押印について
+                            使用する印鑑について
                         </span><br>
                         <span class="ms-3">
-                            実印を使って印鑑登録証明書と照合できるように鮮明に押印ください。
+                            実印で印鑑登録証明書と照合できるように鮮明に押印ください。
                         </span>
                     </p>
                     <div class="ms-3">
@@ -40,7 +40,7 @@
                             も必要です。
                         </div>
                         <div class="ms-3">
-                            契印とは、複数枚が一連の文書のものであることを確認したことを証明するための押印です。
+                            契印とは、複数枚が一連の文書のものであることを証明するための押印です。
                         </div>
                     </div>
                 </div>
@@ -120,23 +120,25 @@
                     {% for d in normal_division_properties %}
                         <div class="content mt-3">
                             <p>
-                                下記不動産は、
-                                {% for acquirer in d.1 %}
-                                    {% if forloop.last %}
-                                        {% for name, percentage in acquirer.items %}
-                                            {% if percentage == "１分の１" %}
-                                                {{ name }}が
-                                            {% else %}
-                                                {{ name }}が{{ percentage }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        {% for name, percentage in acquirer.items %}
-                                            {{ name }}が{{ percentage }}、
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                                取得する。
+                                <span class="border-bottom border-secondary">
+                                    下記不動産は、
+                                    {% for acquirer in d.1 %}
+                                        {% if forloop.last %}
+                                            {% for name, percentage in acquirer.items %}
+                                                {% if percentage == "１分の１" %}
+                                                    {{ name }}が
+                                                {% else %}
+                                                    {{ name }}が{{ percentage }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            {% for name, percentage in acquirer.items %}
+                                                {{ name }}が{{ percentage }}、
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    取得する。
+                                </span>
                             </p>
                             <div class="property">
                                 {% for property in d.0 %}
@@ -198,42 +200,44 @@
                     {% for d in exchange_division_properties %}
                         <div class="content mt-3">
                             <p>
-                                下記不動産は、
-                                {% for acquirer in d.1 %}
-                                    {% if forloop.last %}
-                                        {% for name, percentage in acquirer.items %}
-                                            {% if percentage == "１分の１" %}
-                                                {{ name }}が
-                                            {% else %}
-                                                {{ name }}が{{ percentage }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        {% for name, percentage in acquirer.items %}
-                                            {{ name }}が{{ percentage }}、
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                                取得する。<br>
-                                <span class="ms-3">
-                                    なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
+                                <span class="border-bottom border-secondary">
+                                    下記不動産は、
+                                    {% for acquirer in d.1 %}
+                                        {% if forloop.last %}
+                                            {% for name, percentage in acquirer.items %}
+                                                {% if percentage == "１分の１" %}
+                                                    {{ name }}が
+                                                {% else %}
+                                                    {{ name }}が{{ percentage }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            {% for name, percentage in acquirer.items %}
+                                                {{ name }}が{{ percentage }}、
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    取得する。<br>
+                                    <span class="ms-3">
+                                        なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
+                                    </span>
+                                    {% for cash_acquirer in d.2 %}
+                                        {% if forloop.last %}
+                                            {% for name, percentage in cash_acquirer.items %}
+                                                {% if percentage == "１分の１" %}
+                                                    {{ name }}が
+                                                {% else %}
+                                                    {{ name }}が{{ percentage }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            {% for name, percentage in cash_acquirer.items %}
+                                                {{ name }}が{{ percentage }}、
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    の割合で取得する。
                                 </span>
-                                {% for cash_acquirer in d.2 %}
-                                    {% if forloop.last %}
-                                        {% for name, percentage in cash_acquirer.items %}
-                                            {% if percentage == "１分の１" %}
-                                                {{ name }}が
-                                            {% else %}
-                                                {{ name }}が{{ percentage }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        {% for name, percentage in cash_acquirer.items %}
-                                            {{ name }}が{{ percentage }}、
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endfor %}
-                                の割合で取得する。
                             </p>
                             <div class="property">
                                 {% for property in d.0 %}
@@ -324,7 +328,7 @@
                     <div>
                         <div class="form-text">
                             ※実印（印鑑登録証明書と同じ印鑑）<br>
-                            ※不鮮明なときは、丸枠の近くに押しなおす
+                            ※不鮮明なときは、丸枠の近くに押しなおしてください
                         </div>
                     </div>
                 </div>

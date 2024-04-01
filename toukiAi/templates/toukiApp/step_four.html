@@ -142,31 +142,62 @@
                         申請する法務局が複数箇所ある場合、申請先の法務局の数だけ作成すると全箇所同時に申請することができます。
                     </div>
                 </section>
+                <hr>
             {% endif %}
-            <hr>
-            <section class="container">
-                <div class="form-check mt-3">
-                    <div class="ps-2">
-                        <input class="form-check-input fs-5" type="checkbox" value="" id="CbApplicationForm">
+            {% if principal_names_and_POA_count %}
+                <section class="container">
+                    <div class="form-check mt-3">
+                        <div class="ps-2">
+                            <input class="form-check-input fs-5" type="checkbox" value="" id="CbApplicationForm">
+                        </div>
+                        <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
+                            委任状
+                        </label>
                     </div>
-                    <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
-                        委任状
-                        <span class="ms-3">
-                            ◯通
-                        </span>
-                    </label>
-                </div>
-                <div class="mt-4">
-                    <a href="{% url 'toukiApp:step_POA' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
-                        委任状を確認する
-                    </a>
-                </div>
-                <div class="mt-3">
-                    受任者（代理人）の住所氏名に誤りがないかご確認ください。<br>
-                    不動産を取得する方全員から署名押印（実印）をもらってください。
-                </div>
-            </section>
-            <hr>
+                    <div class="mt-4">
+                        <a href="{% url 'toukiApp:step_POA' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
+                            委任状を確認する
+                        </a>
+                    </div>
+                    <div class="mt-4">
+                        {% if principal_names_and_POA_count|length > 1 %}
+                            以下の方々を委任者、申請手続きをする
+                            <span>
+                                {{agent_name}}さん
+                            </span>
+                            を受任者とする委任状が必要です。
+                        {% else %}
+                            {{principal_names_and_POA_count.0.name}}さんを委任者、申請手続きをする
+                            <span>
+                                {{agent_name}}さん
+                            </span>
+                            を受任者とする委任状が
+                            <span class="fw-bold border-bottom border-secondary">
+                                {{principal_names_and_POA_count.0.count|to_full_width}}通
+                            </span>
+                            必要です。
+                        {% endif %}
+                    </div>
+                    {% if principal_names_and_POA_count|length > 1 %}
+                        <div class="mt-4">
+                            <ol class="list-group">
+                                <span class="fw-bold">
+                                    委任者一覧と各自の通数
+                                </span>
+                                {% for x in principal_names_and_POA_count %}
+                                    <li class="ms-3">
+                                        {{x.name}} さん
+                                        <span class="ms-4">
+                                            {{x.count}}通
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    {% endif %}
+                </section>
+                <hr>
+            {% endif %}
             <section class="container">
                 <div class="form-check mt-3">
                     <div class="ps-2">

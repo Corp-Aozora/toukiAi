@@ -54,7 +54,6 @@ import logging
 import inspect
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 import traceback
-from django.db.models.query import QuerySet
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -1673,27 +1672,7 @@ def get_form_set_class_name(form_set):
     else:
         raise ValidationError("フォームセットにフォームがありません")
 
-def is_data(data):
-    """データが存在するかどうかを判定する。
 
-    Args:
-        data (list, tuple, QuerySet, or any): チェックするデータ。
-
-    Returns:
-        bool: データが存在する場合はTrue、そうでない場合はFalse。
-    """
-    if isinstance(data, QuerySet):
-        return data.exists()
-    elif isinstance(data, (list, tuple)):
-        for x in data:
-            if isinstance(x, QuerySet):
-                if x.exists():
-                    return True
-            elif x:
-                return True
-        return False
-    else:
-        return data is not None
 
 def is_form_set(form_set):
     return form_set.management_form.cleaned_data["TOTAL_FORMS"] > 0
@@ -2646,25 +2625,32 @@ def step_four(request):
     """
     try:
         render_html = "toukiApp/step_four.html"
+        
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
         
+        title = "４．書類の印刷"
         function_name = get_current_function_name()
 
         #相続人情報
         heirs = get_legal_heirs(decedent)
         minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
         overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
-        
+
+        #委任者と通数、受任者氏名を取得する
+        principal_names_and_POA_count, agent_name = get_principal_names_and_POA_count_and_agent_name(decedent)
+
         context = {
-            "title" : "４．書類の印刷",
+            "title" : title,
             "user" : user,
             "decedent": decedent,
             "progress": decedent.progress,
             "heirs": heirs,
             "minors": minors,
             "overseas": overseas,
+            "principal_names_and_POA_count": principal_names_and_POA_count,
+            "agent_name": agent_name,
             "sections" : Sections.SECTIONS[Sections.STEP4],
             "service_content" : Sections.SERVICE_CONTENT,
         }
@@ -2681,19 +2667,94 @@ def step_four(request):
             None,
             None,
         )
-# def generate_division_agreement_pdf(request):
-#     # テンプレートをレンダリングしてHTMLを取得
-#     html_string = render_to_string('step_division_agreement.html', {'some': 'context'})
 
-#     # HTMLをPDFに変換
-#     html = HTML(string=html_string)
-#     pdf = html.write_pdf()
+def get_principal_names_and_POA_count_and_agent_name(decedent):
+    """委任者の氏名、委任状通数と代理人の氏名を取得する
 
-#     # PDFをレスポンスとして返す
-#     response = HttpResponse(pdf, content_type='application/pdf')
-#     response['Content-Disposition'] = 'attachment; filename="遺産分割協議証明書.pdf"'
+    Args:
+        decedent (_type_): _description_
 
-#     return response
+    Raises:
+        ValidationError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    application = get_querysets_by_condition(Application, decedent, is_first=True, check_exsistance=True)
+        
+    #不動産、不動産取得者を紐づける
+    a = relate_property_and_property_acquirer(decedent)
+    #敷地権を追加する
+    b = None
+    if any(property_item["property_type"] == "Bldg" for property_item, _ in a):
+        b = add_site_data_for_application_data(a, decedent)
+    #管轄別に不動産をまとめる
+    c = sort_application_data_by_office(a if b == None else b)
+    #取得者別に不動産をまとめる
+    data = sort_application_data_by_acquirers(c)
+    
+    is_only_acquirer = all(len(d[1]) == 1 for d in data)
+            
+    #代理人を使用しない、かつ取得者が１人のとき委任状不要
+    is_agent = application.is_agent
+    if is_agent == False and is_only_acquirer:
+        return None, None
+
+    result = []
+    for d in data:
+        temp = []
+        seen_temp = set()  # temp内で見たacquirerの識別子を追跡
+        for a in d[1]:
+            acquirer_identifier = (a["acquirer_type"].lower(), a["acquirer_id"], a["name"])
+            if acquirer_identifier not in seen_temp:
+                seen_temp.add(acquirer_identifier)
+                acquirer = {
+                    "model_name": acquirer_identifier[0],
+                    "id": acquirer_identifier[1],
+                    "name": acquirer_identifier[2],
+                }
+                temp.append(acquirer)
+        result.extend(temp)
+
+    # acquirer_listsを辞書のリストから、キーをユニーク識別子とする辞書へと変更
+    acquirer_dict = {}
+    for acquirer in result:
+        # ユニークなキーを生成（model_name, id, nameの組み合わせ）
+        unique_key = (acquirer['model_name'], acquirer['id'])
+
+        if unique_key in acquirer_dict:
+            # 既に辞書に存在する場合はcountを増やす
+            acquirer_dict[unique_key]['count'] += 1
+        else:
+            # 存在しない場合は、新しいエントリを作成
+            acquirer_dict[unique_key] = acquirer.copy()
+            acquirer_dict[unique_key]['count'] = 1
+
+    # 最終的なリスト形式が必要な場合、辞書からリストへ変換
+    acquirer_lists = list(acquirer_dict.values())
+
+    #代理人の氏名を取得する
+    agent_name = None
+    if is_agent:
+        agent_name = application.agent_name
+    else:
+        applicant = {
+            "model_name": application.content_type.model,
+            "id": application.object_id,
+        }
+        # acquirer_listsの辞書からagent_nameを探し、見つかったら削除
+        unique_key_applicant = (applicant['model_name'], applicant['id'])
+        if unique_key_applicant in acquirer_dict:
+            # agent_nameに一致する要素のnameを代入
+            agent_name = acquirer_dict[unique_key_applicant]['name']
+            # 辞書から該当する要素を削除
+            del acquirer_dict[unique_key_applicant]
+
+        # 必要に応じて、辞書からリストへ再変換
+        acquirer_lists = list(acquirer_dict.values())
+
+    return acquirer_lists, agent_name
+    
 
 def step_division_agreement(request):
     """遺産分割協議証明書の表示
@@ -3026,27 +3087,6 @@ def get_exchange_division_properties(property_acquirer_data, cash_acquirer_data)
         raise e
     except Exception as e:
         raise e
-
-def get_wareki(instance, is_birth):
-    """和暦を取得する
-    
-    0000(元号0年)
-
-    Args:
-        instance (_type_): _description_
-        is_birth (bool): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    end_idx = len(instance.birth_year) - 1 if is_birth else len(instance.death_year) - 1
-    if is_birth:
-        birth_date = instance.birth_year[5:end_idx] + instance.birth_month + "月" + instance.birth_date + "日"
-        return mojimoji.han_to_zen(birth_date)
-    else:
-        death_date = instance.death_year[5:end_idx] + instance.death_month + "月" + instance.death_date + "日"
-        return mojimoji.han_to_zen(death_date)
-
 
 def get_decedent_info_for_division_agreement(decedent):
     """遺産分割協議証明書に書く被相続人情報を取得する
@@ -3684,7 +3724,7 @@ def add_site_data_for_application_data(data, decedent):
     Returns:
         _type_: _description_
     """
-    sites = get_queryset_by_decedent(Site, decedent)
+    sites = get_querysets_by_condition(Site, decedent)
 
     formatted_data = []    
     for d in data:
@@ -3732,30 +3772,13 @@ def is_all_site_related(data, sites):
         missing_ids_str = ", ".join(str(id) for id in missing_site_ids)
         raise ValidationError(f"関連付けられていない敷地権があります: {missing_ids_str}")
 
-def get_queryset_by_decedent(model, decedent, related_fields=None):
-    """指定されたモデルに対してdecedentでフィルタし、関連フィールドを結合するクエリセットを返す。
-
-    Args:
-        model (Django model): Djangoのモデルクラス。
-        decedent (_type_): 被相続人。
-        related_fields (list of str, optional): select_relatedで取得するフィールド名のリスト。
-
-    Returns:
-        Django queryset: フィルタリングされ、関連フィールドが結合されたクエリセット。
-    """
-    queryset = model.objects.filter(decedent=decedent)
-    if related_fields:
-        queryset = queryset.select_related(*related_fields)
-    return queryset
-
 def relate_property_and_property_acquirer(decedent):
-    """不動産情報、不動産取得者、申請情報を紐づける
+    """不動産情報、不動産取得者を紐づける
 
     Args:
         decedent (_type_): _description_
     """
     try:
-        related_fields = ["content_type1", "content_type2"]
         property_types = [Land, House, Bldg]
         properties = [{
             "property_type": property_type.__name__,
@@ -3764,7 +3787,7 @@ def relate_property_and_property_acquirer(decedent):
             "purparty": x.purparty,
             "price": x.price,
             "office": x.office,
-        } for property_type in property_types for x in get_queryset_by_decedent(property_type, decedent)]
+        } for property_type in property_types for x in get_querysets_by_condition(property_type, decedent)]
         acquirers = [{
             "property_type": type(x.content_object1).__name__,
             "property_id": x.object_id1,
@@ -3773,7 +3796,7 @@ def relate_property_and_property_acquirer(decedent):
             "name": x.content_object2.name,
             "address": "".join(filter(None, [get_prefecture_name(x.content_object2.prefecture), x.content_object2.city, x.content_object2.address, x.content_object2.bldg])),
             "percentage": x.percentage,
-        } for x in get_queryset_by_decedent(PropertyAcquirer, decedent, related_fields)]
+        } for x in get_querysets_by_condition(PropertyAcquirer, decedent)]
 
         is_properties_and_property_acquirers(properties, acquirers)
         
@@ -3933,6 +3956,48 @@ def step_POA(request):
     Returns:
         _type_: _description_
     """
+    try:
+        render_html = "toukiApp/step_POA.html"
+        responese, user, decedent = check_user_and_decedent(request)
+        if responese:
+            return responese
+        
+        #被相続人の氏名、生年月日、死亡年月日、死亡時の本籍、死亡時の住所
+        decedent_info = get_decedent_info_for_division_agreement(decedent)
+        
+        property_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
+        cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
+        sites = Site.objects.filter(decedent=decedent)
+        
+        #区分建物データがあるとき、敷地権データも存在するかチェック
+        check_bldg_and_site_related(property_acquirer_data, sites)
+        
+        #換価しない不動産と相続人を紐づける
+        normal_division_properties = get_normal_division_properties(property_acquirer_data, cash_acquirer_data)
+        
+        #換価する不動産と相続人を紐づける
+        exchange_division_properties = None
+        if cash_acquirer_data.exists():
+            exchange_division_properties = get_exchange_division_properties(property_acquirer_data, cash_acquirer_data)
+        
+        context = {
+            "title" : "委任状",
+            "decedent_info": decedent_info,
+            "normal_division_properties": normal_division_properties,
+            "exchange_division_properties": exchange_division_properties,
+        }
+        return render(request, render_html, context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request,
+            request.user,
+            get_current_function_name(), 
+            "/toukiApp/step_POA",
+            render_html,
+            None,
+            None
+        )    
 #
 # ステップ5
 #

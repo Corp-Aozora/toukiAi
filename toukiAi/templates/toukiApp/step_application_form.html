@@ -9,8 +9,8 @@
 {% load custom_filters %}
 {% block content %}
 <div class="d-flex container-xxl">
-    <section class="container">
-        <div class="top">
+    <div class="container">
+        <section class="top">
             <p class="fw-bold text-center">
                 こちらのページをA4の縦方向でご印刷ください。<br>
                 PDFが必要でお使いのPCにPDFで印刷する機能がない場合は、お問い合わせからお知らせお願いします。
@@ -63,7 +63,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
         <fieldset id="print_page">
             {% for data in application_data %}
                 <div class="d-flex justify-content-center mt-5">
@@ -317,7 +317,7 @@
                 </div>
             {% endfor %}
         </fieldset>
-    </section>
+    </div>
 </div>
 {% endblock %}
 

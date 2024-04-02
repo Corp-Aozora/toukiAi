@@ -15,6 +15,7 @@ from django.http import HttpResponseForbidden
 import datetime
 import json
 import copy
+from .get_data_for_application_form import *
 from time import sleep
 from django.http import JsonResponse, HttpResponseServerError
 import requests
@@ -24,6 +25,7 @@ from django.contrib import messages
 import textwrap
 import itertools
 import mojimoji
+from typing import List, Dict, Set, Tuple
 from fractions import Fraction
 import unicodedata
 from django.core.mail import BadHeaderError, EmailMessage
@@ -51,7 +53,6 @@ from urllib.parse import urlparse, parse_qs
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from bs4 import BeautifulSoup
 import logging
-import inspect
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 import traceback
 from collections import defaultdict
@@ -778,16 +779,6 @@ def get_legal_heirs(decedent):
     
     return heirs
 
-def get_prefecture_name(prefecture_code):
-    """都道府県コードから都道府県名を取得する
-
-    Args:
-        prefecture_code (_type_): _description_
-
-    Returns:
-        str: prefecture 都道府県
-    """
-    return next((name for code, name in PREFECTURES if code == prefecture_code), "該当なし")
 
 """
 
@@ -1683,11 +1674,6 @@ def is_form_set_count_equal_to_data_count(form_set, data):
 def is_any_exchange_property(form_set):
     return any(form.cleaned_data.get('is_exchange') for form in form_set)
 
-def get_current_function_name():
-    """
-    現在実行中の関数の名前を取得して返すヘルパー関数。
-    """
-    return inspect.currentframe().f_back.f_code.co_name
 
 def id_not_match_message(str1 = None, str2 = None):
     """idが一致しないときのメッセージを返します
@@ -2587,14 +2573,15 @@ def check_user_and_decedent(request):
         request (_type_): _description_
 
     Returns:
-        _type_: redirect
+        _type_: 遷移先のurl
         _type_: user
         _type_: decedent
     """
     function_name = get_current_function_name()
+    
     if not request.user.is_authenticated:
-        messages.error(request, "会員専用ページです。")
-        basic_log(function_name, None, "anonymouse", "非会員が会員登録ページにアクセスを試みました")
+        messages.error(request, "会員登録が必要です。")
+        basic_log(function_name, None, "非会員", "非会員が会員登録ページにアクセスを試みました")
         return redirect(to='/account/login/'), None, None
     
     try:
@@ -2630,13 +2617,13 @@ def step_four(request):
         if response:
             return response
         
-        title = "４．書類の印刷"
+        title = Service.STEP_TITLES["four"]
         function_name = get_current_function_name()
 
-        #相続人情報
+        #相続人情報を取得
         heirs = get_legal_heirs(decedent)
-        minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
-        overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
+        minors = get_filtered_instances(heirs, "is_adult", False)
+        overseas = get_filtered_instances(heirs, "is_japan", False)
 
         #委任者と通数、受任者氏名を取得する
         principal_names_and_POA_count, agent_name = get_principal_names_and_POA_count_and_agent_name(decedent)
@@ -2651,7 +2638,7 @@ def step_four(request):
             "overseas": overseas,
             "principal_names_and_POA_count": principal_names_and_POA_count,
             "agent_name": agent_name,
-            "sections" : Sections.SECTIONS[Sections.STEP4],
+            "sections" : Sections.SECTIONS[Sections.STEP3],
             "service_content" : Sections.SERVICE_CONTENT,
         }
         return render(request, render_html, context)
@@ -2681,17 +2668,8 @@ def get_principal_names_and_POA_count_and_agent_name(decedent):
         _type_: _description_
     """
     application = get_querysets_by_condition(Application, decedent, is_first=True, check_exsistance=True)
-        
-    #不動産、不動産取得者を紐づける
-    a = relate_property_and_property_acquirer(decedent)
-    #敷地権を追加する
-    b = None
-    if any(property_item["property_type"] == "Bldg" for property_item, _ in a):
-        b = add_site_data_for_application_data(a, decedent)
-    #管轄別に不動産をまとめる
-    c = sort_application_data_by_office(a if b == None else b)
-    #取得者別に不動産をまとめる
-    data = sort_application_data_by_acquirers(c)
+    #申請人データを除く（別途の加工が必要なため） 
+    data = get_data_for_application_form(decedent, False)
     
     is_only_acquirer = all(len(d[1]) == 1 for d in data)
             
@@ -3125,20 +3103,37 @@ def step_diagram(request):
     Returns:
         _type_: _description_
     """
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-    
-    user = User.objects.get(email = request.user)
-    decedent = user.decedent.first()
-    
-    if not decedent:
-        return redirect(to='/toukiApp/step_one/')
+    try:
+        render_html = "toukiApp/step_diagram.html"
+        
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+
+        data = get_data_for_application_form(decedent, True)
+
+        #まとまった不動産別に申請データを作成する
+        application_data = get_application_form_data(data, decedent)
+        
+        context = {
+            "title" : "相続関係図",
+            "application_data": application_data,
+            "decedent_name": decedent.name,
+        }
+        return render(request, render_html, context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            get_current_function_name(), 
+            "/toukiApp/step_application_form", 
+            render_html,
+            None, 
+            None
+        )
 
 
-    context = {
-        "title" : "相続関係図",
-    }
-    return render(request, "toukiApp/step_diagram.html", context)
 
 def step_application_form(request):
     """登記申請書の表示
@@ -3151,29 +3146,15 @@ def step_application_form(request):
     """
     try:
         render_html = "toukiApp/step_application_form.html"
+        
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
 
-        #不動産、不動産取得者を紐づける
-        a = relate_property_and_property_acquirer(decedent)
-        
-        #敷地権を追加する
-        b = None
-        if any(property_item["property_type"] == "Bldg" for property_item, _ in a):
-            b = add_site_data_for_application_data(a, decedent)
-        
-        #管轄別に不動産をまとめる
-        c = sort_application_data_by_office(a if b == None else b)
-        
-        #取得者別に不動産をまとめる
-        d = sort_application_data_by_acquirers(c)
-        
-        #申請情報を追加する
-        e = add_application_data(d, decedent)
+        data = get_data_for_application_form(decedent, True)
 
         #まとまった不動産別に申請データを作成する
-        application_data = get_application_form_data(e, decedent)
+        application_data = get_application_form_data(data, decedent)
         
         context = {
             "title" : "登記申請書",
@@ -3332,7 +3313,7 @@ def assign_price_and_property(form, properties, sites, acquirers):
         if p["property_type"] == "Bldg":
             #敷地権の種類と敷地権の割合も考慮する
             for s in sites:
-                if p["id"] == s["bldg"]:
+                if p["property_id"] == s["bldg"]:
                     site_data = {
                         "site_number": s["number"],
                         "site_type": s["type"],
@@ -3401,7 +3382,7 @@ def assign_acquirer_name_and_actual_percentage(form, acquirers, property):
         # 不動産の種類とIDが一致する取得者、または取得者が1人しかいない場合に処理を実行
         if len(acquirers) == 1 or\
             (property["property_type"] == acquirer["property_type"] and\
-            property["id"] == acquirer["property_id"]):
+            property["property_id"] == acquirer["property_id"]):
                 
             name = acquirer["name"]
             percentage = multiple_fullwidth_fractions(acquirer["percentage"], property["purparty"])
@@ -3445,7 +3426,10 @@ def get_property_form():
         _type_: _description_
     """
     return {
+        "property_type": "",
         "number": "",
+        "address": "",
+        "address_number": "",
         "acquirers": [],
         "sites": [],
         "is_tax_free": "false",
@@ -3606,345 +3590,6 @@ def get_purpose_of_registration(properties, decedent_name):
     if is_sharer:
         return f"{decedent_name}持分全部移転"
 
-def get_applicant_form():
-    """申請人データ用のフォーム
-
-    Returns:
-        dict: Applicationのデータを格納する
-    """
-    return {
-        "content_object": "",
-        "phone_number": "",
-        "is_agent": "false",
-        "position": "",
-        "agent_name": "",
-        "agent_address": "",
-        "agent_phone_number": "",
-        "is_return": "",
-        "is_mail": "",
-    }
-
-def add_application_data(data, decedent):
-    """申請人情報を追加する
-
-    pattern 0:データをそのまま反映する
-        代理人を使用するとき
-        代理人を使用しない、かつ取得者が１人のとき
-    pattern 1:申請人兼代理人扱い
-        申請人、かつ取得者が２人以上のとき
-    pattern 2:申請人を代理人扱い
-        申請人、かつ取得者ではないとき
-    
-    Args:
-        data (_type_): _description_
-        decedent (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    application = Application.objects.filter(decedent=decedent).first()
-    if not application:
-        raise ValidationError("申請情報データがありません")
-    
-    applicant_content_type = type(application.content_object).__name__
-    applicant_object_id = application.object_id
-    
-    formatted_data = []
-    for d in data:
-        properties, acquirers = d[:2]
-        sites_list = d[2] if len(d) > 2 else []
-
-        pattern = 2
-        if application.is_agent:
-            pattern = 0
-        elif any(
-                acquirer["acquirer_type"] == applicant_content_type and
-                acquirer["acquirer_id"] == applicant_object_id
-                for acquirer in acquirers
-            ):
-            pattern = 0 if len(acquirers) == 1 else 1
-            
-        #取得者になっていないとき代理人に変更する
-        applicant_form = assign_applicant_data(pattern, application)
-        formatted_data.append((properties, acquirers, [applicant_form], sites_list))
-    
-    return formatted_data
-
-def assign_applicant_data(pattern, data):
-    """申請人データを登録する
-    
-    pattern 0:データをそのまま反映する
-    pattern 1:申請人兼代理人扱い
-    pattern 2:申請人を代理人扱い
-
-    Args:
-        pattern (num): 上記patternのとおり
-        data (Application): Applicationから取得したクエリセット
-    """
-    form = get_applicant_form()
-    form.update({
-        "content_object": data.content_object,
-        "is_return": data.is_return,
-        "is_mail": data.is_mail,
-    })
-    
-    if pattern == 0:
-        form.update({
-            "position": "代理人" if data.is_agent else "",
-            "phone_number": data.phone_number,
-            "is_agent": data.is_agent,
-            "agent_name": data.agent_name,
-            "agent_address": data.agent_address,
-            "agent_phone_number": data.agent_phone_number,
-        })
-    else:
-        address = "".join([
-            get_prefecture_name(data.content_object.prefecture),
-            data.content_object.city,
-            data.content_object.address,
-            data.content_object.bldg or ""
-        ])
-        form.update({
-            "position": "申請人兼代理人" if pattern == 1 else "代理人",
-            "is_agent": "true",
-            "agent_name": data.content_object.name,
-            "agent_address": address,
-            "agent_phone_number": data.phone_number,
-        })
-        
-    return form
-
-def add_site_data_for_application_data(data, decedent):
-    """申請データに敷地権を追加する
-
-    Args:
-        data (_type_): _description_
-        decedent (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    sites = get_querysets_by_condition(Site, decedent)
-
-    formatted_data = []    
-    for d in data:
-        if d[0]["property_type"] == "Bldg":
-            related_sites = []
-            for site in sites:
-                if d[0]["id"] == site.bldg_id:
-                    add_data = {
-                        "bldg": site.bldg_id,
-                        "id": site.id,
-                        "number": site.number,
-                        "type": site.type,
-                        "purparty": site.purparty_bottom + "分の" + site.purparty_top,
-                        "price": site.price,
-                    }
-                    related_sites.append(add_data)
-            if related_sites:
-                formatted_data.append((d[0], d[1], related_sites))
-        else:
-            formatted_data.append((d[0], d[1]))
-    
-    is_all_site_related(formatted_data, sites)
-    
-    return formatted_data
-            
-def is_all_site_related(data, sites):
-    """敷地権が全て関連付けされたか確認する
-
-    Args:
-        data (_type_): _description_
-        sites (_type_): _description_
-
-    Raises:
-        ValidationError: _description_
-    """
-    result_site_ids = set()
-    for d in data:
-        if d[0]["property_type"] == "Bldg":
-            result_site_ids.update(x["id"] for x in d[2])
-
-    all_site_ids = set(site.id for site in sites)
-    missing_site_ids = all_site_ids - result_site_ids
-
-    if missing_site_ids:
-        missing_ids_str = ", ".join(str(id) for id in missing_site_ids)
-        raise ValidationError(f"関連付けられていない敷地権があります: {missing_ids_str}")
-
-def relate_property_and_property_acquirer(decedent):
-    """不動産情報、不動産取得者を紐づける
-
-    Args:
-        decedent (_type_): _description_
-    """
-    try:
-        property_types = [Land, House, Bldg]
-        properties = [{
-            "property_type": property_type.__name__,
-            "id": x.id,
-            "number": x.number,
-            "purparty": x.purparty,
-            "price": x.price,
-            "office": x.office,
-        } for property_type in property_types for x in get_querysets_by_condition(property_type, decedent)]
-        acquirers = [{
-            "property_type": type(x.content_object1).__name__,
-            "property_id": x.object_id1,
-            "acquirer_type": type(x.content_object2).__name__,
-            "acquirer_id": x.object_id2,
-            "name": x.content_object2.name,
-            "address": "".join(filter(None, [get_prefecture_name(x.content_object2.prefecture), x.content_object2.city, x.content_object2.address, x.content_object2.bldg])),
-            "percentage": x.percentage,
-        } for x in get_querysets_by_condition(PropertyAcquirer, decedent)]
-
-        is_properties_and_property_acquirers(properties, acquirers)
-        
-        formatted_data = []
-        for property_item in properties:
-            matching_acquirers = [acquirer for acquirer in acquirers if acquirer["property_type"] == property_item["property_type"] and acquirer["property_id"] == property_item["id"]]
-            if matching_acquirers:
-                formatted_data.append((property_item, matching_acquirers))
-        
-        is_all_properties_and_property_acquirers_related(formatted_data, properties, acquirers)
-
-        return formatted_data
-    except Exception as e:
-        raise e
-
-def is_all_properties_and_property_acquirers_related(data, properties, acquirers):
-    """不動産と不動産取得者が全て関連付けられたかチェックする
-
-    Args:
-        data (_type_): _description_
-        properties (_type_): _description_
-        acquirers (_type_): _description_
-    """
-    # properties と acquirers が全て関連付けられたかを確認する
-    properties_ids_set = {item["id"] for item in properties}
-    acquirers_ids_set = {item["property_id"] for item in acquirers}
-
-    # 関連データから properties と acquirers の ID を集める
-    related_properties_ids = {item[0]["id"] for item in data}
-    related_acquirers_ids = {acq["property_id"] for _, acqs in data for acq in acqs}
-
-    # 未関連の properties と acquirers を見つける
-    unrelated_properties_ids = properties_ids_set - related_properties_ids
-    unrelated_acquirers_ids = acquirers_ids_set - related_acquirers_ids
-
-    if unrelated_properties_ids:
-        raise ValidationError(f"関連付けられなかった properties のID: {unrelated_properties_ids}")
-    if unrelated_acquirers_ids:
-        raise ValidationError(f"関連付けられなかった acquirers のID: {unrelated_acquirers_ids}")    
-
-def is_properties_and_property_acquirers(properties, acquirers):
-    """不動産と不動産取得者の存在チェック
-
-    Args:
-        properties (Land, House, Bldg[]): _description_
-        acquirers (_type_): _description_
-
-    Raises:
-        ValidationError: _description_
-
-    Returns:
-        _type_: _description_
-    """
-    if not is_data(properties):
-        raise ValidationError("不動産データがありません")
-    if not is_data(acquirers):
-        raise ValidationError("不動産取得者データがありません")
-
-def sort_application_data_by_office(data):
-    """管轄別に不動産を分ける
-
-    Args:
-        lands (_type_): _description_
-        houses (_type_): _description_
-        bldgs (_type_): _description_
-    """
-    # data のデータを office の値に基づいてグループ化
-    office_groups = defaultdict(list)
-    for d in data:
-        office = d[0]['office']  # 仮に d[0] が property の情報を持ち、その中に 'office' キーが存在すると仮定
-        office_groups[office].append(d)
-
-    # 新しいリストを office のグループに基づいて構築
-    formatted_data = []
-    for office, items in office_groups.items():
-        properties = [item[0] for item in items]  # 同じ office を持つ property データ
-        acquirers_list = [item[1] for item in items]  # 同じ office を持つ acquirers データ
-        # data[2] が存在する場合はそれも含める
-        additional_data = [item[2] for item in items if len(item) > 2]
-        formatted_data.append((properties, acquirers_list, additional_data))
-
-    return formatted_data
-
-def sort_application_data_by_acquirers(data):
-    """取得者別に不動産を分ける
-
-    Args:
-        data (_type_): _description_
-    """
-    formatted_data = [] 
-    for d in data:
-        properties, acquirers_list = d[:2]
-        sites_list = d[2] if len(d) > 2 else []
-        
-        compare_list = copy.deepcopy(acquirers_list)
-        integrated_data = copy.deepcopy(acquirers_list)
-        for i, acquirers in enumerate(acquirers_list):
-            #同じ取得者をまとめる
-            for j, compares in enumerate(compare_list):
-                if i == j:
-                    continue
-                
-                if len(acquirers) == len(compares):
-                    for k, acquirer in enumerate(acquirers):
-                        is_match = False
-                        for l, c in enumerate(compares):
-                            if acquirer["acquirer_type"] == c["acquirer_type"] and\
-                                acquirer["acquirer_id"] == c["acquirer_id"]:
-                                is_match = True
-                                if k == len(acquirers) - 1:
-                                    for x in acquirers:
-                                        integrated_data[j].append(x)
-                                else:
-                                    break
-                        if not is_match:
-                            break
-        
-        #取得者の重複解消                    
-        seen = set()
-        unique_list = []
-        for lst in integrated_data:
-            ident = frozenset(tuple(sorted(d.items())) for d in lst)
-            if ident not in seen:
-                seen.add(ident)
-                unique_list.append(lst)
-
-        #他のデータを追加する
-        for uniques in unique_list:
-            property_data = []
-            site_data = []
-            for u in uniques:
-                for p in properties:
-                    if u["property_type"] == p["property_type"] and\
-                        u["property_id"] == p["id"]:
-                        if p not in property_data:
-                            property_data.append(p)
-                        break
-                    
-                if u["property_type"] == "Bldg":
-                    for sites in sites_list:
-                        if sites[0]["bldg"] == u["property_id"]:
-                            for site in sites:
-                                if site not in site_data:                                
-                                    site_data.append(site)
-            formatted_data.append((property_data, uniques, site_data))
-    
-    return formatted_data
-
 def step_POA(request):
     """委任状を表示する
     
@@ -3958,46 +3603,102 @@ def step_POA(request):
     """
     try:
         render_html = "toukiApp/step_POA.html"
-        responese, user, decedent = check_user_and_decedent(request)
-        if responese:
-            return responese
-        
-        #被相続人の氏名、生年月日、死亡年月日、死亡時の本籍、死亡時の住所
-        decedent_info = get_decedent_info_for_division_agreement(decedent)
-        
-        property_acquirer_data = PropertyAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
-        cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent).select_related('content_type1', 'content_type2')
-        sites = Site.objects.filter(decedent=decedent)
-        
-        #区分建物データがあるとき、敷地権データも存在するかチェック
-        check_bldg_and_site_related(property_acquirer_data, sites)
-        
-        #換価しない不動産と相続人を紐づける
-        normal_division_properties = get_normal_division_properties(property_acquirer_data, cash_acquirer_data)
-        
-        #換価する不動産と相続人を紐づける
-        exchange_division_properties = None
-        if cash_acquirer_data.exists():
-            exchange_division_properties = get_exchange_division_properties(property_acquirer_data, cash_acquirer_data)
-        
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+
+        data = get_data_for_application_form(decedent, True)
+
+        #まとまった不動産別に委任状データを作成する
+        POA_data = get_POA_data(data, decedent)
         context = {
-            "title" : "委任状",
-            "decedent_info": decedent_info,
-            "normal_division_properties": normal_division_properties,
-            "exchange_division_properties": exchange_division_properties,
+            "title" : "登記申請書",
+            "POA_data": POA_data,
+            "decedent_name": decedent.name,
         }
         return render(request, render_html, context)
     except Exception as e:
         return handle_error(
             e, 
-            request,
-            request.user,
+            request, 
+            user, 
             get_current_function_name(), 
-            "/toukiApp/step_POA",
+            "/toukiApp/step_POA", 
             render_html,
-            None,
+            None, 
             None
-        )    
+        )
+        
+def get_POA_data(data, decedent):
+    """委任状に反映する情報を取得する
+
+    Args:
+        data (_type_): _description_
+        decedent (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    formatted_data = []
+    cause = get_wareki(decedent, False)
+    for properties, acquirers, applications, sites in data:
+        form = get_application_form()
+        application = applications[0]
+        #登記の目的
+        form["purpose_of_registration"] = get_purpose_of_registration(properties, decedent.name)
+        #登記の原因
+        form["cause"] = cause
+        #相続人
+        form["acquirers"] = get_acquirers_info(form["purpose_of_registration"], acquirers, applications)
+        #代理人情報
+        assign_agent_data(form, application)
+        #不動産情報
+        assign_properties_info(form, properties, sites, acquirers)
+        if form["agent"]["name"] != "":
+            formatted_data.append(form)
+            
+    return formatted_data    
+
+def finalize_for_POA(form):
+    new_form = [f for f in form if f["agent"]["name"]]
+    return new_form
+            
+
+def assign_properties_info(form, properties, sites, acquirers):
+    """不動産情報を取得する
+
+    Args:
+        form (_type_): POA_form
+        properties (_type_): 対象の申請書の不動産情報
+        sites (_type_): 対象の申請書の敷地権情報
+        acquirers (_type_): 対象の申請書の取得者情報
+    """
+    for p in properties:
+        property_form = get_property_form()
+        property_form["property_type"] = p["property_type"] #不動産番号
+        property_form["number"] = p["number"] #不動産番号
+        property_form["address"] = p["address"]
+        property_form["address_number"] = p["address_number"]
+        #取得者の氏名と持分を取得する
+        assign_acquirer_name_and_actual_percentage(property_form, acquirers, p)
+      
+        #区分建物のとき
+        if p["property_type"] == "Bldg":
+            #敷地権の種類と敷地権の割合も考慮する
+            for s in sites:
+                if p["property_id"] == s["bldg"]:
+                    site_data = {
+                        "site_number": s["number"],
+                        "site_type": s["type"],
+                        "address_and_land_number": s["address_and_land_number"],
+                        "site_purparty": s["purparty"],
+                        "is_tax_free": "false",
+                    }
+                    property_form["sites"].append(site_data)
+
+        form["properties"].append(property_form)
+    
+    return form
 #
 # ステップ5
 #
@@ -4197,15 +3898,16 @@ def get_heirs_city_data(request):
         return JsonResponse({'エラー原因': '想定しないエラー', '詳細': str(e)}, status=500)
     
 def fetch_data_with_retry(url, max_retries=3, delay=5, headers=None):
-    """api通信の際のリトライ処理
+    """API通信とリトライ処理
 
     Args:
-        url (_type_): _description_
-        max_retries (int, optional): _description_. Defaults to 3.
-        delay (int, optional): _description_. Defaults to 5.
+        url (str): APIのURL。
+        max_retries (int, optional): 最大リトライ回数。デフォルトは3。
+        delay (int, optional): リトライ間の遅延時間(秒)。デフォルトは5。
+        headers (dict, optional): リクエストヘッダー。デフォルトはNone。
 
     Returns:
-        _type_: _description_
+        requests.Response or None: 成功時はResponseオブジェクト、失敗時はNoneを返す。
     """
     for _ in range(max_retries):
         response = requests.get(url, headers=headers) if headers else requests.get(url)
@@ -4216,7 +3918,7 @@ def fetch_data_with_retry(url, max_retries=3, delay=5, headers=None):
     # リトライしても成功しない場合
     return None
     
-def get_city(request):
+def get_city_from_resas(prefecture):
     """RESASapiから都道府県コードに紐づく市区町村データを取得する
 
     国土地理院のものが使用できないときのためのサブ
@@ -4227,61 +3929,61 @@ def get_city(request):
     Returns:
         _type_: _description_
     """
+    url = f"https://opendata.resas-portal.go.jp/api/v1/cities?prefCode={prefecture}"
+    api_key = os.getenv("RESAS_API_KEY")
+    headers = {"X-API-KEY": api_key}
+    response = fetch_data_with_retry(url, headers=headers)
+
+    if response:
+        #[{"prefCode": val}, {"cityName": val}]の形式にして返す
+        data = response.json()["result"]
+        return [{'prefCode': r.get('prefCode'), 'cityName': r.get('cityName')} for r in data if 'cityName' in r]
+    else:
+        return None
+
+
+def get_city_from_reinfolib(prefecture):
+    """入力された都道府県コードを使って国交省の不動産情報ライブラリから市区町村データを取得する
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    url = f"https://www.reinfolib.mlit.go.jp/ex-api/external/XIT002?area={prefecture}"
+    api_key = os.getenv("CITY_API_KEY")
+    headers = {"Ocp-Apim-Subscription-Key": api_key}
+    response = fetch_data_with_retry(url, headers=headers)
+
+    if response:
+        #[{"prefCode": val}, {"cityName": val}]の形式にして返す
+        data = response.json()["data"]
+        return [{'prefCode': int(prefecture), 'cityName': r['name']} for r in data]
+    else:
+        basic_log(get_current_function_name(), {response.status_code}, None, "不動産情報ライブラリのapi通信エラー")
+        return None
+
+def get_city(request):
+    """入力された都道府県コードを使って市区町村データを取得
+    """
     try:
         data = json.loads(request.body)
-        prefecture = int(data["prefecture"])
+        prefecture = data["prefecture"]
         
-        url = f"https://opendata.resas-portal.go.jp/api/v1/cities?prefCode={prefecture}"
-        
-        # APIキー（環境変数から取得するなど、安全に管理してください）
-        api_key = os.getenv("RESAS_API_KEY")
-        # リクエストヘッダー
-        headers = {"X-API-KEY": api_key}
-        
-        # APIリクエストを実行
-        response = fetch_data_with_retry(url, headers=headers)
-
-        if response.status_code == 200:
-            #[{"prefCode": val}, {"cityName": val}]の形式にして返す
-            data = response.json()
-            result = data["result"]
-            data = [{'prefCode': r.get('prefCode'), 'cityName': r.get('cityName')} for r in result if 'cityName' in r]
-            return JsonResponse({"data": data,})
-            
+        # 先に国土交通省の不動産情報ライブラリを試みる
+        city_data = get_city_from_reinfolib(prefecture)
+        if city_data is None:
+            # 国土交通省のAPIが利用不可能な場合、RESASのAPIを利用
+            city_data = get_city_from_resas(int(prefecture))
+        if city_data:
+            return JsonResponse({"data": city_data})
         else:
-            basic_log(get_current_function_name(), {response.status_code}, request.user, "RESASのapi通信エラー")
-            return JsonResponse({"詳細": f"サブの市区町村取得API通信エラー {response.status_code}"}, status=response.status_code)
+            basic_log(get_current_function_name(), None, request.user, "市区町村データ取得のapi通信エラー")
+            return JsonResponse({"詳細": "市区町村データの取得に失敗しました。"}, status=500)
     except Exception as e:
         return JsonResponse({"e": str(e)}, status=500)
 
-# 選択された都道府県から市区町村データを取得する
-# def get_city(request):
-#     """入力された都道府県コードを使って国交省の不動産情報ライブラリから市区町村データを取得する
-
-#     Args:
-#         request (_type_): _description_
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     try:
-#         data = json.loads(request.body)
-#         prefecture = data["prefecture"]
-            
-#         url = "https://www.land.mlit.go.jp/webland/api/CitySearch?area=" + prefecture
-
-#         response = fetch_data_with_retry(url)
-        
-#         if response:
-#             response = response.json()
-#             result = response['data']
-#             # data = [{'prefCode': r.get('prefCode'), 'cityName': r.get('cityName')} for r in result if 'cityName' in r]
-#             return JsonResponse({"data": ""})
-#         else:
-#             basic_log(get_current_function_name(), {response.status_code}, request.user, "不動産情報ライブラリのapi通信エラー")
-#             return JsonResponse({"詳細": f"市区町村取得API通信エラー {response.status_code}"}, status=response.status_code)
-#     except Exception as e:
-#         return JsonResponse({"e": str(e)}, status=500)
 
 # 入力された不動産番号から法務局データを取得する
 def get_office(request):

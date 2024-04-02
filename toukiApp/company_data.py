@@ -30,9 +30,18 @@ class Service:
     OPTION2_NAME = "弊社提携の司法書士に依頼"
     OPTION2_PRICE = "８８，０００円"
     OPTION2_PRICE_INT = 88000
-
     
     OPTIONS = [
         {"name" : OPTION1_NAME, "price" : OPTION1_PRICE},
         {"name" : OPTION2_NAME, "price" : OPTION2_PRICE},
     ]
+
+    STEP_TITLES = {
+        "one": "１．基本データ入力",
+        "two": "２．必要書類一覧",
+        "three": "３．詳細データ入力",
+        "four": "４．書類作成",
+        "five": "５．法務局に提出",
+        "six": "申請後について",
+        "inquiry": "お問い合わせ",
+    }

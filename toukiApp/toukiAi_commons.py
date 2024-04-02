@@ -1,6 +1,8 @@
 import mojimoji
 from django.db.models.query import QuerySet
 from django.core.exceptions import ValidationError
+import inspect
+from .prefectures_and_city import *
 
 def fullwidth_num(number):
     """半角数字を全角数字に変換する関数
@@ -125,3 +127,31 @@ def get_querysets_by_condition(models, decedent, filter_conditions=None, is_firs
             results.extend(queryset)
 
     return results if len(models) > 1 or not is_first else results[0]
+
+def get_filtered_instances(instances, attribute_name, expected_value):
+    """渡されたインスタンスを格納したリスト、クエリセットから特定の要素を取得する"""
+    return [
+        x for x in instances
+        if hasattr(x, attribute_name) and getattr(x, attribute_name) == expected_value
+    ]
+
+def get_current_function_name():
+    """現在実行中の関数の名前を取得して返すヘルパー関数。"""
+    return inspect.currentframe().f_back.f_code.co_name
+
+def compare_dict_by_two_key(x, y, key_one, key_two):
+    """２つの辞書のうち２つのキーの値を比較する
+    主にtypeとidを比較して要素の同一性を確認するためのもの
+    """
+    return x[key_one] == y[key_one] and x[key_two] == y[key_two]
+
+def get_prefecture_name(prefecture_code):
+    """都道府県コードから都道府県名を取得する
+
+    Args:
+        prefecture_code (_type_): _description_
+
+    Returns:
+        str: prefecture 都道府県
+    """
+    return next((name for code, name in PREFECTURES if code == prefecture_code), "該当なし")

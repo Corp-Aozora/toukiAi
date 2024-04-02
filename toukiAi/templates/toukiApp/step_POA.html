@@ -9,8 +9,8 @@
 {% load custom_filters %}
 {% block content %}
 <div class="d-flex container-xxl">
-    <fieldset class="container">
-        <div class="top">
+    <div class="container">
+        <section class="top">
             <p class="fw-bold text-center">
                 こちらのページをA4の縦方向でご印刷ください。<br>
                 PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせからお知らせお願いします。
@@ -30,7 +30,7 @@
                     </p>
                     <div class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
-                            遺産分割協議証明書が２枚以上になっているとき
+                            ２枚以上になる委任状があるとき
                         </span><br>
                         <div class="ms-3">
                             署名欄の押印以外に
@@ -58,283 +58,216 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="d-flex justify-content-center mt-5">
+        </section>
+        <section class="d-flex justify-content-center mt-5">
             <div id="print_page">
-                <div class="mt-5">
-                    <h5 class="text-center">
-                        遺産分割協議証明書
-                    </h5>
-                </div>
-                <div class="decedent_info">
-                    <div>
-                        <div>
-                            被相続人
+                {% for data in POA_data %}
+                    <div class="print_per_section">
+                        <div class="mt-5">
+                            <h5 class="text-center">
+                                委任状
+                            </h5>
                         </div>
-                        <div>
-                            {{decedent_info.name}}
+                        <div class="mt-4">
+                            <div class="text-center">
+                                <div>
+                                    {{data.agent.address}}
+                                </div>
+                                <div class="mt-3">
+                                    {{data.agent.name}}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <div>
-                            生年月日
+                        <div class="sentence">
+                            私は、上記の者を代理人と定め、下記登記申請に関する一切の権限を委任します。
                         </div>
-                        <div>
-                            {{decedent_info.birth_date}}
+                        <div class="text-center mt-3">
+                            <span>
+                                記
+                            </span>
                         </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡年月日
-                        </div>
-                        <div>
-                            {{decedent_info.death_date}}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡時の本籍
-                        </div>
-                        <div>
-                            {{decedent_info.permanent_address}}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡時の住所
-                        </div>
-                        <div>
-                            {{decedent_info.address}}
-                        </div>
-                    </div>
-                </div>
-                <div class="sentence">
-                    上記被相続人が死亡したことにより開始した相続について、共同相続人全員は、下記の通り遺産を分割することに合意した。
-                </div>
-                <div class="text-center mt-3">
-                    <span>
-                        記
-                    </span>
-                </div>
-                {% if normal_division_properties %}
-                    {% for d in normal_division_properties %}
-                        <div class="content mt-3">
-                            <p>
-                                <span class="border-bottom border-secondary">
-                                    下記不動産は、
-                                    {% for acquirer in d.1 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    取得する。
-                                </span>
-                            </p>
-                            <div class="property">
-                                {% for property in d.0 %}
-                                    <div>
-                                        <div>
-                                            {{ property.address }}
-                                            {% if property|classname == "Land" %}
-                                                {{ property.land_number }}の土地
-                                            {% elif property|classname == "House" %}
-                                                {{ property.house_number }}の建物
-                                            {% elif property|classname == "Bldg" %}
-                                                {{ property.bldg_number }}の区分建物
-                                            {% endif %}
+                        <fieldset class="content">
+                            <div class="overview">
+                                <ul>
+                                    <li class="mt-4">
+                                        <div class="headword">
+                                            登記の目的
                                         </div>
-                                        {% if property.purparty != "１分の１" %}
-                                            <div class="ms-3">
-                                                （{{decedent_info.name}}の持分{{ property.purparty }}）
+                                        <div>
+                                            {{data.purpose_of_registration}}
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="headword">
+                                            原因
+                                        </div>
+                                        <div>
+                                            {{data.cause}}相続
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="headword">
+                                            相続人
+                                        </div>
+                                        <div>
+                                            <div>
+                                                <span>
+                                                    （被相続人
+                                                </span>
+                                                <span class="ms-3">
+                                                    {{decedent_name}}）
+                                                </span>
                                             </div>
-                                        {% endif %}
-                                        {% if property|classname == "Bldg" %}
-                                            {% for site in sites %}
-                                                {% if site.bldg.id == property.id %}
-                                                <div class="site">
+                                            {% for acquirer in data.acquirers %}
+                                                <div>
+                                                    {{acquirer.address}}
+                                                </div>
+                                                <div class="ms-4 d-flex">
                                                     <div>
-                                                        <div>
-                                                            土地の符号{{site.number}}
-                                                        </div>
-                                                        <div>
-                                                            {{site.address_and_land_number}}
-                                                        </div>
+                                                        {% if acquirer.is_share == "true" %}
+                                                            {{acquirer.percentage_phrase}}
+                                                        {% endif %}
                                                     </div>
-                                                    <div>
+                                                    <div class="d-flex justify-content-between ms-3">
                                                         <div>
-                                                            敷地権の種類
-                                                        </div>
-                                                        <div>
-                                                            {{site.type}}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の割合
-                                                        </div>
-                                                        <div>
-                                                            {{site.purparty_bottom}}分の{{site.purparty_top}}
+                                                            {{acquirer.name}}
                                                         </div>
                                                     </div>
                                                 </div>
-                                                {% endif %}
                                             {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                {% if exchange_division_properties %}
-                    {% for d in exchange_division_properties %}
-                        <div class="content mt-3">
-                            <p>
-                                <span class="border-bottom border-secondary">
-                                    下記不動産は、
-                                    {% for acquirer in d.1 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    取得する。<br>
-                                    <span class="ms-3">
-                                        なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
-                                    </span>
-                                    {% for cash_acquirer in d.2 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in cash_acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in cash_acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    の割合で取得する。
-                                </span>
-                            </p>
-                            <div class="property">
-                                {% for property in d.0 %}
-                                    <div>
-                                        <div>
-                                            {{ property.address }}
-                                            {% if property|classname == "Land" %}
-                                                {{ property.land_number }}の土地
-                                            {% elif property|classname == "House" %}
-                                                {{ property.house_number }}の建物
-                                            {% elif property|classname == "Bldg" %}
-                                                {{ property.bldg_number }}の区分建物
-                                            {% endif %}
                                         </div>
-                                        {% if property.purparty != "１分の１" %}
-                                            <div class="ms-3">
-                                                （{{decedent_info.name}}の持分{{ property.purparty }}）
-                                            </div>
-                                        {% endif %}
-                                        {% if property|classname == "Bldg" %}
-                                            {% for site in sites %}
-                                                {% if site.bldg.id == property.id %}
-                                                <div class="site">
+                                    </li>
+                                    <li>
+                                        <div class="headword">
+                                            不動産の表示
+                                        </div>
+                                        <div class="property">
+                                            {% for property in data.properties %}
+                                                <div>
                                                     <div>
-                                                        <div>
-                                                            土地の符号{{site.number}}
-                                                        </div>
-                                                        <div>
-                                                            {{site.address_and_land_number}}
-                                                        </div>
+                                                        {{ property.address }}
+                                                        {% if property.property_type == "Land" %}
+                                                            {{ property.address_number }}の土地
+                                                        {% elif property.property_type == "House" %}
+                                                            {{ property.address_number }}の建物
+                                                        {% elif property.property_type == "Bldg" %}
+                                                            {{ property.address_number }}の区分建物
+                                                        {% endif %}
                                                     </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の種類
+                                                    {% if property.sites %}
+                                                        <div class="ms-3">
+                                                            敷地権の表示
                                                         </div>
-                                                        <div>
-                                                            {{site.type}}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の割合
-                                                        </div>
-                                                        <div>
-                                                            {{site.purparty_bottom}}分の{{site.purparty_top}}
-                                                        </div>
-                                                    </div>
+                                                        {% for site in property.sites %}
+                                                            <div class="site">
+                                                            
+                                                                <div>
+                                                                    <div>
+                                                                        土地の符号{{site.site_number}}
+                                                                    </div>
+                                                                    <div>
+                                                                        {{site.address_and_land_number}}
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div>
+                                                                        敷地権の種類
+                                                                    </div>
+                                                                    <div>
+                                                                        {{site.site_type}}
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div>
+                                                                        敷地権の割合
+                                                                    </div>
+                                                                    <div>
+                                                                        {{site.site_purparty}}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    {% if data.purpose_of_registration != "所有権移転" %}
+                                                        {% for acquirer in property.acquirers %}
+                                                            <div class="ms-5 d-flex">
+                                                                <div>
+                                                                    {{acquirer.percentage}}
+                                                                </div>
+                                                                <div class="ms-3">
+                                                                    {{acquirer.name}}
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% endif %}
                                                 </div>
-                                                {% endif %}
                                             {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
+                            <div class="letter">
+                                <ul>
+                                    <li>
+                                        １．原本還付請求及び受領に関する一切の件
+                                    </li>
+                                    <li>
+                                        １．登記申請の取り下げ又は補正に関する一切の件
+                                    </li>
+                                    <li>
+                                        １．再使用証明の請求及び受領に関する一切の件
+                                    </li>
+                                    <li>
+                                        １．登記識別情報通知書及び登記完了証の受領に関する一切の件
+                                    </li>
+                                    <li>
+                                        １．上記事項に関する復代理人選任に関する一切の件
+                                    </li>
+                                </ul>
+                            </div>
+                        </fieldset>
+                        <div class="end text-end">
+                            <span>
+                                以上
+                            </span>
                         </div>
-                    {% endfor %}
-                {% endif %}
-                <div class="end text-end">
-                    <span>
-                        以上
-                    </span>
-                </div>
-                <div class="signature">
-                    <div>
-                        <span>
-                            令和
-                        </span>
-                        <span>
-                            年
-                        </span>
-                        <span>
-                            月
-                        </span>
-                        <span>
-                            日（記入日）
-                        </span>
+                        <fieldset class="signature">
+                            <div>
+                                <span>
+                                    令和
+                                </span>
+                                <span>
+                                    年
+                                </span>
+                                <span>
+                                    月
+                                </span>
+                                <span>
+                                    日（記入日）
+                                </span>
+                            </div>
+                            <div>
+                                住所
+                            </div>
+                            <div>
+                                <div>
+                                    氏名
+                                </div>
+                                <div class="stamp_box">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-text">
+                                    ※実印（印鑑登録証明書と同じ印鑑）<br>
+                                    ※不鮮明なときは、丸枠の近くに押しなおしてください
+                                </div>
+                            </div>
+                        </fieldset>
                     </div>
-                    <div>
-                        住所
-                    </div>
-                    <div>
-                        <div>
-                            氏名
-                        </div>
-                        <div class="stamp_box">
-                        </div>
-                    </div>
-                    <div>
-                        <div class="form-text">
-                            ※実印（印鑑登録証明書と同じ印鑑）<br>
-                            ※不鮮明なときは、丸枠の近くに押しなおしてください
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
-        </div>
-    </fieldset>
+        </section>
+    </div>
 </div>
 {% endblock %}
 

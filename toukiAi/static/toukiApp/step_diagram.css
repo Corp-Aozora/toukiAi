@@ -1,0 +1,92 @@
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #print_page, #print_page * {
+        visibility: visible;
+    }
+    #print_page {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 297mm;
+        height: 198mm;
+    }
+    .print_per_section{
+        break-after: page;
+    }
+    @page {
+        size: landscape;
+        margin-top: 15mm;
+    }
+}
+
+ul{
+    padding-left:0;
+    margin-bottom:0;
+    max-width: 70mm;
+    margin-left: 0.5rem!important;
+    margin-right: 0.5rem!important;
+}
+
+ul > li > span:first-child{
+    font-weight: 700!important;
+}
+
+ul > li > span:nth-child(2){
+    margin-left: 1rem!important;
+}
+
+.line-container {
+    position: relative;
+}
+
+.single_line{
+    border-top: 1px solid #000; /* 黒色の二重線 */
+    padding-right: 1rem!important;
+    padding-left: 1rem!important;
+}
+
+.double_line{
+    border-top: 3px double #000; /* 黒色の二重線 */
+    padding-right: 1rem!important;
+    padding-left: 1rem!important;
+}
+
+.empty_p{
+    padding-top: 1.5rem!important;
+    padding-bottom: 1.5rem!important;
+}
+
+.level{
+    display: flex!important;
+    align-items: center!important;
+    justify-content: center!important;
+    padding-left: 2rem!important;
+    padding-right: 2rem!important;
+}
+
+.top {
+    margin-top: 3rem!important;
+}
+
+#print_page {
+    /* height: 210mm; */
+    width: 297mm;
+    /* padding-left: 5mm; */
+    /* padding-right: 5mm; */
+    font-family: "Zen Old Mincho", serif;
+}
+
+.content{
+    margin-top: 2rem!important;
+    position: relative;
+}
+
+.svgContainer{
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%!important; 
+    height: 100%!important;
+}

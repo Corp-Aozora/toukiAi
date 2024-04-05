@@ -145,13 +145,4 @@ def compare_dict_by_two_key(x, y, key_one, key_two):
     """
     return x[key_one] == y[key_one] and x[key_two] == y[key_two]
 
-def get_prefecture_name(prefecture_code):
-    """都道府県コードから都道府県名を取得する
 
-    Args:
-        prefecture_code (_type_): _description_
-
-    Returns:
-        str: prefecture 都道府県
-    """
-    return next((name for code, name in PREFECTURES if code == prefecture_code), "該当なし")

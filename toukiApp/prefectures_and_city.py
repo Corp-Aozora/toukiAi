@@ -139,3 +139,24 @@ def format_address(address):
             break  # 一致する都道府県が見つかったらループを抜ける
 
     return address
+
+def get_full_address(instance, is_instance_dict=False, is_domicile=False, is_format=False):
+    """インスタンスが持つ住所情報をつなげて返す"""
+    full_address = ""
+    if is_instance_dict:
+        full_address = get_prefecture_name(instance["prefecture"]) + instance["city"] + instance["address"] + (instance["bldg"] if is_domicile else "")
+    else:
+        full_address = get_prefecture_name(instance.prefecture) + instance.city + instance.address + (instance.bldg if is_domicile else "")
+    return format_address(full_address) if is_format else full_address
+        
+def get_prefecture_name(prefecture_code):
+    """都道府県コードから都道府県名を取得する
+
+    Args:
+        prefecture_code (_type_): _description_
+
+    Returns:
+        str: prefecture 都道府県
+    """
+    
+    return next((name for code, name in PREFECTURES if code == prefecture_code), "該当なし")    

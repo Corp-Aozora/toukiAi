@@ -222,7 +222,7 @@ def add_applicant_data(data, decedent):
     """
     application = Application.objects.filter(decedent=decedent).first()
     if not application:
-        raise ValidationError("申請情報データがありません")
+        raise ValueError("申請情報データがありません")
     
     applicant_content_type = type(application.content_object).__name__
     applicant_object_id = application.object_id
@@ -293,7 +293,7 @@ def is_all_site_related(data, sites):
 
     if missing_site_ids:
         missing_ids_str = ", ".join(str(id) for id in missing_site_ids)
-        raise ValidationError(f"関連付けられていない敷地権があります: {missing_ids_str}")
+        raise ValueError(f"関連付けられていない敷地権があります: {missing_ids_str}")
 
 def assign_applicant_data(pattern, data):
     """申請人データを登録する
@@ -340,16 +340,12 @@ def assign_applicant_data(pattern, data):
     return form
 
 def get_applicant_form():
-    """申請人データ用のフォーム
-
-    Returns:
-        dict: Applicationのデータを格納する
-    """
+    """申請人データ用のフォーム"""
     return {
         "content_object": "",
         "phone_number": "",
         "is_agent": "false",
-        "position": "",
+        "position": "", #空欄、申請人兼代理人または代理人
         "agent_name": "",
         "agent_address": "",
         "agent_phone_number": "",

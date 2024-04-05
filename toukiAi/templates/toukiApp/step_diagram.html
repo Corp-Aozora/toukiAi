@@ -1,20 +1,20 @@
 {% extends "toukiApp/base.html" %}
-{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block title %}{{ title }} | {{ block.super }}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiApp/step_division_agreement.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_diagram.css' %}">
 {% endblock %}
 {% block header %}
 {% endblock %}
 {% load custom_filters %}
 {% block content %}
 <div class="d-flex container-xxl">
-    <fieldset class="container">
-        <div class="top">
-            <p class="fw-bold text-center">
+    <div class="container">
+        <section class="top">
+            <h5 class="fw-bold text-center">
                 こちらのページをA4の縦方向でご印刷ください。<br>
-                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせからお知らせお願いします。
-            </p>
+                PDFが必要でお使いのPCにPDFで印刷する機能がない場合は、お問い合わせください。
+            </h5>
             <div class="mt-4 d-flex justify-content-center">
                 <div class="d-inline-block border rounded-3 p-3">
                     <p class="text-danger fw-bold">
@@ -22,325 +22,576 @@
                     </p>
                     <p class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
-                            使用する印鑑について
-                        </span><br>
-                        <span class="ms-3">
-                            実印で印鑑登録証明書と照合できるように鮮明に押印ください。
+                            署名や押印は不要です。
                         </span>
                     </p>
-                    <div class="ms-3">
+                    <p class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
-                            遺産分割協議証明書が２枚以上になっているとき
-                        </span><br>
-                        <div class="ms-3">
-                            署名欄の押印以外に
-                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#seal">
-                                契印（こちらをクリック）
-                            </button>
-                            も必要です。
-                        </div>
-                        <div class="ms-3">
-                            契印とは、複数枚が一連の文書のものであることを証明するための押印です。
-                        </div>
-                    </div>
+                            各人の続柄や住所、生年月日、氏名などに誤りがないかご確認をお願いします。
+                        </span>
+                    </p>
                 </div>
             </div>
-            <div class="modal fade" id="seal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5">契印のしかた</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <img class="modal-image" src="{% static 'toukiApp/img/契印.png' %}" alt="契印の説明画像">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="d-flex justify-content-center mt-5">
+        </section>
+        <section class="d-flex justify-content-center mt-5">
             <div id="print_page">
-                <div class="mt-5">
-                    <h5 class="text-center">
-                        遺産分割協議証明書
-                    </h5>
-                </div>
-                <div class="decedent_info">
-                    <div>
-                        <div>
-                            被相続人
-                        </div>
-                        <div>
-                            {{decedent_info.name}}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            生年月日
-                        </div>
-                        <div>
-                            {{decedent_info.birth_date}}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡年月日
-                        </div>
-                        <div>
-                            {{decedent_info.death_date}}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡時の本籍
-                        </div>
-                        <div>
-                            {{decedent_info.permanent_address}}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡時の住所
-                        </div>
-                        <div>
-                            {{decedent_info.address}}
-                        </div>
-                    </div>
-                </div>
-                <div class="sentence">
-                    上記被相続人が死亡したことにより開始した相続について、共同相続人全員は、下記の通り遺産を分割することに合意した。
-                </div>
-                <div class="text-center mt-3">
-                    <span>
-                        記
-                    </span>
-                </div>
-                {% if normal_division_properties %}
-                    {% for d in normal_division_properties %}
-                        <div class="content mt-3">
-                            <p>
-                                <span class="border-bottom border-secondary">
-                                    下記不動産は、
-                                    {% for acquirer in d.1 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    取得する。
-                                </span>
-                            </p>
-                            <div class="property">
-                                {% for property in d.0 %}
-                                    <div>
-                                        <div>
-                                            {{ property.address }}
-                                            {% if property|classname == "Land" %}
-                                                {{ property.land_number }}の土地
-                                            {% elif property|classname == "House" %}
-                                                {{ property.house_number }}の建物
-                                            {% elif property|classname == "Bldg" %}
-                                                {{ property.bldg_number }}の区分建物
-                                            {% endif %}
-                                        </div>
-                                        {% if property.purparty != "１分の１" %}
-                                            <div class="ms-3">
-                                                （{{decedent_info.name}}の持分{{ property.purparty }}）
-                                            </div>
-                                        {% endif %}
-                                        {% if property|classname == "Bldg" %}
-                                            <div class="ms-3">
-                                                敷地権の表示
-                                            </div>
-                                            {% for site in sites %}
-                                                {% if site.bldg.id == property.id %}
-                                                <div class="site">
-                                                    <div>
-                                                        <div>
-                                                            土地の符号{{site.number}}
-                                                        </div>
-                                                        <div>
-                                                            {{site.address_and_land_number}}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の種類
-                                                        </div>
-                                                        <div>
-                                                            {{site.type}}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の割合
-                                                        </div>
-                                                        <div>
-                                                            {{site.purparty_bottom}}分の{{site.purparty_top}}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                {% if exchange_division_properties %}
-                    {% for d in exchange_division_properties %}
-                        <div class="content mt-3">
-                            <p>
-                                <span class="border-bottom border-secondary">
-                                    下記不動産は、
-                                    {% for acquirer in d.1 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    取得する。<br>
-                                    <span class="ms-3">
-                                        なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
+                {% for data in diagram_data %}
+                    <div class="print_per_section">
+                        <header class="mt-3 d-flex">
+                            <div class="d-flex align-items-center">
+                                <h5 class="mb-0">
+                                    被相続人
+                                    <span class="mx-3">
+                                        {{decedent_info.name}}
                                     </span>
-                                    {% for cash_acquirer in d.2 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in cash_acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in cash_acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
+                                    の相続関係図
+                                </h5>
+                            </div>
+                            <div class="ms-4">
+                                <div class="d-flex">
+                                    <span class="fw-bold">
+                                        死亡時の住所
+                                    </span>
+                                    <span class="ms-3">
+                                        {{decedent_info.address}}
+                                    </span>
+                                </div>
+                                <div class="d-flex">
+                                    <span class="fw-bold">
+                                        死亡時の本籍
+                                    </span>
+                                    <span class="ms-3">
+                                        {{decedent_info.permanent_address}}
+                                    </span>
+                                </div>
+                            </div>
+                        </header>
+                        <div class="content">
+                            <div class="empty_p">
+                            </div>
+                            {% if data.grand_parents %}
+                                <div class="level">
+                                    {% for p in data.grand_parents %}
+                                        <ul>
+                                            {% if p.address %}
+                                                <li>
+                                                    <span>
+                                                        住所
+                                                    </span>
+                                                    <span>
+                                                        {{p.address}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            {% if p.death_date %}
+                                                <li>
+                                                    <span>
+                                                        死亡
+                                                    </span>
+                                                    <span>
+                                                        {{p.death_date}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <span>
+                                                    出生
+                                                </span>
+                                                <span>
+                                                    {{p.birth_date}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <span>
+                                                    {{p.position}}
+                                                </span>
+                                                <span>
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                        {% if forloop.counter == 1 or forloop.counter == 3 %}
+                                            <div class="double_line">
+                                            </div>
                                         {% endif %}
                                     {% endfor %}
-                                    の割合で取得する。
-                                </span>
-                            </p>
-                            <div class="property">
-                                {% for property in d.0 %}
-                                    <div>
-                                        <div>
-                                            {{ property.address }}
-                                            {% if property|classname == "Land" %}
-                                                {{ property.land_number }}の土地
-                                            {% elif property|classname == "House" %}
-                                                {{ property.house_number }}の建物
-                                            {% elif property|classname == "Bldg" %}
-                                                {{ property.bldg_number }}の区分建物
+                                </div>
+                            {% endif %}
+                            {% if data.parents %}
+                                <div class="level">
+                                    {% if data.half_parents %}
+                                        {% for p in data.half_parents %}
+                                            <ul>
+                                                <li>
+                                                    {{p.name}}
+                                                </li>
+                                                <li>
+                                                    <input type="hidden" value="{{p.type}}">
+                                                    <input type="hidden" value="{{p.id}}">
+                                                    <input type="hidden" value="{{p.relation_type1}}">
+                                                    <input type="hidden" value="{{p.relation_id1}}">
+                                                    <input type="hidden" value="{{p.relation_type2}}">
+                                                    <input type="hidden" value="{{p.relation_id2}}">
+                                                </li>
+                                            </ul>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% for p in data.parents %}
+                                        <ul>
+                                            {% if p.address %}
+                                                <li>
+                                                    <span>
+                                                        住所
+                                                    </span>
+                                                    <span>
+                                                        {{p.address}}
+                                                    </span>
+                                                </li>
                                             {% endif %}
-                                        </div>
-                                        {% if property.purparty != "１分の１" %}
-                                            <div class="ms-3">
-                                                （{{decedent_info.name}}の持分{{ property.purparty }}）
+                                            {% if p.death_date %}
+                                                <li>
+                                                    <span>
+                                                        死亡
+                                                    </span>
+                                                    <span>
+                                                        {{p.death_date}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <span>
+                                                    出生
+                                                </span>
+                                                <span>
+                                                    {{p.birth_date}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <span>
+                                                    {{p.position}}
+                                                </span>
+                                                <span>
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                        {% if forloop.counter == 1 %}
+                                            <div class="double_line">
                                             </div>
                                         {% endif %}
-                                        {% if property|classname == "Bldg" %}
-                                            <div class="ms-3">
-                                                敷地権の表示
-                                            </div>
-                                            {% for site in sites %}
-                                                {% if site.bldg.id == property.id %}
-                                                <div class="site">
-                                                    <div>
-                                                        <div>
-                                                            土地の符号{{site.number}}
-                                                        </div>
-                                                        <div>
-                                                            {{site.address_and_land_number}}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の種類
-                                                        </div>
-                                                        <div>
-                                                            {{site.type}}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div>
-                                                            敷地権の割合
-                                                        </div>
-                                                        <div>
-                                                            {{site.purparty_bottom}}分の{{site.purparty_top}}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
+                                    {% endfor %}
+                                    <div class="empty_p">
                                     </div>
-                                {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="level decedent_gen">
+                                {% if data.half_collateral%}
+                                    {% for p in data.half_collateral %}
+                                        <ul>
+                                            {% if p.address %}
+                                                <li>
+                                                    <span>
+                                                        住所
+                                                    </span>
+                                                    <span>
+                                                        {{p.address}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            {% if p.death_date %}
+                                                <li>
+                                                    <span>
+                                                        死亡
+                                                    </span>
+                                                    <span>
+                                                        {{p.death_date}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <span>
+                                                    出生
+                                                </span>
+                                                <span>
+                                                    {{p.birth_date}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <span>
+                                                    {{p.position}}
+                                                </span>
+                                                <span>
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if data.collateral %}
+                                    {% for p in data.full_collateral%}
+                                        <ul>
+                                            {% if p.address %}
+                                                <li>
+                                                    <span>
+                                                        住所
+                                                    </span>
+                                                    <span>
+                                                        {{p.address}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            {% if p.death_date %}
+                                                <li>
+                                                    <span>
+                                                        死亡
+                                                    </span>
+                                                    <span>
+                                                        {{p.death_date}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <span>
+                                                    出生
+                                                </span>
+                                                <span>
+                                                    {{p.birth_date}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <span>
+                                                    {{p.position}}
+                                                </span>
+                                                <span>
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if data.spouse.name %}
+                                    <ul class="decedent_spouse">
+                                        {% if data.spouse.address %}
+                                            <li>
+                                                <span>
+                                                    住所
+                                                </span>
+                                                <span>
+                                                    {{data.spouse.address}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        {% if data.spouse.death_date %}
+                                            <li>
+                                                <span>
+                                                    死亡
+                                                </span>
+                                                <span>
+                                                    {{data.spouse.death_date}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                            <span>
+                                                出生
+                                            </span>
+                                            <span>
+                                                {{data.spouse.birth_date}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span>
+                                                {{data.spouse.position}}
+                                            </span>
+                                            <span>
+                                                {{data.spouse.name}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                    <div class="decedent_spouse_line double_line">
+                                    </div>
+                                {% endif %}
+                                <ul class="decedent">
+                                    <li>
+                                        <span>
+                                            死亡
+                                        </span>
+                                        <span>
+                                            {{decedent_info.death_date}}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span>
+                                            出生
+                                        </span>
+                                        <span>
+                                            {{decedent_info.birth_date}}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        {{decedent_info.name}}
+                                    </li>
+                                </ul>
+                                {% if data.ex_spouses %}
+                                    {% for p in data.ex_spouses %}
+                                        <div class="{% if forloop.counter0 == 0 %}decedent_ex_spouse_single_line single_line{% else %}px-3{% endif %}">
+                                        </div>
+                                        <ul class="ex_spouse">
+                                            <li>
+                                                <span>
+                                                    {{ p.name }}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
+                            <div class="empty_p">
+                            </div>
+                            {% if data.child_gen %}
+                                <div class="level child_gen">
+                                    {% for p in data.child_gen %}
+                                        {% if p.type == "child" or p.type == "step_child" or p.type == "child_spouse"%}
+                                            {% if p.type == "child_spouse"%}
+                                                <div class="double_line">
+                                                </div>
+                                            {% endif%}
+                                            <ul class="{% if p.type == "child" %}child{% elif p.type == "step_child" %}step_child{% else %}child_spouse{% endif %}">
+                                                {% if p.address %}
+                                                    <li>
+                                                        <span>
+                                                            住所
+                                                        </span>
+                                                        <span>
+                                                            {{p.address}}
+                                                        </span>
+                                                    </li>
+                                                {% endif %}
+                                                {% if p.death_date %}
+                                                    <li>
+                                                        <span>
+                                                            死亡
+                                                        </span>
+                                                        <span>
+                                                            {{p.death_date}}                                                        
+                                                        </span>
+                                                    </li>
+                                                {% endif %}
+                                                <li>
+                                                    <span>
+                                                        出生
+                                                    </span>
+                                                    <span>
+                                                        {{p.birth_date}}                                                        
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <span>
+                                                        {{p.position}}
+                                                    </span>
+                                                    <span>
+                                                        {{p.name}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <input type="hidden" value="{{p.type}}">
+                                                    <input type="hidden" value="{{p.id}}">
+                                                    <input type="hidden" value="{{p.relation_type1}}">
+                                                    <input type="hidden" value="{{p.relation_id1}}">
+                                                    <input type="hidden" value="{{p.relation_type2}}">
+                                                    <input type="hidden" value="{{p.relation_id2}}">
+                                                </li>
+                                            </ul>
+                                        {% endif %}
+                                        {% if p.type == "child_ex_spouse"%}
+                                            <ul>
+                                                <li>
+                                                    <span>
+                                                        {{p.name}}
+                                                    </span>
+                                                </li>
+                                                <li>
+                                                    <input type="hidden" value="{{p.type}}">
+                                                    <input type="hidden" value="{{p.id}}">
+                                                    <input type="hidden" value="{{p.relation_type1}}">
+                                                    <input type="hidden" value="{{p.relation_id1}}">
+                                                    <input type="hidden" value="{{p.relation_type2}}">
+                                                    <input type="hidden" value="{{p.relation_id2}}">
+                                                </li>
+                                            </ul>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="empty_p">
+                                </div>
+                            {% endif %}
+                            {% if data.grand_child or data.step_grand_child %}
+                                <div class="level">
+                                    {% for p in data.grand_child %}
+                                        <ul class="grand_child">
+                                            {% if p.address %}
+                                                <li>
+                                                    <span>
+                                                        住所
+                                                    </span>
+                                                    <span>
+                                                        {{p.address}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            {% if p.death_date %}
+                                                <li>
+                                                    <span>
+                                                        死亡
+                                                    </span>
+                                                    <span>
+                                                        {{p.death_date}}                                                        
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <span>
+                                                    出生
+                                                </span>
+                                                <span>
+                                                    {{p.birth_date}}                                                        
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <span>
+                                                    {{p.position}}
+                                                </span>
+                                                <span>
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                    {% endfor %}
+                                    {% for p in data.step_grand_child %}
+                                    <ul class="step_grand_child">
+                                        {% if p.address %}
+                                            <li>
+                                                <span>
+                                                    住所
+                                                </span>
+                                                <span>
+                                                    {{p.address}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        {% if p.death_date %}
+                                            <li>
+                                                <span>
+                                                    死亡
+                                                </span>
+                                                <span>
+                                                    {{p.death_date}}                                                        
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                            <span>
+                                                出生
+                                            </span>
+                                            <span>
+                                                {{p.birth_date}}                                                        
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <span>
+                                                {{p.position}}
+                                            </span>
+                                            <span>
+                                                {{p.name}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                                </div>
+                                <div class="empty_p">
+                                </div>
+                            {% endif %}
+                            <svg class="svgContainer">
+                            </svg>
                         </div>
-                    {% endfor %}
-                {% endif %}
-                <div class="end text-end">
-                    <span>
-                        以上
-                    </span>
-                </div>
-                <div class="signature">
-                    <div>
-                        <span>
-                            令和
-                        </span>
-                        <span>
-                            年
-                        </span>
-                        <span>
-                            月
-                        </span>
-                        <span>
-                            日（記入日）
-                        </span>
+                        <footer class="d-flex justify-content-end">
+                            <div class="border border-secondary text-center d-flex align-items-center">
+                                <div class="p-2 border-end border-secondary">
+                                    相続を証する書面は還付した
+                                </div>
+                                <div class="px-4">
+                                </div>
+                            </div>
+                        </footer>
                     </div>
-                    <div>
-                        住所
-                    </div>
-                    <div>
-                        <div>
-                            氏名
-                        </div>
-                        <div class="stamp_box">
-                        </div>
-                    </div>
-                    <div>
-                        <div class="form-text">
-                            ※実印（印鑑登録証明書と同じ印鑑）<br>
-                            ※不鮮明なときは、丸枠の近くに押しなおしてください
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
-        </div>
-    </fieldset>
+        </section>
+    </div>
 </div>
 {% endblock %}
 
@@ -349,5 +600,5 @@
 
 {% block js %}
     {% load static %}
-    <script type="module" src="{% static 'toukiApp/step_division_agreement.js' %}"></script>
+    <script type="module" src="{% static 'toukiApp/step_diagram.js' %}"></script>
 {% endblock %}

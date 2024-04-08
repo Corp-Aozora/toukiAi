@@ -70,6 +70,15 @@ ul > li > span:nth-child(2){
     margin-top: 3rem!important;
 }
 
+.top > div > div{
+    max-width: 700px!important;
+}
+
+/* 注意事項の内容 */
+.top > div > div > p:not(:first-child){
+    margin-left: 1rem!important;
+}
+
 #print_page {
     /* height: 210mm; */
     width: 297mm;

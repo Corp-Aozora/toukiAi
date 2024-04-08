@@ -45,11 +45,34 @@ function handlePreBtnEvent(){
     })
 }
 
+function checkAndToggleSubmitBtn(inputs){
+    if(inputs.every(x => x.checked)){
+        submitBtn.disabled = false;
+        return
+    }
+
+    submitBtn.disabled = true;
+}
+
 /*
     イベント
 */
 window.addEventListener("load", ()=>{ 
     initialize();
+
+    //csrfトークンのinputがあるためクラス名で全inputを取得
+    const inputs = Array.from(document.getElementsByClassName("form-check-input")); 
+    for(let i = 0, len = inputs.length; i < len; i++){
+        inputs[i].addEventListener("change", ()=>{
+            checkAndToggleSubmitBtn(inputs);
+        })
+    }
+
+    //先のステップから戻ってきたときは、全てチェックされている状態にする
+    if(progress >= 4.5){
+        inputs.forEach(x => x.checked = true);
+        submitBtn.disabled = false;
+    }
 })
 
 window.addEventListener('resize', () => {
@@ -62,3 +85,4 @@ window.addEventListener('resize', () => {
 preBtn.addEventListener("click", ()=>{
     handlePreBtnEvent();
 })
+

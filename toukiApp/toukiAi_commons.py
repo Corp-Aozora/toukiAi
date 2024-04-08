@@ -128,11 +128,25 @@ def get_querysets_by_condition(models, decedent, filter_conditions=None, is_firs
 
     return results if len(models) > 1 or not is_first else results[0]
 
-def get_filtered_instances(instances, attribute_name, expected_value):
-    """渡されたインスタンスを格納したリスト、クエリセットから特定の要素を取得する"""
+def get_filtered_instances(instances, attributes, expected_values):
+    """渡されたインスタンスを格納したリスト、クエリセットから特定の属性に対する特定の要素を取得する
+    
+    attributes と expected_values は、単一の値またはリスト（タプル）形式で渡すことができる。
+    """
+
+    # attributes と expected_values をリスト化する（単一の値の場合）
+    if not isinstance(attributes, (list, tuple)):
+        attributes = [attributes]
+    if not isinstance(expected_values, (list, tuple)):
+        expected_values = [expected_values]
+    
+    # 属性と期待される値のリストの長さをチェック
+    if len(attributes) != len(expected_values):
+        raise ValueError("属性と期待される値のリストの長さが一致しません。")
+    
     return [
         x for x in instances
-        if hasattr(x, attribute_name) and getattr(x, attribute_name) == expected_value
+        if all(hasattr(x, attr) and getattr(x, attr) == val for attr, val in zip(attributes, expected_values))
     ]
 
 def get_current_function_name():

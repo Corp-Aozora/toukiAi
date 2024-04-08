@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 
 CustomUser = get_user_model()
 
+# 評価額の設定
 price_attr = {
     "placeholder": "数字のみで入力（コンマ不要）",
     "class": "form-control text-center rounded-end",

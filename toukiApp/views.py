@@ -192,7 +192,7 @@ def  handle_error(e, request, user, function_name, redirect_to, render_html, con
         return handle_connection_error(e, request, user, function_name, render_html, context, Notices)
     elif isinstance(e, Timeout):
         return handle_time_out_error(e, request, user, function_name, render_html, context, Notices)
-    elif isinstance(e, ValidationError):
+    elif isinstance(e, ValidationError) or isinstance(e, ValueError):
         return handle_validation_error(e, request, user, function_name, render_html, context, Notices)
     else:
         return handle_exception_error(e, request, user, function_name, render_html, context, Notices)
@@ -221,7 +221,7 @@ def handle_exception_error(e, request, user, function_name, render_html, context
     
     return render(request, render_html, context)    
 
-def handle_validation_error(e, request, function_name, user, render_html, context={}, Notices=None):
+def handle_validation_error(e, request, user, function_name, render_html, context={}, Notices=None):
     """入力内容や登録されているデータが不正なときのエラーハンドリング
 
     Args:
@@ -245,7 +245,7 @@ def handle_validation_error(e, request, function_name, user, render_html, contex
     
     return render(request, render_html, context)    
 
-def handle_time_out_error(e, request, function_name, user, render_html, context={}, Notices=None):
+def handle_time_out_error(e, request, user, function_name, render_html, context={}, Notices=None):
     """タイムアウトエラーハンドリング
 
     Args:
@@ -269,7 +269,7 @@ def handle_time_out_error(e, request, function_name, user, render_html, context=
     
     return render(request, render_html, context)    
 
-def handle_connection_error(e, request, function_name, user, render_html, context={}, Notices=None):
+def handle_connection_error(e, request, user, function_name, render_html, context={}, Notices=None):
     """接続エラーハンドリング
 
     Args:
@@ -916,7 +916,7 @@ def step_two(request):
         minors = [heir for heir in heirs if hasattr(heir, 'is_adult') and heir.is_adult is False]
         overseas = [heir for heir in heirs if hasattr(heir, 'is_japan') and heir.is_japan is False]
         family_registry_search_word = "戸籍 郵送請求"
-        family_registry_query = f"{decedent.domicile_prefecture}{decedent.domicile_city} {family_registry_search_word}"
+        family_registry_query = f"{get_prefecture_name(decedent.domicile_prefecture)}{decedent.domicile_city} {family_registry_search_word}"
         response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={family_registry_query}")
         data = response.json()
         top_link = data["items"][0]["link"]
@@ -2620,6 +2620,30 @@ def step_four(request):
         title = Service.STEP_TITLES["four"]
         function_name = get_current_function_name()
 
+        #フォームからデータがPOSTされたとき
+        if request.method == "POST":
+            if request.user != decedent.user:
+                messages.error(request, 'アカウントデータが一致しません。')
+                return redirect('/toukiApp/index')
+
+            try:
+                with transaction.atomic():
+                    decedent.progress = 3
+                    decedent.save()
+            except DatabaseError as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+                return redirect('/toukiApp/step_three')
+            except (ValidationError, ValueError) as e:
+                basic_log(function_name, e, user)
+                return HttpResponse("データと入力内容に不一致がありました\nお手数ですが、再度ご入力をお願いします", status=400)
+            except Exception as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+                return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご連絡をお願いします", status=500)
+            else:
+                return redirect('/toukiApp/step_four')
+                
         #相続人情報を取得
         heirs = get_legal_heirs(decedent)
         minors = get_filtered_instances(heirs, "is_adult", False)
@@ -4105,52 +4129,157 @@ def assign_properties_info(form, properties, sites, acquirers):
         form["properties"].append(property_form)
     
     return form
-#
-# ステップ5
-#
-def step_five(request):
-    """ステップ５のメイン処理
 
-    Args:
-        request (_type_): _description_
+"""
 
-    Returns:
-        _type_: _description_
-    """
-    response, user, decedent = check_user_and_decedent(request)
+    ステップ５関連
     
-    context = {
-        "title" : "５．法務局に郵送",
-        "user" : user,
-        "sections" : Sections.SECTIONS[Sections.STEP5],
-        "service_content" : Sections.SERVICE_CONTENT,
-    }
-    return render(request, "toukiApp/step_five.html", context)
+"""
+
+def step_five(request):
+    """ステップ５のメイン処理"""
+    try:
+        render_html = "toukiApp/step_five.html"
+        function_name = get_current_function_name()
+        
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+        
+        #フォームからデータがPOSTされたとき
+        if request.method == "POST":
+            if request.user != decedent.user:
+                messages.error(request, 'アカウントデータが一致しません。')
+                return redirect('/toukiApp/index')
+
+            try:
+                with transaction.atomic():
+                    decedent.progress = 6
+                    decedent.save()
+            except DatabaseError as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+                return redirect('/toukiApp/step_five')
+            except (ValidationError, ValueError) as e:
+                basic_log(function_name, e, user)
+                return HttpResponse("データと入力内容に不一致がありました\nお手数ですが、再度ご入力をお願いします", status=400)
+            except Exception as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+                return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご連絡をお願いします", status=500)
+            else:
+                return redirect('/toukiApp/step_six')
+            
+        title = Service.STEP_TITLES["five"]
+        
+        heirs = get_legal_heirs(decedent)
+        minors = get_filtered_instances(heirs, "is_adult", False)
+        overseas_acquirers = get_filtered_instances(heirs, ["is_japan", "is_acquirer"], [False, True])
+
+        #ユーザーが申請する法務局の名称を取得する
+        offices = get_where_to_apply(decedent)
+        office_name_and_link = {}
+        for office in offices:
+            search_word = f"{office} 住所"
+            response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={search_word}")
+            data = response.json()
+            office_name_and_link[office] = data["items"][0]["link"]
+            
+        context = {
+            "title" : title,
+            "user" : user,
+            "decedent": decedent,
+            "progress": decedent.progress,
+            "minors": minors,
+            "offices": offices,
+            "overseas_acquirers": overseas_acquirers,
+            "office_name_and_link": office_name_and_link,
+            "sections" : Sections.SECTIONS[Sections.STEP5],
+            "service_content" : Sections.SERVICE_CONTENT,
+        }
+        return render(request, render_html, context)
+    
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            function_name, 
+            "toukiApp/step_five", 
+            render_html, 
+            None,
+            None,
+        )
+
+def get_where_to_apply(decedent):
+    """ユーザーが申請する法務局の名称を取得する"""
+    #不動産情報を取得する
+    models = [Land, House, Bldg]
+    querysets = get_querysets_by_condition(models, decedent=decedent, check_exsistance=True)
+    #法務局の名称を重複なしでまとめる
+    return {x.office for x in querysets}
 
 #
 # ステップ6
 #
 def step_six(request):
-    """申請後のメイン処理
+    """申請後のメイン処理"""
+    try:
+        render_html = "toukiApp/step_six.html"
+        function_name = get_current_function_name()
+        
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+        
+        # #フォームからデータがPOSTされたとき
+        # if request.method == "POST":
+        #     if request.user != decedent.user:
+        #         messages.error(request, 'アカウントデータが一致しません。')
+        #         return redirect('/toukiApp/index')
 
-    Args:
-        request (_type_): _description_
+        #     try:
+        #         with transaction.atomic():
+        #             decedent.progress = 6
+        #             decedent.save()
+        #     except DatabaseError as e:
+        #         basic_log(function_name, e, user)
+        #         messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+        #         return redirect('/toukiApp/step_five')
+        #     except (ValidationError, ValueError) as e:
+        #         basic_log(function_name, e, user)
+        #         return HttpResponse("データと入力内容に不一致がありました\nお手数ですが、再度ご入力をお願いします", status=400)
+        #     except Exception as e:
+        #         basic_log(function_name, e, user)
+        #         messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+        #         return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご連絡をお願いします", status=500)
+        #     else:
+        #         return redirect('/toukiApp/step_six')
+            
+        title = Service.STEP_TITLES["six"]
 
-    Returns:
-        _type_: _description_
-    """
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
+            
+        context = {
+            "title" : title,
+            "user" : user,
+            "decedent": decedent,
+            "progress": decedent.progress,
+            "sections" : Sections.SECTIONS[Sections.STEP6],
+            "service_content" : Sections.SERVICE_CONTENT,
+        }
+        return render(request, render_html, context)
     
-    user = User.objects.get(email = request.user)
-    
-    context = {
-        "title" : "申請後について",
-        "user" : user,
-        "sections" : Sections.SECTIONS[Sections.STEP6],
-        "service_content" : Sections.SERVICE_CONTENT,
-    }
-    return render(request, "toukiApp/step_six.html", context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            function_name, 
+            "toukiApp/step_six", 
+            render_html, 
+            None,
+            None,
+        )
 
 #ユーザー情報
 def step_option_select(request):

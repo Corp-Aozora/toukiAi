@@ -26,6 +26,10 @@
     margin-top: 3rem!important;
 }
 
+.top > div > div{
+    max-width: 700px!important;
+}
+
 .print_per_section {
     /* height: 297mm; */
     width: 210mm;

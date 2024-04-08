@@ -20,14 +20,22 @@
                     <p class="text-danger fw-bold">
                         ※注意事項
                     </p>
-                    <p class="ms-3">
+                    <p>
+                        <span class="fw-bold border-bottom border-secondary">
+                            登記申請書の相続人と一致する相続関係図があるかご確認ください。
+                        </span>
+                        <span><br>
+                            申請書ごとに相続関係図を作成していて不動産を取得する方の氏名の左には相続、取得しない方の氏名の横には分割（又は相続放棄）と表示してます。
+                        </span>
+                    </p>
+                    <p>
                         <span class="fw-bold border-bottom border-secondary">
                             署名や押印は不要です。
                         </span>
                     </p>
-                    <p class="ms-3">
+                    <p>
                         <span class="fw-bold border-bottom border-secondary">
-                            各人の続柄や住所、生年月日、氏名などに誤りがないかご確認をお願いします。
+                            各人の続柄（線のつながり）や氏名など表示されている事項に誤りがないかご確認をお願いします。
                         </span>
                     </p>
                 </div>
@@ -70,9 +78,9 @@
                             <div class="empty_p">
                             </div>
                             {% if data.grand_parents %}
-                                <div class="level">
+                                <div class="level grand_parents_gen">
                                     {% for p in data.grand_parents %}
-                                        <ul>
+                                        <ul class="grand_parents">
                                             {% if p.address %}
                                                 <li>
                                                     <span>
@@ -124,12 +132,14 @@
                                         {% endif %}
                                     {% endfor %}
                                 </div>
+                                <div class="empty_p">
+                                </div>
                             {% endif %}
                             {% if data.parents %}
-                                <div class="level">
+                                <div class="level parents_gen">
                                     {% if data.half_parents %}
                                         {% for p in data.half_parents %}
-                                            <ul>
+                                            <ul class="half_parents">
                                                 <li>
                                                     {{p.name}}
                                                 </li>
@@ -145,7 +155,7 @@
                                         {% endfor %}
                                     {% endif %}
                                     {% for p in data.parents %}
-                                        <ul>
+                                        <ul class="parents">
                                             {% if p.address %}
                                                 <li>
                                                     <span>
@@ -196,14 +206,14 @@
                                             </div>
                                         {% endif %}
                                     {% endfor %}
-                                    <div class="empty_p">
-                                    </div>
+                                </div>
+                                <div class="empty_p">
                                 </div>
                             {% endif %}
                             <div class="level decedent_gen">
                                 {% if data.half_collateral%}
                                     {% for p in data.half_collateral %}
-                                        <ul>
+                                        <ul class="half_collateral">
                                             {% if p.address %}
                                                 <li>
                                                     <span>
@@ -253,7 +263,7 @@
                                 {% endif %}
                                 {% if data.collateral %}
                                     {% for p in data.full_collateral%}
-                                        <ul>
+                                        <ul class="full_collateral">
                                             {% if p.address %}
                                                 <li>
                                                     <span>
@@ -452,7 +462,7 @@
                                             </ul>
                                         {% endif %}
                                         {% if p.type == "child_ex_spouse"%}
-                                            <ul>
+                                            <ul class="child_ex_spouse">
                                                 <li>
                                                     <span>
                                                         {{p.name}}

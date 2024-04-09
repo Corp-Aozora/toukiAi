@@ -12,11 +12,9 @@
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
-        <div>
-            <h4>
-                法務局に書類を提出した後について
-            </h4>
-        </div>
+        <h4>
+            法務局に書類を提出した後について
+        </h4>
         <hr>
         <ol id="wrap" class="col-lg-10">
             <li class="container">
@@ -27,42 +25,47 @@
                     <div>
                         <p>
                             法務局から電話で
-                            <span class="fw-bold border-bottom border-dark">
+                            <span class="fw-bold border-bottom border-secondary">
                                 不備を修正（補正）又は申請を取下げる
                             </span>
                             ように指示がありますので、下記を参考にご対応ください。
                         </p>
-                        指示内容に不明な点があれば、補正なのか取り下げなのか、何を提出すればいいのかなど適宜質問をして対応方法をご確認ください。
-                        <br>
-                        ※可能であれば指示対象の申請の
-                        <span class="fw-bold">
-                            受付年月日と受付番号
-                        </span>
-                        のメモをお願いします。
+                        <p>
+                            指示内容に不明な点があれば、補正なのか取り下げなのか、何を提出すればいいのかなど適宜質問をして対応方法をご確認ください。
+                            ※可能であれば指示対象の申請の
+                            <span class="fw-bold">
+                                受付年月日と受付番号のメモ
+                            </span>
+                            をお願いします。
+                        </p>
                     </div>
-                    <div class="mt-3">
-                        <span class="fw-bold border-bottom border-dark">
-                            補正指示のとき
-                        </span>
+                    <div>
+                        <div>
+                            <span class="fw-bold border-bottom border-secondary">
+                                補正指示のとき
+                            </span>
+                        </div>
                         <div class="ms-3">
-                            <div class="mt-3">
+                            <div>
                                 <span class="fw-bold">
                                     補正書を使用
                                 </span>
                                 して指示に従った修正をしてください。
-                                <div class="ms-3">
+                                <p class="ms-3">
                                     <span>
                                         補正書：
                                     </span>
                                     <a href="{% static 'toukiApp/file/補正書.docx' %}">word</a>／
                                     <a href="{% static 'toukiApp/file/補正書.pdf' %}" target="_blank" rel="noopener noreferrer">pdf</a>
-                                </div>
+                                </p>
                             </div>
-                            <div class="mt-3">
-                                <span class="border-bottom border-secondary">
-                                    登録免許税の過納付のときは、
-                                </span>
-                                還付請求通知・申出書も必要です。
+                            <div>
+                                <div>
+                                    <span class="border-bottom border-secondary">
+                                        登録免許税の過納付のときは、
+                                    </span>
+                                    還付請求通知・申出書も必要です。
+                                </div>
                                 <div class="ms-3">
                                     <span>
                                         還付請求通知・申出書
@@ -86,37 +89,40 @@
                                         <a href="{% static 'toukiApp/file/還付通知請求・申出書（代理人用）.docx' %}">word</a>／
                                         <a href="{% static 'toukiApp/file/還付通知請求・申出書（代理人用）.pdf' %}" target="_blank" rel="noopener noreferrer">pdf</a>
                                     </div>
-                                    <div>
+                                    <p>
                                         ※代理人（申請人兼代理人を除く）が受け取る場合は、委任状が必要です。
-                                    </div>
+                                    </p>
                                 </div>
-                                <div class="mt-3">
+                            </div>
+                            <div>
+                                <div>
                                     <span class="border-bottom border-secondary">
                                         書類を郵送するときは、
                                     </span>
                                     簡易書留またはレターパックプラスをご利用ください。
                                 </div>
-                            </div>
-                            <div>
                                 <div class="d-flex">
                                     <div>
                                         ※
                                     </div>
                                     <div>
-                                        登記申請書、戸籍謄本、相続関係説明図、委任状
-                                        <span class="fw-bold">
-                                            以外
-                                        </span>
-                                        の書類を提出する場合、
-                                        <span class="fw-bold">
-                                            原本を返却してもらうためには
-                                        </span>
+                                        <div>
+                                            登記申請書、戸籍謄本、相続関係説明図、委任状
+                                            <span class="fw-bold">
+                                                以外
+                                            </span>
+                                            の書類を提出する場合、
+                                            <span class="fw-bold">
+                                                原本を返却してもらうためには
+                                            </span>
                                             <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#return_request">
                                                 原本還付処理
                                             </button>
-                                        が必要です。
-                                        <br>
-                                        複数枚になるときは、全てに原本還付処理またはホッチキスで留めて契印が必要です。
+                                            が必要です。
+                                        </div>
+                                        <div>
+                                            複数枚になるときは、全てに原本還付処理またはホッチキスで留めて契印が必要です。
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="modal fade" id="return_request" tabindex="-1">
@@ -192,14 +198,18 @@
                         </li>
                     </ol>
                     <div class="mt-5">
-                        <span class="fw-bold border-bottom border-dark">
-                            取下げ指示のとき
-                        </span>
-                        <div class="mt-3 ms-3">
-                            <span class="fw-bold">
-                                取下書と再使用証明申出書
+                        <div>
+                            <span class="fw-bold border-bottom border-secondary">
+                                取下げ指示のとき
                             </span>
-                            に記入押印のうえ指示があった法務局に持参又は郵送してください。
+                        </div>
+                        <div class="ms-3">
+                            <div>
+                                <span class="fw-bold">
+                                    取下書と再使用証明申出書
+                                </span>
+                                に記入押印のうえ指示があった法務局に持参又は郵送してください。
+                            </div>
                             <div class="ms-3">
                                 <div>
                                     <span>
@@ -221,13 +231,21 @@
                             </div>
                         </div>
                         <div class="mt-3 ms-3">
-                            取下が受理されたら法務局から書類が返却されますので、指摘された不備を修正して書類を整理しなおして改めて法務局に申請書類を提出してください。
+                            <div>
+                                <span class="border-bottom border-secondary">
+                                    取下書が受理されたら法務局から書類が返却されます
+                                </span>
+                                ので、指摘された不備を修正して書類を整理しなおして改めて法務局に申請書類を提出してください。
+                            </div>
                             <div class="d-flex">
                                 <div>
                                     ※
                                 </div>
                                 <div>
-                                    登記申請書以外の書類は、法務局職員によるチェックの形跡がありますが再利用することができます。
+                                    <span class="fw-bold">
+                                        登記申請書以外の書類は、
+                                    </span>
+                                    法務局職員によるチェックの形跡がありますが再利用することができます。
                                 </div>
                             </div>
                         </div>
@@ -268,61 +286,236 @@
             <li class="container">
                 <h5>手続が完了したら</h5>
                 <div>
-                    <p>
-                        法務局から登記識別情報通知書と登記完了証が届きます。<br>
-                        原本還付処理をしているときは、戸籍謄本や遺産分割協議証明書なども入ってます。
-                    </p>
                     <div>
-                        <span class="fw-bold border-bottom border-dark">登記識別情報通知書とは</span>
-                        <p class="ps-3">
-                            いわゆる権利証で各不動産ごとに発行されます。<br>
-                            シールが貼ってある部分にパスワードが記載されてますので、シールははがさないようにしてください。
-                        </p>
-                    </div>
-                    <div>
-                        <span class="fw-bold border-bottom border-dark">登記完了証とは</span>
-                        <p class="ps-3">
-                            登記が完了されたことを示すだけで他に使用することはないです。
-                        </p>
-                    </div>
-                    <div>
-                        <span class="fw-bold border-bottom border-dark">登記完了後の不動産の全部事項証明書が必要な場合</span>
-                        <p class="ps-3">
-                            最寄りの法務局に出向く又は郵送で取得する必要があります。お急ぎでない場合は、下記リンクからオンライン請求すると後日普通郵便で受け取ることができます。
-                        </p>
-                        <p>
-                            <a class="ms-3 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
-                                オンライン申請サイト
-                            </a>
-                        </p>
-                        <div class="ps-3">
-                            <span class="fw-bold border-bottom border-dark">
-                                証明書でなくてもよい場合（登記簿の記載内容を確認したいだけなど）
+                        申請先の法務局から
+                        <span class="fw-bold">
+                            登記識別情報通知書、登記完了証、戸籍謄本等の原本
+                        </span>
+                        が届きます。
+                        <br>
+                        <span class="border-bottom border-secondary">
+                            ※重要な書類のため本人限定受取郵便（特例型）で届きます。
+                        </span>
+                        <p class="ms-3">
+                            郵便局から通知書が届いた後に郵便局の窓口で受け取るか自宅に配達してもらう方法です
+                            <span class="fw-bold">
+                                （いずれも本人確認書類の提示が必要）
                             </span>
-                            <div class="ps-3">
-                                下記リンクからオンライン上で請求してすぐに確認できます。
-                                <p class="form-text">
-                                    ※証明書ではないため、役所や金融機関の手続では使用することができないこともあります。
-                                </p>
-                            </div>
+                            。
+                        </p>
+                    </div>
+                    <div>
+                        <span class="fw-bold border-bottom border-secondary">
+                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#identificate_certification">
+                                登記識別情報通知書
+                            </button>
+                        </span>
+                        <div class="ms-3">
                             <p>
-                                <a class="ms-3 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" href="#">
-                                    登記情報サイト
-                                </a>
+                                不動産のパスワードが記載された書面で各不動産ごとに発行されます。<br>
+                                不動産を売却したり、金融機関からの借り入れで担保に提供するなどのときに使用します。
                             </p>
+                            <p>
+                                目隠し部分にパスワードが記載されてます。
+                                <br>
+                                このパスワードのみでは悪用できませんが、万が一のことがないよう目隠しははがさないようにしてください。
+                            </p>
+                        </div>
+                        <div class="modal fade" id="identificate_certification" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">登記識別情報通知書とは</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <span class="ms-5 fw-bold">
+                                                目隠し部分が未開封のもの
+                                            </span>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知２.png' %}" alt="登記識別情報通知（未開封）の説明画像">
+                                            </p>
+                                        </div>
+                                        <div class="mt-5">
+                                            <span class="ms-5 fw-bold">
+                                                目隠し部分を開封したもの
+                                            </span>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知３.png' %}" alt="登記識別情報通知（開封済）の説明画像">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div>
-                        返却された書類の中には他の相続人の方の印鑑証明書など重要な個人情報を含むものがありますので、厳重に保管してください。
-                        保管に不安がある場合は、各自に返却するのもいいかと思います。
+                        <span class="fw-bold border-bottom border-secondary">
+                            登記完了証
+                        </span>
+                        <p class="ps-3">
+                            登記が完了されたことを示すもので用途は特にないです。
+                        </p>
+                    </div>
+                    <div>
+                        <span class="fw-bold border-bottom border-secondary">
+                            戸籍謄本等の原本
+                        </span>
+                        <p class="ps-3">
+                            他の方の個人情報が含まれる書類のため大事に保管ください。
+                        </p>
+                    </div>
+                    <div>
+                        <span class="fw-bold border-bottom border-secondary">
+                            登記完了後の不動産の
+                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#registration_certificate">
+                                全部事項証明書
+                            </button>
+                            が必要な場合
+                        </span>
+                        <div class="ms-3">
+                            法務局や法務局証明サービスセンターの
+                            <span class="fw-bold">
+                                窓口で請求
+                            </span>
+                            、
+                            <span class="fw-bold">
+                                郵送請求
+                            </span>
+                            、下記リンクから
+                            <span class="fw-bold">
+                                オンライン請求
+                            </span>
+                            、のいずれかで取得できます。
+                            <br>
+                            下記リンクからオンライン請求すると請求日から２，３日後に普通郵便で受け取ることができます。
+                            <br>
+                            ※１通５００円、法務局や法務局証明サービスセンターでの窓口で請求は１通６００円
+                            <p class="mt-3 ms-3">
+                                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" target="_blank" rel="noopener noreferrer" href="https://www.touki-kyoutaku-online.moj.go.jp/web/top/SC01WL01-ViewLogin.do">
+                                    かんたん証明書請求
+                                </a>
+                                <br>
+                                ※システム稼働時間：８時３０分～２１時００分（平日のみ）
+                            </p>
+                        </div>
+                        <div class="modal fade" id="registration_certificate" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">不動産の全部事項証明書とは</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <p class="mx-5">
+                                                不動産の記録上の現況に関する情報や所有者の情報、担保に取っている金融機関の情報などが記載されている
+                                                <span class="fw-bold">
+                                                    証明書
+                                                </span>
+                                                です。
+                                                <br>
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/全部事項証明書（土地）.png' %}" alt="全部事項証明書（土地）の説明画像">
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/全部事項証明書（建物）.png' %}" alt="全部事項証明書（建物）の説明画像">
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/全部事項証明書（区分建物１）.png' %}" alt="全部事項証明書（区分建物）の説明画像">
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/全部事項証明書（区分建物２）.png' %}" alt="全部事項証明書（区分建物）の説明画像">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="fw-bold border-bottom border-secondary">
+                            登記完了後の内容を確認したいだけの場合
+                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#registration_info">
+                                （登記情報）
+                            </button>
+                        </span>
+                        <div class="ms-3">
+                            下記リンクからオンライン請求ですぐに確認できます。
+                            <div>
+                                ※
+                                <span class="fw-bold">
+                                    証明書ではない
+                                </span>
+                                ため、役所や金融機関の手続では使用できないこともあります。
+                            </div>
+                            <p class="mt-3 ms-3">
+                                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" target="_blank" rel="noopener noreferrer" href="https://www1.touki.or.jp/">
+                                    登記情報提供サービス
+                                </a>
+                                <br>
+                                ※システム稼働時間：８時３０分～２３時００分（平日）、８時３０分～１８時００分（土日祝日）
+                            </p>
+                        </div>
+                        <div class="modal fade" id="registration_info" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5">不動産の登記情報とは</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <p class="mx-5">
+                                                不動産の記録上の現況に関する情報や所有者の情報、担保に取っている金融機関の情報などが記載されている
+                                                <span class="fw-bold">
+                                                    データ
+                                                </span>
+                                                です
+                                                <span class="fw-bold">
+                                                    （記載内容は全部事項証明書と同じ）
+                                                </span>
+                                                。
+                                                <br>
+                                                <span class="border-bottom border-secondary">
+                                                    ※全部事項証明書と異なり証明書ではないため、提出先によっては使えないことがあります。
+                                                </span>
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報（土地）の説明画像">
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（建物）.png' %}" alt="登記情報（建物）の説明画像">
+                                            </p>
+                                            <p class="d-flex justify-content-center">
+                                                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（区分建物）.png' %}" alt="登記情報（区分建物）の説明画像">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </li>
-            <hr>
-            <li class="container mt-3">
-                <h5>なんか宣伝とか</h5>
-                <div>
-                    
+                <div class="mt-5 text-center">
+                    <p class="fw-bold fs-5">
+                        以上で本システムのサービスは終了です。
+                        <br>
+                        ご利用いただき誠にありがとうございました。
+                    </p>
+                    <p>
+                        アカウントの有効期間中（ご利用開始日から１年間）は何度でもご利用できます。
+                        <br>
+                        <span>
+
+                            ※但し、システムが使用頻度に異常を検知した場合は制限することもあります。
+                        </span>
+                    </p>
+                    <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5 fw-bold" href="{{top_page}}">
+                        トップページ
+                    </a>
                 </div>
             </li>
         </ol>

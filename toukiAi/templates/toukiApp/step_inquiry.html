@@ -78,4 +78,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_inquiry.js' %}"></script>
+    <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

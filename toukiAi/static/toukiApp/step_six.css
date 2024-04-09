@@ -17,6 +17,12 @@
     margin-left: 1rem!important;
 }
 
+/* よくある補正と対応、よくある取下理由と対応 */
 #wrap ol{
     min-width: 570px!important;
+}
+
+/* 登記識別情報通知、不動産の全部事項証明書、登記情報のモーダル */
+#identificate_certification, #registration_certificate, #registration_info{
+    --bs-modal-width: 800px;
 }

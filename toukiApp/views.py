@@ -4258,12 +4258,12 @@ def step_six(request):
             
         title = Service.STEP_TITLES["six"]
 
-            
         context = {
             "title" : title,
             "user" : user,
             "decedent": decedent,
             "progress": decedent.progress,
+            "top_page": CompanyData.URL,
             "sections" : Sections.SECTIONS[Sections.STEP6],
             "service_content" : Sections.SERVICE_CONTENT,
         }
@@ -4297,18 +4297,35 @@ def step_option_select(request):
 
 #お問い合わせ
 def step_inquiry(request):
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-    
-    user = User.objects.get(email = request.user)
-    
-    context = {
-        "title" : "お問い合わせ",
-        "sections" : Sections.SECTIONS,
-        "service_content" : Sections.SERVICE_CONTENT,
-        "user" : user,
-    }
-    return render(request, "toukiApp/step_inquiry.html", context)
+    try:
+        render_html = "toukiApp/step_inquiry.html"
+        function_name = get_current_function_name()
+        
+        response, user, decedent = check_user_and_decedent(request)
+        if response:
+            return response
+        
+        user = User.objects.get(email = request.user)
+        
+        context = {
+            "title" : Service.STEP_TITLES["inquiry"],
+            "progress": decedent.progress,
+            "sections" : Sections.SECTIONS,
+            "service_content" : Sections.SERVICE_CONTENT,
+            "user" : user,
+        }
+        return render(request, render_html, context)
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            function_name, 
+            "toukiApp/step_inquiry", 
+            render_html, 
+            None,
+            None,
+        )
 
 #お問い合わせ・運営者情報
 def administrator(request):
@@ -4459,7 +4476,7 @@ def get_city_from_resas(prefecture):
     国土地理院のものが使用できないときのためのサブ
     
     Args:
-        request (_type_): _description_
+        prefecture (str): 都道府県コード
 
     Returns:
         _type_: _description_
@@ -4481,7 +4498,7 @@ def get_city_from_reinfolib(prefecture):
     """入力された都道府県コードを使って国交省の不動産情報ライブラリから市区町村データを取得する
 
     Args:
-        request (_type_): _description_
+        prefecture (str): 都道府県コード
 
     Returns:
         _type_: _description_
@@ -4500,8 +4517,7 @@ def get_city_from_reinfolib(prefecture):
         return None
 
 def get_city(request):
-    """入力された都道府県コードを使って市区町村データを取得
-    """
+    """入力された都道府県コードを使って市区町村データを取得"""
     try:
         data = json.loads(request.body)
         prefecture = data["prefecture"]
@@ -4569,21 +4585,21 @@ def step_back(request):
     else:
         return JsonResponse({'status': 'error'})
 
-# 法務局データスクレイピング用（どこかのstep内に配置してデータを更新する）
-# def import_offices(html_file_path):
-#     with open(html_file_path, 'r', encoding='utf-8') as file:
-#         soup = BeautifulSoup(file, 'html.parser')
+def import_offices(html_file_path):
+    """法務局データスクレイピング処理"""
+    with open(html_file_path, 'r', encoding='utf-8') as file:
+        soup = BeautifulSoup(file, 'html.parser')
         
-#     for row in soup.find_all('tr'):
-#         cols = row.find_all('td')
-#         if cols and not cols[0].has_attr('class'):
-#             code = cols[0].text.strip()
-#             name = cols[1].text.strip()
-#             try:
-#                 with transaction.atomic():
-#                     Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
-#             except Exception as e:
-#                 # ログにエラーメッセージを記録します
-#                 print(f"Error occurred: {e}")
+    for row in soup.find_all('tr'):
+        cols = row.find_all('td')
+        if cols and not cols[0].has_attr('class'):
+            code = cols[0].text.strip()
+            name = cols[1].text.strip()
+            try:
+                with transaction.atomic():
+                    Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
+            except Exception as e:
+                # ログにエラーメッセージを記録します
+                print(f"Error occurred: {e}")
 # HTMLファイルのパスを指定して実行
 # import_offices('toukiApp/登記所選択.html')

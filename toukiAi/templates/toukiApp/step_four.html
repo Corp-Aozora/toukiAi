@@ -45,7 +45,7 @@
             </p>
         </div>
         <hr>
-        <form action="{% url 'toukiApp:step_five' %}" method="POST" class="my-4" novalidate>
+        <form action="{% url 'toukiApp:step_four' %}" method="POST" class="my-4" novalidate>
             {% csrf_token %}
             {% if heirs|length > 1 %}
                 <section class="container">

@@ -13,15 +13,10 @@
     padding-right: 1rem;
 }
 
-
-
-ul > li{
-    padding-left: 0!important;
+#wrap ul > li{
+    margin-left: 1rem!important;
 }
 
-#corrections > li:not(:first-child)::before{
-    content:"";
-    display: inline-block;
-    width: 40px!important;
+#wrap ol{
+    min-width: 570px!important;
 }
-

@@ -2628,12 +2628,12 @@ def step_four(request):
 
             try:
                 with transaction.atomic():
-                    decedent.progress = 3
+                    decedent.progress = 5
                     decedent.save()
             except DatabaseError as e:
                 basic_log(function_name, e, user)
                 messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
-                return redirect('/toukiApp/step_three')
+                return redirect('/toukiApp/step_four')
             except (ValidationError, ValueError) as e:
                 basic_log(function_name, e, user)
                 return HttpResponse("データと入力内容に不一致がありました\nお手数ですが、再度ご入力をお願いします", status=400)
@@ -2642,7 +2642,7 @@ def step_four(request):
                 messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
                 return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご連絡をお願いします", status=500)
             else:
-                return redirect('/toukiApp/step_four')
+                return redirect('/toukiApp/step_five')
                 
         #相続人情報を取得
         heirs = get_legal_heirs(decedent)
@@ -2662,7 +2662,7 @@ def step_four(request):
             "overseas": overseas,
             "principal_names_and_POA_count": principal_names_and_POA_count,
             "agent_name": agent_name,
-            "sections" : Sections.SECTIONS[Sections.STEP3],
+            "sections" : Sections.SECTIONS[Sections.STEP4],
             "service_content" : Sections.SERVICE_CONTENT,
         }
         return render(request, render_html, context)

@@ -614,7 +614,11 @@ function getDaysInMonth(year, month) {
  */
 function disableEnterKeyForInputs(){
     const inputArr = document.getElementsByTagName("input");
-    for(let i = 0, len = inputArr.length; i < len; i++){
+    const inputArrLength = inputArr.length;
+    if(inputArrLength === 0)
+        return;
+
+    for(let i = 0; i < inputArrLength; i++){
         inputArr[i].addEventListener("keydown",(e)=>{
             if(e.key === "Enter")
                 e.preventDefault();

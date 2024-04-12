@@ -32,5 +32,6 @@ urlpatterns = [
     path("get_office", views.get_office, name="get_office"),
     path("is_email", views.is_email, name="is_email"),
     path("step_back", views.step_back, name="step_back"),
+    
 ]
 

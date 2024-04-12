@@ -1,4 +1,6 @@
 from .base import *
+from toukiApp.company_data import CompanyData
+
 
 DEBUG = True
 
@@ -26,13 +28,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカル�
 # EMAIL_HOST_PASSWORD = 'saga2497'           
 # EMAIL_USE_TLS = True    
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-DEFAULT_FROM_EMAIL = 'そうぞくとうきくん <toukiaidev@gmail.com>'    #送信元のアドレスを指定
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'toukiaidev@gmail.com'
-EMAIL_HOST_PASSWORD = 'dmpwozrseacxyagh'
-EMAIL_USE_TLS = True 
+EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
+EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True  
+
 
 DATABASES = {
     'default':{

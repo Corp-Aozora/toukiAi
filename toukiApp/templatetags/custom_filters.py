@@ -4,6 +4,7 @@ register = template.Library()
 
 @register.filter
 def until(value, arg):
+    """引数で与えられた文字列までの文章を返す"""
     index = value.find(arg)
     if index == -1:
         return value
@@ -12,6 +13,7 @@ def until(value, arg):
     
 @register.filter
 def after(value, arg):
+    """引数で与えられた文字列以降の文章を返す"""
     try:
         index = value.index(arg)
         return value[index+len(arg):]

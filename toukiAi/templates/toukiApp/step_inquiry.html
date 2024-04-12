@@ -9,6 +9,38 @@
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="message_modal modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center {% if message.tags == "success" %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
+                        <h5 class="modal-title">
+                            {% if message.tags == "success" %}
+                                {{ message }}
+                            {% else %}
+                                受け付けできませんでした
+                            {% endif %}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% if message.tags == "success" %}
+                            原則２４時間以内にご登録いただいてるメールアドレス宛にご回答いたします。
+                        {% elif message.tags == "warning" %}
+                            入力されたデータが想定される形式ではありませんでした。<br>
+                            再度ご入力をお願いします。
+                        {% else %}
+                            {{ message }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
@@ -18,55 +50,152 @@
             </h4>
         </div>
         <hr>
-        <p>
-            お問い合わせに対して的確にお答えできるように進捗状況、項目、お問い合わせ内容の入力をお願いします。
-        </p>
-        <form class="col-lg-10">
-            <field id="progressField">
-                <div class="input-group">
-                    <span class="input-group-text fw-bold mdLabel" id="progressLabel">進捗状況</span>
-                    <select name="progressList" class="form-select" id="progress" aria-describedby="progressLabel" required>
-                        <option ></option>
-                        {% for progress in sections.keys %}
-                        <option value="{{progress}}">{{progress}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </field>
-            <fieldset id="columnField" class="mt-3" disabled="true">
-                <div class="input-group">
-                    <span class="input-group-text fw-bold mdLabel" id="columnLabel">項目</span>
-                    <select name="columnList" class="form-select" id="column" aria-describedby="columnLabel" required>
-                        <option ></option>
-                        {% for column in sections.values %}
-                        <option value="{{column}}">{{column}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </fieldset>
-            <fieldset id="inquiryContentField" class="mt-3" disabled="true">
+        <div>
+            <p>
+                <span class="border-bottom border-secondary">
+                    個別具体的な事情に対する回答はできない場合もございますのでご了承ください。
+                </span>
+            </p>
+            <div>
                 <div>
-                    <label for="inquiryContent" class="form-label fw-bold">お問い合わせ内容</label>
-                    <textarea id="inquiryContent" class="form-control" rows="10"></textarea>
+                    <span class="fw-bold text-success">
+                        弊社のＬＩＮＥアカウントへ
+                    </span>
+                    お問い合わせいただくこともできます。
                 </div>
-            </fieldset>
-            <fieldset id="beforeSubmitBtnField" class="text-center mt-3" disabled="true">
-                <button type="button" id="beforeSubmitBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal">送信</button>
-                <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalTitle" aria-hidden="true">
+                <p class="ms-3">
+                    友達検索で次のＩＤの検索をお願いします。
+                    <br>
+                    <span class="fw-bold">
+                        株式会社あおぞらのＩＤ
+                    </span>
+                    <span class="ms-3 fw-bold">
+                        @020gkjfm
+                    </span>
+                </p>
+            </div>
+        </div>
+        {% if form.errors %}
+            <div class="error_list fw-bold bg-danger-subtle border rounded-3 mx-3 px-3 py-3 my-3">
+                {% for field, errors in form.errors.items %}
+                    <div>
+                        {% if field == "__all__" %}
+                            <div>入力エラー</div>
+                        {% else %}
+                            {% if field == "progress" %}
+                                <div>
+                                    進捗状況の入力エラー
+                                </div>
+                            {% elif field == "subject" %}
+                                <div>
+                                    項目の入力エラー
+                                </div>
+                            {% elif field == "content" %}
+                                <div>
+                                    質問の入力エラー
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                        <ul>
+                            {% for error in errors %}
+                            <li>
+                                {{ error }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <form class="col-lg-10" action="{% url 'toukiApp:step_inquiry' %}" method="POST" novalidate>
+            {% csrf_token %}
+            {% for field in inquiry_form %}
+                <fieldset>
+                    <div class="input-group">
+                        <span class="input-group-text fw-bold label">
+                            {{ field.label }}
+                        </span>
+                        {{ field }}
+                    </div>
+                </fieldset>
+            {% endfor %}
+            <fieldset class="text-center mt-3">
+                <button disabled type="button" id="showModalBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                    送信
+                </button>
+                <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="submitModalTitle">内容にお間違えはないですか？</h1>
+                            <div class="modal-header justify-content-center">
+                                <h1 class="modal-title fs-5">
+                                    内容にお間違いはありませんか？
+                                </h1>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary">送信する</button>
+                            <div class="modal-body text-start">
+                            </div>
+                            <div class="modal-footer justify-content-evenly">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">修正する</button>
+                                <button id="submitBtn" type="submit" class="btn btn-primary">
+                                    ＯＫ
+                                    <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </fieldset>
         </form>
+        <hr>
+        <section class="pe-5 pb-5">
+            <h5>
+                過去のお問い合わせ
+            </h5>
+            {% if q_and_a_data %}
+                {% for q, a in q_and_a_data %}
+                    <ul class="mt-3">
+                        <li>
+                            <div>
+                                <p class="fw-bold">
+                                    <span class="border-bottom {% if a %}text-success border-success{% else %}text-danger border-danger{% endif %}">
+                                        質問（{{q.updated_at}}）
+                                    </span>
+                                </p>
+                                <div class="ms-3">
+                                    <div>
+                                        ・{{q.category}}の{{q.subject}}について
+                                    </div>
+                                    <p class="fw-bold">
+                                        {{q.content}}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="ms-3">
+                                <p class="fw-bold">
+                                    <span class="border-bottom border-primary text-primary">
+                                        ＞回答
+                                        {% if a %}
+                                            （{{a.updated_at}}）
+                                        {% endif %}
+                                    </span>
+                                </p>
+                                <p class="ms-3 fw-bold">
+                                    {% if a %}
+                                        {{a.content|linebreaksbr}}
+                                    {% else %}
+                                        原則２４以内に回答いたします。
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                {% endfor %}
+            {% else %}
+                <div class="ms-3 mt-3">
+                    ありません。お気軽にお問い合わせください。
+                </div>
+            {% endif %}
+        </section>
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,11 @@
+fieldset:not(:first-child){
+    margin-top: 1rem!important;
+}
+
+textarea{
+    resize: none;
+}
+
+fieldset span{
+    width:100px;
+}

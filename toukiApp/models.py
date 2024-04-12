@@ -9,6 +9,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from .company_data import Service
+from .sections import *
 import datetime
 from django.conf import settings
 from .customDate import *
@@ -21,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 # お問い合わせ内容
-# 質問者のメールアドレス/件名/質問内容/回答内容/回答者/質問日/回答日
+# 質問者のメールアドレス/件名/質問内容/回答者
 class OpenInquiry(CommonModel):
     created_by = models.EmailField(verbose_name="メールアドレス")
     subject_list = (
@@ -1298,3 +1299,87 @@ class Office(CommonModel):
     class Meta:
         verbose_name = _("法務局")
         verbose_name_plural = _("法務局")
+        
+# ユーザー用のお問い合わせ内容
+# 件名/項目/質問内容
+class UserInquiry(CommonModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="ユーザー",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="user_inquiry",
+    )
+    category = models.CharField(verbose_name="進捗状況", max_length=50, choices=Sections.CATEGORY_LIST, null=False, blank=False)
+    subject = models.CharField(verbose_name="項目", max_length=50, choices=Sections.SUBJECT_LIST, null=False, blank=False)
+    content = models.TextField(verbose_name="質問", max_length=300, null=False, blank=False)
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "user_inquiry_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "user_inquiry_update_by"
+    )
+    fields = [
+        "category", 
+        "subject", 
+        "content"
+    ]
+    
+    class Meta:
+        verbose_name = _("ユーザーのお問い合わせ")
+        verbose_name_plural = _("ユーザーのお問い合わせ")
+        
+class AnswerToUserInquiry(CommonModel):
+    user_inquiry = models.OneToOneField(
+        UserInquiry,
+        verbose_name="ユーザーのお問い合わせ",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="answer_to_user_inquiry",
+    )
+    content = models.TextField(verbose_name="回答", max_length=300, null=False, blank=False)
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "answer_to_user_inquiry_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "answer_to_user_inquiry_update_by"
+    )
+    
+    def save(self, *args, **kwargs):
+        if not self.created_by.is_staff:
+            raise ValidationError("作成者はスタッフ権限が必要です")
+        if not self.updated_by.is_staff:
+            raise ValidationError("最終更新者はスタッフ権限が必要です")
+        super().save(*args, **kwargs)
+    
+    fields = [
+        "content",
+    ]
+    
+    class Meta:
+        verbose_name = _("ユーザーのお問い合わせに対する回答")
+        verbose_name_plural = _("ユーザーのお問い合わせに対する回答")

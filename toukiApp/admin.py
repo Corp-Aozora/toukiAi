@@ -4,9 +4,18 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import gettext_lazy as _
 from .models import *
+from .company_data import *
+from .sections import *
+from .toukiAi_commons import *
+from .forms import AnswerToUserInquiryAdminForm, UserInquiryAdminForm
+from django.http import HttpResponseRedirect
+from django.urls import path
+from django.contrib import messages
+from django.db import transaction
+from django.utils.html import format_html
 
-# 更新情報
 class UpdateArticleChangeForm(forms.ModelForm):
+    """更新情報の更新フォーム"""
     class Meta:
         model = UpdateArticle
         fields = '__all__'
@@ -17,6 +26,7 @@ class UpdateArticleChangeForm(forms.ModelForm):
 #         fields = ('title', 'article', "created_by")
 
 class UpdateArticleAdmin(admin.ModelAdmin):
+    """更新情報"""
     fieldsets = (
         (None, {'fields': ('title', 'article', "updated_by",'created_by')}),
         (_('Important dates'), {'fields': ('updated_at', "created_at")}),
@@ -521,3 +531,154 @@ class OfficeAdmin(admin.ModelAdmin):
     ordering = ['-updated_at']
 
 admin.site.register(Office, OfficeAdmin)
+
+class AnswerToUserInquiryInline(admin.StackedInline):  # またはadmin.StackedInline
+    model = AnswerToUserInquiry
+    form = AnswerToUserInquiryAdminForm
+    extra = 1
+    fields = ["content"]
+
+class UserInquiryChangeForm(forms.ModelForm):
+    class Meta:
+        model = UserInquiry
+        fields = '__all__'
+
+class UserInquiryAdmin(admin.ModelAdmin):
+    """会員からのお問い合わせ"""
+    form = UserInquiryAdminForm
+    change_form_template = "admin/user_inquiry_change_form.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('<int:object_id>/save/', self.admin_site.admin_view(self.save_model_custom), name='user_inquiry_save_custom'),
+            path('<int:object_id>/save_answer/', self.admin_site.admin_view(self.save_answer_to_user_inquiry), name='save_answer_to_user_inquiry'),
+        ]
+        return my_urls + urls
+
+    def save_answer_to_user_inquiry(self, request, object_id):
+        """回答のみを保存する処理
+        
+            Djangoのデフォルトでフォームセットで回答フォームが表示されるためPOSTのデータを
+            加工してformに代入している
+        """
+        user_inquiry = UserInquiry.objects.get(pk=object_id)
+        answer = AnswerToUserInquiry.objects.filter(user_inquiry=user_inquiry).first()
+        post_data = request.POST.copy()  # QueryDict はイミュータブルなので、コピーしてから変更
+        post_data['user_inquiry'] = post_data.get('answer_to_user_inquiry-0-user_inquiry')
+        post_data['content'] = post_data.get('answer_to_user_inquiry-0-content')
+        post_data['created_by'] = answer.user_inquiry.user if answer else request.user 
+        post_data['updated_by'] = request.user
+        form = AnswerToUserInquiryAdminForm(post_data, instance=answer if answer else None)
+        if form.is_valid():
+            with transaction.atomic():
+                form.save()
+                messages.success(request, "回答を保存しました")
+                send_email_to_inquiry(form.cleaned_data)
+        else:
+            basic_log(get_current_function_name(), None, request.user, f"{form.errors}")
+            messages.error(request, "回答の保存に失敗しました")
+            
+        return HttpResponseRedirect('../')
+
+    def save_model_custom(self, request, object_id):
+        """質問のみを保存する処理
+        
+            使用予定がないためボタンをdisabledにしている
+        """
+        obj = self.get_object(request, object_id)
+        form = self.form(request.POST, instance=obj)
+        if form.is_valid():
+            with transaction.atomic():
+                form.save() 
+                messages.success(request, "質問を保存しました")
+        else:
+            basic_log(get_current_function_name(), None, request.user, f"{form.errors}")
+            messages.error(request, "質問の保存に失敗しました")
+            
+        return HttpResponseRedirect('../') 
+
+    def response_change(self, request, obj):
+        if "_saveasnew" in request.POST:
+            return super().response_change(request, obj)
+        elif "_continue" in request.POST:
+            return super().response_change(request, obj)
+        elif "_save" in request.POST:
+            return HttpResponseRedirect('../')  # 保存後のリダイレクト先を調整
+    
+    def answer_updated_at(self, obj):
+        # 回答の最終更新日をリストに表示する（回答データがないときは未回答と表示）
+        try:
+            answer = obj.answer_to_user_inquiry
+            return answer.updated_at
+        except AnswerToUserInquiry.DoesNotExist:
+            return format_html('<span style="color: #999;">{}</span>', _("未回答"))
+
+    answer_updated_at.short_description = "回答の最終更新日"
+    
+    fieldsets = (
+        (None, {'fields': ("user", "category", 'subject', 'content')}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+    )
+    
+    readonly_fields = ("user",  "category", 'subject', 'content', 'updated_at', 'created_at')
+    list_display = ("user", "category", 'subject', 'updated_at', 'updated_by', 'answer_updated_at')
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ('updated_at', 'created_at', "user", "content", "subject")
+    ordering = ['-updated_at']
+    
+    inlines = [AnswerToUserInquiryInline]  # インラインモデルを追加
+
+admin.site.register(UserInquiry, UserInquiryAdmin)
+
+class AnswerToUserInquiryChangeForm(forms.ModelForm):
+    class Meta:
+        model = AnswerToUserInquiry
+        fields = '__all__'
+
+class AnswerToUserInquiryAdmin(admin.ModelAdmin):
+    """会員からのお問い合わせに対する回答"""
+    fieldsets = (
+        (None, {'fields': ("user_inquiry", "content", "created_by", "updated_by")}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+        (_('問い合わせ内容'), {'fields': ('get_user_inquiry_updated_at', 'get_user_inquiry_user', 'get_user_inquiry_category', 'get_user_inquiry_subject', 'get_user_inquiry_content')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at', 'user_inquiry', 'get_user_inquiry_updated_at', 'get_user_inquiry_user', 'get_user_inquiry_category', 'get_user_inquiry_subject', 'get_user_inquiry_content')
+    form = AnswerToUserInquiryChangeForm
+    list_display = ('user_inquiry', 'get_user_inquiry_updated_at', 'get_user_inquiry_user', 'get_user_inquiry_category', 'get_user_inquiry_subject', 'get_user_inquiry_content', 'updated_at', 'updated_by')
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ("user_inquiry", 'updated_at', 'created_at')
+    ordering = ['-updated_at']
+    
+    def get_user_inquiry_updated_at(self, obj):
+        return obj.user_inquiry.updated_at
+    get_user_inquiry_updated_at.admin_order_field = 'user_inquiry__updated_at'
+    get_user_inquiry_updated_at.short_description = _('User Inquiry Updated At')
+
+    def get_user_inquiry_user(self, obj):
+        return obj.user_inquiry.user
+    get_user_inquiry_user.admin_order_field = 'user_inquiry__user'
+    get_user_inquiry_user.short_description = _('User Inquiry User')
+
+    def get_user_inquiry_category(self, obj):
+        return Sections.get_category(obj.user_inquiry.category)
+    get_user_inquiry_category.admin_order_field = 'user_inquiry__category'
+    get_user_inquiry_category.short_description = _('User Inquiry Category')
+
+    def get_user_inquiry_subject(self, obj):
+        return Sections.get_subject(obj.user_inquiry.subject)
+    get_user_inquiry_subject.admin_order_field = 'user_inquiry__subject'
+    get_user_inquiry_subject.short_description = _('User Inquiry Subject')
+
+    def get_user_inquiry_content(self, obj):
+        return obj.user_inquiry.content
+    get_user_inquiry_content.admin_order_field = 'user_inquiry__content'
+    get_user_inquiry_content.short_description = _('User Inquiry Content')
+    
+    def save_model(self, request, obj, form, change):
+        # 回答したらメールをユーザーに送信
+        super().save_model(request, obj, form, change)
+        send_email_to_inquiry(obj)
+    
+admin.site.register(AnswerToUserInquiry, AnswerToUserInquiryAdmin)

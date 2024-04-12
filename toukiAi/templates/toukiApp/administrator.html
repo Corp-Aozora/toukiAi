@@ -23,28 +23,28 @@
                 弊社では、不動産登記手続きを皆様にとってより身近な手続きにすることで日本の不動産が有効活用され、適切に資産承継が行われるようになることを目標にシステムを制作しております。
             </p>
             <p>
-                元司法書士が本システムを制作してお問い合わせ対応も行っておりますので、皆様の登記手続きをしっかりサポートさせていただきます。
+                元司法書士のシステムエンジニアが本システムを制作してお問い合わせ対応を行っておりますので、皆様の登記手続きをサポートさせていただく準備はできてます。
             </p>
             <p>
                 アカウント登録（無料）をするとシステムの最初の部分だけどのような感じかご確認いただけますので、ご興味をお持ちいただけましたら是非ご登録いただけますと幸いです。<br>
-                そのほか気になる点がございましたら、トップページ下部にあるお問い合わせからご質問を承っております。
+                そのほか気になる点がございましたら、トップページ下部にあるお問い合わせからお気軽にお問い合わせください。
             </p>
         </div>
     </div>
     <div class="card shadow bg-light">
         <div class="card-body">
-            <h4 class="card-title border-bottom">
+            <h4 class="card-title">
                 <span class="border-start border-5 border-primary ps-3">相続登記について</span>
             </h4>
-            <div class="card-text mt-3">
+            <div class="card-text p-3 bg-white border rounded-3">
                 <p>
                     <span class="fw-bold border-bottom border-dark">
                         令和６年４月１日から相続登記が義務化
                     </span>
-                    される法律が施行されます。
+                    される法律が施行されました。
                 </p>
                 <p>
-                    これは相続登記の放置により所有者不明の不動産が増加して、公共事業や都市開発など不動産の活用に支障が出ていることを解消するためのもので、
+                    これは相続登記の放置により所有者不明の不動産が増加して、公共事業や都市開発など不動産の活用に支障が出ているためで、
                     <span class="fw-bold border-bottom border-dark">
                         義務化後は、相続発生から3年以内に相続登記をしないと
                         <span class="text-danger">
@@ -61,44 +61,18 @@
             </div>
         </div>
     </div>
-    <div class="card shadow bg-light">
-        <div class="card-body">
-            <h4 class="card-title border-bottom">
-                <span class="border-start border-5 border-primary ps-3">今後の制作予定</span>
-            </h4>
-            <div id="updateScheduleList" class="card-text mt-3">
-                <p class="text-center">
-                    <span class="fw-bold">
-                        登記手続きをより身近な手続にするために<br>
-                        相続登記以外の登記に関するシステムも制作中です！
-                    </span>
-                </p>
-                <ul>
-                    <li>
-                        対応可能な相続登記の範囲を広げる（親や兄弟姉妹の数次相続など）
-                    </li>
-                    <li>
-                        抵当権抹消登記のシステム開発
-                    </li>
-                    <li>
-                        贈与による所有権移転登記のシステム開発
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="mx-auto">
+    <div class="mx-auto mt-5">
         <h5 class="text-center my-3">
             運営者・お問い合わせ先
         </h5>
-        <div id="companyInfo" class="col-md-8 col-10 mt-3 mx-auto">
+        <div id="company_info" class="col-11 mt-3 mx-auto">
             <hr>
             <div class="d-sm-flex">
                 <div class="col-sm-4 fw-bold">
                     運営者
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.NAME}}
+                    {{company_data.NAME}}
                 </div>
             </div>
             <hr>
@@ -107,8 +81,8 @@
                     住所
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.ADDRESS}}<br>
-                    {{CompanyData.BLDG}}
+                    {{company_data.ADDRESS}}<br>
+                    {{company_data.BLDG}}
                 </div>
             </div>
             <hr>
@@ -117,7 +91,7 @@
                     代表取締役
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.CEO}}
+                    {{company_data.CEO}}
                 </div>
             </div>
             <hr>
@@ -126,10 +100,10 @@
                     電話番号
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.RECEIVING_PHONE_NUMBER}}<br>
+                    {{company_data.RECEIVING_PHONE_NUMBER}}<br>
                     ※弊社からの電話は以下の番号がお客様に表示されます。<br>
-                    {{CompanyData.CALLING_PHONE_NUMBER}}<br>
-                    ※お問い合わせはメール又はＬＩＮＥのみです。
+                    {{company_data.CALLING_PHONE_NUMBER}}<br>
+                    ※お問い合わせはメール又はＬＩＮＥのみで受け付けてます。
                 </div>
             </div>
             <hr>
@@ -138,7 +112,18 @@
                     メールアドレス
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.MAIL_ADDRESS}}
+                    {{company_data.MAIL_ADDRESS}}
+                </div>
+            </div>
+            <hr>
+            <div class="d-sm-flex">
+                <div class="col-sm-4 fw-bold">
+                    ＬＩＮＥのＩＤ
+                    <br>
+                    お問い合わせ受付
+                </div>
+                <div class="col-sm-8 my-auto">
+                    {{company_data.OPEN_LINE_ID}}
                 </div>
             </div>
             <hr>
@@ -147,7 +132,7 @@
                     営業時間
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.OPENING_HOURS}}
+                    {{company_data.OPENING_HOURS}}
                 </div>
             </div>
             <hr>
@@ -156,7 +141,7 @@
                     設立年月日
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.ESTABLISH_DATE}}
+                    {{company_data.ESTABLISH_DATE}}
                 </div>
             </div>
             <hr>
@@ -165,7 +150,7 @@
                     資本金
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.CAPITAL}}
+                    {{company_data.CAPITAL}}
                 </div>
             </div>
             <hr>
@@ -174,9 +159,9 @@
                     監修者
                 </div>
                 <div class="col-sm-8">
-                    {{CompanyData.SUPERVISER}}<br>
-                    {{CompanyData.SUPERVISER_BELONG_1}}<br>
-                    {{CompanyData.SUPERVISER_BELONG_2}}
+                    {{company_data.SUPERVISER}}<br>
+                    {{company_data.SUPERVISER_BELONG_1}}<br>
+                    {{company_data.SUPERVISER_BELONG_2}}
                 </div>
             </div> -->
             <hr>

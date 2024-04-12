@@ -1,0 +1,5 @@
+{% extends "admin/change_form.html" %}
+{% block submit_buttons_bottom %}
+    <input type="submit" value="問い合わせを保存する" name="_save" disabled>
+    <input type="submit" value="回答を保存する" name="_save-answer" formaction="{% url 'admin:save_answer_to_user_inquiry' original.pk %}">
+{% endblock %}

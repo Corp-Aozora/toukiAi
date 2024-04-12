@@ -1,0 +1,11 @@
+.content_wrapper > div:not(:first-child){
+    margin-top: 1rem;
+}
+
+.card-text{
+    text-indent: 1rem;
+}
+
+.label{
+    min-width: 100px;
+}

@@ -1,26 +1,3 @@
-#updateScheduleList{
-    counter-reset: section 0;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;;
-}
-
-#updateScheduleList li:before{
-    counter-increment: section 1;
-    content: counter(section);
-    font-weight: bold;
-    font-size: 1rem;
-    padding-right: 1rem;
-}
-
-#updateScheduleList li{
-    font-weight: bold;
-}
-
-#updateScheduleList li:not(:first-child){
-    margin-top: 1rem;
-}
-
 .company_logo{
     width:150px!important;
 }
@@ -29,7 +6,17 @@ div .card{
     margin-top: 3rem !important;
 }
 
+/* 会社メッセージ */
 .company_message{
     font-family: 'Noto Serif JP', serif;
 }
+
+/* 会社メッセージと相続登記についてのテキスト */
+.company_message > p, .card-text > p{
+    text-indent: 1rem!important;
+}
   
+/* 会社情報 */
+#company_info .col-sm-4{
+    margin-left: 2rem!important;
+}

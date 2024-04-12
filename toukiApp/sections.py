@@ -1,19 +1,19 @@
 class Sections:
     STEP1 = "基本データ入力"
-    STEP1_1 = "お亡くなりになった方（被相続人）について"
-    STEP1_2 = "配偶者について"
-    STEP1_3 = "子供全員について"
-    STEP1_4 = "各子について"
-    STEP1_5 = "子の配偶者について"
-    STEP1_6 = "孫について"
-    STEP1_7 = "父について"
-    STEP1_8 = "母について"
-    STEP1_9 = "父方の祖父について"
-    STEP1_10 = "父方の祖母について" 
-    STEP1_11 = "母方の祖父について"
-    STEP1_12 = "母方の祖母について"
-    STEP1_13 = "兄弟姉妹全員について"
-    STEP1_14 = "各兄弟姉妹について"
+    STEP1_1 = "お亡くなりになった方（被相続人）"
+    STEP1_2 = "配偶者"
+    STEP1_3 = "子供全員"
+    STEP1_4 = "各子"
+    STEP1_5 = "子の配偶者"
+    STEP1_6 = "孫"
+    STEP1_7 = "父"
+    STEP1_8 = "母"
+    STEP1_9 = "父方の祖父"
+    STEP1_10 = "父方の祖母" 
+    STEP1_11 = "母方の祖父"
+    STEP1_12 = "母方の祖母"
+    STEP1_13 = "兄弟姉妹全員"
+    STEP1_14 = "各兄弟姉妹"
     STEP1_15 = "その他"
     STEP1_CONTENT = [
         STEP1_1, 
@@ -133,3 +133,25 @@ class Sections:
         STEP5 : STEP5_CONTENT,
         STEP6 : STEP6_CONTENT,
     }
+    
+    # UserInquiryモデルで使用するリスト
+    CATEGORY_LIST = [(str(i), x) for i, x in enumerate(SERVICE_CONTENT)]
+    SUBJECT_LIST = [(str(i) + "_" + str(j), x) for i, value in enumerate(SECTIONS.values()) for j, x in enumerate(value)]
+    
+    # UserInquiryモデルから取得したデータを表示するデータに復元するための定数
+    CATEGORY_MAPPING = {str(i): x for i, x in enumerate(SERVICE_CONTENT)}
+    SUBJECT_MAPPING = {str(i) + "_" + str(j): x for i, value in enumerate(SECTIONS.values()) for j, x in enumerate(value)}
+    
+    @classmethod
+    def get_category(cls, category_key):
+        category = cls.CATEGORY_MAPPING.get(category_key)
+        if category is None:
+            raise ValueError(f"進捗状況の値が想定していない値です")
+        return category
+    
+    @classmethod
+    def get_subject(cls, subject_key):
+        subject = cls.SUBJECT_MAPPING.get(subject_key)
+        if subject is None:
+            raise ValueError(f"項目の値が想定していない値です")
+        return subject

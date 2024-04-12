@@ -17,140 +17,290 @@
             <h4 class="card-title border-bottom">
                 <span class="border-start border-5 border-primary ps-3">{{ title }}</span>
             </h4>
-            <div class="px-lg-5">
-                <p class="card-text">
-                    （会社名）（以下「当社」といいます。）は、自分でできる相続登記（以下、「本サービス」といいます。）における、
-                    ユーザーの個人情報について以下のとおり取り扱います。
+            <div class="content_wrapper px-lg-3">
+                <p class="card-text pt-3">
+                    {{company_data.NAME}}（以下「当社」といいます。）は、{{company_data.APP_NAME}}（以下、「本サービス」といいます。）におけるユーザーの個人情報の取り扱いについて以下のとおり定めます。
                 </p>
-                <p class="card-title border-bottom fw-bold" >第1条（個人情報）</p>
-                <p class="card-text">
-                    「個人情報」とは、個人情報保護法にいう「個人情報」を指すものとし、生存する個人に関する情報であって、
-                    当該情報に含まれる氏名、生年月日、住所、電話番号、連絡先その他の記述等により特定の個人を識別できる情報及び容貌、指紋
-                    、声紋にかかるデータ、及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別情報）を指します。
-                </p>
-                <p class="card-title border-bottom fw-bold">第2条（個人情報の収集方法）</p>
-                <p class="card-text">
-                    当社は、ユーザーが利用登録をする際に氏名、住所、電話番号、メールアドレス、銀行口座番号、クレジットカード番号などの
-                    個人情報をお尋ねすることがあります。また、ユーザーと提携先などとの間でなされたユーザーの個人情報を含む取引記録や決済に
-                    関する情報を、当社の提携先（情報提供元、広告主、広告配信先などを含みます。以下、｢提携先｣といいます。）などから
-                    収集することがあります。
-                </p>
-                <p class="card-title border-bottom fw-bold">第3条（個人情報を収集・利用する目的）</p>
-                <p class="card-text">
-                    当社が個人情報を収集・利用する目的は、以下のとおりです。
-                    <ol class="list-group list-group-numbered">
-                        <li class="list-group-item">当社サービスの提供・運営のため</li>
-                        <li class="list-group-item">ユーザーからのお問い合わせに回答するため（本人確認を行うことを含む）</li>
-                        <li class="list-group-item">ユーザーが利用中のサービスの新機能、更新情報、キャンペーン等及び当社が提供する他のサービスの案内のメールを送付するため</li>
-                        <li class="list-group-item">メンテナンス、重要なお知らせなど必要に応じたご連絡のため</li>
-                        <li class="list-group-item">利用規約に違反したユーザーや、不正・不当な目的でサービスを利用しようとするユーザーの特定をし、ご利用をお断りするため</li>
-                        <li class="list-group-item">ユーザーにご自身の登録情報の閲覧や変更、削除、ご利用状況の閲覧を行っていただくため</li>
-                        <li class="list-group-item">有料サービスにおいて、ユーザーに利用料金を請求するため</li>
-                        <li class="list-group-item">上記の利用目的に付随する目的</li>
-                    </ol>
-                </p>
-                <p class="card-title border-bottom fw-bold">第4条（利用目的の変更）</p>
-                <p class="card-text">
-                    １、当社は、利用目的が変更前と関連性を有すると合理的に認められる場合に限り、個人情報の利用目的を変更するものとします。
-                </p>
-                <p class="card-text">
-                    ２、利用目的の変更を行った場合には、変更後の目的について、当社所定の方法により、ユーザーに通知し、または本ウェブサイト上に公表するものとします。
-                </p>
-                <p class="card-title border-bottom fw-bold">第5条（個人情報の第三者提供）</p>
-                <p class="card-text">
-                    当社は、原則として、お客様等本人の同意を得ずに個人情報を第三者に提供しません。ただし、以下の場合は、関係法令に反しない範囲で、お客様等本人の同意なく個人情報を提供することがあります。
-                    <ol class="list-group list-group-numbered">
-                        <li class="list-group-item">法令に基づく場合</li>
-                        <li class="list-group-item">人の生命、身体又は財産の保護のために必要がある場合であって、本人の同意を得ることが困難であるとき</li>
-                        <li class="list-group-item">公衆衛生の向上又は児童の健全な育成の推進のために特に必要がある場合であって、本人の同意を得ることが困難であるとき</li>
-                        <li class="list-group-item">国の機関若しくは地方公共団体又はその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって、本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき</li>
-                    </ol>
-                </p>
-                <p class="card-title border-bottom fw-bold">第6条（個人情報の開示）</p>
-                <p class="card-text">
-                    １、当社は、本人から個人情報の開示を求められたときは、本人に対し、遅滞なくこれを開示します。ただし、
-                    開示することにより次のいずれかに該当する場合は、その全部または一部を開示しないこともあり、開示しない決定をした場合には、
-                    その旨を遅滞なく通知します。なお、個人情報の開示に際しては、1件あたり1、000円の手数料を申し受けます。
-                    <ol class="list-group list-group-numbered">
-                        <li class="list-group-item">本人または第三者の生命、身体、財産その他の権利利益を害するおそれがある場合</li>
-                        <li class="list-group-item">当社の業務の適正な実施に著しい支障を及ぼすおそれがある場合</li>
-                        <li class="list-group-item">その他法令に違反することとなる場合</li>
-                    </ol>
-                </p>
-                <p class="card-text">
-                    ２、前項の定めにかかわらず、履歴情報および特性情報などの個人情報以外の情報については、原則として開示いたしません。
-                </p>
-                <p class="card-title border-bottom fw-bold">第7条（個人情報の訂正および削除）</p>
-                <p class="card-text">
-                    １、ユーザーは、当社の保有する自己の個人情報が誤った情報である場合には、当社が定める手続きにより、当社に対して個人情報の訂正、追加または削除（以下、「訂正等」といいます。）を請求することができます。
-                </p>
-                <p class="card-text">
-                    ２、当社は、ユーザーから前項の請求を受けてその請求に応じる必要があると判断した場合には、遅滞なく、当該個人情報の訂正等を行うものとします。
-                </p>
-                <p class="card-text">
-                    ３、当社は、前項の規定に基づき訂正等を行った場合、または訂正等を行わない旨の決定をしたときは遅滞なく、これをユーザーに通知します。
-                </p>
-                <p class="card-title border-bottom fw-bold">第8条（個人情報の利用停止等）</p>
-                <p class="card-text">
-                    １、当社は、本人から、個人情報が、利用目的の範囲を超えて取り扱われているという理由、または不正の手段により取得されたものであるという理由により、その利用の停止または消去（以下、「利用停止等」といいます。）を求められた場合には、遅滞なく必要な調査を行います。
-                </p>
-                <p class="card-text">
-                    ２、前項の調査結果に基づき、その請求に応じる必要があると判断した場合には、遅滞なく、当該個人情報の利用停止等を行います。
-                </p>
-                <p class="card-text">
-                    ３、当社は、前項の規定に基づき利用停止等を行った場合、または利用停止等を行わない旨の決定をしたときは、遅滞なく、これをユーザーに通知します。
-                </p>
-                <p class="card-text">
-                    ４、前2項にかかわらず、利用停止等に多額の費用を有する場合その他利用停止等を行うことが困難な場合であって、ユーザーの権利利益を保護するために必要なこれに代わるべき措置をとれる場合は、この代替策を講じるものとします。                   
-                </p>
-                <p class="card-title border-bottom fw-bold">第9条（プライバシーポリシーの変更）</p>
-                <p class="card-text">
-                    １、本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく，変更することができるものとします。
-                </p>
-                <p class="card-text">
-                    ２、当社が別途定める場合を除いて，変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。
-                </p>
-                <p class="card-title border-bottom fw-bold">第10条（お問い合わせ窓口）</p>
-                <p class="card-text">
-                    本ポリシーに関するお問い合わせは，下記の窓口までお願いいたします。
-                    <div id="companyInfo" class="mt-3 mx-auto bg-white">
-                        <div class="d-lg-flex">
-                            <div class="col-lg-4 fw-bold">
-                                会社名
+                <div>
+                    <div class="fw-bold" >
+                        １
+                        <span class="ms-3">
+                            個人情報の定義
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        個人情報とは、個人情報保護法にいう個人情報を指すものとし、生存する個人に関する情報であって、氏名、生年月日、住所などにより特定の個人を識別できる情報及び健康保険証の保険者番号などの当該情報それ自体から特定の個人を識別できる情報を指します。
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ２
+                        <span class="ms-3">
+                            個人情報の収集
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        当社は、ユーザーがアカウント登録をする際などに氏名、住所、電話番号、メールアドレス、クレジットカード番号など入力された限りで個人情報を取得します。
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ３
+                        <span class="ms-3">
+                            個人情報を収集する目的
+                        </span>
+                    </div>
+                    <div class="card-text">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                当社サービスの提供・運営・改善のため
+                            </li>
+                            <li class="list-group-item">
+                                ユーザーからのお問い合わせに回答するため
+                            </li>
+                            <li class="list-group-item">
+                                ユーザーへ新機能、更新情報、キャンペーンなど有益な情報をメールで送付するため
+                            </li>
+                            <li class="list-group-item">
+                                メンテナンス、重要なお知らせなど必要に応じたご連絡のため
+                            </li>
+                            <li class="list-group-item">
+                                利用規約に違反したユーザーや、不正・不当な目的でサービスを利用しようとするユーザーの特定をして本サービスを保護するため
+                            </li>
+                            <li class="list-group-item">
+                                ユーザーにご自身の登録情報の閲覧や変更、削除、ご利用状況の閲覧を行っていただくため
+                            </li>
+                            <li class="list-group-item">
+                                有料サービスにおいて、ユーザーに利用料金を請求するため
+                            </li>
+                            <li class="list-group-item">
+                                上記の利用目的に付随する行為
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ４
+                        <span class="ms-3">
+                            利用目的の変更
+                        </span>
+                    </div>
+                    <div class="card-text">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                当社は、利用目的が変更前と関連性を有すると合理的に認められる場合に限り、個人情報の利用目的を変更できるものとします。
+                            </li>
+                            <li class="list-group-item">
+                                利用目的の変更を行った場合には、変更後の目的について、当社所定の方法により、ユーザーに通知し、または本ウェブサイト上に公表します。
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ５
+                        <span class="ms-3">
+                            個人情報の第三者提供
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        当社は、原則として、本人の同意を得ずに個人情報を第三者に提供しませんが、
+                        本サービスの改善のため、ユーザーの弊社Webサイトの閲覧時間やシステムの利用状況など
+                        個人を特定する情報を含まない範囲でGoogle Analyticsに情報を提供します。
+                        <br>
+                        <a class="ms-3" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+                            googleのプライバシーポリシー
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ６
+                        <span class="ms-3">
+                            個人情報の開示
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        １．当社は、本人から個人情報の開示を求められたときは、本人に対し、遅滞なくこれを開示します。
+                        ただし、開示することにより次のいずれかに該当する場合は、その全部または一部を開示しないことがあり、
+                        開示しない決定をした場合には、その旨を遅滞なく通知します。
+                        <br>
+                        <span class="ms-3">
+                            なお、個人情報の開示に際しては、1件あたり1,000円の手数料を申し受けます。
+                        </span>
+                        <ol class="ps-0 mt-3">
+                            <li>
+                                ①本人または第三者の生命、身体、財産その他の権利利益を害するおそれがある場合
+                            </li>
+                            <li>
+                                ②当社の業務の適正な実施に著しい支障を及ぼすおそれがある場合
+                            </li>
+                            <li>
+                                ③その他法令に違反することとなる場合
+                            </li>
+                        </ol>
+                        <p class="card-text">
+                            ２．前項の定めにかかわらず、履歴情報および特性情報などの個人情報以外の情報については、原則として開示いたしません。
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ７
+                        <span class="ms-3">
+                            個人情報の訂正および削除
+                        </span>
+                    </div>
+                    <div class="card-text">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                ユーザーは、当社の保有する自己の個人情報が誤った情報である場合には、問い合わせにより、当社に対して個人情報の訂正、追加または削除（以下、「訂正等」といいます。）を請求することができます。
+                            </li>
+                            <li class="list-group-item">
+                                当社は、ユーザーから前項の請求を受けてその請求に応じる必要があると判断した場合には、遅滞なく、当該個人情報の訂正等を行うものとします。
+                            </li>
+                            <li class="list-group-item">
+                                当社は、前項の規定に基づき訂正等を行った場合、または訂正等を行わない旨の決定をしたときは遅滞なく、これをユーザーに通知します。
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ８
+                        <span class="ms-3">
+                            個人情報の利用停止等
+                        </span>
+                    </div>
+                    <div class="card-text">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                当社は、本人から個人情報が利用目的の範囲を超えて取り扱われているという理由、または不正の手段により取得されたものであるという理由により、その利用の停止または消去（以下、「利用停止等」といいます。）を求められた場合には、遅滞なく必要な調査を行います。
+                            </li>
+                            <li class="list-group-item">
+                                前項の調査結果に基づき、その請求に応じる必要があると判断した場合には、遅滞なく、当該個人情報の利用停止等を行います。
+                            </li>
+                            <li class="list-group-item">
+                                当社は、前項の規定に基づき利用停止等を行った場合、または利用停止等を行わない旨の決定をしたときは、遅滞なく、これをユーザーに通知します。
+                            </li>
+                            <li class="list-group-item">
+                                前２項にかかわらず、利用停止等に多額の費用を有する場合その他利用停止等を行うことが困難な場合であって、ユーザーの権利利益を保護するために必要なこれに代わるべき措置をとれる場合は、この代替策を講じるものとします。
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        ９
+                        <span class="ms-3">
+                            プライバシーポリシーの変更
+                        </span>
+                    </div>
+                    <div class="card-text">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                本ポリシーの内容は，法令その他本ポリシーに別段の定めのある事項を除いて，ユーザーに通知することなく，変更することができるものとします。
+                            </li>
+                            <li class="list-group-item">
+                                当社が別途定める場合を除いて，変更後のプライバシーポリシーは，本ウェブサイトに掲載したときから効力を生じるものとします。
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        １０
+                        <span class="ms-3">
+                            免責事項
+                        </span>
+                    </div>
+                    <div class="card-text">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                当社が提供する情報の正確さには万全を期していますが、利用者が当社が提供した情報を用いて行う一切の行為に関して、当社は一切の責任を負わないものとします。
+
+                            </li>
+                            <li class="list-group-item">
+                                当社は、利用者が当社Webサイトを利用したことにより生じた利用者の損害及び利用者が第三者に与えた損害に関して、一切の責任を負わないものとします。
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold" >
+                        １２
+                        <span class="ms-3">
+                            本ポリシーに関する窓口
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        <div id="companyInfo" class="mx-auto">
+                            <div class="d-flex">
+                                <div class="label">
+                                    会社名
+                                </div>
+                                <div>
+                                    {{company_data.NAME}}
+                                </div>
                             </div>
-                            <div class="col-lg-8">
-                                {{CompanyData.NAME}}
+                            <div class="d-flex mt-3">
+                                <div class="label">
+                                    所在地
+                                </div>
+                                <div>
+                                    <div>
+                                        {{company_data.ADDRESS}}
+                                    </div>
+                                    <div>
+                                        {{company_data.BLDG}}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="d-lg-flex mt-3">
-                            <div class="col-lg-4 fw-bold">
-                                所在地
+                            <div class="d-flex mt-3">
+                                <div class="label">
+                                    代表取締役
+                                </div>
+                                <div>
+                                    {{company_data.CEO}}
+                                </div>
                             </div>
-                            <div class="col-lg-8">
-                                {{CompanyData.ADDRESS}}<br>
-                                {{CompanyData.BLDG}}
-                            </div>
-                        </div>
-                        <div class="d-lg-flex mt-3">
-                            <div class="col-lg-4 fw-bold">
-                                代表取締役
-                            </div>
-                            <div class="col-lg-8">
-                                {{CompanyData.CEO}}
-                            </div>
-                        </div>
-                        <div class="d-lg-flex mt-3">
-                            <div class="col-lg-4 fw-bold">
-                                メールアドレス
-                            </div>
-                            <div class="col-lg-8">
-                                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" href="#">
-                                    {{CompanyData.MAIL_ADDRESS}}
-                                </a>
+                            <div class="d-flex mt-3">
+                                <div class="label">
+                                    メールアドレス
+                                </div>
+                                <div>
+                                    {{company_data.MAIL_ADDRESS}}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </p>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        １３
+                        <span class="ms-3">
+                            SSLについて
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        当社のWebサイトはSSLに対応しており、ユーザーが入力する情報は自動的に暗号化されます。
+                    </div>
+                </div>
+                <div>
+                    <div class="fw-bold">
+                        １４
+                        <span class="ms-3">
+                            cookie（クッキー）について
+                        </span>
+                    </div>
+                    <div class="card-text bg-white border rounded-3 p-3">
+                        本サービスではユーザビリティを向上するためにクッキーを利用しています。
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 text-end fw-bold">
+                制定日：令和６年４月１日
             </div>
         </div>
     </div>

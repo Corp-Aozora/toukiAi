@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from .company_data import Service
 from django.utils import timezone
 from .models import *
+from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 
 CustomUser = get_user_model()
@@ -1233,3 +1234,45 @@ class StepThreeApplicationForm(forms.ModelForm):
         for field in ["is_agent", "is_return", "is_mail"]:
             if self.initial.get(field) is not None:
                 self.initial[field] = 'true' if self.initial[field] else 'false'
+                
+class StepUserInquiryForm(forms.ModelForm):
+    """ユーザーの問い合わせページ"""
+    class Meta:
+        model = UserInquiry
+        # category, subject, content
+        fields = model.fields
+
+    def __init__(self, *args, **kwargs):
+        for field in self.base_fields.values():
+            if field.label == "進捗状況":
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                })
+            elif field.label == "項目":
+                field.widget.attrs.update({
+                    "class": "form-select text-center cursor-pointer rounded-end",
+                    "disabled": "true",
+                })                
+            else:
+                field.widget.attrs.update({
+                    "class": "form-control",
+                    "rows": "10",
+                    "disabled": "true",
+                })
+
+        super().__init__(*args, **kwargs)
+    
+"""
+
+    管理者サイト関連フォーム
+
+"""
+class UserInquiryAdminForm(forms.ModelForm):
+    class Meta:
+        model = UserInquiry
+        fields = '__all__'
+            
+class AnswerToUserInquiryAdminForm(forms.ModelForm):
+    class Meta:
+        model = AnswerToUserInquiry
+        fields = "__all__"

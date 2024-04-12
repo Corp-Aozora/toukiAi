@@ -12,7 +12,6 @@ from accounts.models import User
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
-from datetime import datetime
 import json
 import copy
 from .get_data_for_application_form import *
@@ -52,12 +51,9 @@ from django.conf import settings
 from urllib.parse import urlparse, parse_qs
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from bs4 import BeautifulSoup
-import logging
 from requests.exceptions import HTTPError, ConnectionError, Timeout
-import traceback
 from collections import defaultdict
 
-logger = logging.getLogger(__name__)
 
 def index(request):
     """トップページの処理
@@ -83,7 +79,8 @@ def index(request):
                     function_name = get_current_function_name()
                     try:
                         form.save()
-                        subject = CompanyData.APP_NAME + "：お問い合わせありがとうございます"
+                        
+                        subject = CompanyData.APP_NAME + " お問い合わせありがとうございます"
                         content = textwrap.dedent('''
                             このメールはシステムからの自動返信です。
                             送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
@@ -102,7 +99,6 @@ def index(request):
                             {content}
                             
                             -----------------------------------
-                            {company_sub_name}
                             {company_name}
                             {company_post_number}
                             {company_address}
@@ -122,8 +118,8 @@ def index(request):
                             company_url=CompanyData.URL,
                         )
                         to_list = [form.cleaned_data["created_by"]]
-                        bcc_list = ["toukiaidev@gmail.com"]
-                        message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
+                        bcc_list = [CompanyData.MAIL_ADDRESS]
+                        message = EmailMessage(subject=subject, body=content, from_email=CompanyData.MAIL_ADDRESS, to=to_list, bcc=bcc_list)
                         message.send()
                         request.session["post_success"] = True
                         
@@ -493,7 +489,7 @@ def step_one(request):
     """
     
     if not request.user.is_authenticated:
-        messages("ユーザー登録が必要です")
+        messages.error(request, "ユーザー登録が必要です")
         return redirect(to='/account/login/')
     
     user = User.objects.get(email = request.user)
@@ -1700,25 +1696,6 @@ def save_step_three_spouse_data(data, form, decedent, user):
         basic_log(get_current_function_name(), None, user, "配偶者データがないにもかかわらず配偶者フォームがPOSTに含まれてます")
         raise ValidationError("配偶者データがありません")
 
-def basic_log(function_name, e, user, message = None):
-    """基本的なログ情報
-
-    Args:
-        function_name (str): 関数名
-        e (_type_): エラークラスから生成されたオブジェクト
-        user (User): 対象のユーザー
-        message (str, optional): 特記事項. Defaults to None.
-    """
-    traceback_info = traceback.format_exc()
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    user_id = user.id if user else ""
-    logger.error(f"エラー発生箇所:{function_name}\n\
-        開発者メッセージ:{message}\n\
-        詳細：{e}\n\
-        user_id:{user_id}\n\
-        発生時刻：{current_time}\n\
-        経路:{traceback_info}"
-    )
 
 def save_step_three_decedent_data(form, user):
     try:
@@ -4295,24 +4272,61 @@ def step_option_select(request):
 
     return render(request, 'toukiApp/step_option_select.html', context)
 
-#お問い合わせ
 def step_inquiry(request):
+    """会員からのお問い合わせ
+
+        処理内容
+        ・問い合わせ内容をページ下部に表示する
+        ・問い合わせを受け付けたことをメールで通知する
+        ・問い合わせがあったらメールで通知を受ける
+    """
     try:
         render_html = "toukiApp/step_inquiry.html"
+        redirect_to = "/toukiApp/step_inquiry"
         function_name = get_current_function_name()
         
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
         
-        user = User.objects.get(email = request.user)
-        
+        inquiry_form = StepUserInquiryForm(prefix="user_inquiry")                
+        #フォームからデータがPOSTされたとき
+        if request.method == "POST":
+            try:
+                inquiry_form = StepUserInquiryForm(
+                    request.POST or None,
+                    prefix="user_inquiry",
+                )
+                if inquiry_form.is_valid():
+                    with transaction.atomic():
+                        register_user_inquiry_and_return_instance(user, inquiry_form)
+                        send_auto_email_to_inquiry(inquiry_form.cleaned_data, user.email)
+                        messages.success(request, "受け付けました")
+                        return redirect(redirect_to)
+                else:
+                    basic_log(function_name, f"inquiry_form.is_valid()のelse処理", user, f"{inquiry_form.errors}")
+                    messages.warning(request, "受け付けできませんでした")
+            except DatabaseError as e:
+                basic_log(function_name, e, user)
+                messages.error(
+                    request, 
+                    'データ登録処理でエラー発生。\n\
+                    ページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。'
+                )
+            except Exception as e:
+                basic_log(function_name, e, user)
+                messages.error(request, 'データ登録処理でエラー発生。\nページを更新しても解決しない場合は、お問い合わせからお知らせお願いします。')
+                return HttpResponse("想定しないエラーが発生しました。\nお手数ですが、お問い合わせからご連絡をお願いします", status=500)
+
+        q_and_a_data = get_q_and_a_data(user)
+            
         context = {
             "title" : Service.STEP_TITLES["inquiry"],
             "progress": decedent.progress,
+            "inquiry_form": inquiry_form,
             "sections" : Sections.SECTIONS,
             "service_content" : Sections.SERVICE_CONTENT,
-            "user" : user,
+            "q_and_a_data": q_and_a_data,
         }
         return render(request, render_html, context)
     except Exception as e:
@@ -4321,17 +4335,43 @@ def step_inquiry(request):
             request, 
             user, 
             function_name, 
-            "toukiApp/step_inquiry", 
+            redirect_to, 
             render_html, 
             None,
             None,
         )
 
-#お問い合わせ・運営者情報
+def register_user_inquiry_and_return_instance(user, form):
+    """会員からのQデータをデータベースに登録する"""
+    instance = form.save(commit=False)
+    instance.user = user
+    instance.created_by = user
+    instance.updated_by = user
+    instance.save()
+
+def get_q_and_a_data(user):
+    """会員からのQ&Aデータを取得する"""
+    q_querysets = UserInquiry.objects.filter(user=user).order_by('-updated_at')[:5]
+    q_ids = q_querysets.values_list("id", flat=True)
+    a_querysets = AnswerToUserInquiry.objects.filter(user_inquiry_id__in=q_ids)
+    q_and_a_data = []
+    for q in q_querysets:
+        category = Sections.get_category(q.category)
+        subject = Sections.get_subject(q.subject)
+        related_a = a_querysets.filter(user_inquiry=q).first()
+        q_and_a_data.append(
+            (
+                {"category": category, "subject": subject, "content": q.content, "updated_at": q.updated_at},
+                related_a
+            )
+        )
+    return q_and_a_data
+
+#運営者情報
 def administrator(request):
     context = {
-        "title" : "運営者情報・お問い合わせ",
-        "CompanyData" : CompanyData,
+        "title" : "運営者情報",
+        "company_data" : CompanyData,
     }
     return render(request, "toukiApp/administrator.html", context)
 
@@ -4339,7 +4379,7 @@ def administrator(request):
 def commerceLaw(request):
     context = {
         "title" : "特定商取引法に基づく表記",
-        "CompanyData" : CompanyData,
+        "company_data" : CompanyData,
     }
     return render(request, "toukiApp/commerce-law.html", context)
 
@@ -4347,7 +4387,7 @@ def commerceLaw(request):
 def privacy(request):
     context = {
         "title" : "プライバシーポリシー",
-        "CompanyData" : CompanyData,
+        "company_data" : CompanyData,
     }
     return render(request, "toukiApp/privacy.html", context)
 
@@ -4585,21 +4625,22 @@ def step_back(request):
     else:
         return JsonResponse({'status': 'error'})
 
-def import_offices(html_file_path):
-    """法務局データスクレイピング処理"""
-    with open(html_file_path, 'r', encoding='utf-8') as file:
-        soup = BeautifulSoup(file, 'html.parser')
+# def import_offices(html_file_path):
+#     """法務局データスクレイピング処理"""
+#     with open(html_file_path, 'r', encoding='utf-8') as file:
+#         soup = BeautifulSoup(file, 'html.parser')
         
-    for row in soup.find_all('tr'):
-        cols = row.find_all('td')
-        if cols and not cols[0].has_attr('class'):
-            code = cols[0].text.strip()
-            name = cols[1].text.strip()
-            try:
-                with transaction.atomic():
-                    Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
-            except Exception as e:
-                # ログにエラーメッセージを記録します
-                print(f"Error occurred: {e}")
+#     for row in soup.find_all('tr'):
+#         cols = row.find_all('td')
+#         if cols and not cols[0].has_attr('class'):
+#             code = cols[0].text.strip()
+#             name = cols[1].text.strip()
+#             try:
+#                 with transaction.atomic():
+#                     Office.objects.get_or_create(code=code, name=name, created_by=user, updated_by=user)
+#             except Exception as e:
+#                 # ログにエラーメッセージを記録します
+#                 print(f"Error occurred: {e}")
 # HTMLファイルのパスを指定して実行
 # import_offices('toukiApp/登記所選択.html')
+

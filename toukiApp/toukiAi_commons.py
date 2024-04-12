@@ -3,6 +3,35 @@ from django.db.models.query import QuerySet
 from django.core.exceptions import ValidationError
 import inspect
 from .prefectures_and_city import *
+import textwrap
+from .company_data import *
+from .sections import *
+from django.core.mail import EmailMessage
+import traceback
+from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
+def basic_log(function_name, e, user, message = None):
+    """基本的なログ情報
+
+    Args:
+        function_name (str): 関数名
+        e (_type_): エラークラスから生成されたオブジェクト
+        user (User): 対象のユーザー
+        message (str, optional): 特記事項. Defaults to None.
+    """
+    traceback_info = traceback.format_exc()
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    user_id = user.id if user else ""
+    logger.error(f"エラー発生箇所:{function_name}\n\
+        開発者メッセージ:{message}\n\
+        詳細：{e}\n\
+        user_id:{user_id}\n\
+        発生時刻：{current_time}\n\
+        経路:{traceback_info}"
+    )
 
 def fullwidth_num(number):
     """半角数字を全角数字に変換する関数
@@ -159,4 +188,113 @@ def compare_dict_by_two_key(x, y, key_one, key_two):
     """
     return x[key_one] == y[key_one] and x[key_two] == y[key_two]
 
+# メールの署名部分
+EMAIL_SIGNATURE = textwrap.dedent('''
+    -----------------------------------------
+    {company_name}
+    {company_post_number}
+    {company_address}
+    電話番号 {company_receiving_phone_number}
+    ※弊社からお客様にお電話するときの電話番号 {company_calling_phone_number}
+    営業時間 {company_opening_hours}
+    ホームページ {company_url}
+''')
 
+INQUIRY_FULL_TEXT = textwrap.dedent('''
+                                    
+    件名
+    　{inquiry_category}{inquiry_subject}について
+
+    お問い合わせ内容
+    　{content}
+
+''')
+
+ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + EMAIL_SIGNATURE
+
+# 問い合わせへの自動返信メールテンプレート
+AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
+    以下の内容でお問い合わせを受け付けました。
+    原則２４時間以内にご回答いたします。
+    ※金土日祝日にお問い合わせいただいた場合は、翌週の月曜日になることもあります。
+    
+    ----------------------------------
+''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE
+
+# 問い合わせへ回答したときのメールテンプレート
+ANSWER_EMAIL_TEMPLATE = textwrap.dedent('''
+    {user} 様   
+    
+    そうぞくとうきくんをご利用いただきありがとうございます。
+    お問い合わせに対するご回答です。
+    
+    {answer}
+
+    
+    ----------お問い合わせ内容----------
+''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE
+
+def send_auto_email_to_inquiry(cleaned_data, to_email):
+    """問い合わせに対する自動返信メールを送信する
+
+    Args:
+        cleaned_data (_type_): フォームのデータ
+    """
+    mail_subject = f"{CompanyData.APP_NAME}からの自動返信です"
+    category = cleaned_data.get("category", "")
+    content = AUTO_REPLY_EMAIL_TEMPLATE.format(
+        inquiry_category = Sections.get_category(category) + "の" if category else "",
+        inquiry_subject = Sections.get_subject(cleaned_data["subject"]),
+        content = cleaned_data["content"],
+        company_name = CompanyData.NAME,
+        company_post_number = CompanyData.POST_NUMBER,
+        company_address = CompanyData.ADDRESS,
+        company_receiving_phone_number = CompanyData.RECEIVING_PHONE_NUMBER,
+        company_calling_phone_number = CompanyData.CALLING_PHONE_NUMBER,
+        company_opening_hours = CompanyData.OPENING_HOURS,
+        company_url = CompanyData.URL,
+    )
+    to_list = [to_email]
+    bcc_list = [CompanyData.MAIL_ADDRESS]
+    message = EmailMessage(
+        subject=mail_subject, 
+        body=content, 
+        from_email=CompanyData.MAIL_ADDRESS, 
+        to=to_list, 
+        bcc=bcc_list
+    )
+    message.send()
+    
+def send_email_to_inquiry(cleaned_data):
+    """問い合わせに回答したときのメール送信処理
+
+    Args:
+        cleaned_data (): 回答データ
+        to_email (): 問い合わせをしたユーザーのメールアドレス
+    """
+    mail_subject = f"{CompanyData.APP_NAME} お問い合わせへのご回答です"
+    content = ANSWER_EMAIL_TEMPLATE.format(
+        user = cleaned_data["user_inquiry"].user.email,
+        answer = cleaned_data["content"],
+        inquiry_category = Sections.get_category(cleaned_data["user_inquiry"].category),
+        inquiry_subject = Sections.get_subject(cleaned_data["user_inquiry"].subject),
+        content = cleaned_data["user_inquiry"].content,
+        company_name = CompanyData.NAME,
+        company_post_number = CompanyData.POST_NUMBER,
+        company_address = CompanyData.ADDRESS,
+        company_receiving_phone_number = CompanyData.RECEIVING_PHONE_NUMBER,
+        company_calling_phone_number = CompanyData.CALLING_PHONE_NUMBER,
+        company_opening_hours = CompanyData.OPENING_HOURS,
+        company_url = CompanyData.URL,
+    )
+    to_list = [cleaned_data["user_inquiry"].user.email]
+    bcc_list = [CompanyData.MAIL_ADDRESS]
+    message = EmailMessage(
+        subject=mail_subject, 
+        body=content, 
+        from_email=CompanyData.MAIL_ADDRESS, 
+        to=to_list, 
+        bcc=bcc_list
+    )
+    message.send()
+    

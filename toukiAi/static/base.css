@@ -3,17 +3,8 @@
     cursor: hand;
 }
 
-.twoRbs{
-    width: 280px!important;
-}
-
 li{
     list-style: none!important;
-}
-
-.inputError::placeholder{
-    /* color:#f1aeb5; */
-    color:red!important;
 }
 
 .errorMessage {
@@ -76,8 +67,9 @@ li{
 .no-spin::-webkit-inner-spin-button,
 .no-spin::-webkit-outer-spin-button {
     -webkit-appearance: none !important;
-    margin: 0 !important;
     -moz-appearance:textfield !important;
+    appearance: none !important;
+    margin: 0 !important;
 }
 
 .modal-image {
@@ -130,3 +122,7 @@ button {
     order: 2; /* 「キャンセル」ボタンを右に配置 */
 }
 
+/* フォームのエラー表示枠 */
+.error_list{
+    max-width: 500px!important;
+}

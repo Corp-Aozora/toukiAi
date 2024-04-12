@@ -48,9 +48,13 @@ class UserManager(BaseUserManager):
         
         return self._create_user(username, email, password, **extra_fields)
 
-# ユーザー
-# 子：被相続人、申請情報、分割内容
 class User(AbstractBaseUser, PermissionsMixin):
+    """ユーザーのデータ
+
+    Args:
+        AbstractBaseUser (_type_): _description_
+        PermissionsMixin (_type_): _description_
+    """
     username_validator = UnicodeUsernameValidator()
 
     username = models.CharField(verbose_name="お名前", max_length=20, validators=[username_validator], unique=False, default="")
@@ -105,9 +109,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)    
 
-# メールアドレス変更申請
-# 親：ユーザー
 class EmailChange(models.Model):
+    """メールアドレス変更申請データ
+
+    Args:
+        models (_type_): _description_
+    """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="ユーザー",

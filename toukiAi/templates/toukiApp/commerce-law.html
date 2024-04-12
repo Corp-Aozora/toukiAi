@@ -22,7 +22,7 @@
                 販売業者
             </div>
             <div class="col-sm-8">
-                {{CompanyData.NAME}}
+                {{company_data.NAME}}
             </div>
         </div>
         <hr>
@@ -31,8 +31,8 @@
                 所在地
             </div>
             <div class="col-sm-8">
-                {{CompanyData.ADDRESS}}<br>
-                {{CompanyData.BLDG}}
+                {{company_data.ADDRESS}}<br>
+                {{company_data.BLDG}}
             </div>
         </div>
         <hr>
@@ -41,7 +41,7 @@
                 責任者
             </div>
             <div class="col-sm-8">
-                {{CompanyData.CEO}}
+                {{company_data.CEO}}
             </div>
         </div>
         <hr>
@@ -50,9 +50,10 @@
                 電話番号
             </div>
             <div class="col-sm-8">
-                着信専用：{{CompanyData.RECEIVING_PHONE_NUMBER}}<br>
-                発信専用：{{CompanyData.CALLING_PHONE_NUMBER}}<br>
-                ※弊社からの電話は発信専用の番号がお客様に表示されます。
+                {{company_data.RECEIVING_PHONE_NUMBER}}<br>
+                ※弊社からの電話は以下の番号がお客様に表示されます。<br>
+                {{company_data.CALLING_PHONE_NUMBER}}<br>
+                ※お問い合わせはメール又はＬＩＮＥのみで受け付けてます。
             </div>
         </div>
         <hr>
@@ -61,7 +62,18 @@
                 メールアドレス
             </div>
             <div class="col-sm-8">
-                {{CompanyData.MAIL_ADDRESS}}
+                {{company_data.MAIL_ADDRESS}}
+            </div>
+        </div>
+        <hr>
+        <div class="d-sm-flex">
+            <div class="col-sm-4 fw-bold">
+                ＬＩＮＥのＩＤ
+                <br>
+                お問い合わせ受付
+            </div>
+            <div class="col-sm-8 my-auto">
+                {{company_data.OPEN_LINE_ID}}
             </div>
         </div>
         <hr>
@@ -70,7 +82,7 @@
                 営業時間
             </div>
             <div class="col-sm-8">
-                {{CompanyData.OPENING_HOURS}}
+                {{company_data.OPENING_HOURS}}
             </div>
         </div>
         <hr>
@@ -80,7 +92,7 @@
             </div>
             <div class="col-sm-8">
                 <a class="text-decoration-none" href="/">
-                    {{CompanyData.URL}}
+                    {{company_data.URL}}
                 </a>
             </div>
         </div>
@@ -90,7 +102,7 @@
                 サービス料金
             </div>
             <div class="col-sm-8">
-                {{CompanyData.CHARGE}}
+                {{company_data.CHARGE}}
             </div>
         </div>
         <hr>
@@ -99,7 +111,7 @@
                 支払方法
             </div>
             <div class="col-sm-8">
-                {{CompanyData.PAYMENT}}
+                {{company_data.PAYMENT}}
             </div>
         </div>
         <hr>
@@ -108,7 +120,7 @@
                 支払時期
             </div>
             <div class="col-sm-8">
-                {{CompanyData.PAYMENT_TERMS}}
+                {{company_data.PAYMENT_TERMS}}
             </div>
         </div>
         <hr>
@@ -117,7 +129,7 @@
                 サービス提供の開始時期
             </div>
             <div class="col-sm-8">
-                {{CompanyData.START_TIME}}
+                {{company_data.START_TIME}}
             </div>
         </div>
         <hr>
@@ -126,7 +138,7 @@
                 キャンセルについて
             </div>
             <div class="col-sm-8">
-                {{CompanyData.ABOUT_CANCEL}}
+                {{company_data.ABOUT_CANCEL}}
             </div>
         </div>
         <hr>

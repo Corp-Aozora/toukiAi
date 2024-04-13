@@ -40,15 +40,31 @@
     box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
 }
 
-label{
+/* お知らせ */
+.notice p:not(:first-child){
+    text-indent: 1rem!important;
+}
+
+/* 料金表 */
+#decedentCertificationListModal li:not(:first-child){
+    margin-top: 1rem!important;
+}
+
+.option1 .card-body, .option2 .card-body{
+    min-height: 250px;
+}
+
+/* 他社比較 */
+#compare li{
+    display: flex!important;
+}
+
+/* 問い合わせ */
+.label{
     width: 110px;
 }
 
 .emPosition{
     top: -55px;
     left: 110px;
-}
-
-#compare li{
-    display: flex!important;
 }

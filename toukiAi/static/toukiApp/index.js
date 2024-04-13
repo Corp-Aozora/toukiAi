@@ -19,38 +19,35 @@ const classEls = {
 }
 
 //お問い合わせ関連
-const createdBy = document.getElementById("id_created_by");
-const subject = document.getElementById("id_subject");
-const opts = subject.options;
-const subjectList = Array.from(opts).map(option => option.value);
-const content = document.getElementById("id_content");
-reqInputs = [createdBy, subject, content];
-const createdByIndex = 0;
-const subjectIndex = 1;
-const contentIndex = 2;
+class Inquiry{
+    constructor(){
+        this.form = document.getElementsByTagName("form")[0];
+        this.inputs = Array.from(this.form.querySelectorAll("input, select, textarea")).slice(1);
+        this.mailAddress = this.inputs[Inquiry.idxs["mailAddress"]];
+        this.subject = this.inputs[Inquiry.idxs["subject"]];
+        this.content = this.inputs[Inquiry.idxs["content"]];
+        this.submitBtn = document.getElementById("submitBtn");
+        this.errMsgEls = this.form.getElementsByClassName("errorMessage");
 
-const createdByMessageEl = document.getElementById("id_created_by_messageEl");
-const subjectMessageEl = document.getElementById("id_subject_messageEl");
-const contentMessageEl = document.getElementById("id_content_messageEl");
-msgEls = [createdByMessageEl, subjectMessageEl, contentMessageEl];
+    }
 
-const createdByMessage = "メールアドレスの規格に一致しません"
-const subjectMessage = "どれか１つ選択してください"
-const contentMessage = "お問い合わせ内容をご入力ください"
-msgs = [createdByMessage, subjectMessage, contentMessage];
-
-const beforeSubmitBtn = document.getElementById("beforeSubmitBtn");
+    static idxs = {
+        "mailAddress": 0,
+        "subject": 1,
+        "content": 2
+    }
+}
+const idxs = Inquiry.idxs;
 
 /**
  * スクロールイベントを設定する
- * @param {array element} linkFrom
- * @param {element} linkTo
+ * @param {HTMLElement[]} from
+ * @param {HTMLElement} to
  */
-function addScrollEvent(linkFrom, linkTo){
-    for(let i = 0; i < linkFrom.length; i++){
-        linkFrom[i].addEventListener("click", (e)=>{
-            // moveToIndex(location.pathname, e);
-            scrollToTarget(linkTo, 0);
+function addScrollEvent(from, to){
+    for(let i = 0; i < from.length; i++){
+        from[i].addEventListener("click", ()=>{
+            scrollToTarget(to, 0);
         })
     }
 }
@@ -58,63 +55,95 @@ function addScrollEvent(linkFrom, linkTo){
 /**
  * 重複メールアドレスとdjangoによるメールアドレス形式チェック
  * @param {string} email 
+ * @param {HTMLElement} errMsgEl 
  */
-function isDjangoEmail(email){
+async function isDjangoEmail(email, errMsgEl){
     const url = 'is_email';
   
-    fetch(url, {
-        method: 'POST',
-        body: `email=${email}`,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        if(response.message !== ""){
-            toggleErrorMessage(false, msgEls[createdByIndex], response.message);
-            invalidEls.push(reqInputs[createdByIndex]);
-        }else{
-            toggleErrorMessage(true, msgEls[createdByIndex], response.message);
-        }
-    }).catch(error => {
-        console.log(error);
-    });
+    try{
+        fetch(url, {
+            method: 'POST',
+            body: `email=${email}`,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'X-CSRFToken': csrftoken,
+            },
+            mode: "same-origin"
+        }).then(response => {
+            return response.json();
+        }).then(response => {
+            if(response.message !== ""){
+                toggleErrorMessage(false, errMsgEl, "メールアドレスが規格に一致しません");
+            }else{
+                toggleErrorMessage(true, errMsgEl, "");
+            }
+        }).catch(e => {
+            basicLog("isDjangoEmail", e, "responseエラー");
+        });
+    }catch(e){
+        basicLog("isDjangoEmail", e, "tryエラー");
+    }
 }
 
 /**
+ * メールアドレス検証
+ * @param {HTMLInputElement} input 
+ * @param {HTMLElement} errMsgEl 
+ */
+async function mailAddressValidation(input, errMsgEl){
+    const val = input.value;
+    const result = isEmail(val);
+    if(result[0] === false){
+        toggleErrorMessage(result[0], errMsgEl, result[1]);
+    }else{
+        await isDjangoEmail(val, errMsgEl);
+    }    
+}
+
+/**
+ * 件名検証
+ * @param {HTMLTextAreaElement} input 
+ * @param {HTMLElement} errMsgEl 
+ */
+function subjectValidation(input, errMsgEl){
+    const val = input.value;
+    const options = Array.from(input.options);
+    const result = val !== "" && options.some(x => x.value === val);
+    toggleErrorMessage(result, errMsgEl, "どれか１つ選択してください");
+}
+
+/**
+ * 質問検証
+ * @param {HTMLTextAreaElement} input 
+ * @param {HTMLElement} errMsgEl 
+ */
+function contentValidation(input, errMsgEl){
+    const result = input.value.length > 1;
+    toggleErrorMessage(result, errMsgEl, "２文字以上入力してください");
+}
+
+
+/**
  * バリデーションリスト
- * バリデーションした後の処理も含む
+ * @param {Inquiry} instance 入力要素
  * @param {number} index 入力要素のインデックス
  */
-function validationList(index){
-    //メールアドレス欄
-    if(index === createdByIndex){
-        //カスタムメールアドレスバリデーション
-        isValid = isEmail(reqInputs[index].value);
-        if(isValid[0] === false){
-            toggleErrorMessage(isValid[0], msgEls[index], isValid[1]);
-            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
-        }else{
-            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
-            //djangoのメールアドレスバリデーション
-            isDjangoEmail(reqInputs[index].value);
-        }
-    }else{
-        //件名
-        if(index === subjectIndex) isValid = reqInputs[index].value !== "" && subjectList.indexOf(reqInputs[index].value) !== -1 ? true: false;
-        else if(index === contentIndex) isValid = reqInputs[index].value !== "";
+async function validationList(instance, index){
+    //検証対象関連の要素
+    const input = instance.inputs[index];
+    const errMsgEl = instance.errMsgEls[index];
 
-        //各バリデーションでエラーがあるとき
-        toggleErrorMessage(isValid, msgEls[index], msgs[index]);
-        
-        if(isValid === false){
-            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
-        }else{
-            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
-        }
+    //メールアドレス
+    if(index === idxs["mailAddress"]){
+        await mailAddressValidation(input, errMsgEl);
+    }else if(index === idxs["subject"]){
+        // 件名
+        subjectValidation(input, errMsgEl);
+    }else if(index === idxs["content"]){
+        // 質問
+        contentValidation(input, errMsgEl)
+    }else{
+        basicLog("validationList", null, "想定しないインデックスです");
     }
 }
 
@@ -132,20 +161,25 @@ window.addEventListener("load", ()=>{
     if(navTo && idEls[navTo]){
         scrollToTarget(idEls[navTo], 0);
     }
-    
-    //問い合わせ関連のモダールを表示する
-    const inquiryModals = document.getElementsByClassName("inquiry-modal")
-    for(let i = 0; i < inquiryModals.length; i++){
-        const modal = new bootstrap.Modal(inquiryModals[i]);
-        modal.show();
 
-        if(inquiryModals[i].classList.contains("modal-warning")) scrollToTarget(inquiryModals[i]);
+    const inquiry = new Inquiry();
+    //問い合わせ関連のモダールを表示する
+    const inquiryModals = document.getElementsByClassName("inquiry-modal");
+    if(inquiryModals.length > 0){
+        for(let i = 0; i < inquiryModals.length; i++){
+            const inquiryModalModal = inquiryModals[i];
+            if(inquiryModalModal.classList.contains("modal-warning"))
+                scrollToTarget(inquiry.form);
+
+            const inquiryModalModalInstance = new bootstrap.Modal(inquiryModalModal);
+            inquiryModalModalInstance.show();
+        }
     }
 
     //ログアウトされたとき完了したことを知らせる
-    const logoutModalEl = (document.getElementById("logoutModal"));
-    if(logoutModalEl !== null){
-        const logoutModal = new bootstrap.Modal(logoutModalEl);
+    const logoutModal = document.getElementById("logoutModal");
+    if(logoutModal !== null){
+        const logoutModal = new bootstrap.Modal(logoutModal);
         const lastUpdateDate = document.getElementById("lastUpdateDate");
         lastUpdateDate.innerHTML = sessionStorage.getItem("lastUpdateDate");
         logoutModal.show();
@@ -154,40 +188,104 @@ window.addEventListener("load", ()=>{
     //セッション情報を初期化
     sessionStorage.clear();
 
-    for(let i = 0; i < reqInputs.length - 1 ; i++){
-        //フォーカス移動イベント
-        reqInputs[i].addEventListener("keypress", (e)=>{
-            if(e.code === "Enter" || e.code === "NumpadEnter"){
-                e.preventDefault();
-                reqInputs[i + 1].focus();
-            }
+    const inputs = inquiry.inputs;
+    for(let i = 0, len = inputs.length; i < len; i++){
+        const input = inputs[i];
+
+        if(i !== len - 1){
+            input.addEventListener("keydown", (e)=>{
+                setEnterKeyFocusNext(e, inputs[i + 1]);
+            })
+        }else{
+            input.addEventListener("input", (e)=>{
+                contentValidation(e.target, inquiry.errMsgEls[i]);
+            })
+        }
+
+        input.addEventListener("change",()=>{
+            validationList(inquiry, i);
         })
     }
 
-    //お問合せフォーム関連にイベントを設定
-    for(let i = 0; i < reqInputs.length; i++){
-        reqInputs[i].addEventListener("change",()=>{
-            validationList(i);
-        })
-    }
+    //送信ボタン（本送信前）
+    const showConfirmModalBtn = document.getElementById("showConfirmModalBtn");
+    showConfirmModalBtn.addEventListener("click", ()=>{
+        handleShowConfirmModalBtnEvent(inquiry);
+    })
+
+    //送信ボタン
+    inquiry.form.addEventListener("submit", (e)=>{
+        handleSubmitEvent(e, inquiry);
+    });
 }) 
 
-//送信ボタン（本送信前）
-beforeSubmitBtn.addEventListener("click", (e)=>{
-    for(let i = 0; i < reqInputs.length; i++){
-        validationList(i);
-    }
+/**
+ * 送信ボタンイベント
+ * @param {event} event 
+ * @param {Inquiry} instance 
+ */
+function handleSubmitEvent(event, instance){
+    const spinner = document.getElementById("submitSpinner");
 
-    if(invalidEls.length > 0){
-        invalidEls[0].focus();
-        e.preventDefault();
+    try{
+        instance.submitBtn.disabled = true;
+        spinner.style.display = "";
+    }catch(error){
+        basicLog("submit", error);
+        event.preventDefault();
+        spinner.style.display = "none";
+    }    
+}
+
+/**
+ * 確認モーダル表示ボタンのイベント
+ * @param {Inquiry} instance 
+ */
+function handleShowConfirmModalBtnEvent(instance){
+    const {inputs, errMsgEls} = instance;
+
+    for(let i = 0; i < inputs.length; i++){
+        validationList(instance, i);
+    }
+    
+    const errIndex = findInvalidInputIndex(Array.from(errMsgEls));
+    if(errIndex === -1){
+        showConfirmModal(instance);
     }else{
-        const submitModal = new bootstrap.Modal(document.getElementById("submitModal"));
-        const modalCreatedBy = document.getElementById("modalCreatedBy");
-        const modalContent = document.getElementById("modalContent");
-
-        modalCreatedBy.innerText = createdBy.value;
-        modalContent.innerText = content.value;
-        submitModal.show();
+        inputs[errIndex].focus();
     }
-})
+}
+
+/**
+ * 確認モーダルの表示
+ * @param {Inquiry} instance 
+ */
+function showConfirmModal(instance){
+    updateModalText("modalMailAddress", instance.mailAddress.value);
+    updateModalText("modalSubject", instance.subject.value);
+    updateModalText("modalContent", instance.content.value);
+    
+    const confirmModal = new bootstrap.Modal(document.getElementById("confirmModal"));
+    confirmModal.show();
+
+    function updateModalText(id, text){
+        const el = document.getElementById(id);
+        if(el){
+            el.innerText = text;
+        }else{
+            basicLog("updateModalText", null, "想定しない要素のidが渡されました");
+        }
+    }
+}
+
+/**
+ * 最初の非表示でない要素のインデックスを見つける
+ * @param {HTMLElement[]} els 
+ * @returns エラーがある要素のインデックス、エラーがないときは-1
+ */
+function findInvalidInputIndex(els) {
+    return els.findIndex(el => {
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none';
+    });
+}

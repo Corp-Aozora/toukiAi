@@ -21,9 +21,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-# お問い合わせ内容
-# 質問者のメールアドレス/件名/質問内容/回答者
 class OpenInquiry(CommonModel):
+    """一般のお問い合わせデータ
+
+    Args:
+        CommonModel (_type_): 全モデル共通で必要なデータ
+    """
     created_by = models.EmailField(verbose_name="メールアドレス")
     subject_list = (
         ("システム詳細", "システム詳細"),
@@ -35,6 +38,7 @@ class OpenInquiry(CommonModel):
     )
     subject = models.CharField(verbose_name="件名", max_length=20, choices=subject_list, null=False, blank=False)
     content = models.TextField(verbose_name="内容", max_length=300, null=False, blank=False)
+    # 問い合わせ内容を変更することはないため使用する予定はないが、一応定義している
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name = "最終回答者",
@@ -45,16 +49,77 @@ class OpenInquiry(CommonModel):
         limit_choices_to={"is_staff": True},
     )
     
-    fields = ["created_by", "subject", "content"]
+    fields = [
+        "created_by",
+        "subject",
+        "content"
+    ]
     
     class Meta:
         verbose_name = _("一般お問い合わせ")
         verbose_name_plural = _("一般お問い合わせ")
+        
+class AnswerToOpenInquiry(CommonModel):
+    """一般お問い合わせへの回答
 
+    Args:
+        CommonModel (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+        ValidationError: _description_
+    """
+    open_inquiry = models.OneToOneField(
+        OpenInquiry,
+        verbose_name="一般お問い合わせ",
+        on_delete=models.CASCADE,
+        null = False,
+        blank = False,
+        related_name="answer_to_open_inquiry",
+    )
+    content = models.TextField(verbose_name="回答", max_length=300, null=False, blank=False)
+    
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "作成者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "answer_to_open_inquiry_created_by",
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name = "最終更新者",
+        on_delete = models.CASCADE,
+        null = False,
+        blank = False,
+        related_name = "answer_to_open_inquiry_update_by"
+    )
+    
+    def save(self, *args, **kwargs):
+        if not self.created_by.is_staff:
+            raise ValidationError("作成者はスタッフ権限が必要です")
+        if not self.updated_by.is_staff:
+            raise ValidationError("最終更新者はスタッフ権限が必要です")
+        super().save(*args, **kwargs)
+    
+    fields = [
+        "content",
+    ]
+    
+    class Meta:
+        verbose_name = _("一般のお問い合わせに対する回答")
+        verbose_name_plural = _("一般のお問い合わせに対する回答")
+        
 # 被相続人
 # 親：ユーザー
 # 子：親族、不動産
 class Decedent(CommonModel):
+    """被相続人
+
+    Args:
+        CommonModel (_type_): _description_
+    """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name="ユーザー",
@@ -1342,6 +1407,15 @@ class UserInquiry(CommonModel):
         verbose_name_plural = _("ユーザーのお問い合わせ")
         
 class AnswerToUserInquiry(CommonModel):
+    """ユーザーからの問い合わせ回答データ
+
+    Args:
+        CommonModel (_type_): _description_
+
+    Raises:
+        ValidationError: _description_
+        ValidationError: _description_
+    """
     user_inquiry = models.OneToOneField(
         UserInquiry,
         verbose_name="ユーザーのお問い合わせ",

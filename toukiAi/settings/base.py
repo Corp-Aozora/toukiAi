@@ -207,3 +207,8 @@ ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 0
 # AXES_LOCKOUT_URL = "/toukiapp/signin"
 
 # HANDLER_403 = 'accounts.views.error_403'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True  

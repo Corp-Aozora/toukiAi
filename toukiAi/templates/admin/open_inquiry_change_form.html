@@ -3,7 +3,7 @@
 {% block submit_buttons_bottom %}
     {% if original and original.pk %}
         <input type="submit" value="問い合わせを保存する" name="_save" disabled>
-        <input type="submit" value="回答を保存する" name="_save-answer" formaction="{% url 'admin:save_answer_to_user_inquiry' original.pk %}">
+        <input type="submit" value="回答を保存する" name="_save-answer" formaction="{% url 'admin:save_answer_to_open_inquiry' original.pk %}">
     {% else %}
         <input type="submit" value="問い合わせを保存する" name="_save">
         <input type="submit" value="回答を保存する" name="_save-answer" disabled title="回答は新規追加時には保存できません">

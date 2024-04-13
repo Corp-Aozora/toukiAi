@@ -20,21 +20,10 @@ ALLOWED_HOSTS = [
     '.localhost', '127.0.0.1', '[::1]'
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
-# DEFAULT_FROM_EMAIL = '誰でも相続登記 <t.saga@yahoo.ne.jp>'    #送信元のアドレスを指定
-# EMAIL_HOST = 'smtp.mail.yahoo.co.jp' 
-# EMAIL_PORT = 465                            
-# EMAIL_HOST_USER = 't.saga@yahoo.ne.jp'   
-# EMAIL_HOST_PASSWORD = 'saga2497'           
-# EMAIL_USE_TLS = True    
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
 DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
 EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
 EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = True  
 
 
 DATABASES = {

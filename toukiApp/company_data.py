@@ -5,6 +5,7 @@ class CompanyData:
     ADDRESS = "福岡県福岡市中央区天神二丁目２番１２号"
     BLDG = "Ｔ＆Ｊビルディング７Ｆ"
     CEO = "砂川宏太"
+    MANAGER = "佐賀達也"
     RECEIVING_PHONE_NUMBER = "０８００－８０５－１５２８"
     CALLING_PHONE_NUMBER = "０５０－５４８２－５８３２"
     MAIL_ADDRESS = "souzokutoukikun@aozoratouki.com"
@@ -17,7 +18,7 @@ class CompanyData:
     SUPERVISER = "司法書士　吉永 傑"
     SUPERVISER_BELONG_1 = "福岡県司法書士会所属 第1757号"
     SUPERVISER_BELONG_2 = "簡裁代理認定番号 第1301120号"
-    URL = "https://django-render-6agw.onrender.com"
+    URL = "https://aozoratouki.com"
     CHARGE = "サイト上部の料金からご確認いただけます。"
     # PAYMENT = "クレジットカード決済又は銀行振込"
     PAYMENT = "銀行振込（２０２４年５月末までにクレジット決済導入予定です）"
@@ -28,16 +29,24 @@ class CompanyData:
 class Service:
     BASIC_PRICE = "４９，０００円"
     BASIC_PRICE_INT = 49000
-    OPTION1_NAME = "必要証明書の代行"
-    OPTION1_PRICE = "２２，０００円"
-    OPTION1_PRICE_INT = 22000
+    CAMPAIGN_BASIC_PRICE_STR = "３９，０００円"
+    CAMPAIGN_BASIC_PRICE_INT = 39000
+    
+    OPTION1_NAME = "戸籍謄本の取得代行"
+    OPTION1_PRICE_STR = "２７，５００円"
+    OPTION1_PRICE_INT = 27500
+    CAMPAIGN_OPTION1_PRICE_STR = "２５，０００円"
+    CAMPAIGN_OPTION1_PRICE_INT = 25000
+    
     OPTION2_NAME = "弊社提携の司法書士に依頼"
-    OPTION2_PRICE = "８８，０００円"
-    OPTION2_PRICE_INT = 88000
+    OPTION2_PRICE_STR = "９９，０００円"
+    OPTION2_PRICE_INT = 99000
+    CAMPAIGN_OPTION2_PRICE_STR = "８９，０００円"
+    CAMPAIGN_OPTION2_PRICE_INT = 89000
     
     OPTIONS = [
-        {"name" : OPTION1_NAME, "price" : OPTION1_PRICE},
-        {"name" : OPTION2_NAME, "price" : OPTION2_PRICE},
+        {"name" : OPTION1_NAME, "price" : OPTION1_PRICE_STR},
+        {"name" : OPTION2_NAME, "price" : OPTION2_PRICE_STR},
     ]
 
     STEP_TITLES = {

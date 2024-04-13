@@ -6,19 +6,17 @@ DEBUG = False
 SECRET_KEY=env("PRO_SECRET_KEY")
 
 ALLOWED_HOSTS = [
-    "django-render-6agw.onrender.com"
+    "django-render-6agw.onrender.com",
+    'aozoratouki.com', 
+    'www.aozoratouki.com'
 ]
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DEFAULT_FROM_EMAIL = CompanyData.MAIL_ADDRESS    #送信元のアドレスを指定
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
 EMAIL_HOST_USER = CompanyData.MAIL_ADDRESS
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = True  
 
 DATABASES = {
     'default':{

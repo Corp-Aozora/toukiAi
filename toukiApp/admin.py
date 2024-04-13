@@ -7,7 +7,7 @@ from .models import *
 from .company_data import *
 from .sections import *
 from .toukiAi_commons import *
-from .forms import AnswerToUserInquiryAdminForm, UserInquiryAdminForm
+from .forms import *
 from django.http import HttpResponseRedirect
 from django.urls import path
 from django.contrib import messages
@@ -51,28 +51,163 @@ class UpdateArticleAdmin(admin.ModelAdmin):
 
 admin.site.register(UpdateArticle, UpdateArticleAdmin)
 
-# 一般お問い合わせ
+class AnswerToOpenInquiryInline(admin.StackedInline):  # またはadmin.StackedInline
+    model = AnswerToOpenInquiry
+    form = AnswerToOpenInquiryAdminForm
+    extra = 1
+    fields = ["content"]
+    
 class OpenInquiryChangeForm(forms.ModelForm):
+    """一般お問い合わせの変更フォーム"""
     class Meta:
         model = OpenInquiry
         fields = '__all__'
 
 class OpenInquiryAdmin(admin.ModelAdmin):
-    fieldsets = (
-        (None, {'fields': ('created_by', 'subject', "content", "updated_by")}),
-        (_('Important dates'), {'fields': ('updated_at', "created_at")}),
-    )
-    
-    readonly_fields = ("updated_at", "created_at")
+    """一般お問い合わせ"""
     
     form = OpenInquiryChangeForm
-    list_display = ('updated_at', 'created_by', "subject", 'updated_by')
-    list_filter = ('updated_at', 'created_by', "subject", 'updated_by')
-    search_fields = ('updated_at', 'created_by', "subject", "updated_by")
+    change_form_template = "admin/open_inquiry_change_form.html"
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('<int:object_id>/save/', self.admin_site.admin_view(self.save_model_custom), name='open_inquiry_save_custom'),
+            path('<int:object_id>/save_answer/', self.admin_site.admin_view(self.save_answer_to_open_inquiry), name='save_answer_to_open_inquiry'),
+        ]
+        return my_urls + urls
+
+    def save_answer_to_open_inquiry(self, request, object_id):
+        """回答のみを保存する処理
+        
+            Djangoのデフォルトでフォームセットで回答フォームが表示されるためPOSTのデータを
+            加工してformに代入している
+        """
+        open_inquiry = OpenInquiry.objects.get(pk=object_id)
+        answer = AnswerToOpenInquiry.objects.filter(open_inquiry=open_inquiry).first()
+        post_data = request.POST.copy()  # QueryDict はイミュータブルなので、コピーしてから変更
+        post_data['open_inquiry'] = post_data.get('answer_to_open_inquiry-0-open_inquiry')
+        post_data['content'] = post_data.get('answer_to_open_inquiry-0-content')
+        post_data['created_by'] = answer.created_by if answer else request.user 
+        post_data['updated_by'] = request.user
+        form = AnswerToOpenInquiryAdminForm(post_data, instance=answer if answer else None)
+        if form.is_valid():
+            with transaction.atomic():
+                form.save()
+                messages.success(request, "回答を保存しました")
+                send_email_to_inquiry(form.cleaned_data, False)
+        else:
+            basic_log(get_current_function_name(), None, request.user, f"{form.errors}")
+            messages.error(request, "回答の保存に失敗しました")
+            
+        return HttpResponseRedirect('../')
+
+    def save_model_custom(self, request, object_id):
+        """質問のみを保存する処理
+        
+            使用予定がないためボタンをdisabledにしている
+        """
+        obj = self.get_object(request, object_id)
+        form = self.form(request.POST, instance=obj)
+        if form.is_valid():
+            with transaction.atomic():
+                form.save() 
+                messages.success(request, "質問を保存しました")
+        else:
+            basic_log(get_current_function_name(), None, request.user, f"{form.errors}")
+            messages.error(request, "質問の保存に失敗しました")
+            
+        return HttpResponseRedirect('../') 
+
+    def response_change(self, request, obj):
+        if "_saveasnew" in request.POST:
+            return super().response_change(request, obj)
+        elif "_continue" in request.POST:
+            return super().response_change(request, obj)
+        elif "_save" in request.POST:
+            return HttpResponseRedirect('../')  # 保存後のリダイレクト先を調整
+
+    def answer_updated_by(self, obj):
+        # 回答の最終更新日をリストに表示する（回答データがないときは未回答と表示）
+        try:
+            answer = obj.answer_to_open_inquiry
+            return answer.updated_by
+        except AnswerToOpenInquiry.DoesNotExist:
+            return format_html('<span style="color: #999;">{}</span>', _("未回答"))
+    
+    answer_updated_by.short_description = "回答の最終更新者"
+    
+    def answer_updated_at(self, obj):
+        # 回答の最終更新日をリストに表示する（回答データがないときは未回答と表示）
+        try:
+            answer = obj.answer_to_open_inquiry
+            return answer.updated_at
+        except AnswerToOpenInquiry.DoesNotExist:
+            return format_html('<span style="color: #999;">{}</span>', _("未回答"))
+
+    answer_updated_at.short_description = "回答の最終更新日"
+
+    fieldsets = (
+        (None, {'fields': ('created_by', 'subject', "content")}),
+        (_('Important dates'), {'fields': ('updated_at', "created_at")}),
+    )
+        
+    readonly_fields = ("created_by", 'subject', 'content', 'updated_at', 'created_at')
+    list_display = ("created_by", 'subject', 'updated_at', 'answer_updated_by', 'answer_updated_at')
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ('updated_at', 'created_at', "created_by", "content", "subject")
     ordering = ["-updated_at"]
+
+    inlines = [AnswerToOpenInquiryInline]  # インラインモデルを追加
 
 admin.site.register(OpenInquiry, OpenInquiryAdmin)
 
+class AnswerToOpenInquiryChangeForm(forms.ModelForm):
+    class Meta:
+        model = AnswerToOpenInquiry
+        fields = '__all__'
+
+class AnswerToOpenInquiryAdmin(admin.ModelAdmin):
+    """一般のお問い合わせに対する回答"""
+    fieldsets = (
+        (None, {'fields': ("open_inquiry", "content", "created_by", "updated_by")}),
+        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
+        (_('問い合わせ内容'), {'fields': ('get_open_inquiry_updated_at', 'get_open_inquiry_user', 'get_open_inquiry_subject', 'get_open_inquiry_content')}),
+    )
+    
+    readonly_fields = ('updated_at', 'created_at', 'open_inquiry', 'get_open_inquiry_updated_at', 'get_open_inquiry_user', 'get_open_inquiry_subject', 'get_open_inquiry_content')
+    form = AnswerToOpenInquiryChangeForm
+    list_display = ('open_inquiry', 'get_open_inquiry_updated_at', 'get_open_inquiry_user', 'get_open_inquiry_subject', 'get_open_inquiry_content', 'updated_at', 'updated_by')
+    list_filter = ('updated_at', 'created_at')
+    search_fields = ("open_inquiry", 'updated_at', 'created_at')
+    ordering = ['-updated_at']
+    
+    def get_open_inquiry_updated_at(self, obj):
+        return obj.open_inquiry.updated_at
+    get_open_inquiry_updated_at.admin_order_field = 'open_inquiry__updated_at'
+    get_open_inquiry_updated_at.short_description = _('一般お問い合わせの最終更新日')
+
+    def get_open_inquiry_user(self, obj):
+        return obj.open_inquiry.created_by
+    get_open_inquiry_user.admin_order_field = 'open_inquiry__user'
+    get_open_inquiry_user.short_description = _('問い合わせした人のメールアドレス')
+
+    def get_open_inquiry_subject(self, obj):
+        return obj.open_inquiry.subject
+    get_open_inquiry_subject.admin_order_field = 'open_inquiry__subject'
+    get_open_inquiry_subject.short_description = _('件名')
+
+    def get_open_inquiry_content(self, obj):
+        return obj.open_inquiry.content
+    get_open_inquiry_content.admin_order_field = 'open_inquiry__content'
+    get_open_inquiry_content.short_description = _('質問')
+    
+    def save_model(self, request, obj, form, change):
+        # 回答したらメールをユーザーに送信
+        super().save_model(request, obj, form, change)
+        send_email_to_inquiry(obj)
+    
+admin.site.register(AnswerToOpenInquiry, AnswerToOpenInquiryAdmin)
 
 # 被相続人
 class DecedentChangeForm(forms.ModelForm):
@@ -567,7 +702,7 @@ class UserInquiryAdmin(admin.ModelAdmin):
         post_data = request.POST.copy()  # QueryDict はイミュータブルなので、コピーしてから変更
         post_data['user_inquiry'] = post_data.get('answer_to_user_inquiry-0-user_inquiry')
         post_data['content'] = post_data.get('answer_to_user_inquiry-0-content')
-        post_data['created_by'] = answer.user_inquiry.user if answer else request.user 
+        post_data['created_by'] = answer.created_by if answer else request.user 
         post_data['updated_by'] = request.user
         form = AnswerToUserInquiryAdminForm(post_data, instance=answer if answer else None)
         if form.is_valid():
@@ -621,7 +756,7 @@ class UserInquiryAdmin(admin.ModelAdmin):
         (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
     )
     
-    readonly_fields = ("user",  "category", 'subject', 'content', 'updated_at', 'created_at')
+    readonly_fields = ("user", "category", 'subject', 'content', 'updated_at', 'created_at')
     list_display = ("user", "category", 'subject', 'updated_at', 'updated_by', 'answer_updated_at')
     list_filter = ('updated_at', 'created_at')
     search_fields = ('updated_at', 'created_at', "user", "content", "subject")
@@ -654,27 +789,27 @@ class AnswerToUserInquiryAdmin(admin.ModelAdmin):
     def get_user_inquiry_updated_at(self, obj):
         return obj.user_inquiry.updated_at
     get_user_inquiry_updated_at.admin_order_field = 'user_inquiry__updated_at'
-    get_user_inquiry_updated_at.short_description = _('User Inquiry Updated At')
+    get_user_inquiry_updated_at.short_description = _('ユーザーからのお問い合わせの最終更新日')
 
     def get_user_inquiry_user(self, obj):
         return obj.user_inquiry.user
     get_user_inquiry_user.admin_order_field = 'user_inquiry__user'
-    get_user_inquiry_user.short_description = _('User Inquiry User')
+    get_user_inquiry_user.short_description = _('問い合わせしたユーザー')
 
     def get_user_inquiry_category(self, obj):
         return Sections.get_category(obj.user_inquiry.category)
     get_user_inquiry_category.admin_order_field = 'user_inquiry__category'
-    get_user_inquiry_category.short_description = _('User Inquiry Category')
+    get_user_inquiry_category.short_description = _('進捗状況')
 
     def get_user_inquiry_subject(self, obj):
         return Sections.get_subject(obj.user_inquiry.subject)
     get_user_inquiry_subject.admin_order_field = 'user_inquiry__subject'
-    get_user_inquiry_subject.short_description = _('User Inquiry Subject')
+    get_user_inquiry_subject.short_description = _('項目')
 
     def get_user_inquiry_content(self, obj):
         return obj.user_inquiry.content
     get_user_inquiry_content.admin_order_field = 'user_inquiry__content'
-    get_user_inquiry_content.short_description = _('User Inquiry Content')
+    get_user_inquiry_content.short_description = _('質問')
     
     def save_model(self, request, obj, form, change):
         # 回答したらメールをユーザーに送信

@@ -26,6 +26,21 @@ class OpenInquiryForm(forms.ModelForm):
             "subject": forms.Select(),
         }
 
+    def clean_created_by(self):
+        """メールアドレスの検証"""
+        created_by = self.cleaned_data.get('created_by', '')
+        return created_by.strip()
+    
+    def clean_content(self):
+        """質問内容の検証"""
+        content = self.cleaned_data.get('content', '')
+        
+        stripped_content = content.strip()
+        if len(stripped_content) < 2:
+            raise forms.ValidationError("２文字以上入力してください。")
+
+        return content
+    
     def __init__(self, *args, **kwargs):
         self.base_fields['created_by'].widget.attrs.update({
             'class': 'form-control rounded-end',
@@ -1267,6 +1282,16 @@ class StepUserInquiryForm(forms.ModelForm):
     管理者サイト関連フォーム
 
 """
+class OpenInquiryAdminForm(forms.ModelForm):
+    class Meta:
+        model = OpenInquiry
+        fields = '__all__'
+            
+class AnswerToOpenInquiryAdminForm(forms.ModelForm):
+    class Meta:
+        model = AnswerToOpenInquiry
+        fields = "__all__"
+
 class UserInquiryAdminForm(forms.ModelForm):
     class Meta:
         model = UserInquiry

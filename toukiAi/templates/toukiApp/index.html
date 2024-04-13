@@ -17,24 +17,32 @@
     <div class="modal inquiry-modal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header justify-content-center">
-                    <h5 class="modal-title fw-bold text-center">
-                        お問い合わせありがとうございます！
+                <div class="modal-header justify-content-center bg-success-subtle">
+                    <h5 class="modal-title fw-bold">
+                        お問い合わせありがとうございます。
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pb-3">
-                    <span class="fw-bold border-bottom">
-                        原則２４時間以内
-                    </span>
-                    にご回答いたしますので、恐れ入りますが今少しお時間をください。<br>
-                    <span class="form-text">
-                        ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。<br>
-                        ※{{company_mail_address}}から受信できるように設定をお願いします。
-                    </span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                    <div>
+                        <b class="fw-bold">
+                            原則２４時間以内
+                        </b>
+                        にご回答いたします。
+                    </div>
+                    <p>
+                        恐れ入りますが少々お待ちください。
+                    </p>
+                    <div class="form-text">
+                        ※金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
+                    </div>
+                    <div>
+                        ※
+                        <b>
+                            {{company_data.MAIL_ADDRESS}}
+                        </b>
+                        から返信があります。
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,6 +66,48 @@
                             ご入力されたデータはログアウト直前に保存しました。<br>
                             最終更新日時：本日<span id="lastUpdateDate"></span>
                         </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "warning" %}
+        <div class="modal inquiry-modal modal-warning" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-danger-subtle">
+                        <h5 class="modal-title fw-bold">{{message.message|until:" "}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        <span class="fw-bold">
+                            {% if form.errors %}
+                                <div class="fw-bold">
+                                    {% for field, errors in form.errors.items %}
+                                        <div>
+                                            {% if field == "__all__" %}
+                                                <div>入力エラー</div>
+                                            {% else %}
+                                                {% if field == "created_by" %}
+                                                    <div>メールアドレスのエラー</div>
+                                                {% elif field == "subject" %}
+                                                    <div>件名のエラー</div>
+                                                {% elif field == "content" %}
+                                                    <div>お問い合わせ内容のエラー</div>
+                                                {% endif %}
+                                            {% endif %}
+                                            <ul>
+                                                {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
@@ -92,12 +142,12 @@
     <div id="intro" class="my-5">
         <h3 class="text-center">
             <span class="border-start border-5 border-primary ps-3">
-                {{company_app_name}}とは？
+                {{company_data.APP_NAME}}とは？
             </span>
         </h3>
         <h4 id="introSubtitle" class="py-3 mt-4">
             <div class="text-center fw-bold">
-                相続登記を専門家に頼らず簡単にできるようにしたシステムです！
+                相続登記を誰でもできるよう簡単にするシステムです！
             </div>
             <!-- <div class="d-flex align-items-center justify-content-center">
                 <span class="fs-6 ms-lg-2 fw-bold text-dark border border-dark p-1 rounded-1">
@@ -110,12 +160,12 @@
                 そうぞくとうきくんの利用条件を確認する
             </a>
         </p>
-        <div class="justify-content-center d-flex">
+        <div class="justify-content-center d-flex notice">
             <div class="col-lg-7 p-3 border rounded-3 border-success">
                 <p class="text-center fw-bold text-success">
                     <span class="bg-success bg-gradient bg-opacity-75 rounded-3 text-white p-2">
                         お知らせ
-                    </span><br>
+                    </span>
                 </p>
                 <p>
                     今年３月１日から戸籍法の一部改正により
@@ -131,11 +181,15 @@
                     ※ごく一部の戸籍謄本や兄弟姉妹の方が相続人になる場合は、従来どおり亡くなった方の本籍がある役所でしか取得できません。
                 </p>
                 <p>
-                    亡くなった方の戸籍謄本は複数の役所に請求しないと必要な範囲全てが揃わなかったりして相続登記を行うにあたっての重労働になる部分だったため、
-                    これにより相続登記の難易度はだいぶ下がったと思います。
+                    亡くなった方の戸籍謄本は複数の役所に請求しないと必要なもの全てが揃わなかったりして相続登記を行うにあたっての重労働な部分だったため、
+                    相続登記の難易度はだいぶ下がったと思います。
                 </p>
                 <p>
-                    ご自身がこの制度の適用対象になるかなど気になることがありましたら本ページ下部にあるお問い合わせからご質問ください！
+                    ご自身がこの制度の適用対象になるかなど気になることがありましたら本ページ下部にある
+                    <span class="fw-bold text-primary toInquiry">
+                        お問い合わせ
+                    </span>
+                    からお気軽にご質問ください！
                 </p>
             </div>
         </div>
@@ -180,7 +234,7 @@
                     <div class="card-body">
                         <div class="card-text fs-6 fw-bold">
                             <span class="bg-primary bg-gradient bg-opacity-75 rounded-3 text-white ps-1 me-1">
-                                システムの利用料は4万9000円（税込）
+                                システムの利用料は{{company_service.CAMPAIGN_BASIC_PRICE_STR}}（税込）
                             </span><br>
                             司法書士に依頼すると10万円以上の報酬が発生することが多いため出費の節約になります！<br>
                             もう少し楽したいという場合は、別途のオプションもご用意してます。<br>
@@ -449,12 +503,16 @@
             <span class="border-start border-5 border-primary ps-3">料金表（全て税込価格）</span>
         </h3>
         <h4 class="py-3 mt-4 fw-bold text-center">
-            本システムの使用料は{{company_service.BASIC_PRICE}}です。<br>
-            一部だけ司法書士にご依頼いただくこともできます。
+            本システムの使用料は
+            <span class="text-primary">
+                {{company_service.CAMPAIGN_BASIC_PRICE_STR}}
+            </span>です。
+            <br>
+            以下のオプションも併用できます。
         </h4>
         <div class="container">
             <div class="d-flex justify-content-center">
-                <div class="col-lg-4 p-3">
+                <div class="col-lg-6 p-3 option1">
                     <div class="card">
                         <div class="card-header pt-3 bg-primary bg-gradient bg-opacity-75 text-white">
                             <h5 class="text-center">
@@ -464,30 +522,90 @@
                         <div class="card-body">
                             <h5 class="card-title text-center">
                                 <span class="border-bottom border-dark border-2 px-2">
-                                    {{company_service.OPTION1_PRICE}}
+                                    {{company_service.CAMPAIGN_OPTION1_PRICE_STR}}（実費込み）
                                 </span>
                             </h5>
-                            <p class="card-text text-center mt-3 fw-bold">
-                                ・必要証明書を全て代理で取得
+                            <p class="mt-3 text-center fw-bold">
+                                ・お亡くなりになった方の出生から死亡までの戸籍謄本
                             </p>
-                            <p>
-                                相続登記で一番面倒なところだけ専門家にお任せしてみませんか？
-                            </p>
-                            <div>
-                                ※印鑑証明書は代理で取得できません。
-                                <div class="d-flex">
-                                    <span>
-                                        ※
-                                    </span>
-                                    <span>
-                                        取得する書類が15通を超える場合、超過1通ごとに1,100円が加算されます。
-                                    </span>
+                            <ul class="ps-0">
+                                <li>
+                                    <div class="d-flex">
+                                        <div>
+                                            ※
+                                        </div>
+                                        <div>
+                                            お亡くなりになった方に関する書類を全て取得するわけではありません。
+                                        </div>
+                                    </div>
+                                    <button type="button" class="ps-3 fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#decedentCertificationListModal">
+                                        お亡くなりになった方に関する必要な書類一覧はこちら
+                                    </button>
+                                </li>
+                                <li>
+                                    <div class="d-flex">
+                                        <div>
+                                            ※
+                                        </div>
+                                        <div>
+                                            一部ご取得されているものがある場合、それも含めてチェックします。
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="d-flex">
+                                        <div>
+                                            ※
+                                        </div>
+                                        <div>
+                                            取得する書類が15通を超える場合、超過1通ごとに1,500円（実費込）が加算されます。
+                                        </div>
+                                    </div>
+                                </li>
+                                <div class="modal fade" id="decedentCertificationListModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-warning-subtle">
+                                                <h1 class="modal-title fs-5">お亡くなりになった方に関する必要書類一覧</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <ul class="pe-3">
+                                                    <li class="border-bottom">
+                                                        ・出生から死亡までの戸籍謄本
+                                                        <span class="fw-bold">
+                                                            （取得代行対象）
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <div class="border-bottom">
+                                                            ・死亡時の住所を証する住民票の除票など
+                                                        </div>
+                                                        <div class="d-flex">
+                                                            <div>
+                                                                ※
+                                                            </div>
+                                                            <div>
+                                                                死亡時の住所が登記記録上の住所と異なるとき登記記録上の住所までの履歴がわかるものも必要です。
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="border-bottom">
+                                                        ・所有する不動産の評価額を確認できるもの
+                                                    </li>
+                                                    <li class="border-bottom">
+                                                        ・所有する不動産の登記記録を確認できるもの
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 p-3">
+                <div class="col-lg-6 p-3 option2">
                     <div class="card">
                         <div class="card-header pt-3 bg-gradient bg-success bg-opacity-75 text-white">
                             <h5 class="text-center">
@@ -497,28 +615,39 @@
                         <div class="card-body">
                             <h5 class="card-title text-center">
                                 <span class="border-bottom border-dark border-2 px-2">
-                                    {{company_service.OPTION2_PRICE}}
+                                    {{company_service.OPTION2_PRICE_STR}}
                                 </span>
                             </h5>
                             <p class="card-text text-center mt-3 fw-bold">
-                                ・弊社と提携の司法書士が全て行います
+                                ・弊社と提携している司法書士が全て行います
+                                <br>
+                                ※通常の司法書士への依頼と同じ内容です。
                             </p>
-                            <p>
-                                本システムを制作した者が面識ある司法書士を自信をもってご紹介いたします
-                            </p>
-                            <p>
-                                どの司法書士に依頼しようか迷われてる場合にご検討されてはいかがでしょうか？
-                            </p>
+                            <div>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        預貯金等の手続きの依頼については、司法書士の報酬が別途発生します。
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        システム利用中にこちらのオプションを選択された場合、すでにお支払い頂いた金額との差額をご請求します。
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="ps-3 mt-3">
                 <span class="col card-text fst-italic mt-3 fw-bold">
-                    ※必要書類の取得にかかる役所の手数料や法務局に支払う登録免許税などの実費は、上記料金とは別にご負担が必要です。
-                </span><br>
-                <span>
-                    ※登録免許税は、不動産の固定資産評価額の0.4%です。
+                    ※システムの利用と司法書士への依頼は、上記料金とは別に法務局に支払う登録免許税などの実費のご負担が必要です。
                 </span>
             </div>
         </div>
@@ -751,7 +880,7 @@
                     <div class="card">
                         <div class="card-header pt-3 bg-primary bg-gradient bg-opacity-75 text-white">
                             <h5 class="text-center">
-                                {{company_app_name}}
+                                {{company_data.APP_NAME}}
                             </h5>
                         </div>
                         <div class="card-body">
@@ -1093,12 +1222,11 @@
             <span class="border-start border-5 border-primary ps-3">お問い合わせ</span>
         </h3>
         <h4 class="py-3 my-4 fw-bold text-center">
-            ご不明な点がありましたらお気軽にお問い合わせください<br>
-            サービス向上のためご意見・ご要望もいただけますと幸いです<br>
+            ご不明な点がありましたらお気軽にお問い合わせください！<br>
         </h4>
         <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
             {% csrf_token %}
-            {% for field in forms %}
+            {% for field in form %}
                 {% if not field.html_name == "content" %}
                     <div class="input-group">
                         <label for="{{field.auto_id}}" class="input-group-text label">
@@ -1126,7 +1254,7 @@
                     {% for field, errors in form.errors.items %}
                         <div>
                             {% if field == "__all__" %}
-                                <div>アカウントデータに関するエラー</div>
+                                <div>入力エラー</div>
                             {% else %}
                                 {% if field == "created_by" %}
                                     <div>メールアドレスのエラー</div>
@@ -1138,7 +1266,7 @@
                             {% endif %}
                             <ul>
                                 {% for error in errors %}
-                                <li style="list-style-type: none;">{{ error }}</li>
+                                <li>{{ error }}</li>
                                 {% endfor %}
                             </ul>
                         </div>
@@ -1147,14 +1275,18 @@
             {% endif %}
             <div class="text-center mt-3" disabled="true">
                 <p class="text-danger">
-                    ※toukiaidev@gmail.comからのメールを受信できるように設定をお願いします。
+                    ※
+                    <b>
+                        {{company_data.MAIL_ADDRESS}}
+                    </b>
+                    からの返信があります。
                 </p>
-                <button type="button" id="beforeSubmitBtn" class="btn btn-primary">送信</button>
-                <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalTitle" aria-hidden="true">
+                <button type="button" id="showConfirmModalBtn" class="btn btn-primary">送信</button>
+                <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <div class="modal-header justify-content-center">
-                                <h5 class="modal-title p-1 bg-warning-subtle" id="submitModalTitle">
+                            <div class="modal-header justify-content-center bg-warning-subtle">
+                                <h5 class="modal-title" id="confirmModalTitle">
                                     メールアドレスと内容にお間違えはないですか？
                                 </h5>
                             </div>
@@ -1164,7 +1296,16 @@
                                         メールアドレス
                                     </div>
                                     <p>
-                                        <span id="modalCreatedBy">
+                                        <span id="modalMailAddress">
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="badge rounded-pill text-bg-light fs-6 fw-bold">
+                                        件名
+                                    </div>
+                                    <p>
+                                        <span id="modalSubject">
                                         </span>
                                     </p>
                                 </div>
@@ -1179,8 +1320,14 @@
                                 </div>
                             </div>
                             <div class="modal-footer justify-content-evenly">
-                                <button id="submitBtn" type="submit" class="btn btn-primary">送信する</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">修正する</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    修正する
+                                </button>
+                                <button id="submitBtn" type="submit" class="btn btn-primary">
+                                    ＯＫ
+                                    <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -10,6 +10,8 @@ from django.core.mail import EmailMessage
 import traceback
 from datetime import datetime
 import logging
+from django.conf import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +216,8 @@ ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + EMAIL_SIGNATURE
 
 # 問い合わせへの自動返信メールテンプレート
 AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
+    お問い合わせありがとうございます                                        
+                                            
     以下の内容でお問い合わせを受け付けました。
     原則２４時間以内にご回答いたします。
     ※金土日祝日にお問い合わせいただいた場合は、翌週の月曜日になることもあります。
@@ -225,8 +229,8 @@ AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
 ANSWER_EMAIL_TEMPLATE = textwrap.dedent('''
     {user} 様   
     
-    そうぞくとうきくんをご利用いただきありがとうございます。
-    お問い合わせに対するご回答です。
+    お問い合わせありがとうございます。
+    いただいたお問い合わせに対するご回答です。
     
     {answer}
 
@@ -234,7 +238,7 @@ ANSWER_EMAIL_TEMPLATE = textwrap.dedent('''
     ----------お問い合わせ内容----------
 ''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE
 
-def send_auto_email_to_inquiry(cleaned_data, to_email):
+def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
     """問い合わせに対する自動返信メールを送信する
 
     Args:
@@ -244,8 +248,8 @@ def send_auto_email_to_inquiry(cleaned_data, to_email):
     category = cleaned_data.get("category", "")
     content = AUTO_REPLY_EMAIL_TEMPLATE.format(
         inquiry_category = Sections.get_category(category) + "の" if category else "",
-        inquiry_subject = Sections.get_subject(cleaned_data["subject"]),
-        content = cleaned_data["content"],
+        inquiry_subject = Sections.get_subject(cleaned_data["subject"]) if is_user else cleaned_data["subject"],
+        content = cleaned_data["content"], 
         company_name = CompanyData.NAME,
         company_post_number = CompanyData.POST_NUMBER,
         company_address = CompanyData.ADDRESS,
@@ -255,17 +259,17 @@ def send_auto_email_to_inquiry(cleaned_data, to_email):
         company_url = CompanyData.URL,
     )
     to_list = [to_email]
-    bcc_list = [CompanyData.MAIL_ADDRESS]
+    bcc_list = [settings.DEFAULT_FROM_EMAIL]
     message = EmailMessage(
         subject=mail_subject, 
         body=content, 
-        from_email=CompanyData.MAIL_ADDRESS, 
+        from_email=settings.DEFAULT_FROM_EMAIL, 
         to=to_list, 
         bcc=bcc_list
     )
     message.send()
     
-def send_email_to_inquiry(cleaned_data):
+def send_email_to_inquiry(cleaned_data, is_to_user=True):
     """問い合わせに回答したときのメール送信処理
 
     Args:
@@ -273,12 +277,14 @@ def send_email_to_inquiry(cleaned_data):
         to_email (): 問い合わせをしたユーザーのメールアドレス
     """
     mail_subject = f"{CompanyData.APP_NAME} お問い合わせへのご回答です"
+    
+    to_mail = cleaned_data["user_inquiry"].user.email if is_to_user else cleaned_data["open_inquiry"].created_by
     content = ANSWER_EMAIL_TEMPLATE.format(
-        user = cleaned_data["user_inquiry"].user.email,
+        user = to_mail,
         answer = cleaned_data["content"],
-        inquiry_category = Sections.get_category(cleaned_data["user_inquiry"].category),
-        inquiry_subject = Sections.get_subject(cleaned_data["user_inquiry"].subject),
-        content = cleaned_data["user_inquiry"].content,
+        inquiry_category = Sections.get_category(cleaned_data["user_inquiry"].category) + "の" if is_to_user else "",
+        inquiry_subject = Sections.get_subject(cleaned_data["user_inquiry"].subject) if is_to_user else cleaned_data["open_inquiry"].subject,
+        content = cleaned_data["user_inquiry"].content if is_to_user else cleaned_data["open_inquiry"].content,
         company_name = CompanyData.NAME,
         company_post_number = CompanyData.POST_NUMBER,
         company_address = CompanyData.ADDRESS,
@@ -287,12 +293,12 @@ def send_email_to_inquiry(cleaned_data):
         company_opening_hours = CompanyData.OPENING_HOURS,
         company_url = CompanyData.URL,
     )
-    to_list = [cleaned_data["user_inquiry"].user.email]
-    bcc_list = [CompanyData.MAIL_ADDRESS]
+    to_list = [to_mail]
+    bcc_list = [settings.DEFAULT_FROM_EMAIL]
     message = EmailMessage(
         subject=mail_subject, 
         body=content, 
-        from_email=CompanyData.MAIL_ADDRESS, 
+        from_email=settings.DEFAULT_FROM_EMAIL, 
         to=to_list, 
         bcc=bcc_list
     )

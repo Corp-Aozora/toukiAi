@@ -65,6 +65,7 @@ def index(request):
         _type_: _description_
     """
     try:
+        function_name = get_current_function_name()
         is_inquiry = False
         render_html = "toukiApp/index.html"
         
@@ -80,81 +81,39 @@ def index(request):
                     try:
                         form.save()
                         
-                        subject = CompanyData.APP_NAME + " お問い合わせありがとうございます"
-                        content = textwrap.dedent('''
-                            このメールはシステムからの自動返信です。
-                            送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
-
-                            以下の内容でお問い合わせを受け付けました。
-                            
-                            原則２４時間以内にご回答いたしますので、恐れ入りますが今少しお時間をください。
-                            ※金土日祝日にお問い合わせいただいた場合は、翌月曜日になることもあります。
-                            
-                            ----------------------------------
-
-                            件名
-                            {subject}
-
-                            お問い合わせ内容
-                            {content}
-                            
-                            -----------------------------------
-                            {company_name}
-                            {company_post_number}
-                            {company_address}
-                            受信専用電話番号 {company_receiving_phone_number}
-                            発信専用電話番号 {company_calling_phone_number}
-                            営業時間 {company_opening_hours}
-                            ホームページ {company_url}
-                        ''').format(
-                            subject=form.cleaned_data["subject"],
-                            content=form.cleaned_data["content"],
-                            company_name=CompanyData.NAME,
-                            company_post_number=CompanyData.POST_NUMBER,
-                            company_address=CompanyData.ADDRESS,
-                            company_receiving_phone_number=CompanyData.RECEIVING_PHONE_NUMBER,
-                            company_calling_phone_number=CompanyData.CALLING_PHONE_NUMBER,
-                            company_opening_hours=CompanyData.OPENING_HOURS,
-                            company_url=CompanyData.URL,
-                        )
-                        to_list = [form.cleaned_data["created_by"]]
-                        bcc_list = [CompanyData.MAIL_ADDRESS]
-                        message = EmailMessage(subject=subject, body=content, from_email=CompanyData.MAIL_ADDRESS, to=to_list, bcc=bcc_list)
-                        message.send()
+                        send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
                         request.session["post_success"] = True
                         
+                        return redirect("/toukiApp/index")
                     except BadHeaderError as e:
                         basic_log(function_name, e, None, "無効なヘッダ")
-                        messages.error(request, f'無効なヘッダが検出されました {e}')
+                        messages.error(request, f'無効なヘッダが検出されたことにより受け付けできませんでした。 {e}')
                     except SMTPException as e:
                         basic_log(function_name, e, None, "SMTPエラー")
-                        messages.error(request, f'SMTPエラーが発生しました {e}')
+                        messages.error(request, f'SMTPエラーにより受け付けできませんでした。 {e}')
                     except socket.error as e:
                         basic_log(function_name, e, None, "ネットワークエラー")
-                        messages.error(request, f'ネットワークエラーが発生しました {e}')
-                    except ValidationError as e:
+                        messages.error(request, f'ネットワークエラーにより受け付けできませんでした。 {e}')
+                    except (ValidationError, ValueError) as e:
                         basic_log(function_name, e, None)
-                        messages.error(request, "データの保存に失敗しました。入力内容を確認してください。")
+                        messages.error(request, f"受け付けできませんでした。入力内容をご確認ください。 {e}")
                     except Exception as e:
                         basic_log(function_name, e, None)
-                        messages.error(request, f'予期しないエラーが発生しました {e}')
+                        messages.error(request, f'予期しないエラーにより受け付けできませんでした。 {e}')
                 
             else:
-                messages.warning(request, "入力内容に誤りがあったため受付できませんでした")
-                
-            return redirect("/toukiApp/index")
-                
+                basic_log(function_name, None, None, f"{form.errors}")
+                messages.warning(request, "受け付けできませんでした")
         else:
-            forms = OpenInquiryForm()
+            form = OpenInquiryForm()
             
         update_articles = UpdateArticle.objects.order_by("-updated_by")[:2]
         
         context = {
             "title" : "トップページ",
             "update_articles": update_articles,
-            "forms": forms,
-            "company_app_name": CompanyData.APP_NAME,
-            "company_mail_address": CompanyData.MAIL_ADDRESS,
+            "form": form,
+            "company_data": CompanyData,
             "company_service": Service,
             "is_inquiry": is_inquiry,
         }
@@ -4395,7 +4354,7 @@ def privacy(request):
 def terms(request):
     context = {
         "title" : "利用規約",
-        "CompanyData" : CompanyData,
+        "company_data" : CompanyData,
     }
     return render(request, "toukiApp/terms.html", context)
 

@@ -1,12 +1,23 @@
+/* リストを初期化 */
+li{
+    list-style: none!important;
+}
+
+/* ボタンを初期化 */
+button {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+}
+
+/* 手型のカーソルにする */
 .cursor-pointer:hover{
     cursor: pointer;
     cursor: hand;
 }
 
-li{
-    list-style: none!important;
-}
-
+/* エラーメッセージ表示用 */
 .errorMessage {
     position: absolute;
     padding: 10px;
@@ -30,6 +41,7 @@ li{
     background-image: var(--bs-gradient)!important;
 }
 
+/* 処理中表示用 */
 .verifying {
     position: absolute;
     padding: 10px;
@@ -53,6 +65,7 @@ li{
     background-image: var(--bs-gradient)!important;
 }
 
+/* インプット要素といっしょに使うラベル */
 .label{
     display: block!important;
     text-align: justify!important;
@@ -60,6 +73,11 @@ li{
     font-weight: 700!important;
 }
 
+.text-indent{
+    text-indent: 1rem!important;
+}
+
+/* ブートストラップのカードに影をつける用 */
 .shadow-sm-above {
     box-shadow: 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
@@ -77,13 +95,7 @@ li{
     height: auto; /* 高さは自動的に調整 */
 }
 
-button {
-    background: none;
-    border: none;
-    outline: none;
-    padding: 0;
-}
-
+/* クリックしたら詳細を表示するためのもの（アコーディオン的なやつ） */
 .arrow-right::before {
     content: "";
     display: inline-block;

@@ -45,6 +45,11 @@
     text-indent: 1rem!important;
 }
 
+/* 課題 */
+.task .card-body{
+    min-height: 230px;
+}
+
 /* 料金表 */
 #decedentCertificationListModal li:not(:first-child){
     margin-top: 1rem!important;
@@ -58,6 +63,27 @@
 #compare li{
     display: flex!important;
 }
+
+/* Q&A */
+.accordion-item p:first-child > span{
+    font-weight: 700!important;
+    border-bottom: 1px solid black;
+}
+
+#whoToA ul{
+    padding-left: 0;
+    padding-right: 2rem!important;
+}
+
+#whoToA li:not(:first-child){
+    margin-top: 1rem!important;
+}
+
+#whoToA li > div{
+    display: flex!important;
+    margin-left: 1rem!important;
+}
+
 
 /* 問い合わせ */
 .label{

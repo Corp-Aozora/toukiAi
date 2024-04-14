@@ -1055,39 +1055,43 @@ function getHeirsCityData(){
  * 相続人情報のデータを復元する
  */
 async function loadHeirsData(){
-    const heirsCityDatas = await getHeirsCityData();
-    //各相続人のインスタンスをループ処理
-    for(const heir of heirs){
-        //各インプット要素の入力状況に応じてエラー要素を削除する
-        const inputs = heir.inputs;
-        const idxs = heir.constructor.idxs;
-        for(let i = 0, len = inputs.length; i < len; i++){
-            //隠しインプット以降の処理は不要
-            if(i === idxs.isRefuse)
-                break;
-
-            //不動産を取得するラジオボタン欄のとき
-            if(idxs.isAcquire.includes(i)){
-                if(inputs[i].checked)
-                    inputs[i].dispatchEvent(new Event("change"));
-            }else if(i === idxs.city){
-                const cityData = heirsCityDatas.find(x => String(x[0]) + "_" + x[1] === inputs[idxs.idAndContentType].value);
-                //市区町村欄のとき
-                if(cityData){
-                    inputs[i].value = cityData[2];
+    try{
+        const heirsCityDatas = await getHeirsCityData();
+        //各相続人のインスタンスをループ処理
+        for(const heir of heirs){
+            //各インプット要素の入力状況に応じてエラー要素を削除する
+            const inputs = heir.inputs;
+            const idxs = heir.constructor.idxs;
+            for(let i = 0, len = inputs.length; i < len; i++){
+                //隠しインプット以降の処理は不要
+                if(i === idxs.isRefuse)
+                    break;
+    
+                //不動産を取得するラジオボタン欄のとき
+                if(idxs.isAcquire.includes(i)){
+                    if(inputs[i].checked)
+                        inputs[i].dispatchEvent(new Event("change"));
+                }else if(i === idxs.city){
+                    const cityData = heirsCityDatas.find(x => String(x[0]) + "_" + x[1] === inputs[idxs.idAndContentType].value);
+                    //市区町村欄のとき
+                    if(cityData){
+                        inputs[i].value = cityData[2];
+                    }
+                }else{
+                    //それ以外の欄のとき、値があればエラー要素から削除する
+                    if(inputs[i].value !== "")
+                        heir.noInputs = heir.noInputs.filter(x => x !== inputs[i]);
+                    if(i === idxs.prefecture)
+                        await getCityData(inputs[i].value, inputs[i + 1], heir);
                 }
-            }else{
-                //それ以外の欄のとき、値があればエラー要素から削除する
-                if(inputs[i].value !== "")
-                    heir.noInputs = heir.noInputs.filter(x => x !== inputs[i]);
-                if(i === idxs.prefecture)
-                    await getCityData(inputs[i].value, inputs[i + 1], heir);
             }
+            //該当の相続人のデータを反映後にボタンの有効判別
+            isActivateOkBtn(heir);
+            if(SpouseOrAscendant.okBtn.disabled === false)
+                handleHeirsOkBtnEvent();
         }
-        //該当の相続人のデータを反映後にボタンの有効判別
-        isActivateOkBtn(heir);
-        if(SpouseOrAscendant.okBtn.disabled === false)
-            handleHeirsOkBtnEvent();
+    }catch(e){
+        basicLog("loadHeirsData", e);
     }
 }
 
@@ -1409,8 +1413,11 @@ async function loadData(){
         //登記簿上の氏名住所データを反映
         await loadRegistryNameAndAddressData();
         isActivateOkBtn(decedents[0]);
-        await handleAfterDataLoaded(SpouseOrAscendant.section);
-    
+        const result = await handleAfterDataLoaded(SpouseOrAscendant.section);
+
+        if(!result)
+            return;
+        
         //相続人情報を反映する
         await loadHeirsData();
         if(okBtn.disabled){
@@ -1456,13 +1463,17 @@ async function loadData(){
     }
 
     async function handleAfterDataLoaded(section = null){
-        if(okBtn.disabled)
-            return;
+        if(okBtn.disabled){
+            await scrollToTarget(section);
+            return false;
+        }
 
         await handleOkBtnEvent();
 
         if(section)
             await scrollToTarget(section);
+
+        return true;
     }
 }
 

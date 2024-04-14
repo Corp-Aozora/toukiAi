@@ -45,6 +45,11 @@
     text-indent: 1rem!important;
 }
 
+/* 詳細 */
+#support .modal{
+    --bs-modal-width: 1000px;
+}
+
 /* 課題 */
 .task .card-body{
     min-height: 230px;

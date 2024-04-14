@@ -144,9 +144,16 @@ def get_full_address(instance, is_instance_dict=False, is_domicile=False, is_for
     """インスタンスが持つ住所情報をつなげて返す"""
     full_address = ""
     if is_instance_dict:
-        full_address = get_prefecture_name(instance["prefecture"]) + instance["city"] + instance["address"] + (instance["bldg"] if is_domicile else "")
+        if is_domicile:
+            full_address = get_prefecture_name(instance["domicile_prefecture"]) + instance["domicile_city"] + instance["domicile_address"]
+        else:
+            full_address = get_prefecture_name(instance["prefecture"]) + instance["city"] + instance["address"] + (instance["bldg"] if instance["bldg"] else "")
     else:
-        full_address = get_prefecture_name(instance.prefecture) + instance.city + instance.address + (instance.bldg if is_domicile else "")
+        if is_domicile:
+            full_address = get_prefecture_name(instance.domicile_prefecture) + instance.domicile_city + instance.domicile_address
+        else:
+            full_address = get_prefecture_name(instance.prefecture) + instance.city + instance.address + (instance.bldg if instance.bldg else "")
+            
     return format_address(full_address) if is_format else full_address
         
 def get_prefecture_name(prefecture_code):

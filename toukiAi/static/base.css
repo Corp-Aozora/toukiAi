@@ -138,3 +138,8 @@ button {
 .error_list{
     max-width: 500px!important;
 }
+
+/* ラインのQRコード */
+.line-qr{
+    max-width: 100px!important;
+}

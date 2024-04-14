@@ -148,7 +148,7 @@ def get_querysets_by_condition(models, decedent, filter_conditions=None, is_firs
             queryset = queryset.select_related(*related_fields[model])
 
         if check_exsistance and not queryset.exists():
-            raise ValueError(f"{model.__name__}に対応するデータがフィルタ条件{filter_conditions}で見つかりませんでした。")
+            raise ValueError(f"{get_current_function_name()}\n{model.__name__}に対応するデータがフィルタ条件{filter_conditions}で見つかりませんでした。")
 
         if is_first:
             result = queryset.first()

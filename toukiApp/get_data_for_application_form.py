@@ -50,8 +50,10 @@ def link_properties_and_acquirer(decedent):
             "office": y.office,
             "address": y.address,
             "address_number": y.land_number if x.__name__ == "Land" else y.house_number if x.__name__ == "House" else y.bldg_number if x.__name__ == "Bldg" else None,
-        } for x in property_types for y in get_querysets_by_condition(x, decedent, check_exsistance=True)]
-        
+        } for x in property_types for y in get_querysets_by_condition(x, decedent)]
+        if(not properties):
+            raise ValueError(f"{get_current_function_name()}\n{decedent.id}に紐づく不動産データがありません")
+            
         acquirers = [{
             "id": x.id,
             "property_type": type(x.content_object1).__name__,

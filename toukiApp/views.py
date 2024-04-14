@@ -69,6 +69,7 @@ def index(request):
         is_inquiry = False
         render_html = "toukiApp/index.html"
         
+        # お問い合わせが成功したメッセージを表示するためのセッション（messagesのsuccessはログアウトメッセージと重複するため）
         if "post_success" in request.session and request.session["post_success"]:
             is_inquiry = True
             del request.session["post_success"]
@@ -324,7 +325,10 @@ def save_step_one_datas(user, forms, form_sets):
         user (_type_): _description_
         forms (_type_): _description_
         form_sets (_type_): _description_
-    """
+    """            
+    def check_is_heir(form):
+        """法定相続人判定"""
+        return form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False
     
     decedent = forms[0].save(commit=False)
     Decedent.objects.filter(user=user).delete()
@@ -340,7 +344,7 @@ def save_step_one_datas(user, forms, form_sets):
     add_required_for_data(spouse, user, decedent)
     spouse.content_type = decedent_content_type
     spouse.object_id = decedent.id
-    spouse.is_heir = check_is_heir(form[1])
+    spouse.is_heir = check_is_heir(forms[1])
     spouse.save()
     
     # 子共通
@@ -433,10 +437,7 @@ def save_step_one_datas(user, forms, form_sets):
                 collateral.object_id2 = ascendant_dict[form.cleaned_data.get("target2")].id
             collateral.is_heir = check_is_heir(form)
             collateral.save()
-            
-    def check_is_heir(form):
-        return form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False
-
+                
 def step_one(request):
     """ステップ１のメイン処理
 
@@ -2233,7 +2234,7 @@ def step_three(request):
             if step_three_input_status(child_spouse_data):
                 user_data_scope.append("child_spouse")
         else:
-            child_spouse_forms = form_sets[form_sets_idx["child_spouse"]](prefix="child")
+            child_spouse_forms = form_sets[form_sets_idx["child_spouse"]](prefix="child_spouse")
         #孫
         grand_child_data = data[data_idx["grand_child"]]
         if grand_child_data.exists():
@@ -4149,11 +4150,14 @@ def step_five(request):
 
 def get_where_to_apply(decedent):
     """ユーザーが申請する法務局の名称を取得する"""
-    #不動産情報を取得する
-    models = [Land, House, Bldg]
-    querysets = get_querysets_by_condition(models, decedent=decedent, check_exsistance=True)
-    #法務局の名称を重複なしでまとめる
-    return {x.office for x in querysets}
+    try:
+        #不動産情報を取得する
+        models = [Land, House, Bldg]
+        querysets = get_querysets_by_condition(models, decedent=decedent)
+        #法務局の名称を重複なしでまとめる
+        return {x.office for x in querysets}
+    except Exception as e:
+        raise e
 
 #
 # ステップ6
@@ -4283,9 +4287,10 @@ def step_inquiry(request):
             "title" : Service.STEP_TITLES["inquiry"],
             "progress": decedent.progress,
             "inquiry_form": inquiry_form,
+            "q_and_a_data": q_and_a_data,
+            "line_qr": CompanyData.LIMITED_LINE_QR,
             "sections" : Sections.SECTIONS,
             "service_content" : Sections.SERVICE_CONTENT,
-            "q_and_a_data": q_and_a_data,
         }
         return render(request, render_html, context)
     except Exception as e:

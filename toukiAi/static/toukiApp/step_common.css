@@ -1,8 +1,0 @@
-/* 全角4文字程度のラベル */
-.mdLabel{
-    max-width: 90px!important;
-    width: 90px!important;
-    display: block!important;
-    text-align: justify!important;
-    text-align-last: justify!important;
-}

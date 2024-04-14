@@ -344,12 +344,12 @@
                         <div class="modal fade" id="firstStepModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5">STEP1</h1>
+                                    <div class="modal-header bg-primary-subtle">
+                                        <h1 class="modal-title fs-5">STEP1 相続関係を入力</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        （Step1の画面を挿入する）
+                                        <img class="modal-image" src="{% static 'toukiApp/img/step_one.png' %}" alt="STEP1相続関係を入力の説明画像">
                                     </div>
                                 </div>
                             </div>
@@ -378,12 +378,12 @@
                         <div class="modal fade" id="secondStepModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5">STEP2</h1>
+                                    <div class="modal-header bg-primary-subtle">
+                                        <h1 class="modal-title fs-5">STEP2 必要書類を取得</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        （Step2の画面を挿入する）
+                                        <img class="modal-image" src="{% static 'toukiApp/img/step_two.png' %}" alt="STEP2必要書類の説明画像">
                                     </div>
                                 </div>
                             </div>
@@ -410,12 +410,12 @@
                         <div class="modal fade" id="thirdStepModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5">STEP3</h1>
+                                    <div class="modal-header bg-primary-subtle">
+                                        <h1 class="modal-title fs-5">STEP3 申請情報を入力</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        （Step3の画面を挿入する）
+                                        <img class="modal-image" src="{% static 'toukiApp/img/step_three.png' %}" alt="STEP3申請情報を入力の説明画像">
                                     </div>
                                 </div>
                             </div>
@@ -440,11 +440,11 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5">STEP4</h1>
+                                        <h1 class="modal-title fs-5">STEP4 申請書類の印刷と署名押印</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        （Step4の画面を挿入する）
+                                        <img class="modal-image" src="{% static 'toukiApp/img/step_four.png' %}" alt="STEP4申請書類の印刷と署名押印の説明画像">
                                     </div>
                                 </div>
                             </div>
@@ -471,11 +471,11 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5">STEP5</h1>
+                                        <h1 class="modal-title fs-5">STEP5 法務局に申請書類を郵送又は持参</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        （Step5の画面を挿入する）
+                                        <img class="modal-image" src="{% static 'toukiApp/img/step_five.png' %}" alt="STEP5法務局に申請書類を郵送又は持参の説明画像">
                                     </div>
                                 </div>
                             </div>
@@ -496,12 +496,12 @@
                         <div class="modal fade" id="ContactModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="modal-header">
+                                    <div class="modal-header bg-primary-subtle">
                                         <h1 class="modal-title fs-5">お問い合わせ</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        （お問い合わせ画面を挿入する）
+                                        <img class="modal-image" src="{% static 'toukiApp/img/step_inquiry.png' %}" alt="お問い合わせの説明画像">
                                     </div>
                                 </div>
                             </div>
@@ -886,7 +886,7 @@
                                             －
                                         </div>
                                         <div>
-                                            サービス内容に
+                                            司法書士によってサービス内容に差がある
                                         </div>
                                     </li>
                                 </ul>
@@ -1340,7 +1340,7 @@
                                     </span>
                                 </p>
                                 <p class="ps-3">
-                                    必要事項をお尋ねいたしますので、それにご回答いただければご自身でもできるか判定させていただきます。
+                                    必要事項をお尋ねいたしますので、いただいたご回答をもとに本システムの利用でも問題ないか判定いたします。
                                 </p>
                             </div>
                         </div>
@@ -1379,9 +1379,7 @@
             ご不明な点がありましたらお気軽にお問い合わせください！
             <br>
             LINEからもお問い合わせいただけます
-            <span class="ms-3">
-                @747qqpex
-            </span>
+            <img class="ms-3 line-qr" src="{{company_data.OPEN_LINE_QR}}">
         </h4>
         <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
             {% csrf_token %}

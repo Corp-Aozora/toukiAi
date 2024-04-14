@@ -33,5 +33,6 @@ urlpatterns = [
     path("is_email", views.is_email, name="is_email"),
     path("step_back", views.step_back, name="step_back"),
     
+    path("nav_to_last_user_page", views.nav_to_last_user_page, name="nav_to_last_user_page"),    
 ]
 

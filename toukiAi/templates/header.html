@@ -52,7 +52,7 @@
                 <a id="logoutBtn" class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
                     ログアウト
                 </a>
-                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow signupBtn" href="#">
+                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow signupBtn" href="{% url 'toukiApp:nav_to_last_user_page' %}">
                     会員ページに戻る
                 </a>
             {% else %}

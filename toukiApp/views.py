@@ -4578,6 +4578,10 @@ def is_email(request):
     return JsonResponse(context)
 
 def step_back(request):
+    """前のステップに戻るとき
+
+        進捗状況データを更新する
+    """
     user = User.objects.get(email = request.user)
     decedent = Decedent.objects.filter(user=user).first()
     data = json.loads(request.body)
@@ -4588,6 +4592,11 @@ def step_back(request):
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error'})
+
+def nav_to_last_user_page(request):
+    # セッションから前の会員ページのURLを取得
+    last_page = request.session.get('last_user_page', '/toukiApp/step_one/')
+    return redirect(last_page)    
 
 # def import_offices(html_file_path):
 #     """法務局データスクレイピング処理"""

@@ -4345,7 +4345,7 @@ def commerceLaw(request):
         "title" : "特定商取引法に基づく表記",
         "company_data" : CompanyData,
     }
-    return render(request, "toukiApp/commerce-law.html", context)
+    return render(request, "toukiApp/commerce_law.html", context)
 
 #プライバシーポリシー
 def privacy(request):

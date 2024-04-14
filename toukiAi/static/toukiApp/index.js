@@ -179,10 +179,8 @@ window.addEventListener("load", ()=>{
     //ログアウトされたとき完了したことを知らせる
     const logoutModal = document.getElementById("logoutModal");
     if(logoutModal !== null){
-        const logoutModal = new bootstrap.Modal(logoutModal);
-        const lastUpdateDate = document.getElementById("lastUpdateDate");
-        lastUpdateDate.innerHTML = sessionStorage.getItem("lastUpdateDate");
-        logoutModal.show();
+        const instance = new bootstrap.Modal(logoutModal);
+        instance.show();
     }
 
     //セッション情報を初期化

@@ -1,0 +1,10 @@
+footer{
+    min-height:100px;
+}
+
+a{
+    text-decoration: none;
+    font-weight: 700!important;
+    font-size: large;
+    padding: 0.5rem!important;
+}

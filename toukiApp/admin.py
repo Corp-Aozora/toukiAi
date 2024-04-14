@@ -153,7 +153,7 @@ class OpenInquiryAdmin(admin.ModelAdmin):
     )
         
     readonly_fields = ("created_by", 'subject', 'content', 'updated_at', 'created_at')
-    list_display = ("created_by", 'subject', 'updated_at', 'answer_updated_by', 'answer_updated_at')
+    list_display = ("created_by", 'subject', "content", 'updated_at', 'answer_updated_by', 'answer_updated_at')
     list_filter = ('updated_at', 'created_at')
     search_fields = ('updated_at', 'created_at', "created_by", "content", "subject")
     ordering = ["-updated_at"]

@@ -196,6 +196,7 @@ EMAIL_SIGNATURE = textwrap.dedent('''
     {company_name}
     {company_post_number}
     {company_address}
+    {company_bldg}
     電話番号 {company_receiving_phone_number}
     ※弊社からお客様にお電話するときの電話番号 {company_calling_phone_number}
     営業時間 {company_opening_hours}
@@ -253,6 +254,7 @@ def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
         company_name = CompanyData.NAME,
         company_post_number = CompanyData.POST_NUMBER,
         company_address = CompanyData.ADDRESS,
+        company_bldg = CompanyData.BLDG,
         company_receiving_phone_number = CompanyData.RECEIVING_PHONE_NUMBER,
         company_calling_phone_number = CompanyData.CALLING_PHONE_NUMBER,
         company_opening_hours = CompanyData.OPENING_HOURS,
@@ -288,6 +290,7 @@ def send_email_to_inquiry(cleaned_data, is_to_user=True):
         company_name = CompanyData.NAME,
         company_post_number = CompanyData.POST_NUMBER,
         company_address = CompanyData.ADDRESS,
+        company_bldg = CompanyData.BLDG,
         company_receiving_phone_number = CompanyData.RECEIVING_PHONE_NUMBER,
         company_calling_phone_number = CompanyData.CALLING_PHONE_NUMBER,
         company_opening_hours = CompanyData.OPENING_HOURS,

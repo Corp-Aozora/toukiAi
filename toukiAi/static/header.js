@@ -16,8 +16,7 @@ const toChargeBtn = document.getElementById("toChargeBtn");
 const toCompareBtn = document.getElementById("toCompareBtn");
 const toQABtn = document.getElementById("toQABtn");
 const toInquiryBtn = document.getElementById("toInquiryBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const headerBtns = [toIntroBtn, toSupportBtn, toChargeBtn, toCompareBtn, toQABtn, toInquiryBtn, logoutBtn];
+const headerBtns = [toIntroBtn, toSupportBtn, toChargeBtn, toCompareBtn, toQABtn, toInquiryBtn];
 
 const toggler = document.getElementById("toggler");
 
@@ -49,25 +48,13 @@ function moveToIndex(pathname, e){
 window.addEventListener("load",()=>{
     //各ボタンにイベントを設定する
     for(let i = 0; i < headerBtns.length; i++){
-        if(i < headerBtns.length - 1){
-            headerBtns[i].addEventListener("click",(e)=>{
-                moveToIndex(location.pathname, e);
+        headerBtns[i].addEventListener("click",(e)=>{
+            moveToIndex(location.pathname, e);
 
-                const closeBtn = header.getElementsByClassName("btn-close")[0];
-                const event = new Event("click");
-                closeBtn.dispatchEvent(event);
-            })
-        }else{
-            if(headerBtns[i] !== null){
-                headerBtns[i].addEventListener("click",(e)=>{
-                    const date1 = new Date();
-                    const date2 = date1.getHours() + "時" + 
-                                date1.getMinutes() + "分" + 
-                                date1.getSeconds() + "秒"
-                    sessionStorage.setItem("lastUpdateDate", date2);
-                })
-            }
-        }
+            const closeBtn = header.getElementsByClassName("btn-close")[0];
+            const event = new Event("click");
+            closeBtn.dispatchEvent(event);
+        })
     }
 
     toggler.addEventListener("click",(e)=>{

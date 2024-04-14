@@ -3,44 +3,89 @@
 /**
     変数
 */
-const cbs = Array.from(document.getElementsByTagName("input"));
+class Form{
+    constructor(){
+        this.form = document.getElementsByTagName("form")[0];
+        this.cbs = Array.from(this.form.getElementsByTagName("input")).slice(1);
+        this.submitBtn = this.form.querySelector("button[type='submit']");
+        this.availableText = this.form.querySelector("#availableText");
+    }
+}
 
 /**
  * 利用できるか判別する処理
  * @param {event} e
+ * @param {Form} instance
 */
-function showResult(e){
-    const btnSignup = document.getElementById("btnSignup");
-    const availableText = document.getElementById("availableText");
-    const signupLink = document.getElementById("signupLink");
-    const signupURL = "/account/signup/";
-    //アカウント登録へボタンの無効化、URLを削除、利用できる旨のテキストを非表示にする
-    function disableSignUpBtn(){
-        btnSignup.disabled = true;
-        signupLink.removeAttribute("href");
-        slideUp(availableText);
+function showResult(e, instance){
+    //アカウント登録へボタンと利用できる旨のテキストのトグル
+    function toggleSubmitBtn(isValid){
+        instance.submitBtn.disabled = !isValid;
+        isValid? slideDownAndScroll(instance.availableText): slideUp(instance.availableText);
     }
-    //チェックが入ったとき
-    if(e.target.checked){
-        //全てチェックされたとき
-        if(cbs.every(cb => cb.checked)){
-            //アカウント登録へボタンを有効化、URLを設定、利用できる旨のテキストを表示する
-            btnSignup.disabled = false;
-            signupLink.setAttribute("href", signupURL);
-            slideDownAndScroll(availableText);        
-        }else{
-            disableSignUpBtn();
-        }
-    }else{
-        //それ以外のとき
-        disableSignUpBtn();
-    }
+    
+    toggleSubmitBtn(e.target.checked? instance.cbs.every(x => x.checked): false);
+}
+
+/**
+ * 相関図のモーダルのサイズ調整
+ */
+function adjustModalScale() {
+    const modal = document.querySelector('.modal');
+    let screenWidth = window.innerWidth;
+    let scale = screenWidth / 820; // 820px が基準サイズ
+  
+    // スケールが1未満の場合のみ適用、それ以上は1（100%）に固定
+    scale = scale < 1 ? scale : 1;
+  
+    modal.style.transform = `scale(${scale})`;
+    modal.style.transformOrigin = 'top center';
 }
 
 /**
  * イベントリスナー
  */
 window.addEventListener("load", ()=>{
+    const instance = new Form();
     //各チェックボックスにイベントを設定
-    Array.from(cbs).forEach(checkBox => checkBox.addEventListener("change", showResult));
+    instance.cbs.forEach(x => x.addEventListener("change", (e)=>{
+        showResult(e, instance);
+    }))
+    //相関図モーダルのサイズ調整
+    adjustModalScale();
+    //送信時イベントを設定
+    instance.form.addEventListener("submit", (e)=>{
+        handleSubmitEvent(e, instance);
+    })
 })
+
+/**
+ * 送信ボタンイベント
+ * @param {event} event 
+ * @param {Inquiry} instance 
+ */
+function handleSubmitEvent(event, instance){
+    const spinner = document.getElementById("submitSpinner");
+
+    try{
+        if(!instance.cbs.every(x => x.checked)){
+            alert("全てにチェックが入らないとシステムの利用条件を満たさないためアカウント登録できません。");
+            event.preventDefault();
+            spinner.style.display = "none";
+            return;
+        }
+
+        instance.submitBtn.disabled = true;
+        spinner.style.display = "";
+    }catch(error){
+        basicLog("submit", error);
+        event.preventDefault();
+        spinner.style.display = "none";
+    }    
+}
+
+/**
+ * 画面サイズが変更されたとき
+ */
+window.addEventListener("resize", adjustModalScale)
+

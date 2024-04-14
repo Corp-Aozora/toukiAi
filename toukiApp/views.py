@@ -11,12 +11,12 @@ from .models import *
 from accounts.models import User
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse,  JsonResponse, HttpResponseRedirect, HttpResponseServerError
+from django.urls import reverse
 import json
 import copy
 from .get_data_for_application_form import *
 from time import sleep
-from django.http import JsonResponse, HttpResponseServerError
 import requests
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -28,7 +28,6 @@ from typing import List, Dict, Set, Tuple
 from fractions import Fraction
 import unicodedata
 from django.core.mail import BadHeaderError, EmailMessage
-from django.http import HttpResponse
 # from django.template.loader import render_to_string
 # from weasyprint import HTML
 from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
@@ -4331,44 +4330,73 @@ def get_q_and_a_data(user):
         )
     return q_and_a_data
 
-#運営者情報
 def administrator(request):
+    """運営者情報"""
     context = {
         "title" : "運営者情報",
         "company_data" : CompanyData,
     }
     return render(request, "toukiApp/administrator.html", context)
 
-#特商法
 def commerceLaw(request):
+    """特商法"""
     context = {
         "title" : "特定商取引法に基づく表記",
         "company_data" : CompanyData,
     }
     return render(request, "toukiApp/commerce_law.html", context)
 
-#プライバシーポリシー
 def privacy(request):
+    """プライバシーポリシー"""
     context = {
         "title" : "プライバシーポリシー",
         "company_data" : CompanyData,
     }
     return render(request, "toukiApp/privacy.html", context)
 
-#利用規約
 def terms(request):
+    """利用規約"""
     context = {
         "title" : "利用規約",
         "company_data" : CompanyData,
     }
     return render(request, "toukiApp/terms.html", context)
 
-#利用条件確認
 def condition(request):
-    context = {
-        "title" : "利用条件確認",
-    }
-    return render(request, "toukiApp/condition.html", context)
+    """利用条件の確認ページ
+
+        POSTのとき条件全てにチェックが入っているか確認してアカウント登録ページに遷移させる
+        入ってないときはエラーメッセージを表示する
+    """
+    try:
+        render_html = "toukiApp/condition.html"
+        redirect_to = "/toukiApp/condition"
+        function_name = get_current_function_name()
+    
+        if request.method == "POST":
+            checkboxes = request.POST.getlist("conditionCb")
+            if len(checkboxes) == 10:
+                return HttpResponseRedirect(reverse('account_signup'))
+            else:
+                messages.warning("利用条件を満たしていません 全てにチェックが入っていない場合は、利用条件を満たさないためアカウント登録できません")
+                basic_log(function_name, None, None, "利用条件全てにチェックを入れずにアカウント登録ボタンが押されました")
+
+        context = {
+            "title" : "利用条件確認",
+        }
+        return render(request, render_html, context)
+    
+    except Exception as e:
+        return handle_error(
+            e, 
+            request, 
+            None, 
+            function_name, 
+            redirect_to, 
+            render_html, 
+            None,
+            None,
+        )
 
 #不正な投稿があったとき
 def csrf_failure(request, reason=""):

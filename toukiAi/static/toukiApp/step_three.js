@@ -5682,19 +5682,6 @@ async function setBldgSection(){
     }
 }
 
-/**
- * 基本ログ情報
- * @param {string} functionName 関数名
- * @param {Error} e エラーオブジェクト
- * @param {string} message 開発者メッセージ
- */
-function basicLog(functionName, e = null, message = null){
-    console.error(
-        `エラーを補足した関数：${functionName}\n
-        開発者メッセージ：${message}\n
-        ${e}`
-    )
-}
 
 /**
  * 申請人selectに取得者を追加する

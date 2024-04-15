@@ -15,22 +15,19 @@ class CustomSignupForm(SignupForm):
         super().__init__(*args, **kwargs)
         
         self.fields['email'].widget.attrs.update({
-            'tabindex': '1',
             'class': 'form-control rounded-end',
             'autocomplete': 'on',
-            "placeholder": "例）tatsuya@xxxx.com",
-            "autofocu": True,
+            "placeholder": "",
+            "autofocus": True,
         })
         
         self.fields['password1'].widget.attrs.update({
-            'tabindex': '2',
             'class': 'form-control rounded-end',
             'autocomplete': 'on',
             "placeholder": "半角で英数記号を含む8文字以上",
         })
         
         self.fields['password2'].widget.attrs.update({
-            'tabindex': '3',
             'class': 'form-control rounded-end',
             'placeholder': 'もう一度ご入力ください',
             "maxlength": "0",

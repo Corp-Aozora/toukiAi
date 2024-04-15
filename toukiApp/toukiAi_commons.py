@@ -1,16 +1,22 @@
-import mojimoji
-from django.db.models.query import QuerySet
+from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
+from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
+from django.db.models.query import QuerySet
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from datetime import datetime
+from requests.exceptions import HTTPError, ConnectionError, Timeout
+import mojimoji
 import inspect
-from .prefectures_and_city import *
 import textwrap
+import traceback
+import logging
+
+from .prefectures_and_city import *
 from .company_data import *
 from .sections import *
-from django.core.mail import EmailMessage
-import traceback
-from datetime import datetime
-import logging
-from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +40,133 @@ def basic_log(function_name, e, user, message = None):
         発生時刻：{current_time}\n\
         経路:{traceback_info}"
     )
+
+def handle_error(e, request, user, function_name, redirect_to, render_html, is_async=False, context=None, notices=None):
+    """親関数でのエラーハンドリング"""
+    error_handlers = {
+        DatabaseError: handle_data_base_error,
+        HTTPError: handle_http_error,
+        ConnectionError: handle_connection_error,
+        Timeout: handle_time_out_error,
+        (ValidationError, ValueError): handle_validation_error,
+    }
+
+    for exception_type, handler in error_handlers.items():
+        if isinstance(e, exception_type):
+            return handler(e, request, user, function_name, render_html, is_async, context, notices)
+
+    return handle_exception_error(e, request, user, function_name, render_html, is_async, context, notices)
+
+def handle_exception_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+    """汎用エラーハンドリング"""
+    if context is None:
+        context = {}
+        
+    basic_log(function_name, e, user, notices)
+    
+    message = 'システムに問題が発生した可能性があります\n\
+        お手数ですが、お問い合わせをお願いします'
+    messages.error(request, message)
+    
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+    
+    return JsonResponse(context) if is_async else render(request, render_html, context)    
+
+def handle_validation_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+    """入力内容や登録されているデータが不正なときのエラーハンドリング"""
+    if context is None:
+        context = {}
+    
+    basic_log(function_name, e, user, notices)
+    
+    message = '入力内容が登録されているデータと一致しません\n\
+        お手数ですが、お問い合わせをお願いします'
+    messages.error(request, message)
+        
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+    
+    return JsonResponse(context) if is_async else render(request, render_html, context)    
+
+def handle_time_out_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+    """タイムアウトエラーハンドリング"""
+    if context is None:
+        context = {}
+    
+    basic_log(function_name, e, user, notices)
+    
+    message = 'システムに接続できませんでした。\n\
+        お手数ですが、ネットワーク環境をご確認ください。'
+    messages.error(request, message)
+            
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+        
+    return JsonResponse(context) if is_async else render(request, render_html, context)    
+
+def handle_connection_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+    """接続エラーハンドリング"""
+    if context is None:
+        context = {}
+    
+    basic_log(function_name, e, user, notices)
+    
+    message = '通信エラーが発生しました。システムへの接続に問題があるようです。\n\
+        数分あけてから更新ボタンを押しても問題が解決しない場合は、\
+        お手数ですがお問い合わせをお願いします。'
+    messages.error(request, message)
+            
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+        
+    return JsonResponse(context) if is_async else render(request, render_html, context) 
+
+def handle_data_base_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+    """データベース関連のエラーハンドリング"""
+    if context is None:
+        context = {}
+    
+    basic_log(function_name, e, user, notices)
+    message = 'システムにエラーが発生しました。\n\
+        数分後に再試行しても同じエラーになる場合は、お手数ですがお問い合わせをお願いします。'
+    messages.error(request, message)
+                
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+        
+    return JsonResponse(context) if is_async else render(request, render_html, context) 
+
+def handle_http_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+    """httpエラーハンドリング"""
+    if context is None:
+        context = {}
+    
+    basic_log(function_name, e, user, notices)
+
+    # HTTPErrorのresponse属性が存在するかをチェック
+    status_code = getattr(e.response, 'status_code', None)
+
+    # status_codeが取得できた場合、それを基にエラーメッセージを生成
+    if status_code and status_code == 500:
+        if status_code == 500:
+            message = 'システムにエラーが発生しました。\nお手数ですが、お問い合わせをお願いします。'
+        else:
+            message = f'通信エラー（コード：{status_code}）が発生しました。数分後に再試行してください。'
+    else:
+        message = '通信エラーが発生しました。数分後に再試行してください。'
+
+    messages.error(request, message)
+            
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+        
+    # HTTP 500 エラーの場合は、専用のエラーページを表示することも検討する
+    # if status_code == 500:
+    #     return HttpResponseServerError()
+    
+    # 通常のエラーメッセージ表示用に指定されたテンプレートをレンダリング
+    return JsonResponse(context) if is_async else render(request, render_html, context) 
 
 def fullwidth_num(number):
     """半角数字を全角数字に変換する関数

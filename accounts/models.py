@@ -88,9 +88,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         (5, "step6"),
     )
     progress = models.CharField(verbose_name="進捗", default=0, choices=progress_choice, max_length=30)
-    last_update = models.DateTimeField(verbose_name="最終更新日", auto_now=True)
     is_staff = models.BooleanField(verbose_name="スタッフ権限", default=False)
     is_active = models.BooleanField(verbose_name="利用状況", default=True)
+    last_update = models.DateTimeField(verbose_name="最終更新日", auto_now=True)
     date_joined = models.DateTimeField(verbose_name="利用開始日", auto_now_add=True)
 
     objects = UserManager()
@@ -107,7 +107,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.email = self.__class__.objects.normalize_email(self.email)
 
     def email_user(self, subject, message, from_email=None, **kwargs):
-        send_mail(subject, message, from_email, [self.email], **kwargs)    
+        send_mail(subject, message, from_email, [self.email], **kwargs)
 
 class EmailChange(models.Model):
     """メールアドレス変更申請データ

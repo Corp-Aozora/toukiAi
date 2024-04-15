@@ -18,8 +18,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('toukiApp/', include('toukiApp.urls')),
     path("", RedirectView.as_view(url="/toukiApp/")),
-    path("account/", include("allauth.urls")),
     path('account/', include('accounts.urls')),
+    path("account/", include("allauth.urls")),
     path('403/', accounts_view.error_403, name="error_403")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

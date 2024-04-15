@@ -1,27 +1,15 @@
 "use strict";
 
 /**
- * 変数
- */
-//入力欄
-reqInputs = [email, password1, password2];
-
-//各欄のエラーメッセージを表示する要素のid
-msgEls = [emailMessageEl, password1MessageEl, password2MessageEl];
-
-//エラーメッセージ
-msgs = [emailMessage, password1Message, password2Message];
-
-/**
  * 重複メールアドレスとdjangoによるメールアドレス形式チェック
- * @param {string} target 
+ * @param {string} email 
+ * @param {HTMLElement} errMsgEl 
  */
-function isNewEmail(target){
-    const url = 'is_new_email';
-  
+async function isNewEmail(email, errMsgEl){
+    const url = 'is_new_email/';
     fetch(url, {
         method: 'POST',
-        body: `email=${target}`,
+        body: `email=${email}`,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
             'X-CSRFToken': csrftoken,
@@ -30,105 +18,162 @@ function isNewEmail(target){
     }).then(response => {
         return response.json();
     }).then(response => {
-        if(response.message !== ""){
-            toggleErrorMessage(false, msgEls[emailIndex], response.message);
-            invalidEls.push(reqInputs[emailIndex]);
-        }else{
-            toggleErrorMessage(true, msgEls[emailIndex], response.message);
-        }
-    }).catch(error => {
-        console.log(error);
+        if(["success", "warning"].includes(response.error_level))
+            toggleErrorMessage((response.message === ""), errMsgEl, response.message);
+        else
+            alert(response.message);
+    }).catch(e => {
+        basicLog("isNewEmail", e);
     });
 }
 
 /**
- * バリデーションリスト
- * @param {number} index 
+ * メールアドレス検証
+ * ・カスタム検証、django検証、重複検証
+ * @param {string} email メールアドレス
+ * @param {HTMLElement} errMsgEl 
  */
-function validationList(index){
-    //メールアドレス欄
-    if(index === emailIndex){
-        //カスタムメールアドレスバリデーション
-        isValid = isEmail(reqInputs[index].value);
-        if(isValid[0] === false){
-            toggleErrorMessage(isValid[0], msgEls[index], isValid[1]);
-            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
-        }else{
-            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
-            //重複チェックとdjangoのメールアドレスバリデーション
-            isNewEmail(reqInputs[index].value);
-        }
+async function emailValidation(email, errMsgEl){
+    const result = isEmail(email);
+    if(result[0] === false){
+        toggleErrorMessage(result[0], errMsgEl, result[1]);
     }else{
-        //メールアドレス欄以外
-        if(index === password1Index) isValid = checkPassword(reqInputs[index].value, reqInputs[index]);
-        else if(index === password2Index) isValid = password1.value === password2.value ? true: false;
-
-        //各バリデーションでエラーがあるとき
-        toggleErrorMessage(isValid, msgEls[index], msgs[index]);
-        
-        if(isValid === false){
-            if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
-        }else{
-            invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
-        }
+        await isNewEmail(email, errMsgEl);
     }
 }
 
 /**
- * イベント
+ * バリデーションリスト
+ * @param {AccountForm} instance 
+ * @param {number} index 
+ * @param {Object<string, number>} idxs 
  */
-window.addEventListener("load", ()=>{
+function validationList(instance, index, idxs){
+    const input = instance.inputs[index];
+    const val = input.value;
+    const errMsgEl = instance.errMsgEls[index];
+    const errMsg = instance.errMsgs[index];
 
-    for(let i = 0; i < reqInputs.length; i++){
-        //フォーカス移動イベント
-        reqInputs[i].addEventListener("keypress", (e)=>{
-            if(e.code === "Enter" || e.code === "NumpadEnter"){
-                e.preventDefault();
-                if(e.target === password2){
-                    submitBtn.focus();
-                }else{
-                    reqInputs[i + 1].focus();}
-            }
+    if(index === idxs["email"]){
+        emailValidation(val, errMsgEl);
+    }else{
+        if(index === idxs["password1"])
+            isValid = checkPassword(val, input);
+        else
+            isValid = instance.inputs[idxs["password1"]].value === input.value;
+
+        //各バリデーションでエラーがあるとき
+        toggleErrorMessage(isValid, errMsgEl, errMsg);
+    }
+}
+
+/**
+ * keydownイベント
+ * @param {Event} e 
+ * @param {HTMLInputElement} nextInput
+ * @param {HTMLButtonElement} submitBtn
+ */
+function handleKeydownEvent(e, nextInput, submitBtn){
+    setEnterKeyFocusNext(e, nextInput? nextInput: submitBtn);
+}
+
+/**
+ * changeイベント
+ * @param {AccountForm} instance 
+ * @param {number} index 
+ * @param {Object<string, number>} idxs 
+ */
+function handleChangeEvent(instance, index, idxs){
+    validationList(instance, index, idxs);
+    if(index === idxs["password1"])
+        togglePassword2(instance.inputs[idxs["password1"]], instance.errMsgEls[idxs["password1"]], instance.inputs[idxs["password2"]]);
+}
+
+/**
+ * イベント設定
+ * @param {AccountForm} instance
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToInputs(instance, idxs){
+    const inputs = instance.inputs;
+    for(let i = 0, len = inputs.length; i < len; i++){
+        const input = inputs[i];
+        
+        input.addEventListener("keydown", (e)=>{
+            handleKeydownEvent(e, inputs[i + 1], instance.submitBtn);
         })
 
-        //モデルのバリデーションでエラーが出たとき用
-        if(errorlist !== null) validationList(i);
+        input.addEventListener("change", ()=>{
+            handleChangeEvent(instance, i, idxs);
+        })
     }
+}
 
-    //パスワード1が空欄又はエラーメッセージが出ているとき
-    if(errorlist !== null){
-        togglePassword2();
-        if(invalidEls.length > 0) invalidEls[0].focus();
-    }
-})
+/**
+ * 
+ * @param {AccountForm} instance 
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToSubmit(instance, idxs){
+    const spinner = document.getElementById("submitSpinner");
+    const {inputs, errMsgEls, submitBtn} = instance;
 
-//メールアドレス
-email.addEventListener("change", (e)=>{
-    validationList(emailIndex);
-})
+    instance.form.addEventListener("submit", (event)=>{
+        try{
+            submitBtn.disabled = true;
+            spinner.style.display = "";
 
-//パスワード1
-password1.addEventListener("change", (e)=>{
-    validationList(password1Index);
-    togglePassword2();
-})
+            // 送信前に各入力欄をチェックする
+            for(let i = 0, len = inputs.length; i < len; i++){
+                validationList(instance, i, idxs);
+            }
 
-//パスワード2
-password2.addEventListener("change", (e)=>{
-    validationList(password2Index);
-})
+            const errIndex = findInvalidInputIndex(Array.from(errMsgEls));
+            if(errIndex !== -1){
+                inputs[errIndex].focus();
+                restore(event);
+            }
 
-//フォーム
-form.addEventListener("submit", (e)=>{
+        }catch(error){
+            basicLog("submit", error);
+            alert(error.message);
+            restore(event);
+        }   
+    })
 
-    // 送信前に各入力欄をチェックする
-    for(let i = 0; i < reqInputs.length; i++){
-        validationList(i);
-    }
-
-    //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidEls.length > 0){
-        invalidEls[0].focus();
+    function restore(e,){
         e.preventDefault();
-    } 
+        spinner.style.display = "none";
+        submitBtn.disabled = false;    
+    }
+}
+
+/**
+ * 目隠しトグルボタンにイベントを設定
+ * @param {AccountForm} instance 
+ */
+function setEventToEyeToggleBtn(instance){
+    const {eye, password1, eyeSlash} = instance;
+    instance.eyeToggleBtn.addEventListener("click", ()=>{
+        handleEyeToggleClickEvent(eye, password1, eyeSlash);
+    })
+}
+
+/**
+ * ロード時の処理
+ */
+window.addEventListener("load", ()=>{
+    const instance = new AccountForm();
+    const idxs = {
+        "email": 0,
+        "password1": 1,
+        "password2": 2,
+    }
+
+    // 入力欄にイベントを設定する
+    setEventToInputs(instance , idxs);
+    // 目隠しボタンにイベントを設定する
+    setEventToEyeToggleBtn(instance);
+    // 送信ボタンにイベント設定する
+    setEventToSubmit(instance, idxs);
 })

@@ -440,10 +440,12 @@ function isOnlyZenkaku(el){
 
 /**
  * パスワード形式チェック
+ * @param {string} value 
+ * @param {HTMLElement} el 
  */
 function checkPassword(value, el){
     //英数記号を含む8字以上か
-    const reg = new RegExp(/^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!-/:-@[-`{-~])[0-9a-zA-Z!-/:-@[-`{-~]{8,}$/);
+    const reg = new RegExp(/^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!-\/:-@\[-`{-~])[0-9a-zA-Z!-\/:-@\[-`{-~]{8,}$/);
     const result = reg.test(value);
 
     if(result === false){
@@ -707,4 +709,18 @@ function showConfirmDialog(title, text, icon){
  */
 function enableAllInputsAndSelects(){
     Array.from(document.querySelectorAll("fieldset, input, select")).forEach(x => x.disabled = false);
+}
+
+/**
+ * 基本ログ情報
+ * @param {string} functionName 関数名
+ * @param {Error} e エラーオブジェクト
+ * @param {string} message 開発者メッセージ
+ */
+function basicLog(functionName, e = null, message = null){
+    console.error(
+        `エラーを補足した関数：${functionName}\n
+        開発者メッセージ：${message}\n
+        ${e}`
+    )
 }

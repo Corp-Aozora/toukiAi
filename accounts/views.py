@@ -1,30 +1,61 @@
-from django.shortcuts import render, redirect
+from allauth.account.utils import send_email_confirmation
+from allauth.account.views import SignupView, EmailVerificationSentView
+from datetime import datetime, timedelta
+from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import check_password
+from django.core.exceptions import ValidationError
+from django.core.mail import BadHeaderError, EmailMessage
+from django.core.validators import validate_email
+from django.db import transaction
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from smtplib import SMTPException
+import json
+import requests
+import socket
+import textwrap
+import secrets
+
 from .forms import *
 from .models import *
 from accounts.models import User
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-import json
-from django.http import JsonResponse
-import requests
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-from allauth.account.utils import send_email_confirmation
-from django.contrib.auth.hashers import check_password
-from django.contrib import messages
-import textwrap
-from django.core.mail import BadHeaderError, EmailMessage
-from django.http import HttpResponse
-from django.db import transaction
-from smtplib import SMTPException
-import socket
 from toukiApp.company_data import *
-import secrets
-from datetime import datetime, timedelta
-        
+from toukiApp.toukiAi_commons import *
+
+class CustomSignupView(SignupView):
+    """新規登録ページ"""
+    template_name = 'account/signup.html'
+    
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        """キャッシュしないようにして仮登録メール送信ページから戻ってこれないようにする"""
+        return super().dispatch(*args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        """会社メールアドレスをテンプレートに渡す"""
+        context = super(CustomSignupView, self).get_context_data(**kwargs)
+        context['company_address'] = CompanyData.MAIL_ADDRESS
+        return context
+    
+    def get(self, request, *args, **kwargs):
+        """条件確認ページからの遷移かチェック"""
+        if not request.session.get('condition_passed', False):
+            return redirect('toukiApp:condition')
+        return super().get(request, *args, **kwargs)
+
+class CustomEmailVerificationSentView(EmailVerificationSentView):
+    """仮登録メール送信ページ"""
+    def get(self, request, *args, **kwargs):
+        """利用条件の通過セッションを削除する"""
+        response = super().get(request, *args, **kwargs)
+        if request.session.get('condition_passed'):
+            del request.session['condition_passed'] 
+        return response
+
 #djangoのメール形式チェック
 def is_valid_email_pattern(request):
     input_email = request.POST.get("email")
@@ -39,23 +70,41 @@ def is_valid_email_pattern(request):
     return JsonResponse(context)
 
 
-#djangoのメール形式チェックと重複メールアドレスチェック
 def is_new_email(request):
-    input_email = request.POST.get("email")
-    is_duplicate = User.objects.filter(email = input_email).exists()
+    """djangoのメールアドレス検証と重複チェック"""
+    function_name = get_current_function_name()
+    email = request.POST.get("email")
 
-    if is_duplicate:
-        context = {"message" : "このメールアドレスはすでに登録されてます",}
-        return JsonResponse(context)
-    
     try:
-        validate_email(input_email)
-        context = {"message": ""}
+        validate_email(email)
+        is_duplicate = User.objects.filter(email=email).exists()
+        if is_duplicate:
+            return JsonResponse({
+                "error_level": "warning",
+                "message": "このメールアドレスはすでに登録されてます",
+            })
+    
+        return JsonResponse({
+            "error_level": "success",
+            "message": "",
+        })
 
-    except ValidationError:
-        context = {"message" : "有効なメールアドレスを入力してください",}
-        
-    return JsonResponse(context)
+    except (ValueError, ValidationError) as e:
+        context = {
+            "error_level": "warning",
+            "message": "有効なメールアドレスを入力してください",
+         }
+        return JsonResponse(context)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            None,
+            None,
+            True,
+        )
 
 #djangoのメール形式チェックと登録済みメールアドレスチェック
 def is_user_email(request):
@@ -181,7 +230,7 @@ def change_email(request):
                 except Exception as e:
                     messages.error(request, f'予期しないエラーが発生しました {e}')
             
-            return redirect("/account/change_email")
+            return redirect("/account/change_email/")
             
     else:
         forms = ChangeEmailForm()
@@ -219,7 +268,7 @@ def confirm_email(request, token):
            
             messages.success(request,"メールアドレスの変更が完了しました")
             
-            return redirect("/account/change_email")
+            return redirect("/account/change_email/")
            
     except User.DoesNotExist:
         messages.error(request, "ユーザーが存在しません") 

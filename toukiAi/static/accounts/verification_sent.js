@@ -27,10 +27,6 @@ function resendConfimation(email){
     });
 }
 
-window.addEventListener("load", ()=>{
-
-})
-
 //メールアドレス
 email.addEventListener("change", (e)=>{
     isEmail(e.target.value)[0] ? toggleErrorMessage(true, msgEls[emailIndex], msgs[emailIndex]): toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);

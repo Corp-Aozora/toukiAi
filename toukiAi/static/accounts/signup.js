@@ -141,7 +141,7 @@ function setEventToSubmit(instance, idxs){
         }   
     })
 
-    function restore(e,){
+    function restore(e){
         e.preventDefault();
         spinner.style.display = "none";
         submitBtn.disabled = false;    

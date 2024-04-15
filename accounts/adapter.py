@@ -1,6 +1,9 @@
-# from allauth.account.adapter import DefaultAccountAdapter
 
-# class AccountAdapter(DefaultAccountAdapter):
-#     def get_email_confirmation_redirect_url(self, request):
-#         return "toukiApp:step_one"
-    
+from allauth.account.adapter import DefaultAccountAdapter
+
+class CustomAccountAdapter(DefaultAccountAdapter):
+    def send_mail(self, template_prefix, email, context):
+        from toukiApp.company_data import CompanyData
+        context["email"] = email
+        context['company_data'] = CompanyData
+        return super(CustomAccountAdapter, self).send_mail(template_prefix, email, context)

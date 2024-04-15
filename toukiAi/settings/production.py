@@ -11,9 +11,7 @@ ALLOWED_HOSTS = [
     'www.aozoratouki.com'
 ]
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DEFAULT_FROM_EMAIL = CompanyData.MAIL_ADDRESS    #送信元のアドレスを指定
 EMAIL_HOST_USER = CompanyData.MAIL_ADDRESS
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
@@ -30,6 +28,9 @@ DATABASES = {
     }
 }
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -44,6 +45,6 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console', 'file'],
-        'level': 'ERROR',
+        'level': 'DEBUG',
     },
 }

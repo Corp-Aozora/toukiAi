@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "toukiAi.middleware.SaveLastUserPageMiddleware",
+    'toukiAi.middleware.RateLimitMiddleware',
     # 'axes.middleware.AxesMiddleware',
 ]
 
@@ -196,7 +197,7 @@ SESSION_COOKIE_AGE = 604800
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 
 ACCOUNT_EMAIL_CONFIRMATION_COOLDOWN = 0
-# ACCOUNT_ADAPTER = 'accounts.adapter.AccountAdapter'
+ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
 
 # # ログインの試行回数制限
 # LOGIN_ATTENPTS_LIMIT = 3

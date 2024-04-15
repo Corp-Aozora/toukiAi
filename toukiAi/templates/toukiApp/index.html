@@ -1376,7 +1376,7 @@
             LINEからもお問い合わせいただけます
             <img class="ms-3 line-qr" src="{{company_data.OPEN_LINE_QR}}">
         </h4>
-        <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto">
+        <form method="POST" action="{% url 'toukiApp:index' %}" class="col-lg-6 col-md-8 col-sm-11 mx-auto" novalidate>
             {% csrf_token %}
             {% for field in form %}
                 {% if not field.html_name == "content" %}

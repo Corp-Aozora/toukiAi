@@ -13,6 +13,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
+from django_ratelimit.decorators import ratelimit
 from smtplib import SMTPException
 import json
 import requests
@@ -55,6 +56,12 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         if request.session.get('condition_passed'):
             del request.session['condition_passed'] 
         return response
+    
+    def post(self, request, *args, **kwargs):
+        """POSTリクエストで特定のセッションデータを設定する"""
+        request.session['condition_passed'] = True
+        # POSTリクエスト後に適切なページにリダイレクト
+        return redirect("accounts:signup")    
 
 #djangoのメール形式チェック
 def is_valid_email_pattern(request):
@@ -141,28 +148,41 @@ def csrf_failure(request, reason=""):
 
     return HttpResponseForbidden('<h1>403 アクセスが制限されています。</h1>', content_type='text/html')
 
-# メールアドレス認証リンクの再発行
+@ratelimit(key='ip', rate='5/h', block=True)
 def resend_confirmation(request):
+    """メールアドレス認証リンクの再発行"""
+    function_name = get_current_function_name()
     input_email = request.POST.get("email")
     
     try:
         validate_email(input_email)
-    except ValidationError:
-        context = {"message" : "メールアドレスの規格と一致しません",}
-        return JsonResponse(context)
     
-    try:
         user = User.objects.get(email = input_email)
-        print(User.objects.filter(email = input_email).exists())
         send_email_confirmation(request, user)
-        print(input_email)
-        context = {"message": "",}
+        return JsonResponse({
+            "error_level": "success",
+            "message": "",
+        })
+    except ValidationError:
+        return JsonResponse({
+            "error_level": "warning",
+            "message": "メールアドレスの規格と一致しません"
+        })
     except User.DoesNotExist:
-        print("noExist")
-        context = {"message" : "入力されたメールアドレスは登録されてません",}
-        return JsonResponse(context)
-    
-    return JsonResponse(context)
+        return JsonResponse({
+            "error_level": "warning",
+            "message" : "入力されたメールアドレスは登録されてません"
+        })
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            None,
+            None,
+            True,
+        )
 
 # メールアドレス認証リンクの再発行
 def change_email(request):

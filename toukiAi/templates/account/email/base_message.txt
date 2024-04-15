@@ -1,14 +1,16 @@
 {% autoescape off %}
-{% blocktrans with site_name=current_site.name %}
-    こんにちは、{{ site_name }}です。
-{% endblocktrans %}
 
 {% block content %}
 {% endblock %}
-
-{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
-    {{ site_name }}をご利用いただきありがとうございます。
-    {{ site_domain }}
-{% endblocktrans %}
+-----------------------------------------
+サービス名：{{company_data.APP_NAME}}
+{{company_data.NAME}}
+{{company_data.POST_NUMBER}}
+{{company_data.ADDRESS}}
+{{company_data.BLDG}}
+代表取締役　{{company_data.CEO}}
+電話番号：{{company_data.RECEIVING_PHONE_NUMBER}}
+　　　　　※弊社からの電話は{{company_data.CALLING_PHONE_NUMBER}}が表示されます。
+ホームページ：{{company_data.URL}}
 
 {% endautoescape %}

@@ -411,7 +411,7 @@ def send_email_to_inquiry(cleaned_data, is_to_user=True):
         cleaned_data (): 回答データ
         to_email (): 問い合わせをしたユーザーのメールアドレス
     """
-    mail_subject = f"{CompanyData.APP_NAME} お問い合わせへのご回答です"
+    mail_subject = f"{CompanyData.APP_NAME}＜お問い合わせへのご回答です＞"
     
     to_mail = cleaned_data["user_inquiry"].user.email if is_to_user else cleaned_data["open_inquiry"].created_by
     content = ANSWER_EMAIL_TEMPLATE.format(

@@ -1,16 +1,12 @@
 "use strict";
 
-reqInputs = [email];
-msgEls = [emailMessageEl];
-msgs = [emailMessage];
-
-const resentMessage = document.getElementById("resentMessage");
 /**
  * 重複メールアドレスとdjangoのチェック
  * @param {string} email 
+ * @param {HTMLElement} errMsgEl 
  */
-function resendConfimation(email){
-    const url = 'resend_confirmation';
+async function resendConfimation(email, errMsgEl){
+    const url = 'resend_confirmation/';
   
     fetch(url, {
         method: 'POST',
@@ -20,38 +16,72 @@ function resendConfimation(email){
             'X-CSRFToken': csrftoken,
         },
         mode: "same-origin"
-    }).then(response => {
+    }).then(response =>{
+        if(response.status === 429){
+            alert("リンクの再発行は１時間に５回までです。\n時間をおいてメールを再発行するボタンをクリックしてください。")
+            return Promise.reject('Rate limit exceeded');
+        }
         return response.json();
-    }).catch(error => {
-        console.log(error);
+    }).then(response =>{
+        if(["success", "warning"].includes(response.error_level)){
+            toggleErrorMessage((response.message === ""), errMsgEl, response.message);
+        }else{
+            basicLog("resendConfimation", null, "responseエラー");
+            alert(`システムエラー\n${response.message}\nお手数ですが、お問い合わせをお願いします。`);        
+        }
+    }).catch(e => {
+        if (e !== 'Rate limit exceeded'){
+            basicLog("resendConfimation", e);
+            alert(`${e.message}\nお手数ですが、お問い合わせをお願いします。`);
+        }
     });
 }
 
-//メールアドレス
-email.addEventListener("change", (e)=>{
-    isEmail(e.target.value)[0] ? toggleErrorMessage(true, msgEls[emailIndex], msgs[emailIndex]): toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);
-})
+window.addEventListener("load", ()=>{
+    const instance = new AccountForm();
+    const idxs = {"email": 0};
+    const {email, errMsgEls, errMsgs} = instance;
+    const resendBtn = instance.form.querySelector("#resendBtn");
 
-//メールアドレス欄
-email.addEventListener("keypress", (e)=>{
-    //フォーカス移動イベント
-    if(e.code === "Enter" || e.code === "NumpadEnter"){
-        e.preventDefault();
-        submitBtn.focus();
-    }
-})
+    email.addEventListener("change", (e)=>{
+        toggleErrorMessage(isEmail(e.target.value)[0], errMsgEls[idxs["email"]], errMsgs[idxs["email"]]);
+    })
 
-//メールを再発行するボタン
-submitBtn.addEventListener("click", ()=>{
-    //メールアドレスの形式チェック
-    if(isEmail(reqInputs[emailIndex].value)[0]){
-        slideDownAndScroll(resentMessage);
+    email.addEventListener("keydown", (e)=>{
+        setEnterKeyFocusNext(e, resendBtn);
+    })
+    
+    resendBtn.addEventListener("click", ()=>{
+        const spinner = document.getElementById("submitSpinner");
+        const errMsgEl = errMsgEls[idxs["email"]];
+        const errMsg = errMsgs[idxs["email"]];
 
-        toggleErrorMessage(true, msgEls[emailIndex], msgs[emailIndex]);
-        
-        //登録されたユーザーか確認して、登録されたユーザーのときはメールを再送する
-        resendConfimation(email.value);
-    }else{
-        toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);
-    }
+        try{
+            resendBtn.disabled = true;
+            spinner.style.display = "";
+
+            const result = isEmail(email.value);
+            if(result[0]){
+                //再送メッセージを表示する
+                const resentMessage = document.getElementById("resentMessage");
+                slideDownAndScroll(resentMessage);
+                //エラーメッセージトグル
+                toggleErrorMessage(true, errMsgEl, errMsg);
+                //登録されたユーザーか確認して、登録されたユーザーのときはメールを再送する
+                resendConfimation(email.value, errMsgEl);
+            }else{
+                toggleErrorMessage(false, errMsgEl, result[1]);
+            }
+            restore();
+        }catch(error){
+            basicLog("submit", error);
+            alert(error.message);
+            restore();
+        }
+
+        function restore(){
+            spinner.style.display = "none";
+            resendBtn.disabled = false;    
+        }
+    })
 })

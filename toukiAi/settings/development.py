@@ -12,14 +12,6 @@ ALLOWED_HOSTS = [
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# # DEFAULT_FROM_EMAIL = 't.saga@yahoo.ne.jp'    #送信元のアドレスを指定
-# EMAIL_HOST = 'smtp.mail.yahoo.co.jp' 
-# EMAIL_PORT = 465                            
-# EMAIL_HOST_USER = 't.saga@yahoo.ne.jp'   
-# EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-# EMAIL_USE_SSL = True   
-
-
 DEFAULT_FROM_EMAIL = CompanyData.MAIL_ADDRESS    #送信元のアドレスを指定
 EMAIL_HOST_USER = CompanyData.MAIL_ADDRESS
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
@@ -38,22 +30,6 @@ DATABASES = {
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-
-# 以下、GCP用に生成したものの
-# データベース情報
-# instance_name: toukiai
-# project: toukiai-development
-# database-version: POSTGRES_15
-# tier: db-f1-micro
-# region: asia-northeast1
-# name: toukiai-development
-# https://sqladmin.googleapis.com/sql/v1beta4/projects/toukiai-development/instances/toukiai
-# users: toukiai-development_tatsuyasaga
-# password: saga2497
-
-# Cloud Storageバケット情報
-# region:asia-northeast1
-# gs://toukiai-development_souzokutoukikun
 
 LOGGING = {
     'version': 1,

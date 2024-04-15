@@ -15,7 +15,7 @@
     <div>
         <div>
             <h4 class="text-center mt-4">
-                メールに記載されたリンクをクリックして相続登記を始めましょう！
+                届いたメールのご確認をお願いします。
             </h4>
             <p class="form-text text-end">
                 ※リンクの有効期限は1日です。
@@ -26,55 +26,61 @@
             <p>
                 <span class="fw-bold bg-warning-subtle rounded-3 p-1">
                     ※数分経っても受信フォルダに届いていない場合
-                </span><br>
+                </span>
             </p>
             <p class="ps-3">
-                迷惑フォルダにも届いてない場合はお手数ですが、下記に登録したメールアドレスを入力してください。
+                迷惑フォルダにも届いてない場合は、下記に登録したメールアドレスを入力してください。
             </p>
-            <div class="text-center mt-3">
+            <form class="text-center mt-3" method="POST" novalidate>
+                {% csrf_token %}
                 <div class="input-group mt-3">
                     <label class="input-group-text label" for="id_email">
                         メールアドレス
                     </label>
-                    <input type="email" name="email" maxlength="254" tabindex="1" class="form-control rounded-end" autocomplete="on" placeholder="登録したメールアドレス" required="true" id="id_email">
+                    <input type="email" id="id_email" name="email" maxlength="254" tabindex="1" class="form-control rounded-end" autocomplete="on" placeholder="登録したメールアドレス" required="true">
                     <span id="id_email_messageEl" class="errorMessage emPosition rounded-3" style="display: none;">
                     </span>
                 </div>
-                <button id="submitBtn" type="button" class="btn btn-primary mt-3" tabindex="2">
+                <button id="resendBtn" type="button" class="btn btn-primary mt-3 bg-gradient bg-opacity-50 fw-bold" tabindex="2">
                     メールを再発行する
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                    </span>
                 </button>
                 <div id="resentMessage" class="fw-bold text-center my-4" style="display: none;">
                     ※メールを再発行しました※
                 </div>
-            </div>
-            <p class="mt-3 form-text">
-                ※再発行されたメールも届かない場合、ご登録されたメールアドレスに誤りがあった可能性があります。<br>
-                <span class="ms-3">
+            </form>
+            <div class="mt-3 form-text d-flex">
+                <div>
+                    ※
+                </div>
+                <div>
+                    再発行されたメールも届かない場合、ご登録されたメールアドレスに誤りがあった可能性があります。
+                    <br>
                     改めてアカウント登録をお願いします。
-                </span>
-            </p>
+                </div>
+            </div>
         </div>
         <div class="mt-5">
             <p>
                 <span class="fw-bold bg-warning-subtle rounded-3 p-1">
                     ※メールアドレスが間違っていた場合
-                </span><br>
+                </span>
             </p>
             <p class="ps-3">
                 改めてアカウント登録をお願いします。
             </p>
-            <p class="text-center mt-3">
-                <a href="{% url 'account_signup' %}">
-                    <button class="btn btn-primary" tabindex="3">
-                        アカウント登録へ
-                    </button>
-                </a>
-            </p>
+            <form class="text-center mt-3" method="POST" action="{% url 'accounts:email_verification_sent' %}" novalidate>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold" tabindex="3">
+                    アカウント登録へ
+                </button>
+            </form>
         </div>
         <hr class="my-5">
     </div>
     <div class="mt-5">
-        <a href="{% url 'toukiApp:index' %}" tabindex="4">
+        <a class="fw-bold" href="{% url 'toukiApp:index' %}" tabindex="4">
             トップページに戻る
         </a>
     </div>

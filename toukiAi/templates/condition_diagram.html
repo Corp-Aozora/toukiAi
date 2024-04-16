@@ -1,0 +1,132 @@
+<div id="condition_diagram_modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary-subtle">
+                <h5 class="modal-title">
+                    対応可能な相続関係の範囲
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="fw-bold">
+                    ※各続柄に相続人になる条件を記載してます。
+                    <br>
+                    ※
+                    <span class="bg-primary-subtle">
+                        子、孫
+                    </span>
+                    が相続人になるとき、それぞれ15人が上限です。
+                    <br>
+                    ※
+                    <span class="bg-warning-subtle">
+                        兄弟姉妹
+                    </span>
+                    が相続人になるとき、15人が上限です。
+                    <br>
+                    ※子以外が相続人になった後に死亡した数次相続には現在対応しておりません。
+                </div>
+                <div class="d-flex justify-content-evenly mt-3">
+                    <div class="card position-relative grandfather">
+                        <div class="card-body">
+                            <div class="card-title bg-success-subtle">
+                                父方の祖父母
+                            </div>
+                            <div class="card-text">
+                                父母に記載の条件に加えて父が先に死亡しているとき
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card position-relative grandmother">
+                        <div class="card-body">
+                            <div class="card-title bg-success-subtle">
+                                母方の祖父母
+                            </div>
+                            <div class="card-text">
+                                父母に記載の条件に加えて母が先に死亡しているとき
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-evenly mt-5">
+                    <div class="card position-relative parents">
+                        <div class="card-body">
+                            <div class="card-title bg-success-subtle">
+                                父母
+                            </div>
+                            <div class="card-text">
+                                子がいない又は全員死亡している、かつ子の相続人もいないとき
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex mt-5">
+                    <div class="card ">
+                        <div class="card-body">
+                            <div class="card-title bg-warning-subtle">
+                                兄弟姉妹
+                            </div>
+                            <div class="card-text">
+                                子、父母が相続人にならないとき
+                            </div>
+                        </div>
+                    </div>
+                    <div id="decedent" class="card">
+                        <div class="card-body">
+                            <div class="card-title bg-secondary-subtle">
+                                被相続人
+                            </div>
+                            <div class="card-text">
+                                亡くなった方（不動産の所有者）
+                            </div>
+                        </div>
+                    </div>
+                    <div id="spouse" class="card">
+                        <div class="card-body">
+                            <div class="card-title bg-danger-subtle">
+                                配偶者
+                            </div>
+                            <div class="card-text">
+                                常に相続人になる
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex mt-5 justify-content-end">
+                    <div id="childSpouse" class="card">
+                        <div class="card-body">
+                            <div class="card-title bg-primary-subtle">
+                                子の配偶者
+                            </div>
+                            <div class="card-text">
+                                子が被相続人の後に死亡したとき
+                            </div>
+                        </div>
+                    </div>
+                    <div id="child" class="card">
+                        <div class="card-body">
+                            <div class="card-title bg-primary-subtle">
+                                子
+                            </div>
+                            <div class="card-text">
+                                最初に相続人になる権利がある
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center mt-5">
+                    <div id="grandChild" class="card">
+                        <div class="card-body">
+                            <div class="card-title bg-primary-subtle">
+                                孫
+                            </div>
+                            <div class="card-text">
+                                子が死亡しているとき
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

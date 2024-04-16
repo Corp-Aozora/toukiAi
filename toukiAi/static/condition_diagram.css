@@ -1,0 +1,111 @@
+#condition_diagram_modal{
+    --bs-modal-width: 820px;
+}
+
+#decedent{
+    margin-left: 25px;
+}
+
+#spouse{
+    margin-left: 100px;
+}
+
+#child{
+    margin-right: 95px;
+}
+
+#childSpouse{
+    margin-right: 65px;
+}
+
+#grandChild{
+    margin-left: 55px;
+}
+
+.grandfather::after{
+    content: "";
+    height: 50px;
+    top:100%;
+    left: 70%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+.grandmother::after{
+    content: "";
+    height: 50px;
+    top:100%;
+    right: 70%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+.parents::before{
+    content: "";
+    height: 70px;
+    top: 90%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+    transform: rotate(45deg);
+}
+
+.parents::after{
+    content: "";
+    height: 50px;
+    top:100%;
+    right: 50%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+#decedent::after{
+    content: "";
+    height: 1px;
+    top:50%;
+    left: 100%;
+    background-color: gray;
+    position: absolute;
+    width: 101px;
+    display: block;
+}
+
+#spouse::before{
+    content: "";
+    height: 95px;
+    top:50%;
+    right: 133%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}
+
+#childSpouse::after{
+    content: "";
+    height: 1px;
+    top:50%;
+    left: 100%;
+    background-color: gray;
+    position: absolute;
+    width: 66px;
+    display: block;
+}
+
+#child::before{
+    content: "";
+    height: calc(2.7rem + 60px);
+    top:50%;
+    right: 115%;
+    background-color: gray;
+    position: absolute;
+    width: 1px;
+    display: block;
+}

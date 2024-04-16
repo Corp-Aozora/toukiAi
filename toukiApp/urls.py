@@ -12,6 +12,7 @@ urlpatterns = [
     path("terms", views.terms, name="terms"),
     path("condition", views.condition, name="condition"),
     
+    path('step_one_trial', views.step_one_trial, name='step_one_trial'),
     path('step_one', views.step_one, name='step_one'),
     path('step_two', views.step_two, name='step_two'),
     path('step_three', views.step_three, name='step_three'),

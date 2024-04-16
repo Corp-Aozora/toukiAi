@@ -19,27 +19,12 @@ class Form{
 */
 function showResult(e, instance){
     //アカウント登録へボタンと利用できる旨のテキストのトグル
-    function toggleSubmitBtn(isValid){
+    async function toggleSubmitBtn(isValid){
         instance.submitBtn.disabled = !isValid;
-        isValid? slideDownAndScroll(instance.availableText): slideUp(instance.availableText);
+        isValid? await slideDownAndScroll(instance.availableText, 100, 150): slideUp(instance.availableText);
     }
     
     toggleSubmitBtn(e.target.checked? instance.cbs.every(x => x.checked): false);
-}
-
-/**
- * 相関図のモーダルのサイズ調整
- */
-function adjustModalScale() {
-    const modal = document.querySelector('.modal');
-    let screenWidth = window.innerWidth;
-    let scale = screenWidth / 820; // 820px が基準サイズ
-  
-    // スケールが1未満の場合のみ適用、それ以上は1（100%）に固定
-    scale = scale < 1 ? scale : 1;
-  
-    modal.style.transform = `scale(${scale})`;
-    modal.style.transformOrigin = 'top center';
 }
 
 /**
@@ -48,11 +33,10 @@ function adjustModalScale() {
 window.addEventListener("load", ()=>{
     const instance = new Form();
     //各チェックボックスにイベントを設定
-    instance.cbs.forEach(x => x.addEventListener("change", (e)=>{
+    instance.cbs.forEach(x => x.addEventListener("change", _.debounce((e)=>{
         showResult(e, instance);
-    }))
-    //相関図モーダルのサイズ調整
-    adjustModalScale();
+    }, 300)))
+
     //送信時イベントを設定
     instance.form.addEventListener("submit", (e)=>{
         handleSubmitEvent(e, instance);
@@ -83,9 +67,4 @@ function handleSubmitEvent(event, instance){
         spinner.style.display = "none";
     }    
 }
-
-/**
- * 画面サイズが変更されたとき
- */
-window.addEventListener("resize", adjustModalScale)
 

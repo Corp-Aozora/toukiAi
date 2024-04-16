@@ -21,6 +21,7 @@ class CompanyData:
     SUPERVISER_BELONG_1 = "福岡県司法書士会所属 第1757号"
     SUPERVISER_BELONG_2 = "簡裁代理認定番号 第1301120号"
     URL = "https://aozoratouki.com"
+    TRIAL_URL = "https://aozoratouki.com/toukiApp/step_one_trial"
     CHARGE = "サイト上部の料金からご確認いただけます。"
     # PAYMENT = "クレジットカード決済又は銀行振込"
     PAYMENT = "銀行振込（２０２４年５月末までにクレジット決済導入予定です）"

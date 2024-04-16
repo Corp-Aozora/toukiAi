@@ -176,9 +176,9 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # サインアップにメールアド
 ACCOUNT_EMAIL_REQUIRED = True
 
 LOGIN_URL = "/account/login/"
-LOGIN_REDIRECT_URL = 'toukiApp:step_one'  # ログイン成功後の遷移先の指定
+LOGIN_REDIRECT_URL = 'toukiApp:nav_to_last_user_page'  # ログイン成功後の遷移先の指定
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = 'toukiApp:step_one'
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'toukiApp:step_one'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'toukiApp:step_one' # 登録済みユーザーが本登録リンクをクリックしたときの遷移先
 ACCOUNT_LOGOUT_REDIRECT_URL = 'toukiApp:index'  # ログアウト成功後の遷移先の指定
  
 ACCOUNT_LOGOUT_ON_GET = True  # 確認を行わずログアウトする設定

@@ -5,7 +5,7 @@
  * @param {string} email 
  * @param {HTMLElement} errMsgEl 
  */
-async function resendConfimation(email, errMsgEl){
+function resendConfimation(email, errMsgEl){
     const url = 'resend_confirmation/';
   
     fetch(url, {
@@ -40,24 +40,24 @@ async function resendConfimation(email, errMsgEl){
 window.addEventListener("load", ()=>{
     const instance = new AccountForm();
     const idxs = {"email": 0};
-    const {email, errMsgEls, errMsgs} = instance;
-    const resendBtn = instance.form.querySelector("#resendBtn");
+    const {email, errMsgEls, errMsgs, submitBtn, form} = instance;
 
     email.addEventListener("change", (e)=>{
         toggleErrorMessage(isEmail(e.target.value)[0], errMsgEls[idxs["email"]], errMsgs[idxs["email"]]);
     })
 
     email.addEventListener("keydown", (e)=>{
-        setEnterKeyFocusNext(e, resendBtn);
+        setEnterKeyFocusNext(e, submitBtn);
     })
     
-    resendBtn.addEventListener("click", ()=>{
+    form.addEventListener("submit", (e)=>{
+        e.preventDefault();
         const spinner = document.getElementById("submitSpinner");
         const errMsgEl = errMsgEls[idxs["email"]];
         const errMsg = errMsgs[idxs["email"]];
 
         try{
-            resendBtn.disabled = true;
+            submitBtn.disabled = true;
             spinner.style.display = "";
 
             const result = isEmail(email.value);
@@ -81,7 +81,7 @@ window.addEventListener("load", ()=>{
 
         function restore(){
             spinner.style.display = "none";
-            resendBtn.disabled = false;    
+            submitBtn.disabled = false;    
         }
     })
 })

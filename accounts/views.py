@@ -1,26 +1,29 @@
+from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation
 from allauth.account.utils import send_email_confirmation
-from allauth.account.views import SignupView, EmailVerificationSentView
+from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView
 from datetime import datetime, timedelta
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail, BadHeaderError, EmailMessage
+from django.core.validators import validate_email
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
-from django.core.exceptions import ValidationError
-from django.core.mail import BadHeaderError, EmailMessage
-from django.core.validators import validate_email
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django_ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from django_ratelimit.decorators import ratelimit
 from smtplib import SMTPException
 import json
 import requests
 import socket
 import textwrap
 import secrets
-
 from .forms import *
 from .models import *
 from accounts.models import User
@@ -61,10 +64,56 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         """POSTリクエストで特定のセッションデータを設定する"""
         request.session['condition_passed'] = True
         # POSTリクエスト後に適切なページにリダイレクト
-        return redirect("accounts:signup")    
+        return redirect("accounts:signup")
 
-#djangoのメール形式チェック
+class CustomConfirmEmailView(ConfirmEmailView):
+    """本登録確認ページ"""
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        """キャッシュしないようにする（本登録直後のページから戻ってこれないようにするため）"""
+        return super().dispatch(*args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        """メール確認後の処理"""
+        key = kwargs.get('key')
+        email_confirmation = EmailConfirmationHMAC.from_key(key)
+        if email_confirmation:
+            self.send_registration_complete_email(email_confirmation.email_address.user)
+            return super().post(request, *args, **kwargs)
+        else:
+            basic_log(get_current_function_name(), "CustomConfirmEmailView", email_confirmation.email_address.user.email, "アカウント登録完了後の処理でエラー")
+            return super().post(request, *args, **kwargs)
+    
+    def send_registration_complete_email(self, user):
+        """登録完了メールを送信する"""
+        context = {
+            "company_data": CompanyData,
+            "user_email": user.email,
+        }
+        subject = render_to_string('account/email/registration_complete_subject.txt', context).strip()
+        message = render_to_string('account/email/registration_complete_message.txt', context).strip()
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+    
+    def get(self, request, *args, **kwargs):
+        """会員登録した直後のページからの遷移かチェック"""
+        response = super().get(request, *args, **kwargs)
+        if request.session.get('account_created', False):
+            return redirect('toukiApp:index')
+        return response
+    
+    def get_success_url(self):
+        # メール確認が完了した後にユーザーをリダイレクトするURL
+        return reverse_lazy('toukiApp:step_one_trial')
+
 def is_valid_email_pattern(request):
+    """Djangoのメール形式に合致するか判定する"""
     input_email = request.POST.get("email")
    
     try:

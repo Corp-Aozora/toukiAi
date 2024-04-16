@@ -1,0 +1,14 @@
+{% extends "account/email/base_message.txt" %}
+{% load i18n %}
+
+{% block content %}
+{{ user_email }} 様
+
+{{ company_data.APP_NAME }}のアカウント登録が完了しました。
+
+{{ company_data.APP_NAME }}のお試しページ（相続人の判定ができます）のリンクです。
+{{ company_data.TRIAL_URL }}
+
+システムに関する不明点などありましたらお気軽にお問い合わせください。
+今後ともよろしくお願いします。
+{% endblock %}

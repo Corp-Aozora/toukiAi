@@ -128,7 +128,7 @@ class Decedent(CommonModel):
         blank = False,
         related_name="decedent",
     )
-    progress = models.DecimalField(verbose_name="進捗", null=False, blank=False, default=1, max_digits=3, decimal_places=1, validators=[MinValueValidator(1.0), MaxValueValidator(6.0)])
+    progress = models.DecimalField(verbose_name="進捗", null=False, blank=False, default=1, max_digits=3, decimal_places=1, validators=[MinValueValidator(0.0), MaxValueValidator(6.0)])
     name = models.CharField(verbose_name="氏名", max_length=30, default="")
     domicile_prefecture = models.CharField(verbose_name="本籍地の都道府県" ,max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
     domicile_city = models.CharField(verbose_name="本籍地の市区町村", max_length=100, default=None, null=True, blank=True)

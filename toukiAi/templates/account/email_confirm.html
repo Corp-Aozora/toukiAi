@@ -3,6 +3,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'accounts/email_confirm.css' %}">
+    <link rel="stylesheet" href="{% static 'condition_diagram.css' %}">
 {% endblock %}
 {% block header %}
     {% include "header.html" %}
@@ -13,39 +14,74 @@
 {% if confirmation %}
     <div class="col-lg-7 col-md-9 col-sm-9 mx-auto my-5">
         <div class="card shadow">
-            <div class="card-body">
-                <h4 class="card-title text-center border-bottom p-1">
-                    <span class="bg-warning-subtle rounded-3">
-                        ご利用開始の前に
-                    </span>
+            <div class="card-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h4 class="card-title text-center mb-0 p-3">
+                    本登録前にご確認をお願いします。
                 </h4>
+            </div>
+            <div class="card-body">
                 <div class="mt-3 card-text">
                     <ol  class="list-group list-group-numbered fw-bold">
-                        <li class="list-group-item d-flex">
-                            <div class="ms-2">
-                                法務局は誤字脱字など細かい間違いにとても厳しいため、回答の選択やデータ入力にあたっては誤りのないようお慎重に願いします。
-                            </div>
-                          </li>
-                        <li class="list-group-item d-flex">
-                            <div class="ms-2">
-                                オプションをご利用される場合、会員専用ページの上部にある「オプションを申込む」ボタンからお申込みいただけます。
+                        <li class="list-group-item">
+                            本登録によりアカウント登録（無料）が完了し、弊社との間で
+                            <span class="border-bottom border-dark">
+                                <a class="text-decoration-none" href="{% url 'toukiApp:terms' %}" target="_blank" rel="noopener noreferrer">
+                                    利用規約
+                                </a>
+                                が適用される
+                            </span>
+                            ようになります。
+                            <br>
+                            <div class="d-flex">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    利用規約の内容は、一般的もので自動で利用料を発生させたり
+                                    <span class="text-success">
+                                        会員様が殊更に不利益になるような項目はありません。
+                                    </span>
+                                </div>
                             </div>
                         </li>
-                        <li class="list-group-item d-flex">
-                            <div class="ms-2">
-                                無料サービスを実現するために最低限の人数でお問い合わせ対応をしております。
-                                大変恐れ入りますが、お問い合わせいただく前にシステム内の説明文を見落としてないかご確認をお願いします。
+                        <li class="list-group-item">
+                            システムの相続人判定の部分を無料で利用できます。
+                            <div class="d-flex">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    <button type="button" class="ps-1 text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#condition_diagram_modal">
+                                        システムが対応可能な相続関係の範囲
+                                    </button>
+                                    でしか判定できません。
+                                </div>
                             </div>
+                            {% include "condition_diagram.html" %}
+                        </li>
+                        <li class="list-group-item">
+                            無料のアカウントは、登録から３ヶ月経過後、弊社の都合により削除されることがあります。
+                        </li>
+                        <li class="list-group-item">
+                            <span class="border-bottom border-secondary">
+                                システムの全部分を利用する、またはオプションを利用する場合は、登録後に表示されるページの上部にある「オプション」をクリックしてください。
+                            </span>
+                        </li>
+                        <li class="list-group-item">
+                            システムについての不明点などは、登録後に表示されるページ左側にある「お問い合わせ」からお問い合わせください。
+                        </li>
+                        <li class="list-group-item">
+                            使用した感想や評価をいただけると大変うれしいです（お問い合わせからお願いします）。
                         </li>
                     </ol>
-                    <p class="mt-3 text-center fw-bold">
-                        ご不明なところがありましたら、しっかりサポートさせていただきます。<br>
-                        一緒に頑張って相続登記を完了させましょう！
-                    </p>
-                    <form method="post" class="mt-3" action="{% url 'account_confirm_email' confirmation.key %}">
+                    <form method="post" class="mt-3" action="{% url 'accounts:account_confirm_email' confirmation.key %}">
                         {% csrf_token %}
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">始める</button>
+                            <button id="submitBtn" type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold">
+                                本登録する
+                                <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                                </span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -73,5 +109,6 @@
 
 {% block js %}
     {% load static %}
+    <script src="{% static 'condition_diagram.js' %}"></script>
     <script src="{% static 'accounts/email_confirm.js' %}"></script>
 {% endblock %}

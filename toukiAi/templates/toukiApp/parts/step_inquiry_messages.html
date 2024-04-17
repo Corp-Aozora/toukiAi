@@ -1,0 +1,46 @@
+{% for message in messages %}
+    <div class="message_modal modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center {% if message.tags == "success" %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
+                    <h5 class="modal-title">
+                        {% if message.tags == "success" %}
+                            {{ message }}
+                        {% else %}
+                            受け付けできませんでした
+                        {% endif %}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if message.tags == "success" %}
+                        <div>
+                            <b class="fw-bold">
+                                原則２４時間以内
+                            </b>
+                            にご回答いたします。
+                        </div>
+                        <p>
+                            恐れ入りますが少々お待ちください。
+                        </p>
+                        <div class="form-text">
+                            ※金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
+                        </div>
+                        <div>
+                            ※
+                            <b>
+                                {{company_data.MAIL_ADDRESS}}
+                            </b>
+                            から返信があります。
+                        </div>
+                    {% elif message.tags == "warning" %}
+                        入力されたデータが想定される形式ではありませんでした。<br>
+                        再度ご入力をお願いします。
+                    {% else %}
+                        {{ message }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

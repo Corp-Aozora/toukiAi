@@ -196,9 +196,7 @@ function removeAllExceptFirst(els){
  * @param {num} idxs 初期化するボタン要素のインデックス
  */
 function uncheckTargetElements(els, idxs){
-    idxs.forEach(idx => {
-        els[idx].checked = false;
-    });
+    idxs.forEach(idx => els[idx].checked = false);
 }
 
 /**

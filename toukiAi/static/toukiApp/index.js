@@ -161,31 +161,11 @@ window.addEventListener("load", ()=>{
     if(navTo && idEls[navTo]){
         scrollToTarget(idEls[navTo], 0);
     }
-
-    const inquiry = new Inquiry();
-    //問い合わせ関連のモダールを表示する
-    const inquiryModals = document.getElementsByClassName("inquiry-modal");
-    if(inquiryModals.length > 0){
-        for(let i = 0; i < inquiryModals.length; i++){
-            const inquiryModalModal = inquiryModals[i];
-            if(inquiryModalModal.classList.contains("modal-warning"))
-                scrollToTarget(inquiry.form);
-
-            const inquiryModalModalInstance = new bootstrap.Modal(inquiryModalModal);
-            inquiryModalModalInstance.show();
-        }
-    }
-
-    //ログアウトされたとき完了したことを知らせる
-    const logoutModal = document.getElementById("logoutModal");
-    if(logoutModal !== null){
-        const instance = new bootstrap.Modal(logoutModal);
-        instance.show();
-    }
-
+    
     //セッション情報を初期化
     sessionStorage.clear();
-
+    
+    const inquiry = new Inquiry();
     const inputs = inquiry.inputs;
     for(let i = 0, len = inputs.length; i < len; i++){
         const input = inputs[i];

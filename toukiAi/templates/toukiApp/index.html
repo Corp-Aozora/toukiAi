@@ -3,6 +3,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/index.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 
 {% block header %}
@@ -13,125 +14,7 @@
 
 {% block content %}
 
-{% if is_inquiry %}
-    <div class="modal inquiry-modal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header justify-content-center bg-success-subtle">
-                    <h5 class="modal-title fw-bold">
-                        お問い合わせありがとうございます。
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pb-3">
-                    <div>
-                        <b class="fw-bold">
-                            原則２４時間以内
-                        </b>
-                        にご回答いたします。
-                    </div>
-                    <p>
-                        恐れ入りますが少々お待ちください。
-                    </p>
-                    <div class="form-text">
-                        ※金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
-                    </div>
-                    <div>
-                        ※
-                        <b>
-                            {{company_data.MAIL_ADDRESS}}
-                        </b>
-                        から返信があります。
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endif %}
-
-{% for message in messages %}
-    {% if message.tags == "success"%}
-        <div id="logoutModal" class="modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
-                        <h5 class="modal-title">
-                            ログアウトしました。
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            ご利用ありがとうございました。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% elif message.tags == "warning" %}
-        <div class="modal inquiry-modal modal-warning" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center bg-danger-subtle">
-                        <h5 class="modal-title fw-bold">{{message.message|until:" "}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body pb-3">
-                        <span class="fw-bold">
-                            {% if form.errors %}
-                                <div class="fw-bold">
-                                    {% for field, errors in form.errors.items %}
-                                        <div>
-                                            {% if field == "__all__" %}
-                                                <div>入力エラー</div>
-                                            {% else %}
-                                                {% if field == "created_by" %}
-                                                    <div>メールアドレスのエラー</div>
-                                                {% elif field == "subject" %}
-                                                    <div>件名のエラー</div>
-                                                {% elif field == "content" %}
-                                                    <div>お問い合わせ内容のエラー</div>
-                                                {% endif %}
-                                            {% endif %}
-                                            <ul>
-                                                {% for error in errors %}
-                                                <li>{{ error }}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% elif message.tags == "error" %}
-        <div class="modal inquiry-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center">
-                        <h5 class="modal-title fw-bold">{{message.message|until:" "}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body pb-3">
-                        <span class="fw-bold">
-                            {{message.message|after:" "}}
-                        </span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endfor %}
-
+{% include "toukiApp/parts/index_messages.html" %}
 
 <div class="mx-md-auto">
     <div id="intro" class="my-5">
@@ -1431,9 +1314,11 @@
                     <b>
                         {{company_data.MAIL_ADDRESS}}
                     </b>
-                    からの返信があります。
+                    から返信があります。
                 </p>
-                <button type="button" id="showConfirmModalBtn" class="btn btn-primary">送信</button>
+                <button type="button" id="showConfirmModalBtn" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold">
+                    送信
+                </button>
                 <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -1472,10 +1357,10 @@
                                 </div>
                             </div>
                             <div class="modal-footer justify-content-evenly">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <button type="button" class="btn btn-secondary bg-gradient bg-opacity-50 fw-bold" data-bs-dismiss="modal">
                                     修正する
                                 </button>
-                                <button id="submitBtn" type="submit" class="btn btn-primary">
+                                <button id="submitBtn" type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold">
                                     ＯＫ
                                     <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                                     </span>
@@ -1497,4 +1382,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/index.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

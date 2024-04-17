@@ -1,6 +1,6 @@
 "use strict";
 
-class Form{
+class InquiryForm{
     constructor(el){
         this.inputs = el.querySelectorAll("select, textarea");
         for(let i = 0, len = this.inputs.length; i < len; i++){
@@ -9,9 +9,9 @@ class Form{
                 const val = e.target.value;
                 const nextEl = this.inputs[i + 1];
                 if(i === 0)
-                    Form.categoryChangeEvent(val, nextEl);
+                    InquiryForm.categoryChangeEvent(val, nextEl);
                 else if(i === 1)
-                    Form.subjectChangeEvent(val, nextEl);
+                    InquiryForm.subjectChangeEvent(val, nextEl);
             })
 
             if(i === 2){
@@ -70,14 +70,12 @@ class Form{
         nextEl.disabled = false;
     }
 }
-const showModalBtn = document.getElementById("showModalBtn");
-const formInstance = new Form(form);
+
 
 /**
- * 初期処理
+ * 初期化処理
  */
 function initialize(){
-    //サイドバーを更新
     updateSideBar();
     disableEnterKeyForInputs();
 }
@@ -94,18 +92,29 @@ function iniAndDispatchChangeEvent(el){
 window.addEventListener("load", ()=>{
     initialize();
 
+    const showModalBtn = document.getElementById("showModalBtn");
+    const formInstance = new InquiryForm(form);
+    // 進捗状況に応じて選択肢を変更する
+    const fixedProgress = progress < 1? 1: progress;
+    const selectElement = formInstance.inputs[InquiryForm.inputIdxs["category"]];
+    // 後ろから検索を開始
+    for (let i = selectElement.options.length - 1; i >= 0; i--) {
+        // オプションの value を "_" で分割
+        const option = selectElement.options[i].value;
+        if (parseInt(option, 10) === fixedProgress) {
+            // 条件に一致した場合、この要素から後ろのすべてのオプションを削除
+            while (selectElement.options.length > i) {
+                selectElement.remove(i);
+            }
+            break; // ループを抜ける
+        }
+    }
+
     showModalBtn.addEventListener("click", ()=>{
         const modal = document.getElementById("confirmModal");
         const modalBody = modal.querySelector(".modal-body");
-        modalBody.innerHTML = formInstance.inputs[Form.inputIdxs.content].value.replace(/\n/g, '<br>');
+        modalBody.innerHTML = formInstance.inputs[InquiryForm.inputIdxs.content].value.replace(/\n/g, '<br>');
     })
-
-    //問い合わせ結果のモダールを表示する
-    const message_modals = document.getElementsByClassName("message_modal");
-    for(let i = 0; i < message_modals.length; i++){
-        const modal = new bootstrap.Modal(message_modals[i]);
-        modal.show();
-    }
 })
 
 /**
@@ -119,6 +128,7 @@ form.addEventListener("submit", (event)=>{
         //複数回submitされないようにする
         submitBtn.disabled = true;
         spinner.style.display = "";
+        // categoryの値がとsubjectの先頭の数字と一致するものがあるか判別する
     }catch(e){
         console.error(`submit\n詳細：${e}`);
         event.preventDefault();

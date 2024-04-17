@@ -3,12 +3,16 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_one_trial.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
 {% endblock %}
 {% load custom_filters %}
 {% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-5 container-xxl">
@@ -18,7 +22,10 @@
         <div class="form-text">
             （入力時間の目安は5~10分です）
         </div>
-        <form action="{% url 'toukiApp:step_one' %}" method="POST" class="my-4 d-flex" novalidate>
+        <span class="border-bottom fst-italic">
+            ※実際のシステムをそのまま引用しているため相続人判定に必要な項目以外の質問があります。
+        </span>
+        <form action="{% url 'toukiApp:step_one_trial' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
             <section class="container ms-0">
                 <fieldset id="id_decedent-0-fieldset" class="decedentFieldset">
@@ -38,56 +45,55 @@
                                 <span class="errorMessage emPosition" style="display: none;">
                                 </span>
                             </div>
-                        {% elif field.name == "death_year" %}
-                            <div class="mt-4">
-                                <span class="form-label fs-5">
-                                    死亡した
-                                    <span class="fw-bold">
-                                        年月
+                        {% elif field.name == "death_year" or field.name == "death_month" %}
+                            {% if field.name != "death_month" %}
+                                <div class="mt-4">
+                                    <span class="form-label fs-5">
+                                        死亡した
+                                        <span class="fw-bold">
+                                            年月
+                                        </span>
                                     </span>
-                                </span>
-                                <div class="input-group mt-2 Q">
+                            {% endif %}
+                                <div class="input-group {% if field.name == "death_year" %}mt-2{% endif %} Q">
                                     <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                        年
-                                    </label>
-                                    {{field}}
-                                    <span class="errorMessage emPosition" style="display: none;">
-                                    </span>
-                                </div>
-                        {% elif field.name == "death_month" %}
-                                <div class="input-group Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                        月
-                                    </label>
-                                    {{field}}
-                                    <span class="errorMessage emPosition" style="display: none;">
-                                    </span>
-                                </div>
-                            </div>
-                        {% elif field.name == "prefecture" %}
-                            <div class="mt-4">
-                                <span class="form-label fs-5">
-                                    死亡時に
-                                    <span class="fw-bold">
-                                        住民票
-                                    </span>
-                                    があった市区町村
-                                </span>
-                                <div class="form-text">
-                                    ※名称の変更があった場合、現在の市区町村名を選択してください
-                                </div>
-                                <div class="input-group mt-2 Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text label">
-                                        都道府県
+                                        {{ field.label }}
                                     </label>
                                     {{ field }}
                                     <span class="errorMessage emPosition" style="display: none;">
                                     </span>
                                 </div>
-                        {% elif field.name == "city" %}
+                            {% if field.name == "death_month" %}
+                                </div>
+                            {% endif %}
+                        {% elif field.name == "prefecture" or field.name == "domicile_prefecture" %}
+                            <div class="mt-4">
+                                <span class="form-label fs-5">
+                                    死亡時に
+                                    <span class="fw-bold">
+                                        {% if field.name == "prefecture" %}
+                                            住民票
+                                        {% else %}
+                                            本籍
+                                        {% endif %}
+                                    </span>
+                                    があった市区町村
+                                </span>
+                                <div class="form-text no-wrap">
+                                    ※名称の変更があった場合、現在の市区町村名を選択してください
+                                </div>
+                                <div class="input-group mt-2 Q">
+                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    <span class="errorMessage emPosition" style="display: none;">
+                                    </span>
+                                </div>
+                        {% elif field.name == "city" or field.name == "domicile_city" %}
                                 <div class="input-group position-relative Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text label rounded-start">
-                                        市区町村
+                                    <label for="{{field.auto_id}}" class="input-group-text label">
+                                        {{ field.label }}
                                     </label>
                                     {{ field }}
                                     <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
@@ -97,53 +103,23 @@
                                     </span>
                                 </div>
                             </div>
-                        {% elif field.name == "domicile_prefecture" %}
-                            <div class="mt-4">
-                                <span class="form-label fs-5">
-                                    死亡時に
-                                    <span class="fw-bold">
-                                        本籍地
-                                    </span>
-                                    があった市区町村
-                                </span>
-                                <div class="form-text">
-                                    ※名称の変更があった場合、現在の市区町村名を選択してください
-                                </div>
-                                <div class="input-group mt-2 Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text label">
-                                        都道府県
-                                    </label>
-                                    {{ field }}
-                                    <span class="errorMessage emPosition" style="display: none;">
-                                    </span>
-                                </div>
-                        {% elif field.name == "domicile_city" %}
-                                <div class="input-group position-relative Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text label">
-                                        市区町村
-                                    </label>
-                                    {{ field }}
-                                    <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                    </span>
-                                </div>
-                            </div>
                         {% else %}
                             {{ field }}
                         {% endif %}
                     {% endfor %}
                     <div class="text-end mt-5">
-                        <button type="button" class="btn btn-primary nextBtn" tabindex="10" disabled="true">次へ</button>
+                        <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" tabindex="10" disabled>
+                            次へ
+                        </button>
                     </div>
                     {% if decedent_form.errors %}
                         <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                             {% for field, errors in decedent_form.errors.items %}
-                                <div>
-                                    <ul>
-                                        {% for error in errors %}
-                                            <li style="list-style-type: none;">{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
+                                <ul>
+                                    {% for error in errors %}
+                                        <li style="list-style-type: none;">{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% endfor %}
                         </div>
                     {% endif %}
@@ -160,43 +136,22 @@
                         <div class="card-body">
                             <div class="card-text">
                                 {% for field in spouse_form %}
-                                    {% if field.name in spouse_form_internal_field_name %}
+                                    {% if field.name in spouse_or_ascendant_internal_field_name %}
                                     {% elif field.name == "name" %}
                                         <div class="input-group Q">
                                             <label class="input-group-text fw-bold" for="{{field.auto_id}}">
-                                                氏名
+                                                {{ field.label }}
                                             </label>
                                             {{ field }}
                                             <span class="errorMessage emPosition" style="display: none;">
                                             </span>
                                         </div>
                                     {% elif field.name != "index" and field.name != "target" %}
-                                        {% if field.name == "is_exist" %}
-                                            <div class="Q mt-3">
+                                        {% if field.name == "is_exist" or field.name == "is_live" or field.name == "is_refuse" or field.name == "is_japan" %}
+                                            <div class="Q {% if field.name == "is_exist" %}mt-3{% endif %}" {% if field.name != "is_exist" %}style="display:none"{% endif %}>
                                                 <div>
-                                                    <span class="input-group-text fw-bold rounded-top">
-                                                        被相続人の死亡時にご健在でしたか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_live" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        今現在もご健在ですか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_refuse" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        家庭裁判所で相続放棄をされてますか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_japan" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        住民票は日本にありますか？
+                                                    <span class="input-group-text fw-bold {% if field.name == "is_exist" %}rounded-top{% endif %}">
+                                                        {{ field.label }}
                                                     </span>
                                                 </div>
                                         {% endif %}
@@ -271,19 +226,21 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">
-                            <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                            <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                            <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                戻る
+                            </button>
+                            <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                次へ
+                            </button>
                         </div>
                         {% if spouse_form.errors %}
                             <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                                 {% for field, errors in spouse_form.errors.items %}
-                                    <div>
-                                        <ul>
-                                            {% for error in errors %}
-                                                <li style="list-style-type: none;">{{ error }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
+                                    <ul>
+                                        {% for error in errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
                                 {% endfor %}
                             </div>
                         {% endif %}
@@ -306,7 +263,7 @@
                                         <div class="Q" style="display: none;">
                                             <div>
                                                 <span class="input-group-text fw-bold">
-                                                    何人ですか？（亡くなった子や養子を含む）
+                                                    {{ field.label }}
                                                 </span>
                                             </div>
                                             <div class="input-group">
@@ -322,46 +279,11 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        {% if field.name == "is_exist" %}
-                                            <div class="Q">
+                                        {% if field.name == "is_exist" or field.name == "is_same_parents" or field.name == "is_live" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
+                                            <div class="Q" {% if field.name != "is_exist" %}style="display: none;"{% endif %}>
                                                 <div>
-                                                    <span class="input-group-text fw-bold rounded-top">
-                                                        子供はいましたか？（亡くなった子や養子を含む）
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_same_parents" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        全員配偶者との子ですか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_live" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        現在全員ご健在ですか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_refuse" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        家庭裁判所で相続放棄をした方はいますか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_adult" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        現在もご健在の方は全員成人してますか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_japan" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        現在もご健在の方は全員日本に住民票がありますか？
+                                                    <span class="input-group-text fw-bold {% if field.name == "is_exist" %}rounded-top{% endif %}">
+                                                        {{ field.label }}
                                                     </span>
                                                 </div>
                                         {% endif %}
@@ -386,9 +308,24 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">
-                            <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                            <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                            <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                戻る
+                            </button>
+                            <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                次へ
+                            </button>
                         </div>
+                        {% if child_common_form.errors %}
+                            <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                {% for field, errors in child_common_form.errors.items %}
+                                    <ul>
+                                        {% for error in errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                 </fieldset>
                 {{ child_form_set.management_form }}
@@ -397,7 +334,7 @@
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
-                                    ４－１．{{sections.3}}
+                                    ４－１．子１
                                 </span>
                             </h5>
                         </div>
@@ -405,11 +342,11 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in form %}
-                                        {% if field.name in child_form_internal_field_name %}
+                                        {% if field.name in descendant_or_collateral_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q mb-3">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
-                                                    氏名
+                                                    {{ field.label}}
                                                 </label>
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
@@ -439,39 +376,11 @@
                                                 </div>
                                             </div>
                                         {% elif field.name != "index" and field.name != "target1" and field.name != "target2" %}
-                                            {% if field.name == "is_live" %}
+                                            {% if field.name == "is_live" or field.name == "is_exist" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            現在もご健在ですか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_exist" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            被相続人の死亡時点ではご健在でしたか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_refuse" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            相続放棄してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_adult" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            成人してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_japan" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            住民票は日本にありますか？
+                                                            {{ field.label }}
                                                         </span>
                                                     </div>
                                             {% endif %}
@@ -558,25 +467,27 @@
                                                 </div>
                                             {% endif %}
                                         {% else %}
-                                            {{field}}
+                                            {{ field }}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
-                                <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                                <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                    戻る
+                                </button>
+                                <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                    次へ
+                                </button>
                             </div>
                             {% if form.errors %}
                                 <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                                     {% for field, errors in form.errors.items %}
-                                        <div>
-                                            <ul>
-                                                {% for error in errors %}
-                                                    <li style="list-style-type: none;">{{ error }}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
+                                        <ul>
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -597,11 +508,11 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in form %}
-                                        {% if field.name in spouse_form_internal_field_name %}
+                                        {% if field.name in spouse_or_ascendant_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
-                                                    氏名
+                                                    {{ field.label }}
                                                 </label>
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
@@ -611,29 +522,15 @@
                                             {% if field.name == "is_exist" %}
                                                 <div class="Q mt-3">
                                                     <div>
-                                                        <span class="input-group-text fw-bold rounded-top">
+                                                        <span class="input-group-text fw-bold">
                                                             子の死亡時にご健在でしたか？
                                                         </span>
                                                     </div>
-                                            {% elif field.name == "is_live" %}
+                                            {% elif field.name == "is_live" or field.name == "is_refuse" or field.name == "is_japan" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            今現在もご健在ですか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_refuse" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            家庭裁判所で相続放棄をされてますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_japan" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            住民票は日本にありますか？
+                                                            {{ field.label }}
                                                         </span>
                                                     </div>
                                             {% endif %}
@@ -702,25 +599,27 @@
                                                 </div>
                                             {% endif %}          
                                         {% else %}
-                                            {{field}}
+                                            {{ field }}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
-                                <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                                <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                    戻る
+                                </button>
+                                <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                    次へ
+                                </button>
                             </div>
                             {% if form.errors %}
                                 <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                                     {% for field, errors in form.errors.items %}
-                                        <div>
-                                            <ul>
-                                                {% for error in errors %}
-                                                    <li style="list-style-type: none;">{{ error }}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
+                                        <ul>
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -741,11 +640,11 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in form %}
-                                        {% if field.name in child_form_internal_field_name %}
+                                        {% if field.name in descendant_or_collateral_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q mb-3">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
-                                                    氏名
+                                                    {{ field.label }}
                                                 </label>
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
@@ -775,39 +674,11 @@
                                                 </div>
                                             </div>
                                         {% elif field.name != "index" and field.name != "target1" and field.name != "target2" %}
-                                            {% if field.name == "is_live" %}
+                                            {% if field.name == "is_live" or field.name == "is_exist" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            現在ご健在ですか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_exist" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            被相続人の死亡時点ではご健在でしたか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_refuse" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            相続放棄してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_adult" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            成人してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_japan" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            住民票は日本にありますか？
+                                                            {{ field.label }}
                                                         </span>
                                                     </div>
                                             {% endif %}
@@ -876,25 +747,27 @@
                                                 </div>
                                             {% endif %}
                                         {% else %}
-                                            {{field}}
+                                            {{ field }}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
-                                <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                                <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                    戻る
+                                </button>
+                                <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                    次へ
+                                </button>
                             </div>
                             {% if form.errors %}
                                 <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                                     {% for field, errors in form.errors.items %}
-                                        <div>
-                                            <ul>
-                                                {% for error in errors %}
-                                                    <li style="list-style-type: none;">{{ error }}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
+                                        <ul>
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -915,11 +788,11 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in form %}
-                                        {% if field.name in ascendant_form_internal_field_name %}
+                                        {% if field.name in spouse_or_ascendant_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
-                                                    氏名
+                                                    {{ field.label }}
                                                 </label>
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
@@ -927,38 +800,17 @@
                                             </div>
                                         {% elif field.name != "index" and field.name != "target" %}
                                             {% if field.name == "is_live" %}
-                                                <div class="Q mt-3 round-top">
+                                                <div class="Q mt-3">
                                                     <div>
                                                         <span class="input-group-text fw-bold rounded-top">
-                                                            現在もご健在ですか？
+                                                            {{ field.label }}
                                                         </span>
                                                     </div>
-                                            {% elif field.name == "is_exist" %}
+                                            {% elif field.name == "is_exist" or field.name == "is_refuse" or field.name == "is_japan" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            被相続人の死亡時点ではご健在でしたか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_refuse" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            相続放棄してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_adult" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            成人してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_japan" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            住民票は日本にありますか？
+                                                            {{ field.label }}
                                                         </span>
                                                     </div>
                                             {% endif %}
@@ -1062,14 +914,18 @@
                                                 </div>
                                             {% endif %}
                                         {% else %}
-                                            {{field}}
+                                            {{ field }}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
-                                <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                                <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                    戻る
+                                </button>
+                                <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                    次へ
+                                </button>
                             </div>
                             {% if form.errors %}
                                 <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
@@ -1077,7 +933,7 @@
                                         <div>
                                             <ul>
                                                 {% for error in errors %}
-                                                    <li style="list-style-type: none;">{{ error }}</li>
+                                                    <li>{{ error }}</li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
@@ -1104,7 +960,7 @@
                                         <div class="Q" style="display: none;">
                                             <div>
                                                 <span class="input-group-text fw-bold">
-                                                    何人ですか？（亡くなった方を含む）
+                                                    {{ field.label }}
                                                 </span>
                                             </div>
                                             <div class="input-group">
@@ -1120,46 +976,11 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        {% if field.name == "is_exist" %}
-                                            <div class="Q">
+                                        {% if field.name == "is_exist" or field.name == "is_same_parents" or field.name == "is_live" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
+                                            <div class="Q" {% if field.name != "is_exist" %}style="display: none;"{% endif %}>
                                                 <div>
-                                                    <span class="input-group-text fw-bold rounded-top">
-                                                        兄弟姉妹はいましたか？（亡くなった方を含む）
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_same_parents" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        全員被相続人と同じ両親ですか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_live" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        全員現在もご健在ですか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_refuse" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        家庭裁判所で相続放棄をした方はいますか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_adult" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        現在もご健在の方は全員成人してますか？
-                                                    </span>
-                                                </div>
-                                        {% elif field.name == "is_japan" %}
-                                            <div class="Q" style="display: none;">
-                                                <div>
-                                                    <span class="input-group-text fw-bold">
-                                                        現在もご健在の方は全員日本に住民票がありますか？
+                                                    <span class="input-group-text fw-bold {% if field.name == "is_exist" %}rounded-top{% endif %}">
+                                                        {{ field.label }}
                                                     </span>
                                                 </div>
                                         {% endif %}
@@ -1184,8 +1005,12 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-between px-3 pb-3">
-                            <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                            <button type="button" class="btn btn-primary nextBtn">次へ</button>
+                            <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                戻る
+                            </button>
+                            <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold">
+                                次へ
+                            </button>
                         </div>
                     </div>
                 </fieldset>
@@ -1195,7 +1020,7 @@
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
-                                    ６－１．{{sections.13}}
+                                    ６－１．兄弟姉妹１
                                 </span>
                             </h5>
                         </div>
@@ -1203,11 +1028,11 @@
                             <div class="card-body">
                                 <div class="card-text">
                                     {% for field in form %}
-                                        {% if field.name in collateral_form_internal_field_name %}
+                                        {% if field.name in descendant_or_collateral_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
                                                 <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
-                                                    氏名
+                                                    {{ field.label }}
                                                 </label>
                                                 {{ field }}
                                                 <span class="errorMessage emPosition" style="display: none;">
@@ -1237,39 +1062,11 @@
                                                 </div>
                                             </div>
                                         {% elif field.name != "index" and field.name != "target1" and field.name != "target2" %}
-                                            {% if field.name == "is_live" %}
+                                            {% if field.name == "is_live" or field.name == "is_exist" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            現在もご健在ですか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_exist" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            被相続人の死亡時点ではご健在でしたか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_refuse" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            相続放棄してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_adult" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            成人してますか？
-                                                        </span>
-                                                    </div>
-                                            {% elif field.name == "is_japan" %}
-                                                <div class="Q" style="display: none;">
-                                                    <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            住民票は日本にありますか？
+                                                            {{ field.label }}
                                                         </span>
                                                     </div>
                                             {% endif %}
@@ -1338,25 +1135,27 @@
                                                 </div>
                                             {% endif %}
                                         {% else %}
-                                            {{field}}
+                                            {{ field }}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between px-3 pb-3">
-                                <button type="button" class="btn btn-secondary preBtn">戻る</button>
-                                <button type="button" class="btn btn-primary nextBtn" disabled="true">次へ</button>
+                                <button type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold">
+                                    戻る
+                                </button>
+                                <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled="true">
+                                    次へ
+                                </button>
                             </div>
                             {% if form.errors %}
                                 <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
                                     {% for field, errors in form.errors.items %}
-                                        <div>
-                                            <ul>
-                                                {% for error in errors %}
-                                                    <li style="list-style-type: none;">{{ error }}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
+                                        <ul>
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
                                     {% endfor %}
                                 </div>
                             {% endif %}
@@ -1370,8 +1169,8 @@
                         </span>
                     </p>
                     <div class="d-flex justify-content-evenly px-3 pb-3">
-                        <input type="button" class="btn btn-secondary preBtn" value="修正する">
-                        <input id="submitBtn" type="submit" class="btn btn-primary nextBtn" value="２．必要書類一覧に進む">
+                        <input type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold" value="修正する">
+                        <input id="submitBtn" type="submit" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" value="２．必要書類一覧に進む">
                     </div>
                 </fieldset>
             </section>
@@ -1425,7 +1224,7 @@
                         </li>
                         <li id="id_child-0-guide" class="card-title guide childGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－１．子１について
+                                ４－１．子１
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1436,7 +1235,7 @@
                         </li>
                         <li id="id_ascendant-0-guide" class="card-title guide ascendantGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－１．父について
+                                ４－１．父
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1447,7 +1246,7 @@
                         </li>
                         <li id="id_ascendant-1-guide" class="card-title guide ascendantGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－２．母について
+                                ４－２．母
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1458,7 +1257,7 @@
                         </li>
                         <li id="id_ascendant-2-guide" class="card-title guide ascendantGuide fatherGGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－３．父方の祖父について
+                                ４－３．父方の祖父
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1469,7 +1268,7 @@
                         </li>
                         <li id="id_ascendant-3-guide" class="card-title guide ascendantGuide fatherGGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－４．父方の祖母について
+                                ４－４．父方の祖母
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1480,7 +1279,7 @@
                         </li>
                         <li id="id_ascendant-4-guide" class="card-title guide ascendantGuide motherGGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－５．母方の祖父について
+                                ４－５．母方の祖父
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1491,7 +1290,7 @@
                         </li>
                         <li id="id_ascendant-5-guide" class="card-title guide ascendantGuide motherGGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ４－６．母方の祖母について
+                                ４－６．母方の祖母
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1502,7 +1301,7 @@
                         </li>
                         <li id="id_collateral_common-0-guide" class="card-title guide collateralCommonGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ５－１．兄弟姉妹全員について
+                                ５－１．兄弟姉妹全員
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1513,7 +1312,7 @@
                         </li>
                         <li id="id_collateral-0-guide" class="card-title guide collateralGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ６－１．兄弟姉妹１について
+                                ６－１．兄弟姉妹１
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -1540,7 +1339,11 @@
 
 {% block js %}
     {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
     <script src="{% static 'toukiApp/step_one_trial.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
     <script> const userDataScope = JSON.parse("{{userDataScope|escapejs}}"); </script>
     <script> const spouse_data = JSON.parse("{{spouse_data|escapejs}}"); </script>

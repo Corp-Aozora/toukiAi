@@ -598,7 +598,7 @@ window.addEventListener("resize", ()=>{
  * @param {HTMLElement} el 次にフォーカスする要素
  */
 function setEnterKeyFocusNext(e, el){
-    //Enterで次の入力欄にフォーカス
+    //Enter（numpadのenterを含む）で次の入力欄にフォーカス
     if(e.key === "Enter"){
         e.preventDefault();
         el.focus();

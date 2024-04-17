@@ -5,10 +5,11 @@
         <li class="nav-item py-2 d-flex">
             <a class="text-decoration-none" href="{% url 'toukiApp:step_one' %}">
                 {% url 'toukiApp:step_one' as step_one_url %}
-                <button type="button" id="btnStepOne" class="border-0 bg-white fs-5 {% if request.path == step_one_url %}fw-bold{% endif %}">
+                {% url 'toukiApp:step_one_trial' as step_one_trial_url %}
+                <button type="button" id="btnStepOne" class="border-0 bg-white fs-5 {% if request.path == step_one_url or request.path == step_one_trial_url %}fw-bold{% endif %}">
                     <div class="d-flex align-items-center">
                         １．{{service_content.0}}
-                        {% if progress == 1 or progress == 1.5 %}
+                        {% if progress == 0 or progress == 0.5 or progress == 1 or progress == 1.5 %}
                             <svg id="stepOneArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
                             </svg>

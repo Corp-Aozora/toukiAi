@@ -1,0 +1,148 @@
+{% load custom_filters %}
+
+{% if is_inquiry %}
+    <div class="modal message_modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center bg-success-subtle">
+                    <h5 class="modal-title fw-bold">
+                        お問い合わせありがとうございます。
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body pb-3">
+                    <div>
+                        <b class="fw-bold">
+                            原則２４時間以内
+                        </b>
+                        にご回答いたします。
+                    </div>
+                    <p>
+                        恐れ入りますが少々お待ちください。
+                    </p>
+                    <div class="form-text">
+                        ※金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
+                    </div>
+                    <div>
+                        ※
+                        <b>
+                            {{company_data.MAIL_ADDRESS}}
+                        </b>
+                        から返信があります。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% for message in messages %}
+    {% if message.tags == "success"%}
+        <div class="modal message_modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
+                        <h5 class="modal-title">
+                            ログアウトしました。
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            ご利用ありがとうございました。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "warning" %}
+        <div class="modal message_modal modal-warning" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-danger-subtle">
+                        <h5 class="modal-title">
+                            {{message.message|until:" "}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        {% if form.errors %}
+                            <div class="fw-bold">
+                                {% for field, errors in form.errors.items %}
+                                    <div>
+                                        {% if field == "__all__" %}
+                                            <div>
+                                                <span>
+                                                    入力エラー
+                                                </span>
+                                            </div>
+                                        {% else %}
+                                            {% if field == "created_by" %}
+                                                <div>
+                                                    <span>
+                                                        メールアドレスのエラー
+                                                    </span>
+                                                </div>
+                                            {% elif field == "subject" %}
+                                                <div>
+                                                    <span>
+                                                        件名のエラー
+                                                    </span>
+                                                </div>
+                                            {% elif field == "content" %}
+                                                <div>
+                                                    <span>
+                                                        お問い合わせ内容のエラー
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                        <ul>
+                                            {% for error in errors %}
+                                                <li>
+                                                    {{ error }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "error" %}
+        <div class="modal message_modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center">
+                        <h5 class="modal-title">
+                            {{message.message|until:" "}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        <span class="fw-bold">
+                            {{message.message|after:" "}}
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

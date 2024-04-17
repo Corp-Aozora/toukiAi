@@ -6,6 +6,10 @@ form fieldset:first-of-type > div{
     width: 335px!important;
 }
 
+.no-wrap{
+    white-space: nowrap;
+}
+
 .single-word-label{
     width: 90px;
     display: block!important;
@@ -14,7 +18,7 @@ form fieldset:first-of-type > div{
 
 .emPosition{
     top: -54px;
-    left: 150px;
+    left: 115px;
 }
 
 .rbEmPosition{

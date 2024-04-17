@@ -1,13 +1,15 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage
+from django.core.mail import BadHeaderError, EmailMessage
 from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
 from django.db.models.query import QuerySet
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import datetime
 from requests.exceptions import HTTPError, ConnectionError, Timeout
+from smtplib import SMTPException
+
 import mojimoji
 import inspect
 import textwrap
@@ -41,103 +43,173 @@ def basic_log(function_name, e, user, message = None):
         経路:{traceback_info}"
     )
 
-def handle_error(e, request, user, function_name, redirect_to, render_html, is_async=False, context=None, notices=None):
+def handle_error(e, request, user, function_name, redirect_to, is_async=False, context=None, notices=None):
     """親関数でのエラーハンドリング"""
     error_handlers = {
         DatabaseError: handle_data_base_error,
         HTTPError: handle_http_error,
         ConnectionError: handle_connection_error,
         Timeout: handle_time_out_error,
-        (ValidationError, ValueError): handle_validation_error,
+        ValidationError: handle_validation_error,
+        ValueError: handle_value_error,
+        BadHeaderError: handle_badhead_error,
+        SMTPException: handle_smtp_error,
+        OSError: handle_os_error,
     }
 
     for exception_type, handler in error_handlers.items():
         if isinstance(e, exception_type):
-            return handler(e, request, user, function_name, render_html, is_async, context, notices)
+            return handler(e, request, user, function_name, redirect_to, is_async, context, notices)
 
-    return handle_exception_error(e, request, user, function_name, render_html, is_async, context, notices)
+    return handle_exception_error(e, request, user, function_name, redirect_to, is_async, context, notices)
 
-def handle_exception_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+def handle_exception_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """汎用エラーハンドリング"""
     if context is None:
         context = {}
         
     basic_log(function_name, e, user, notices)
     
-    message = 'システムに問題が発生した可能性があります\n\
-        お手数ですが、お問い合わせをお願いします'
+    message = 'システムにエラーが発生したため処理を中止しました \
+        お手数ですが、お問い合わせをお願いします。'
     messages.error(request, message)
     
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else render(request, render_html, context)    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
 
-def handle_validation_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+def handle_badhead_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
+    """無効なヘッダーエラーハンドリング"""
+    if context is None:
+        context = {}
+        
+    basic_log(function_name, e, user, notices)
+    
+    message = '無効なヘッダが検出されたため処理を中止しました \
+        お手数ですが、お問い合わせをお願いします。'
+    messages.error(request, message)
+    
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
+
+def handle_os_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
+    """接続、送受信、ソケットエラーハンドリング"""
+    if context is None:
+        context = {}
+        
+    basic_log(function_name, e, user, notices)
+    
+    message = '通信エラーのため処理を中止しました \
+        お手数ですが、お問い合わせをお願いします。'
+    messages.error(request, message)
+    
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
+
+def handle_smtp_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
+    """SMTPエラーハンドリング"""
+    if context is None:
+        context = {}
+        
+    basic_log(function_name, e, user, notices)
+    
+    message = 'SMTPエラーのため処理を中止しました \
+        お手数ですが、お問い合わせをお願いします。'
+    messages.error(request, message)
+    
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
+
+
+def handle_value_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
+    """不正な入力値のエラーハンドリング"""
+    if context is None:
+        context = {}
+    
+    basic_log(function_name, e, user, notices)
+    
+    message = '想定しない形式の入力値があるため処理を中止しました \
+        入力内容に誤りがないときは、お手数ですがお問い合わせをお願いします。'
+    messages.error(request, message)
+        
+    if is_async:
+        context.update({"error_level": "error", "message": message})
+    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
+
+def handle_validation_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """入力内容や登録されているデータが不正なときのエラーハンドリング"""
     if context is None:
         context = {}
     
     basic_log(function_name, e, user, notices)
     
-    message = '入力内容が登録されているデータと一致しません\n\
-        お手数ですが、お問い合わせをお願いします'
+    message = '入力値が登録されているデータと一致しないため処理を中止しました \
+        入力内容に誤りがないときは、お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
         
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else render(request, render_html, context)    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
 
-def handle_time_out_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+def handle_time_out_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """タイムアウトエラーハンドリング"""
     if context is None:
         context = {}
     
     basic_log(function_name, e, user, notices)
     
-    message = 'システムに接続できませんでした。\n\
-        お手数ですが、ネットワーク環境をご確認ください。'
+    message = 'システムに接続できないため処理を中止しました \
+        ネットワーク環境をご確認ください。'
     messages.error(request, message)
             
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context) if is_async else render(request, render_html, context)    
+    return JsonResponse(context) if is_async else redirect(redirect_to)
 
-def handle_connection_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+def handle_connection_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """接続エラーハンドリング"""
     if context is None:
         context = {}
     
     basic_log(function_name, e, user, notices)
     
-    message = '通信エラーが発生しました。システムへの接続に問題があるようです。\n\
-        数分あけてから更新ボタンを押しても問題が解決しない場合は、\
+    message = '通信エラーが発生したため処理を中止しました \
+        数分空けて更新ボタンを押しても問題が解決しない場合は、\
         お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
             
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context) if is_async else render(request, render_html, context) 
+    return JsonResponse(context) if is_async else redirect(redirect_to)
 
-def handle_data_base_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+def handle_data_base_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """データベース関連のエラーハンドリング"""
     if context is None:
         context = {}
     
     basic_log(function_name, e, user, notices)
-    message = 'システムにエラーが発生しました。\n\
-        数分後に再試行しても同じエラーになる場合は、お手数ですがお問い合わせをお願いします。'
+    message = 'システムにエラーが発生したため処理を中止しました \
+        数分空けて更新ボタンを押しても問題が解決しない場合は、\
+        お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
                 
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context) if is_async else render(request, render_html, context) 
+    return JsonResponse(context) if is_async else redirect(redirect_to)
 
-def handle_http_error(e, request, user, function_name, render_html, is_async, context=None, notices=None):
+def handle_http_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """httpエラーハンドリング"""
     if context is None:
         context = {}
@@ -150,11 +222,16 @@ def handle_http_error(e, request, user, function_name, render_html, is_async, co
     # status_codeが取得できた場合、それを基にエラーメッセージを生成
     if status_code and status_code == 500:
         if status_code == 500:
-            message = 'システムにエラーが発生しました。\nお手数ですが、お問い合わせをお願いします。'
+            message = 'システムにエラーが発生したため処理を中止しました \
+                お手数ですが、お問い合わせをお願いします。'
         else:
-            message = f'通信エラー（コード：{status_code}）が発生しました。数分後に再試行してください。'
+            message = f'通信エラー（コード：{status_code}）が発生したため処理を中止しました \
+                数分空けて更新ボタンを押しても問題が解決しない場合は、\
+                お手数ですがお問い合わせをお願いします。'
     else:
-        message = '通信エラーが発生しました。数分後に再試行してください。'
+        message = '通信エラーが発生したため処理を中止しました \
+            数分空けて更新ボタンを押しても問題が解決しない場合は、\
+            お手数ですがお問い合わせをお願いします。'
 
     messages.error(request, message)
             
@@ -166,7 +243,7 @@ def handle_http_error(e, request, user, function_name, render_html, is_async, co
     #     return HttpResponseServerError()
     
     # 通常のエラーメッセージ表示用に指定されたテンプレートをレンダリング
-    return JsonResponse(context) if is_async else render(request, render_html, context) 
+    return JsonResponse(context) if is_async else redirect(redirect_to)
 
 def fullwidth_num(number):
     """半角数字を全角数字に変換する関数

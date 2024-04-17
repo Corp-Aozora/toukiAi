@@ -1,0 +1,63 @@
+{% load custom_filters %}
+
+{% for message in messages %}
+    {% if message.tags == "warning" %}
+        <div class="message_modal modal modal-warning" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-danger-subtle">
+                        <h5 class="modal-title fw-bold">
+                            {{message.message|until:" "}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        {% if form.errors %}
+                            <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
+                                {% for field, errors in form.errors.items %}
+                                    <ul>
+                                        {% for error in errors %}
+                                            <li>
+                                                {{ error }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "error" %}
+        <div class="message_modal modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center">
+                        <h5 class="modal-title fw-bold">
+                            {{message.message|until:" "}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body pb-3">
+                        <span class="fw-bold">
+                            {{message.message|after:" "}}
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

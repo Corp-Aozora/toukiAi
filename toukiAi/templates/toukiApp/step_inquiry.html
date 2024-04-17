@@ -3,6 +3,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_inquiry.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -10,36 +11,7 @@
 
 {% block content %}
 
-{% if messages %}
-    {% for message in messages %}
-        <div class="message_modal modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center {% if message.tags == "success" %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
-                        <h5 class="modal-title">
-                            {% if message.tags == "success" %}
-                                {{ message }}
-                            {% else %}
-                                受け付けできませんでした
-                            {% endif %}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        {% if message.tags == "success" %}
-                            原則２４時間以内にご登録いただいてるメールアドレス宛にご回答いたします。
-                        {% elif message.tags == "warning" %}
-                            入力されたデータが想定される形式ではありませんでした。<br>
-                            再度ご入力をお願いします。
-                        {% else %}
-                            {{ message }}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-{% endif %}
+{% include "toukiApp/parts/step_inquiry_messages.html" %}
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
@@ -62,7 +34,7 @@
                         弊社のＬＩＮＥアカウントへ
                     </span>
                     お問い合わせいただくこともできます（会員様専用）。
-                    <img class="ms-3 line-qr" src="{{line_qr}}">
+                    <img class="ms-3 line-qr" src="{{company_data.LIMITED_LINE_QR}}">
                 </div>
             </div>
         </div>
@@ -110,14 +82,21 @@
                     </div>
                 </fieldset>
             {% endfor %}
+            <p class="text-danger text-center">
+                ※
+                <b>
+                    {{company_data.MAIL_ADDRESS}}
+                </b>
+                から返信があります。
+            </p>
             <fieldset class="text-center mt-3">
-                <button disabled type="button" id="showModalBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                <button disabled type="button" id="showModalBtn" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold" data-bs-toggle="modal" data-bs-target="#confirmModal">
                     送信
                 </button>
                 <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <div class="modal-header justify-content-center">
+                            <div class="modal-header justify-content-center bg-warning-subtle">
                                 <h1 class="modal-title fs-5">
                                     内容にお間違いはありませんか？
                                 </h1>
@@ -125,8 +104,10 @@
                             <div class="modal-body text-start">
                             </div>
                             <div class="modal-footer justify-content-evenly">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">修正する</button>
-                                <button id="submitBtn" type="submit" class="btn btn-primary">
+                                <button type="button" class="btn btn-secondary bg-gradient bg-opacity-50 fw-bold" data-bs-dismiss="modal">
+                                    修正する
+                                </button>
+                                <button id="submitBtn" type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold">
                                     ＯＫ
                                     <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                                     </span>
@@ -198,5 +179,6 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_inquiry.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

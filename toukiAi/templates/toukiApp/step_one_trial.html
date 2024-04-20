@@ -13,6 +13,28 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 
+<div id="not-available-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
+                <h5 class="modal-title fw-bold">
+                    システム対応外の選択がされました
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body pb-3">
+                <p class="fw-bold">
+                    利用条件をご確認いただいているため原則返金はしておりませんが、戸籍謄本等の事実確認により返金させていただく場合があります。
+                </p>
+                <p class="fw-bold">
+                    詳細を確認されたい場合は、お問い合わせをお願いします。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-5 container-xxl">
@@ -108,7 +130,7 @@
                         {% endif %}
                     {% endfor %}
                     <div class="text-end mt-5">
-                        <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" tabindex="10" disabled>
+                        <button type="button" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" disabled>
                             次へ
                         </button>
                     </div>
@@ -354,8 +376,10 @@
                                             </div>
                                             <div class="Q">
                                                 <div>
-                                                    <span class="input-group-text fw-bold rounded-top">
+                                                    <span class="input-group-text fw-bold rounded-top text-start">
                                                         配偶者との子ですか？
+                                                        <br>
+                                                        ※配偶者がいない又は先に亡くなっているときは「いいえ」
                                                     </span>
                                                 </div>
                                                 <div class="form-control input-group">
@@ -403,8 +427,10 @@
                                             {% if field.name == "is_refuse" %}
                                                 <div class="Q" style="display: none;">
                                                     <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            死亡時に配偶者がいましたか？
+                                                        <span class="input-group-text fw-bold text-start">
+                                                            死亡時に配偶者はいましたか？
+                                                            <br>
+                                                            ※被相続人から見ると子の配偶者
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -426,8 +452,10 @@
                                                 </div>
                                                 <div class="Q" style="display: none;">
                                                     <div>
-                                                        <span class="input-group-text fw-bold">
-                                                            子はいましたか？（亡くなった子や養子を含む）
+                                                        <span class="input-group-text fw-bold text-start">
+                                                            子供はいましたか？（亡くなった子や養子を含む）
+                                                            <br>
+                                                            ※被相続人から見ると孫
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -496,7 +524,7 @@
                 {% endfor %}
                 {{ child_spouse_form_set.management_form}}
                 {% for form in child_spouse_form_set %}
-                    <fieldset id="id_{{form.prefix}}-fieldset" class="childSpouseFieldset childsHeirFieldset" style="display: none;">
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="childSpouseFieldset childHeirFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-danger-subtle p-1 rounded-3 fieldsetTitle">
@@ -554,7 +582,7 @@
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            配偶者（再婚相手）はいますか？
+                                                            配偶者（再婚相手）はいましたか？
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -577,7 +605,9 @@
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            被相続人以外との子はいますか？（死亡した子も含む）
+                                                            子以外との子（連れ子や再婚後の子）はいますか？
+                                                            <br>
+                                                            ※死亡している連れ子や再婚後の子を含む
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">
@@ -628,7 +658,7 @@
                 {% endfor %}
                 {{ grand_child_form_set.management_form }}
                 {% for form in grand_child_form_set %}
-                    <fieldset id="id_{{form.prefix}}-fieldset" class="grandChildFieldset childsHeirFieldset" style="display: none;">
+                    <fieldset id="id_{{form.prefix}}-fieldset" class="grandChildFieldset childHeirFieldset" style="display: none;">
                         <div class="pb-3">
                             <h5 class="form-label">
                                 <span class="bg-primary-subtle p-1 rounded-3 fieldsetTitle">
@@ -653,7 +683,7 @@
                                             <div class="Q">
                                                 <div>
                                                     <span class="input-group-text fw-bold rounded-top">
-                                                        配偶者との子ですか？
+                                                        子の配偶者との子ですか？
                                                     </span>
                                                 </div>
                                                 <div class="form-control input-group">
@@ -725,7 +755,7 @@
                                                 <div class="Q" style="display: none;">
                                                     <div>
                                                         <span class="input-group-text fw-bold">
-                                                            子はいましたか？（亡くなった子や養子を含む）
+                                                            子供はいましたか？（亡くなった子や養子を含む）
                                                         </span>
                                                     </div>
                                                     <div class="form-control input-group">

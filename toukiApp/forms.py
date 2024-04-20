@@ -288,8 +288,6 @@ def set_step_one_decedent_form(form):
             continue
         
         else:
-            field.widget.attrs.update({"tabindex": str(i)})
-            
             if name == "name":
                 field.widget.attrs.update(WidgetAttributes.name)
             else:

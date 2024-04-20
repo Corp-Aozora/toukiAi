@@ -601,7 +601,8 @@ function setEnterKeyFocusNext(e, el){
     //Enter（numpadのenterを含む）で次の入力欄にフォーカス
     if(e.key === "Enter"){
         e.preventDefault();
-        el.focus();
+        if(el)
+            el.focus();
     }
 }
 
@@ -723,9 +724,5 @@ function enableAllInputsAndSelects(){
  * @param {string} message 開発者メッセージ
  */
 function basicLog(functionName, e = null, message = null){
-    console.error(
-        `エラーを補足した関数：${functionName}\n
-        開発者メッセージ：${message}\n
-        ${e}`
-    )
+    console.error(`エラーを補足した関数：${functionName}\n開発者メッセージ：${message}\n${e}`);
 }

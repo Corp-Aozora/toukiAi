@@ -157,15 +157,20 @@ function setNavTogglerStyle(){
  * @param {HTMLElement[]|HTMLElement} els 初期化したいinput要素が属する親要素（配列形式じゃなくてもOK）
  */
 function iniAllInputs(els){
-    if(!Array.isArray(els)) els = [els];
+    if(!Array.isArray(els))
+        els = [els];
 
-    for (let i = 0; i < els.length; i++) {
+    for(let i = 0; i < els.length; i++){
         const inputs = els[i].getElementsByTagName('input');
-        for (let j = 0; j < inputs.length; j++) {
-            inputs[j].disabled = false;
-            if (inputs[j].type === 'text') inputs[j].value = '';
-            else if (inputs[j].type === 'radio') inputs[j].checked = false;
-            else if (inputs[j].type === 'number') inputs[j].value = "0";
+        for(let j = 0; j < inputs.length; j++){
+            const input = inputs[j];
+            input.disabled = false;
+            if(input.type === 'text')
+                input.value = '';
+            else if(input.type === 'radio')
+                input.checked = false;
+            else if(input.type === 'number')
+                input.value = "0";
         }
     }
 }
@@ -175,9 +180,14 @@ function iniAllInputs(els){
  * @param {array} els 
  */
 function removeAll(els){
-    els.forEach((el) => {
-        el.parentNode.removeChild(el);
-    });
+    if(!Array.isArray(els))
+        els = Array.from(els);
+    
+    if(els.length > 0){
+        els.forEach((el) => {
+            el.parentNode.removeChild(el);
+        });
+    }
 }
 
 /**
@@ -185,7 +195,7 @@ function removeAll(els){
  * @param {HTMLElement[]|HTMLCollection} els 
  */
 function removeAllExceptFirst(els){
-    for (let i = els.length - 1; i > 0; i--) {
+    for(let i = els.length - 1; i > 0; i--){
         els[i].parentNode.removeChild(els[i]);
     }
 }
@@ -202,15 +212,14 @@ function uncheckTargetElements(els, idxs){
 /**
  * 要素を入れ替える（イベントをまとめて削除したいときに使用）
  * @param {element} field 対象の要素の親要素
- * @param {string} tagName 対象の要素
+ * @param {string} selector querySelectoAllのセレクタ
  */
-function replaceElements(field, tagName){
-    let els = field.getElementsByTagName(tagName);
-    for (let i = 0; i < els.length; i++) {
-        let oldEl = els[i];
+function replaceElements(field, selector){
+    let els = field.querySelectorAll(selector);
+    els.forEach(oldEl => {
         let newEl = oldEl.cloneNode(true);
         oldEl.parentNode.replaceChild(newEl, oldEl);
-    }
+    });
 }
 
 /**
@@ -245,20 +254,6 @@ function getNextElByTag(el, tagName){
             return el;
         }
     }
-}
-
-/**
- * 特定の形式のクラス名を削除する
- * @param {HTMLElement} el 
- * @param {RegExp} pattern 
- * @returns クラスを削除した後の要素
- */
-function removeSpecificPatternClass(el, pattern){
-    el.classList.forEach(className => {
-        if(pattern.test(className))
-            el.classList.remove(className);
-    });
-    return el;
 }
 
 /**
@@ -471,13 +466,13 @@ async function getCityData(val, el, instance){
             errorMessageEl.style.display = "block";
             instance.noInputs.push(el);
             throw new Error(                
-                `関数：getCityDataの${instance.constructor}\n
+                `関数：getCityDataの${instance.constructor.name}\n
                 詳細：市区町村データを取得できませんでした`
             )
         }
     }).catch(e => {
         throw new Error(
-            `関数：getCityDataの${instance.constructor}\n
+            `関数：getCityDataの${instance.constructor.name}\n
             詳細：${e}`
         );
     }).finally(()=>{
@@ -485,6 +480,26 @@ async function getCityData(val, el, instance){
         document.getElementById(`${el.id}_verifyingEl`).remove();
         isActivateOkBtn(instance);
     });
+}
+
+/**
+ * クローンした要素の属性を更新する
+ * @param {HTMLElement} clone 複製した要素
+ * @param {string} att セレクタ 例"[id],[name],[for]"
+ * @param {RegExp} regex 正規表現
+ * @param {number} newIdx 新しいインデックス
+ */
+function updateAttribute(clone, att, regex, newIdx){
+    clone.id = clone.id.replace(regex, `$1${newIdx}`);
+    const els = clone.querySelectorAll(att);
+    els.forEach(el => {
+        if(att.includes("[id]") && el.id)
+            el.id = el.id.replace(regex, `$1${newIdx}`);
+        if(att.includes("[name]") && el.name)
+            el.name = el.name.replace(regex, `$1${newIdx}`);
+        if(att.includes("[for]") && el.htmlFor)
+            el.htmlFor = el.htmlFor.replace(regex, `$1${newIdx}`);
+    });       
 }
 
 /*

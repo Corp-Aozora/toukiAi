@@ -4357,18 +4357,42 @@ def csrf_failure(request, reason=""):
 
 # ユーザーに紐づく被相続人の市区町村データを取得する
 def get_decedent_city_data(request):
-    user = User.objects.get(email = request.user)
-    decedent = Decedent.objects.filter(user=user).first()
+    """被相続人の登録されている市区町村データを取得する
     
-    if decedent:
-        repsonse_data = {
-            'city': decedent.city,
-            'domicileCity': decedent.domicile_city
-        }
-    else:
-        repsonse_data = {}
+        都道府県データを取得したときに市区町村データを取り込んで初期化されてしまうため、
+        改めて取得する必要がある
+    """
+    try:
+        function_name = get_current_function_name()
         
-    return JsonResponse(repsonse_data)
+        user = User.objects.get(email = request.user)
+        decedent = Decedent.objects.filter(user=user).first()
+        
+        if decedent:
+            repsonse_data = {
+                "error_level": "success",
+                "message": "",
+                'city': decedent.city,
+                'domicileCity': decedent.domicile_city
+            }
+        else:
+            repsonse_data = {
+                "error_level": "warning",
+                "message": "被相続人データはありません",
+                'city': "",
+                'domicileCity': ""
+            }
+            
+        return JsonResponse(repsonse_data)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            None,
+            True
+        )
 
 # ユーザーに紐づく被相続人の登記上の住所の市区町村データリストを取得する
 def get_registry_name_and_address_city_data(request):

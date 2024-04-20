@@ -1958,26 +1958,6 @@ async function setRegistryNameAndAddressEvent(startIdx){
 }
 
 /**
- * クローンした要素の属性を更新する
- * @param {HTMLElement} clone 複製した要素
- * @param {string} att セレクタ 例"[id],[name],[for]"
- * @param {RegExp} regex 正規表現
- * @param {number} newIdx 新しいインデックス
- */
-function updateAttribute(clone, att, regex, newIdx){
-    clone.id = clone.id.replace(regex, `$1${newIdx}`);
-    const els = clone.querySelectorAll(att);
-    els.forEach(el => {
-        if(att.includes("[id]") && el.id)
-            el.id = el.id.replace(regex, `$1${newIdx}`);
-        if(att.includes("[name]") && el.name)
-            el.name = el.name.replace(regex, `$1${newIdx}`);
-        if(att.includes("[for]") && el.htmlFor)
-            el.htmlFor = el.htmlFor.replace(regex, `$1${newIdx}`);
-    });       
-}
-
-/**
  * 登記簿上の氏名住所の追加ボタンのイベント設定処理
  */
 function handleAddRegistryAddressButtonEvent(){

@@ -848,6 +848,7 @@ function personDataToVariable(person){
 function updateAttribute(attributes, el, newVal, oldVal){
     if(!Array.isArray(attributes))
         attributes = [attributes];
+
     attributes.forEach(attribute => {
         const oldAttribute = el.getAttribute(attribute);
         if(oldAttribute){
@@ -3369,8 +3370,8 @@ function createChildsHeirInstance(isSpouse, idx){
  */
 function createChildsHeirsFieldset(childsHeirs){
     let preFieldset = getLastElByAttribute("childFieldset", "class");
-    const childSpouseTemplate = removeSpecificPatternClass(document.getElementById("id_child_spouse-0-fieldset"), /^child\d+Spouse$/);
-    const grandChildTemplate = removeSpecificPatternClass(document.getElementById("id_grand_child-0-fieldset"), /^child\d+Child\d+$/);
+    const childSpouseTemplate = getRemovedSpecificPatternClassEl(document.getElementById("id_child_spouse-0-fieldset"), /^child\d+Spouse$/);
+    const grandChildTemplate = getRemovedSpecificPatternClassEl(document.getElementById("id_grand_child-0-fieldset"), /^child\d+Child\d+$/);
     const templates = {
         "ChildSpouse": childSpouseTemplate,
         "GrandChild": grandChildTemplate

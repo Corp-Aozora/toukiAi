@@ -216,15 +216,15 @@ class WidgetGroup:
         if model_name == "CollateralCommon":
             return {
                 "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
-                "is_same_parents": forms.RadioSelect(choices=[("true", "はい"), ("false", "異父母の兄弟姉妹がいる")]),
-                "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなっている兄弟姉妹がいる")]),
+                "is_same_parents": forms.RadioSelect(choices=[("true", "はい"), ("false", "異父母の人がいる")]),
+                "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなっている人がいる")]),
                 "is_refuse": forms.RadioSelect(choices=[("true", "いる"), ("false", "いない")]),
-                "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "未成年の兄弟姉妹がいる")]),
-                "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に移住している兄弟姉妹がいる")]),
+                "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "未成年の人がいる")]),
+                "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に移住している人いる")]),
             }
         return {
-            "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去した")]),
-            "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "逝去していた")]),
+            "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなった")]),
+            "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなっていた")]),
             "is_refuse": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
             "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
             **({"is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")])} if model_name in ["Descendant", "Collateral"] else {})

@@ -28,6 +28,11 @@ class CompanyData:
     PAYMENT_TERMS = "サービス利用開始時"
     START_TIME = "お支払いを確認後直ちに"
     ABOUT_CANCEL = "原則サービス提供後システム対応外であることが判明した場合のみ可"
+    BANK_NAME = "GMOあおぞらネット銀行"
+    BANK_BRANCH_NAME = "法人第二営業部(102)"
+    BANK_ACCOUNT_TYPE = "普通"
+    BANK_ACCOUNT_NUMBER = "１８２２５２２"
+    BANK_ACCOUNT_NAME = "カ）アオゾラ"
     
 class Service:
     BASIC_PRICE = "４９，０００円"

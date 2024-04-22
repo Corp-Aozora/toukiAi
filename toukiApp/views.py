@@ -1,57 +1,60 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .prefectures_and_city import *
-from .landCategorys import LANDCATEGORYS
-from .customDate import *
-from .sections import *
-from .company_data import *
-from .toukiAi_commons import *
-from .forms import *
-from django.forms import formset_factory
-from .models import *
-from accounts.models import User
+from bs4 import BeautifulSoup
+from collections import defaultdict
+from django import forms
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
+from django.core.validators import validate_email
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden, HttpResponse,  JsonResponse, HttpResponseRedirect, HttpResponseServerError
-from django.urls import reverse
-import json
-import copy
-from .get_data_for_application_form import *
-from time import sleep
-import requests
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-from django.contrib import messages
-import textwrap
-import itertools
-import mojimoji
-from typing import List, Dict, Set, Tuple
-from fractions import Fraction
-import unicodedata
-from django.core.mail import BadHeaderError, EmailMessage
-# from django.template.loader import render_to_string
-# from weasyprint import HTML
-from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
-from smtplib import SMTPException
-import socket
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
-from django.forms.models import model_to_dict
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.mail import BadHeaderError, EmailMessage
+from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
 from django.db.models import Q, F
+from django.forms import formset_factory
+from django.forms.models import model_to_dict
+from django.http import HttpResponseForbidden, HttpResponse,  JsonResponse, HttpResponseRedirect, HttpResponseServerError
+from django.shortcuts import render, redirect, get_object_or_404
+# from django.template.loader import render_to_string
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from fractions import Fraction
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-import googleapiclient.errors 
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-import gdown
-from django.core.files.storage import default_storage
-import os
-from django.conf import settings
-from urllib.parse import urlparse, parse_qs
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from bs4 import BeautifulSoup
 from requests.exceptions import HTTPError, ConnectionError, Timeout
-from collections import defaultdict
+from smtplib import SMTPException
+from time import sleep
+from typing import List, Dict, Set, Tuple
+from urllib.parse import urlparse, parse_qs
+# from weasyprint import HTML
+
+import copy
+import gdown
+import googleapiclient.errors 
+import itertools
+import json
+import mojimoji
+import os
+import requests
+import socket
+import textwrap
+import unicodedata
+
+from accounts.models import User
+from .company_data import *
+from .customDate import *
+from .forms import *
+from .get_data_for_application_form import *
+from .landCategorys import LANDCATEGORYS
+from .models import *
+from .prefectures_and_city import *
+from .sections import *
+from .toukiAi_commons import *
 
 def get_open_inquiry_result(session):
     """一般問い合わせフラグを確認する"""
@@ -124,88 +127,147 @@ def index(request):
     ステップ１関連
 
 """
+def is_form_in_formset(formset):
+    """フォームセット内の各フォームにデータがあるかどうかをチェックする
+    
+        フォームセット内の少なくとも一つのフォームに初期値から変更があるデータがあればTrue、そうでなければFalse
+    """
+    for form in formset:
+        if form.has_changed():
+            return True
+    return False
 
-def save_step_one_datas(user, forms, form_sets):
+def save_step_one_datas(user, forms, form_sets, is_trial):
     """ステップ１のデータ登録処理
 
     常に被相続人のデータ削除と新規登録
     他のデータは全て被相続人と紐づいてるため全データが削除される
     
     Args:
-        user (_type_): _description_
+        user (User): requestしたユーザー
         forms (_type_): _description_
         form_sets (_type_): _description_
+        is_trial (boolean): 無料アカウント用ページか判別フラグ
     """            
+    
+    @staticmethod
+    def format_error_log(relation, is_trial, instance, message=None):
+        
+        return f"ステップ１の{relation}のデータ登録時にエラー\nis_trial={is_trial}\ninstance={instance}" + (f"\n{message}" if message else "")
+        
     def check_is_heir(form):
         """法定相続人判定"""
         return form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False
     
-    Decedent.objects.filter(user=user).delete() #被相続人関連のデータを全削除する
-    decedent = forms[0].save(commit=False)
-    decedent.progress = 2
-    decedent.user = user
-    decedent.created_by = user
-    decedent.updated_by = user
-    decedent.save()
+    def save_decedent(form, user, is_trial):
+        """被相続人のデータ登録
+        
+            無料アカウントのときはprogressを0.5、有料の場合は次のステップへ遷移できるよう2にする
+        """
+        try:
+            instance = form.save(commit=False)
+            instance.progress = 0.5 if is_trial else 2
+            instance.user = user
+            instance.created_by = user
+            instance.updated_by = user
+            instance.save()
+            
+            return instance
+        except Exception as e:
+            basic_log(get_current_function_name(), e, user, format_error_log("被相続人", is_trial, instance))
+
+    def save_decedent_spouse(form, user, is_trial, decedent_content_type):
+        """被相続人の配偶者のデータ登録"""
+        try:
+            instance = form.save(commit=False)
+            add_required_for_data(instance, user, decedent)
+            instance.content_type = decedent_content_type
+            instance.object_id = decedent.id
+            instance.is_heir = check_is_heir(form)
+            instance.save()
+            
+            return instance
+        except Exception as e:
+            basic_log(get_current_function_name(), e, user, format_error_log("被相続人の配偶者", is_trial, instance))
+
+    def save_child_common(form, user, decedent):
+        try:
+            instance = form.save(commit=False)
+            add_required_for_data(instance, user, decedent)
+            instance.save()
+        except Exception as e:
+            basic_log(get_current_function_name(), e, user, format_error_log("被相続人の配偶者", is_trial, instance))
+
+    def save_child(formset, user, decedent, spouse, spouse_content_type):
+        for form in formset:
+            if form.cleaned_data.get("name"):
+                child = form.save(commit=False)
+                add_required_for_data(child, user, decedent)
+                child.content_type1 = decedent_content_type
+                child.object_id1 = decedent.id
+                if(form.cleaned_data.get("target2") != ""):
+                    child.content_type2 = spouse_content_type
+                    child.object_id2 = spouse.id
+                child.is_heir = check_is_heir(form)
+                child.save()
+                child_dict[form.cleaned_data.get("index")] = child 
+
+    # 被相続人関連のデータを全削除してから被相続人データを登録
+    Decedent.objects.filter(user=user).delete() 
+    decedent = save_decedent(forms[0], user, is_trial)
     
     # 配偶者
     decedent_content_type = ContentType.objects.get_for_model(Decedent)
-    spouse = forms[1].save(commit=False)
-    add_required_for_data(spouse, user, decedent)
-    spouse.content_type = decedent_content_type
-    spouse.object_id = decedent.id
-    spouse.is_heir = check_is_heir(forms[1])
-    spouse.save()
+    spouse = save_decedent_spouse(forms[1], user, is_trial, decedent_content_type)
     
     # 子共通
-    child_common = forms[2].save(commit=False)
-    add_required_for_data(child_common, user, decedent)
-    child_common.save()
+    save_child_common(form[2], user, decedent)
     
     # 子
-    child_dict = {}
-    spouse_content_type = ContentType.objects.get_for_model(Spouse)
-    for form in form_sets[0]:
-        if form.cleaned_data.get("name"):
-            child = form.save(commit=False)
-            add_required_for_data(child, user, decedent)
-            child.content_type1 = decedent_content_type
-            child.object_id1 = decedent.id
-            if(form.cleaned_data.get("target2") != ""):
-                child.content_type2 = spouse_content_type
-                child.object_id2 = spouse.id
-            child.is_heir = check_is_heir(form)
-            child.save()
-            child_dict[form.cleaned_data.get("index")] = child
+    if is_form_in_formset(form_sets[0]):
+        child_dict = {}
+        spouse_content_type = ContentType.objects.get_for_model(Spouse)
+        for form in form_sets[0]:
+            if form.cleaned_data.get("name"):
+                child = form.save(commit=False)
+                add_required_for_data(child, user, decedent)
+                child.content_type1 = decedent_content_type
+                child.object_id1 = decedent.id
+                if(form.cleaned_data.get("target2") != ""):
+                    child.content_type2 = spouse_content_type
+                    child.object_id2 = spouse.id
+                child.is_heir = check_is_heir(form)
+                child.save()
+                child_dict[form.cleaned_data.get("index")] = child
             
-    # 子の配偶者
-    child_spouse_dict = {}
-    descendant_content_type = ContentType.objects.get_for_model(Descendant)
-    for form in form_sets[1]:
-        if form.cleaned_data.get("name"):
-            child_spouse = form.save(commit=False)
-            add_required_for_data(child_spouse, user, decedent)
-            if form.cleaned_data.get("target") in child_dict:
-                child_spouse.content_type = descendant_content_type
-                child_spouse.object_id = child_dict[form.cleaned_data.get("target")].id
-            child_spouse.is_heir = check_is_heir(form)
-            child_spouse.save()
-            child_spouse_dict[form.cleaned_data.get("index")] = child_spouse
+        # 子の配偶者
+        child_spouse_dict = {}
+        descendant_content_type = ContentType.objects.get_for_model(Descendant)
+        for form in form_sets[1]:
+            if form.cleaned_data.get("name"):
+                child_spouse = form.save(commit=False)
+                add_required_for_data(child_spouse, user, decedent)
+                if form.cleaned_data.get("target") in child_dict:
+                    child_spouse.content_type = descendant_content_type
+                    child_spouse.object_id = child_dict[form.cleaned_data.get("target")].id
+                child_spouse.is_heir = check_is_heir(form)
+                child_spouse.save()
+                child_spouse_dict[form.cleaned_data.get("index")] = child_spouse
 
-            
-    # 孫
-    for form in form_sets[2]:
-        if form.cleaned_data.get("name"):
-            grand_child = form.save(commit=False)
-            add_required_for_data(grand_child, user, decedent)
-            if form.cleaned_data.get("target1") in child_dict:
-                grand_child.content_type1 = descendant_content_type
-                grand_child.object_id1 = child_dict[form.cleaned_data.get("target1")].id
-            if form.cleaned_data.get("target2") in child_spouse_dict:
-                grand_child.content_type2 = spouse_content_type
-                grand_child.object_id2 = child_spouse_dict[form.cleaned_data.get("target2")].id
-            grand_child.is_heir = check_is_heir(form)
-            grand_child.save()
+                
+        # 孫
+        for form in form_sets[2]:
+            if form.cleaned_data.get("name"):
+                grand_child = form.save(commit=False)
+                add_required_for_data(grand_child, user, decedent)
+                if form.cleaned_data.get("target1") in child_dict:
+                    grand_child.content_type1 = descendant_content_type
+                    grand_child.object_id1 = child_dict[form.cleaned_data.get("target1")].id
+                if form.cleaned_data.get("target2") in child_spouse_dict:
+                    grand_child.content_type2 = spouse_content_type
+                    grand_child.object_id2 = child_spouse_dict[form.cleaned_data.get("target2")].id
+                grand_child.is_heir = check_is_heir(form)
+                grand_child.save()
             
     # 尊属
     ascendant_dict = {}
@@ -263,7 +325,7 @@ def get_step_one_child_heirs_data(querysets, form_fields):
     """子の配偶者または子の子のデータをステップ１用に整形してリストにして返す"""
     return [
         {
-            **{"child_id":q.object_id},
+            **{"child_id": getattr(q, 'object_id', getattr(q, 'object_id1', None))},
             **{f: model_to_dict(q).get(f) for f in form_fields if f in model_to_dict(q)}
         }for q in querysets
     ] if querysets.exists() else []
@@ -326,7 +388,7 @@ def step_one_trial(request):
             if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
                 try:
                     with transaction.atomic():
-                        save_step_one_datas(user, forms, form_sets)
+                        save_step_one_datas(user, forms, form_sets, True)
                         return redirect(redirect_to)
                 except Exception as e:
                     basic_log(function_name, e, user, "POSTでエラー")
@@ -492,7 +554,7 @@ def step_one(request):
         if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
             try:
                 with transaction.atomic():
-                    save_step_one_datas(user, forms, form_sets)
+                    save_step_one_datas(user, forms, form_sets, False)
                     return redirect('/toukiApp/step_two')
             except Exception as e:
                 basic_log(function_name, e, user, "POSTでエラー")

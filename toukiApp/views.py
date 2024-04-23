@@ -141,6 +141,7 @@ def save_step_one_datas(user, forms, form_sets, is_trial):
     """ステップ１のデータ登録処理
 
     常に被相続人のデータ削除と新規登録
+    
     他のデータは全て被相続人と紐づいてるため全データが削除される
     
     Args:
@@ -152,7 +153,7 @@ def save_step_one_datas(user, forms, form_sets, is_trial):
     
     @staticmethod
     def format_error_log(relation, is_trial, instance, message=None):
-        
+        """エラーログのテンプレ"""
         return f"ステップ１の{relation}のデータ登録時にエラー\nis_trial={is_trial}\ninstance={instance}" + (f"\n{message}" if message else "")
         
     def check_is_heir(form):
@@ -175,6 +176,7 @@ def save_step_one_datas(user, forms, form_sets, is_trial):
             return instance
         except Exception as e:
             basic_log(get_current_function_name(), e, user, format_error_log("被相続人", is_trial, instance))
+            raise e
 
     def save_decedent_spouse(form, user, is_trial, decedent_content_type):
         """被相続人の配偶者のデータ登録"""
@@ -189,29 +191,198 @@ def save_step_one_datas(user, forms, form_sets, is_trial):
             return instance
         except Exception as e:
             basic_log(get_current_function_name(), e, user, format_error_log("被相続人の配偶者", is_trial, instance))
+            raise e
 
-    def save_child_common(form, user, decedent):
+    def save_common(form, user, decedent):
+        """子供全員または兄弟姉妹全員のデータ登録"""
+        form_class_name = type(form).__name__
+        relation = "子供全員" if form_class_name == 'StepOneDescendantCommonForm' else "兄弟姉妹全員"
+            
         try:
             instance = form.save(commit=False)
             add_required_for_data(instance, user, decedent)
             instance.save()
         except Exception as e:
-            basic_log(get_current_function_name(), e, user, format_error_log("被相続人の配偶者", is_trial, instance))
+            basic_log(get_current_function_name(), e, user, format_error_log(relation, is_trial, instance))
+            raise e
 
-    def save_child(formset, user, decedent, spouse, spouse_content_type):
+    def save_child(formset, user, decedent, decedemt_ct, spouse, spouse_ct):
+        """子のデータ登録
+        
+            return {子のindex: 子のインスタンス}
+        """
+        index_with_instance = {}
+        
         for form in formset:
-            if form.cleaned_data.get("name"):
-                child = form.save(commit=False)
-                add_required_for_data(child, user, decedent)
-                child.content_type1 = decedent_content_type
-                child.object_id1 = decedent.id
+            try:
+                if not form.has_changed():
+                    continue
+                
+                instance = form.save(commit=False)
+                add_required_for_data(instance, user, decedent)
+                instance.content_type1 = decedemt_ct
+                instance.object_id1 = decedent.id
+                
                 if(form.cleaned_data.get("target2") != ""):
-                    child.content_type2 = spouse_content_type
-                    child.object_id2 = spouse.id
-                child.is_heir = check_is_heir(form)
-                child.save()
-                child_dict[form.cleaned_data.get("index")] = child 
+                    instance.content_type2 = spouse_ct
+                    instance.object_id2 = spouse.id
+                    
+                instance.is_heir = check_is_heir(form)
+                instance.save()
+                
+                index_with_instance[form.cleaned_data.get("index")] = instance
+            except Exception as e:
+                basic_log(get_current_function_name(), e, user, format_error_log("子", is_trial, instance))
+                raise e
+            
+        return index_with_instance
+    
+    def save_child_spouse(formset, user, decedent, child_dict, descendant_ct):
+        """子の配偶者のデータ登録
+        
+            return {子の配偶者のindex: 子の配偶者のインスタンス}
+        """
+        function_name = get_current_function_name()
+        index_with_instance = {}
+        
+        for form in formset:
+            try:
+                if not form.has_changed():
+                    continue
+                
+                instance = form.save(commit=False)
+                add_required_for_data(instance, user, decedent)
+                
+                target = form.cleaned_data.get("target")
+                if target in child_dict:
+                    instance.content_type = descendant_ct
+                    instance.object_id = child_dict[target].id
+                else:
+                    log = f"{function_name}でエラー発生\n子と紐づいてない子の配偶者です\ntarget={target}\nchild_dict={child_dict}"
+                    basic_log(function_name, None, user, log)
+                    raise ValidationError(log)
+                    
+                instance.is_heir = check_is_heir(form)
+                instance.save()
+                index_with_instance[form.cleaned_data.get("index")] = instance
+                
+            except Exception as e:
+                basic_log(function_name, e, user, format_error_log("子の配偶者", is_trial, instance))
+                raise e
+            
+        return index_with_instance
 
+    def save_grand_child(formset, user, decedent, child_dict, descendant_ct, child_spouse_dict, spouse_ct):
+        """孫のデータ登録"""
+        function_name = get_current_function_name()
+        
+        for form in formset:
+            try:
+                if not form.has_changed():
+                    continue
+                
+                instance = form.save(commit=False)
+                add_required_for_data(instance, user, decedent)
+                
+                target1 = form.cleaned_data.get("target1")
+                if target1 in child_dict:
+                    instance.content_type1 = descendant_ct
+                    instance.object_id1 = child_dict[target1].id
+                else:
+                    log = f"{function_name}でエラー発生\n子と紐づいてない孫です\ntarget1={target1}\nchild_dict={child_dict}"
+                    basic_log(function_name, None, user, log)
+                    raise ValidationError(log)
+
+                target2 = form.cleaned_data.get("target2")
+                if target2 in child_spouse_dict:
+                    instance.content_type2 = spouse_ct
+                    instance.object_id2 = child_spouse_dict[target2].id
+                    
+                instance.is_heir = check_is_heir(form)
+                instance.save()
+            except Exception as e:
+                basic_log(get_current_function_name(), e, user, format_error_log("孫", is_trial, instance))
+                raise e    
+    
+    def save_ascendant(formset, user, decedent, decedent_ct, ascendant_ct):
+        """尊属のデータ登録
+        
+            return {子の配偶者のindex: 子の配偶者のインスタンス}
+        """
+        function_name = get_current_function_name()
+        index_with_instance = {}
+        
+        for idx, form in enumerate(formset):
+            try:
+                if not form.has_changed():
+                    continue
+                
+                instance = form.save(commit=False)
+                add_required_for_data(instance, user, decedent)
+                instance.is_heir = check_is_heir(form)
+                
+                # 父母のフォームのとき
+                if idx < 2:
+                    instance.content_type = decedent_ct
+                    instance.object_id = decedent.id
+                else:
+                    # 祖父母のフォームのとき
+                    target = form.cleaned_data.get("target")
+                    if target in index_with_instance:
+                        instance.content_type = ascendant_ct
+                        instance.object_id = index_with_instance[target].id
+                    else:
+                        log = f"{function_name}でエラー\n祖父母のtargetに一致する父母のindexありません\ntarget={target}\nindex_with_instance={index_with_instance}"
+                        basic_log(function_name, None, user, log)
+                        raise ValidationError(log)
+                        
+                instance.save()
+                index_with_instance[form.cleaned_data.get("index")] = instance    
+            except Exception as e:
+                basic_log(function_name, e, user, format_error_log("尊属", is_trial, instance))
+                raise e    
+            
+        return index_with_instance
+    
+    def save_collateral(formset, user, decedent, ascendant_dict, ascendant_ct):
+        """兄弟姉妹のデータ登録"""
+        function_name = get_current_function_name()
+        
+        for form in formset:
+            try:
+                if not form.has_changed():
+                    continue
+                
+                instance = form.save(commit=False)
+                target1 = form.cleaned_data.get("target1")
+                target2 = form.cleaned_data.get("target2")
+                if target1 == "" and target2 == "":
+                    index = form.cleaned_data.get("index")
+                    log = f"{function_name}でエラー発生\n\
+                        兄弟姉妹のtargetが父母の両方のindexに一致しません\n\
+                        index={index}\n\
+                        target1={target1}\n\
+                        target2={target2}\n\
+                        ascendant_dict={ascendant_dict}"
+                    basic_log(function_name, None, user, log)
+                    raise ValidationError(log)
+                
+                add_required_for_data(instance, user, decedent)
+                
+                if target1 != "":
+                    instance.content_type1 = ascendant_ct
+                    instance.object_id1 = ascendant_dict[target1].id
+                    
+                if target2 != "":
+                    instance.content_type2 = ascendant_ct
+                    instance.object_id2 = ascendant_dict[target2].id
+                    
+                instance.is_heir = check_is_heir(form)
+                instance.save()
+            except Exception as e:
+                basic_log(function_name, e, user, format_error_log("兄弟姉妹", is_trial, instance))
+                raise e    
+            
     # 被相続人関連のデータを全削除してから被相続人データを登録
     Decedent.objects.filter(user=user).delete() 
     decedent = save_decedent(forms[0], user, is_trial)
@@ -221,94 +392,38 @@ def save_step_one_datas(user, forms, form_sets, is_trial):
     spouse = save_decedent_spouse(forms[1], user, is_trial, decedent_content_type)
     
     # 子共通
-    save_child_common(form[2], user, decedent)
+    save_common(forms[2], user, decedent)
     
     # 子
     if is_form_in_formset(form_sets[0]):
         child_dict = {}
         spouse_content_type = ContentType.objects.get_for_model(Spouse)
-        for form in form_sets[0]:
-            if form.cleaned_data.get("name"):
-                child = form.save(commit=False)
-                add_required_for_data(child, user, decedent)
-                child.content_type1 = decedent_content_type
-                child.object_id1 = decedent.id
-                if(form.cleaned_data.get("target2") != ""):
-                    child.content_type2 = spouse_content_type
-                    child.object_id2 = spouse.id
-                child.is_heir = check_is_heir(form)
-                child.save()
-                child_dict[form.cleaned_data.get("index")] = child
-            
+        child_dict = save_child(form_sets[0], user, decedent, decedent_content_type, spouse, spouse_content_type)
+        
         # 子の配偶者
         child_spouse_dict = {}
         descendant_content_type = ContentType.objects.get_for_model(Descendant)
-        for form in form_sets[1]:
-            if form.cleaned_data.get("name"):
-                child_spouse = form.save(commit=False)
-                add_required_for_data(child_spouse, user, decedent)
-                if form.cleaned_data.get("target") in child_dict:
-                    child_spouse.content_type = descendant_content_type
-                    child_spouse.object_id = child_dict[form.cleaned_data.get("target")].id
-                child_spouse.is_heir = check_is_heir(form)
-                child_spouse.save()
-                child_spouse_dict[form.cleaned_data.get("index")] = child_spouse
+        if is_form_in_formset(form_sets[1]):
+            child_spouse_dict = save_child_spouse(form_sets[1], user, decedent, child_dict, descendant_content_type)
 
-                
         # 孫
-        for form in form_sets[2]:
-            if form.cleaned_data.get("name"):
-                grand_child = form.save(commit=False)
-                add_required_for_data(grand_child, user, decedent)
-                if form.cleaned_data.get("target1") in child_dict:
-                    grand_child.content_type1 = descendant_content_type
-                    grand_child.object_id1 = child_dict[form.cleaned_data.get("target1")].id
-                if form.cleaned_data.get("target2") in child_spouse_dict:
-                    grand_child.content_type2 = spouse_content_type
-                    grand_child.object_id2 = child_spouse_dict[form.cleaned_data.get("target2")].id
-                grand_child.is_heir = check_is_heir(form)
-                grand_child.save()
+        grand_child_fs = form_sets[2]
+        if is_form_in_formset(grand_child_fs):
+            save_grand_child(grand_child_fs, user, decedent, child_dict, descendant_content_type, child_spouse_dict, spouse_content_type)
             
     # 尊属
-    ascendant_dict = {}
-    ascendant_content_type = ContentType.objects.get_for_model(Ascendant)
-    for idx, form in enumerate(form_sets[3]):
-        
-        if form.cleaned_data.get("name"):
-            ascendant = form.save(commit=False)
-            add_required_for_data(ascendant, user, decedent)
-            ascendant.is_heir = check_is_heir(form)
+    ascendant_fs = form_sets[3]
+    if(is_form_in_formset(ascendant_fs)):
+        ascendant_content_type = ContentType.objects.get_for_model(Ascendant)
+        ascendant_dict = save_ascendant(ascendant_fs, user, decedent, decedent_content_type, ascendant_content_type)
+                
+        # 兄弟姉妹共通
+        collateral_common_f = forms[3]
+        if collateral_common_f.cleaned_data.get("is_exist") is not None:
+            save_common(collateral_common_f, user, decedent)
             
-            if idx < 2:
-                ascendant.content_type = decedent_content_type
-                ascendant.object_id = decedent.id
-            else:
-                target = form.cleaned_data.get("target")
-                if target in ascendant_dict:
-                    ascendant.content_type = ascendant_content_type
-                    ascendant.object_id = ascendant_dict[target].id
-            ascendant.save()
-            ascendant_dict[form.cleaned_data.get("index")] = ascendant
-            
-    # 兄弟姉妹共通
-    if forms[3].cleaned_data.get("is_exist") is not None:
-        collateral_common = forms[3].save(commit=False)
-        add_required_for_data(collateral_common, user, decedent)
-        collateral_common.save()
-        
-    # 兄弟姉妹
-    for form in form_sets[4]:
-        if form.cleaned_data.get("name"):
-            collateral = form.save(commit=False)
-            add_required_for_data(collateral, user, decedent)
-            if form.cleaned_data.get("target1") != "":
-                collateral.content_type1 = ascendant_content_type
-                collateral.object_id1 = ascendant_dict[form.cleaned_data.get("target1")].id
-            if form.cleaned_data.get("target2") != "":
-                collateral.content_type2 = ascendant_content_type
-                collateral.object_id2 = ascendant_dict[form.cleaned_data.get("target2")].id
-            collateral.is_heir = check_is_heir(form)
-            collateral.save()
+            # 兄弟姉妹
+            save_collateral(form_sets[4], user, decedent, ascendant_dict, ascendant_content_type)
 
 def get_step_one_childs_data(decedent, querysets, form_fields):
     """各子のデータをステップ１用に整形してリストにして返す"""
@@ -340,12 +455,23 @@ def get_step_one_ascendant_or_collateral_data(querysets, form_fields):
         for q in querysets
     ]
 
+def validate_and_log(item, prefix, function_name, user):
+    """フォームの検証とログ出力"""
+    is_valid = item.is_valid()
+
+    if not is_valid:
+        error_detail = f"{prefix}の欄でエラー\n 対象の入力欄: {item.errors}"
+        basic_log(function_name, None, user, error_detail)
+        
+    return is_valid
+
 def step_one_trial(request):
     """ステップ１（無料会員用）
     
         POSTに成功してもステップ２には遷移せずに法定相続人を表示するだけにする
         その他は実際のステップ１と同じ処理にする
     """
+    
     try:
         # 会員以外はアカウント登録ページに遷移させる
         if not request.user.is_authenticated:
@@ -372,37 +498,32 @@ def step_one_trial(request):
         
         if request.method == "POST":
             forms = [
-                StepOneDecedentForm(request.POST, prefix="decedent"),
-                StepOneSpouseForm(request.POST, prefix="spouse"),
-                StepOneDescendantCommonForm(request.POST, prefix="child_common"),
-                StepOneCollateralCommonForm(request.POST, prefix="collateral_common"),
+                ("被相続人", StepOneDecedentForm(request.POST, prefix="decedent")),
+                ("配偶者", StepOneSpouseForm(request.POST, prefix="spouse")),
+                ("子供全員", StepOneDescendantCommonForm(request.POST, prefix="child_common")),
+                ("兄弟姉妹全員", StepOneCollateralCommonForm(request.POST, prefix="collateral_common")),
             ]
             form_sets = [
-                child_form_set(request.POST, prefix="child"),
-                child_spouse_form_set(request.POST or None, prefix="child_spouse"),
-                grand_child_form_set(request.POST or None, prefix="grand_child"), 
-                ascendant_form_set(request.POST or None, prefix="ascendant"),
-                collateral_form_set(request.POST or None, prefix="collateral")
+                ("子", child_form_set(request.POST, prefix="child")),
+                ("子の配偶者", child_spouse_form_set(request.POST or None, prefix="child_spouse")),
+                ("孫", grand_child_form_set(request.POST or None, prefix="grand_child")), 
+                ("父母または祖父母", ascendant_form_set(request.POST or None, prefix="ascendant")),
+                ("兄弟姉妹", collateral_form_set(request.POST or None, prefix="collateral"))
             ]
 
-            if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
+            valid_forms = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
+            valid_form_sets = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
+
+            if valid_forms and valid_form_sets:
                 try:
                     with transaction.atomic():
-                        save_step_one_datas(user, forms, form_sets, True)
+                        save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], True)
                         return redirect(redirect_to)
                 except Exception as e:
                     basic_log(function_name, e, user, "POSTでエラー")
                     raise e
             else:
-                for form in forms:
-                    if not form.is_valid():
-                        basic_log(function_name, None, user, f"エラー対象のform {form}\n errors: {form.errors}")
-                
-                for form_set in form_sets:
-                    if not form_set.is_valid():
-                        basic_log(function_name, None, user, f"エラー対象のform_set {form_set}\n errors: {form_set.errors}")
-                        
-                messages.warning(request, "入力内容を保存できませんでした。")
+                messages.warning(request, "入力内容を保存できませんでした。 入力欄に想定しない値があったためデータを保存できませんでした。\n恐れ入りますが、再度入力をお願いします。")
         
         userDataScope = []
         spouse_data = {}
@@ -411,12 +532,12 @@ def step_one_trial(request):
         ascendant_data = []
         collateral_data = []
         progress = 0
-    
+        
         decedent_form = StepOneDecedentForm(prefix="decedent")
         spouse_form = StepOneSpouseForm(prefix="spouse")
         child_common_form = StepOneDescendantCommonForm(prefix="child_common")
         collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
-
+        
         decedent = user.decedent.first() # 被相続人
         if decedent:
             progress = decedent.progress
@@ -1300,8 +1421,8 @@ def get_acquirer_initial_data(data):
 
 def add_required_for_data(instance, user, decedent):
     """データに必須の項目を追加する
-    ・更新者は常に必須
-    ・被相続人と作成者は新規登録のときに必須
+    
+    ・更新者は常に必須、被相続人と作成者は新規登録のとき必須
 
     Args:
         instance (_type_): モデルに登録するインスタンス

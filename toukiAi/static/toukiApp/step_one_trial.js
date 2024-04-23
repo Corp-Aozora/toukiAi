@@ -9,6 +9,29 @@ dayjs.extend(window.dayjs_plugin_timezone);
  * @typedef {ChildCommon|CollateralCommon} EveryCommon
  */
 
+class ErrorMessageTemplate{
+
+    /**
+     * データロード中にエラーを発生した入力欄を摘示
+     */
+    static identInvalidInputWhenLoad(functionName, input, e){
+        return `${functionName}でエラー\nid：${input.id}の復元中にエラー\n${e.message}`;
+    }
+
+    /**
+     * データロード中に次へボタンが有効化されていないとき
+     */
+    static someInvalidInputWhenLoad(functionName, instance){
+        return `${functionName}\n${UpdateTitle.getFieldsetTitle({instance: instance})}に入力不備があるため次へボタンが有効化されてません`;
+    }
+
+    /**
+     * データロード中の汎用エラー
+     */
+    static errorWhenLoad(functionName, instance, e){
+        return `${functionName}\n${UpdateTitle.getFieldsetTitle({instance: instance})}の復元中にエラー\nエラーメッセージ：${e.message}`;
+    }
+}
 
 /**
  * fieldset又はガイドのタイトル変更クラス
@@ -467,6 +490,17 @@ class ChildSpouse extends Spouse{
         }
     }
 }
+const {
+    name: CSName,
+    isExist: CSIsExist,
+    isLive: CSIsLive,
+    isRefuse: CSIsRefuse,
+    isRemarriage: CSIsRemarriage,
+    isStepChild: CSIsStepChild,
+    isJapan: CSIsJapan,
+    index: CSIndex,
+    target: CSTarget,
+} = ChildSpouse.idxs;
 
 //子の子（孫）
 const grandChilds = [];
@@ -690,25 +724,22 @@ function getDecedentCityData(){
 }
 
 /**
- * 次の人のフォームへ進むか次へボタンにスクロールするか判別する
- * @param {EveryInstance} person 
- */
-function oneStepFowardOrScrollToTarget(person){
-    if(person.noInputs.length === 0){
-        person.nextBtn.disabled = false;
-        oneStepFoward(person);
-    }else{
-        scrollToTarget(person.nextBtn);
-    }
-}
-
-/**
  * ユーザーに紐づくデータのうち氏名のデータを復元する
+ * @param {string|number|boolean} val 
+ * @param {HTMLInputElement} input
  */
-function loadNameData(data, input){
-    if(data !== ""){
-        input.value = data;
-        input.dispatchEvent(new Event("change"));
+function inputAndDispatchChangeEventIfVal(val, input){
+    if(val != null){
+        if(typeof val === "string" && val !== ""){
+            input.value = val;
+            input.dispatchEvent(new Event("change"));
+        }else if(typeof val === "number" && val > 0){
+            input.value = val;
+            input.dispatchEvent(new Event("change"));
+        }else if(typeof val === "boolean" && val){
+            input.checked = true;
+            input.dispatchEvent(new Event("change"));
+        }
     }
 } 
 
@@ -726,39 +757,474 @@ function loadRbData(input){
  * @param {EveryInstance} instance 
  */
 function isActivateOkBtn(instance){
-    instance.nextBtn.disabled = instance.noInputs.length !== 0;
+    const {noInputs, nextBtn} = instance;
+    nextBtn.disabled = noInputs.length !== 0;
+}
+
+/**
+ * 次へボタンを実行する
+ */
+function dispatchNextBtnEvent(instance, functionName){
+    if(!instance.nextBtn.disabled)
+        oneStepFoward(instance);
+    else
+        throw new Error(ErrorMessageTemplate.someInvalidInputWhenLoad(functionName, instance)); 
 }
 
 /**
  * 被相続人のデータを復元する
+ * 
+ * データがあれば検証せずにエラー要素から削除している
  */
 async function loadDecedentData(){
-    try{
-        const inputs = decedent.inputs;
-        for(let i = 0, len = inputs.length; i < len; i++){
+    const functionName = "loadDecedentData";
+    const {inputs} = decedent;
+
+    for(let i = 0, len = inputs.length; i < len; i++){
+        try{
             //indexとtargetは処理不要
             if(i === DIndex)
                 break;
 
-            //データがあるとき
             const input = inputs[i];
             const val = input.value;
+            // データがあるとき
             if(val !== ""){
-                //エラー要素から削除する
+                // エラー要素から削除する
                 decedent.noInputs = decedent.noInputs.filter(x => x.id !== input.id)
-                //都道府県のとき、市区町村データを取得する
+
+                // 都道府県のとき、市区町村データを取得する
                 if([DPrefecture, DDomicilePrefecture].includes(i)){
                     await getCityData(val, inputs[i + 1], decedent);
-                }
-                if(i === DCity || i === DDomicileCity){
+                }else if([DCity, DDomicileCity].includes(i)){
+                    // 市区町村は初期化されるため再取得する
                     getDecedentCityData();
                 }
             }
+        }catch(e){
+            throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, inputs[i], e));
         }
-        //すべて入力されているとき、次へボタンを有効化する
-        oneStepFowardOrScrollToTarget(decedent);
+    }
+
+    //すべて入力されているとき、次へボタンを有効化する
+    dispatchNextBtnEvent(decedent, functionName);
+}
+
+/**
+ * イベント発生対象の入力欄を判定してデータ入力とchangeイベントを発生させる
+ * @param {boolean} data
+ * @param {HTMLInputElement} yesInput 
+ * @param {HTMLInputElement} noInput 
+ */
+function toggleInputAndDispatchChangeEvent(data, yesInput, noInput){
+    if(data && yesInput.disabled === false){
+        inputAndDispatchChangeEventIfVal(data, yesInput);
+    }else if(data === false && noInput.disabled === false){
+        inputAndDispatchChangeEventIfVal(true, noInput);
+    }
+}
+
+/**
+ * 被相続人の配偶者のデータをロード
+ */
+function loadDecedantSpouseData(){
+    
+    function loadIsRefuseWhenIsLiveFalse(data, inputs){
+        if(data){
+            inputAndDispatchChangeEventIfVal(true, inputs[SIsRefuse.input[yes]]);
+        }else if(data === false){
+            inputAndDispatchChangeEventIfVal(true, inputs[SIsRefuse.input[no]]);
+            inputAndDispatchChangeEventIfVal(true, inputs[SIsRemarriage.input[no]]);
+            inputAndDispatchChangeEventIfVal(true, inputs[SIsStepChild.input[no]]);                  
+        }
+    }
+
+    const functionName = "loadDecedantSpouseData";
+    const {inputs} = spouse;
+        
+    try{
+        inputAndDispatchChangeEventIfVal(spouse_data["name"], inputs[SName.input]);
+
+        if(spouse_data["is_exist"]){
+            loadRbData(inputs[SIsExist.input[yes]]);
+
+            if(spouse_data["is_live"]){
+                loadRbData(inputs[SIsLive.input[yes]]);
+
+                if(spouse_data["is_refuse"]){
+                    loadRbData(inputs[SIsRefuse.input[yes]]);
+                }else if(spouse_data["is_refuse"] === false){
+                    // 未入力(null)の可能性もあるためfalseを指定すること
+                    loadRbData(inputs[SIsRefuse.input[no]]);
+
+                    toggleInputAndDispatchChangeEvent(spouse_data["is_japan"], inputs[SIsJapan.input[yes]], inputs[SIsJapan.input[no]]);
+                }
+            }else if(spouse_data["is_live"] === false){
+                loadRbData(inputs[SIsLive.input[no]]);
+                loadIsRefuseWhenIsLiveFalse(spouse_data["is_refuse"], inputs);
+            }
+        }else if(spouse_data["is_exist"] === false){
+            loadRbData(inputs[SIsExist.input[no]])
+        }
+
+        dispatchNextBtnEvent(spouse, functionName);
     }catch(e){
-        basicLog("loadDecedentData", e, "被相続人の復元中にエラー");
+        throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, spouse, e));
+    }
+}
+
+/**
+ * 子供全員のデータロード
+ */
+function loadChildCommonData(){
+    const functionName = "loadChildCommonData";
+
+    //子の数データを取得する（is_existがtrueの場合、1が入力されてしまうため）
+    const {inputs, Qs} = childCommon;
+    const countInputIdx = ChCCount.input; 
+    const count = inputs[countInputIdx].value;
+    
+    for(let i = 0, len = inputs.length; i < len; i++){
+        try{
+            //データがあるとき、イベントを発生させる
+            const input = inputs[i];
+            if(i !== countInputIdx && input.checked){
+                input.dispatchEvent(new Event("change"));
+            }else if(i === countInputIdx && count > 1){
+                inputs[countInputIdx].value = count; // 子供がいるか確認の欄のイベントで値が変更されるため
+                input.dispatchEvent(new Event("change"));
+            }
+            // 配偶者確認欄がいいえ、かつ子が１人、かつ配偶者がいないとき健在確認欄を非表示にする
+            if(inputs[ChCIsSameParents.input[no]].checked && childCommon.countChilds() === 1 && spouse.inputs[SIsExist.input[no]].checked){
+                Qs[ChCIsLive.form].style.display = "none";
+            }
+        
+        }catch(e){
+            throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, inputs[i], e));
+        }
+    }
+
+    dispatchNextBtnEvent(childCommon, functionName);
+}
+
+/**
+ * 子のデータをロード
+ */
+function loadChildsData(){
+
+    // 親確認欄のロード、自動入力があるか判別して入力とイベント発生させる
+    function loadIsSameSpouse(objectId2Data, yesInput, noInput){
+        const isSameParentsYes = objectId2Data === spouse_data["id"];
+        if(isSameParentsYes && yesInput.disabled === false){
+            inputAndDispatchChangeEventIfVal(isSameParentsYes, yesInput);
+        }else if(!isSameParentsYes && noInput.disabled === false){
+            loadRbData(noInput);
+        }
+    }
+
+    // 子の配偶者または子の子の存在確認欄のロード
+    function loadIsChildOrIsSpouse(countData, yesInput, noInput, countInput=null){
+        if(countData > 0){
+            loadRbData(yesInput);
+
+            if(countInput)
+                countInput.value = countData;
+        }else if(countData === 0){
+            loadRbData(noInput);
+        } 
+    }
+
+    const functionName = "loadChildsData";
+    for(let i = 0, len = childs.length; i < len; i++){
+        const child = childs[i];
+        const {inputs} = child; 
+        const childData = childs_data[i];
+        try{
+            inputAndDispatchChangeEventIfVal(childData["name"], inputs[CName.input]);
+            loadIsSameSpouse(childData["object_id2"], inputs[CIsSameParents.input[yes]], inputs[CIsSameParents.input[no]]);
+
+            if(childData["is_live"] === true && inputs[CIsLive.input[yes]].disabled === false){
+                loadRbData(inputs[CIsLive.input[yes]]);
+                toggleInputAndDispatchChangeEvent(childData["is_refuse"], inputs[CIsRefuse.input[yes]], inputs[CIsRefuse.input[no]]);
+
+            }else if(childData["is_live"] === false){
+                loadRbData(inputs[CIsLive.input[no]]);
+
+                if(childData["is_exist"] === true){
+                    loadRbData(inputs[CIsExist.input[yes]]);
+
+                    if(childData["is_refuse"] === true){
+                        loadRbData(inputs[CIsRefuse.input[yes]]);
+                    }else if(childData["is_refuse"] === false){
+                        loadRbData(inputs[CIsRefuse.input[no]]);
+                        loadIsChildOrIsSpouse(childData["is_spouse"], inputs[CIsSpouse.input[yes]], inputs[CIsSpouse.input[no]]);
+                        loadIsChildOrIsSpouse(childData["count"], inputs[CIsChild.input[yes]], inputs[CIsChild.input[no]], inputs[CCount.input]);
+            
+                    }
+                }else if(childData["is_exist"] === false){
+                    loadRbData(inputs[CIsExist.input[no]]);
+                    loadIsChildOrIsSpouse(childData["count"], inputs[CIsChild.input[yes]], inputs[CIsChild.input[no]], inputs[CCount.input]);
+                }
+            }
+
+            toggleInputAndDispatchChangeEvent(childData["is_adult"], inputs[CIsAdult.input[yes]], inputs[CIsAdult.input[no]]);
+            toggleInputAndDispatchChangeEvent(childData["is_japan"], inputs[CIsJapan.input[yes]], inputs[CIsJapan.input[no]]);
+
+            dispatchNextBtnEvent(child, functionName);
+        }catch(e){
+            throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, child, e));
+        }
+    }
+}
+
+/**
+ * 子の相続人のデータロード
+ */
+function loadChildHeirsData(){
+    const functionName = "loadChildHeirsData";
+    const instances = getSortedChildsHeirsInstance();
+
+    for(let i = 0, len = instances.length; i < len; i++){
+        const instance = instances[i];
+        const {inputs, nextBtn, constructor} = instance;
+        const data = child_heirs_data[i];
+        //子の配偶者のとき
+        if(constructor.name === "ChildSpouse"){
+            try{
+                inputAndDispatchChangeEventIfVal(data["name"], inputs[CSName.input]);
+    
+                if(data["is_exist"] === true){
+                    loadRbData(inputs[CSIsExist.input[yes]]);
+    
+                    if(data["is_live"] === true){
+                        loadRbData(inputs[CSIsLive.input[yes]]);
+    
+                        if(data["is_refuse"] === true){
+                            loadRbData(inputs[CSIsRefuse.input[yes]]);
+                        }else if(data["is_refuse"] === false){
+                            loadRbData(inputs[CSIsRefuse.input[no]]);
+                            toggleInputAndDispatchChangeEvent(data["is_japan"], inputs[CSIsJapan.input[yes]], inputs[CSIsJapan.input[no]]);
+                        }
+                    }else if(data["is_live"] === false){
+                        loadRbData(inputs[CSIsLive.input[no]]);
+                        
+                        if(data["is_refuse"] === true){
+                            loadRbData(inputs[CSIsRefuse.input[yes]]);
+                        }else if(data["is_refuse"] === false){
+                            loadRbData(inputs[CSIsRefuse.input[no]]);
+                            loadRbData(inputs[CSIsRemarriage.input[no]]);
+                            loadRbData(inputs[CSIsStepChild.input[no]]);
+                        }
+                    }
+                }else if(data["is_exist"] === false){
+                    loadRbData(inputs[CSIsExist.input[no]]);
+                }
+            }catch(e){
+                throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+            }
+        }else{
+            //孫のとき
+            try{
+                inputAndDispatchChangeEventIfVal(data["name"], inputs[GName.input]);
+    
+                if(data["content_type2"] && data["content_type2"] == 21){
+                    loadRbData(inputs[GIsSameParents.input[yes]]);
+                }else if(data["content_type2"] === null || data["content_type2"] == 27){
+                    loadRbData(inputs[GIsSameParents.input[no]]);
+                }
+    
+                if(data["is_live"] === true){
+                    loadRbData(inputs[GIsLive.input[yes]]);
+    
+                    if(data["is_refuse"] === true){
+                        loadRbData(inputs[GIsRefuse.input[yes]]);
+                    }else if(data["is_refuse"] === false){
+                        loadRbData(inputs[GIsRefuse.input[no]]);
+    
+                        if(data["is_adult"] === true){
+                            loadRbData(inputs[GIsAdult.input[yes]]);
+                        }else if(data["is_adult"] === false){
+                            loadRbData(inputs[GIsAdult.input[no]]);
+                        }
+            
+                        if(data["is_japan"] === true){
+                            loadRbData(inputs[GIsJapan.input[yes]]);
+                        }else if(data["is_japan"] === false){
+                            loadRbData(inputs[GIsJapan.input[no]]);
+                        }
+                    }
+    
+                }else if(data["is_live"] === false){
+                    loadRbData(inputs[GIsLive.input[no]]);
+    
+                    if(data["is_exist"] === true){
+                        loadRbData(inputs[GIsExist.input[yes]]);
+    
+                        if(data["is_refuse"] === true){
+                            loadRbData(inputs[GIsRefuse.input[yes]]);
+                        }else if(data["is_refuse"] === false){
+                            loadRbData(inputs[GIsRefuse.input[no]]);
+                            loadRbData(inputs[GIsSpouse.input[no]]);
+                            loadRbData(inputs[GIsChild.input[no]]);
+                        }
+                    }else if(data["is_exist"] === false){
+                        loadRbData(inputs[GIsExist.input[no]]);
+                        loadRbData(inputs[GIsChild.input[no]]);
+                    }
+                }
+            }catch(e){
+                throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+            }
+        }
+
+        dispatchNextBtnEvent(instance, functionName);
+    }
+}
+
+/**
+ * 尊属のデータロード
+ */
+function loadAscendantsData(){
+    const functionName = "loadAscendantsData";
+
+    for(let i = 0; i < ascendants.length; i++){
+        const instance = ascendants[i];
+        const {inputs} = instance;
+        const data = ascendant_data[i];
+        try{
+            inputAndDispatchChangeEventIfVal(data["name"], inputs[AName.input]);
+    
+            if(data["is_live"] === true){
+                loadRbData(inputs[AIsLive.input[yes]]);
+    
+                if(data["is_refuse"] === true){
+                    loadRbData(inputs[AIsRefuse.input[yes]]);
+                }else if(data["is_refuse"] === false){
+                    loadRbData(inputs[AIsRefuse.input[no]]);
+                }
+    
+            }else if(data["is_live"] === false){
+                loadRbData(inputs[AIsLive.input[no]]);
+    
+                if(data["is_exist"] === true){
+                    loadRbData(inputs[AIsExist.input[yes]]);
+    
+                    if(data["is_refuse"] === true){
+                        loadRbData(inputs[AIsRefuse.input[yes]]);
+                    }else if(data["is_refuse"] === false){
+                        loadRbData(inputs[AIsRefuse.input[no]]);
+                        loadRbData(inputs[AIsSpouse.input[no]]);
+                        loadRbData(inputs[AIsChild.input[yes]]);
+                    }
+                }else if(data["is_exist"] === false){
+                    loadRbData(inputs[AIsExist.input[no]]);
+                }
+            }
+    
+            toggleInputAndDispatchChangeEvent(data["is_japan"], inputs[AIsJapan.input[yes]], inputs[AIsJapan.input[no]]);
+            dispatchNextBtnEvent(instance, functionName)
+        }catch(e){
+            throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+        }
+    }
+}
+
+/**
+ * 兄弟姉妹共通のデータロード
+ */
+function loadCollateralCommonData(){
+    const functionName = "loadCollateralCommonData";
+    const instance = collateralCommons[0];
+    const {inputs} = instance;
+    const count = instance.countCollaterals();
+
+    for(let i = 0, len = inputs.length; i < len; i++){
+        const input = inputs[i];
+        try{
+            if(i !== CoCCount.input && input.checked){
+                input.dispatchEvent(new Event("change"));
+            }else if(i === CoCCount.input && count > 1){
+                inputs[CoCCount.input].value = count;
+                input.dispatchEvent(new Event("change"));
+            }
+        }catch(e){
+            throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, input, e))
+        }
+    }
+
+    dispatchNextBtnEvent(instance, functionName);
+}
+
+/**
+ * 兄弟姉妹のデータロード
+ */
+function loadCollateralData(){
+    const functionName = "loadCollateralData";
+    for(let i = 0, len = collaterals.length; i < len; i++){
+        const instance = collaterals[i];
+        const {inputs} = instance;
+        const data = collateral_data[i];
+        try{
+            inputAndDispatchChangeEventIfVal(data["name"], inputs[ColName.input]);
+    
+            if(!data["object_id1"] && !data["object_id2"])
+                throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, inputs[ColIsSameParents.input[yes]]));
+
+            if(data["object_id1"] && data["object_id2"] && inputs[ColIsSameParents.input[yes]].disabled === false){
+                loadRbData(inputs[ColIsSameParents.input[yes]]);
+            }else if((!data["object_id1"] || !data["object_id2"]) && inputs[ColIsSameParents.input[no]].disabled === false){
+                loadRbData(inputs[ColIsSameParents.input[no]]);
+            }
+            
+            if(data["object_id1"])
+                loadRbData(true, inputs[ColIsFather.input[yes]]);
+            else if(data["object_id2"])
+                loadRbData(true, inputs[ColIsFather.input[no]]);
+
+            if(data["is_live"] === true && inputs[ColIsLive.input[yes]].disabled === false){
+                loadRbData(inputs[ColIsLive.input[yes]]);
+    
+                if(data["is_refuse"] === true){
+                    loadRbData(inputs[ColIsRefuse.input[yes]]);
+                }else if(data["is_refuse"] === false && inputs[ColIsRefuse.input[no]].disabled === false){
+                    loadRbData(inputs[ColIsRefuse.input[no]]);
+                }
+    
+            }else if(data["is_live"] === false){
+                loadRbData(inputs[ColIsLive.input[no]]);
+    
+                if(data["is_exist"] === true){
+                    loadRbData(inputs[ColIsExist.input[yes]]);
+    
+                    if(data["is_refuse"] === true){
+                        loadRbData(inputs[ColIsRefuse.input[yes]]);
+                    }else if(data["is_refuse"] === false && inputs[ColIsRefuse.input[no]].disabled === false){
+                        loadRbData(inputs[ColIsRefuse.input[no]]);
+                        loadRbData(inputs[ColIsSpouse.input[no]]);
+                        loadRbData(inputs[ColIsChild.input[no]]);
+                    }
+                }else if(data["is_exist"] === false){
+                    loadRbData(inputs[ColIsExist.input[no]]);
+                    loadRbData(inputs[ColIsChild.input[no]]);
+                }
+            }
+    
+            if(data["is_adult"] === true && inputs[ColIsAdult.input[yes]].disabled === false){
+                loadRbData(inputs[ColIsAdult.input[yes]]);
+            }else if(data["is_adult"] === false){
+                loadRbData(inputs[ColIsAdult.input[no]]);
+            }
+    
+            if(data["is_japan"] === true && inputs[ColIsJapan.input[yes]].disabled === false){
+                loadRbData(inputs[ColIsJapan.input[yes]]);
+            }else if(data["is_japan"] === false){
+                loadRbData(inputs[ColIsJapan.input[no]]);
+            }
+    
+            dispatchNextBtnEvent(instance, functionName);
+        }catch(e){
+            throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+        }
     }
 }
 
@@ -766,401 +1232,46 @@ async function loadDecedentData(){
  * ユーザーのデータを取得する
  */
 async function loadData(){
-    const functionName = "loadData";
     //被相続人データのチェック
     if(userDataScope.includes("decedent")){
         await loadDecedentData();
     }else{
-        // 未入力があるときは中止
         return;
     }
 
-    //配偶者（イベントを発生させる順序があるためデータを確認しながらイベント発火）
+    //配偶者（入力によって初期化される欄があるため手動入力とイベント発生）
     if(userDataScope.includes("spouse")){
-        try{
-            const {inputs, nextBtn} = spouse;
-            loadNameData(spouse_data["name"], inputs[SName.input]);
-    
-            if(spouse_data["is_exist"]){
-                loadRbData(inputs[SIsExist.input[yes]]);
-    
-                if(spouse_data["is_live"]){
-                    loadRbData(inputs[SIsLive.input[yes]]);
-    
-                    if(spouse_data["is_refuse"]){
-                        loadRbData(inputs[SIsRefuse.input[yes]]);
-                    }else if(spouse_data["is_refuse"] === false){
-                        // 未入力の可能性もあるためfalseを指定すること
-                        loadRbData(inputs[SIsRefuse.input[no]]);
-    
-                        if(spouse_data["is_japan"]){
-                            loadRbData(inputs[SIsJapan.input[yes]]);
-                        }else if(spouse_data["is_japan"] === false){
-                            loadRbData(inputs[SIsJapan.input[no]]);
-                        }
-                    }
-                }else if(spouse_data["is_live"] === false){
-                    loadRbData(inputs[SIsLive.input[no]]);
-                    
-                    if(spouse_data["is_refuse"]){
-                        loadRbData(inputs[SIsRefuse.input[yes]]);
-                    }else if(spouse_data["is_refuse"] === false){
-                        // 再婚相手と連れ子はデータとして取得しないため仮で入力している
-                        loadRbData(inputs[SIsRefuse.input[no]]);
-                        loadRbData(inputs[SIsRemarriage.input[no]]);
-                        loadRbData(inputs[SIsStepChild.input[no]]);                  
-                    }
-                }
-            }else if(spouse_data["is_exist"] === false){
-                loadRbData(inputs[SIsExist.input[no]])
-            }
-            //すべて適切に入力されているとき次へボタンを有効化する
-            if(!nextBtn.disabled)
-                oneStepFowardOrScrollToTarget(spouse);
-        }catch(e){
-            basicLog(functionName, e, "被相続人の配偶者の復元中にエラー");
-        }
+        loadDecedantSpouseData();
     }else{
         return;
     }
 
     //子共通
     if(userDataScope.includes("child_common")){
-        try{
-            //子の数データを取得する（is_existがtrueの場合、1が入力されてしまうため）
-            const {inputs, Qs, nextBtn} = childCommon;
-            const countInputIdx = ChCCount.input; 
-            const count = inputs[countInputIdx].value;
-            const event = new Event("change");
-    
-            for(let i = 0, len = inputs.length; i < len; i++){
-                //データがあるとき
-                const input = inputs[i];
-                if(i !== countInputIdx && input.checked){
-                    //チェックされたボタンに付随するイベントを発生させる
-                    input.dispatchEvent(event);
-                }else if(i === countInputIdx && count > 1){
-                    inputs[countInputIdx].value = count;
-                    input.dispatchEvent(event);
-                }
-            }
-    
-            // 配偶者確認欄のいいえ、かつ子が１人、かつ配偶者がいないとき健在確認欄を非表示にする
-            if(inputs[ChCIsSameParents.input[no]].checked && childCommon.countChilds() === 1 && spouse.inputs[SIsExist.input[no]].checked){
-                Qs[ChCIsLive.form].style.display = "none";
-            }
-            //すべて適切に入力されているとき次へボタンを有効化する
-            if(!nextBtn.disabled)
-                oneStepFowardOrScrollToTarget(childCommon);
-
-        }catch(e){
-            basicLog(functionName, e, "子供全員の復元中にエラー");
-        }
+        loadChildCommonData();
     }else{
         return;
     }
 
     //子
-    if(userDataScope.includes("child")){
-        for(let i = 0, len = childs.length; i < len; i++){
-            try{
-                //データがあるとき、データを反映させる
-                loadNameData(childs_data[i]["name"], childs[i].inputs[CName.input]);
-    
-                if(childs_data[i]["object_id2"] === spouse_data["id"] && childs[i].inputs[CIsSameParents.input[yes]].disabled === false){
-                    loadRbData(childs[i].inputs[CIsSameParents.input[yes]]);
-                }else if((childs_data[i]["object_id2"] === null || childs_data[i]["object_id2"] !== spouse_data["id"]) && childs[i].inputs[CIsSameParents.input[no]].disabled === false){
-                    loadRbData(childs[i].inputs[CIsSameParents.input[no]]);
-                }
-    
-                if(childs_data[i]["is_live"] === true && childs[i].inputs[CIsLive.input[yes]].disabled === false){
-                    loadRbData(childs[i].inputs[CIsLive.input[yes]]);
-    
-                    if(childs_data[i]["is_refuse"] === true){
-                        loadRbData(childs[i].inputs[CIsRefuse.input[yes]]);
-                    }else if(childs_data[i]["is_refuse"] === false && childs[i].inputs[CIsRefuse.input[no]].disabled === false){
-                        loadRbData(childs[i].inputs[CIsRefuse.input[no]]);
-                    }
-    
-                }else if(childs_data[i]["is_live"] === false){
-                    loadRbData(childs[i].inputs[CIsLive.input[no]]);
-    
-                    if(childs_data[i]["is_exist"] === true){
-                        loadRbData(childs[i].inputs[CIsExist.input[yes]]);
-    
-                        if(childs_data[i]["is_refuse"] === true){
-                            loadRbData(childs[i].inputs[CIsRefuse.input[yes]]);
-                        }else if(childs_data[i]["is_refuse"] === false && childs[i].inputs[CIsRefuse.input[no]].disabled === false){
-                            loadRbData(childs[i].inputs[CIsRefuse.input[no]]);
-    
-                            if(childs_data[i]["is_spouse"] > 0){
-                                loadRbData(childs[i].inputs[CIsSpouse.input[yes]]);
-                            }else if(childs_data[i]["is_spouse"] === 0){
-                                loadRbData(childs[i].inputs[CIsSpouse.input[no]]);
-                            }
-    
-                            if(childs_data[i]["count"] > 0){
-                                loadRbData(childs[i].inputs[CIsChild.input[yes]]);
-                                childs[i].inputs[CCount.input].value = childs_data[i]["count"];
-                            }else if(childs_data[i]["count"] === 0){
-                                loadRbData(childs[i].inputs[CIsChild.input[no]]);
-                            } 
-                
-                        }
-                    }else if(childs_data[i]["is_exist"] === false){
-                        loadRbData(childs[i].inputs[CIsExist.input[no]]);
-    
-                        if(childs_data[i]["count"] > 0){
-                            loadRbData(childs[i].inputs[CIsChild.input[yes]]);
-                            childs[i].inputs[CCount.input].value = childs_data[i]["count"];
-                        }else if(childs_data[i]["count"] === 0){
-                            loadRbData(childs[i].inputs[CIsChild.input[no]]);
-                        } 
-                    }
-                }
-    
-                if(childs_data[i]["is_adult"] === true && childs[i].inputs[CIsAdult.input[yes]].disabled === false){
-                    loadRbData(childs[i].inputs[CIsAdult.input[yes]]);
-                }else if(childs_data[i]["is_adult"] === false){
-                    loadRbData(childs[i].inputs[CIsAdult.input[no]]);
-                }
-    
-                if(childs_data[i]["is_japan"] === true && childs[i].inputs[CIsJapan.input[yes]].disabled === false){
-                    loadRbData(childs[i].inputs[CIsJapan.input[yes]]);
-                }else if(childs_data[i]["is_japan"] === false){
-                    loadRbData(childs[i].inputs[CIsJapan.input[no]]);
-                }
-    
-                //すべて適切に入力されているとき次へボタンを有効化する
-                oneStepFowardOrScrollToTarget(childs[i]);
-            }catch(e){
-                basicLog(functionName, e, `子${i}の再現中にエラー`);
-            }
-        }
-    }
+    if(userDataScope.includes("child"))
+        loadChildsData();
 
     //子の相続人
-    if(userDataScope.includes("child_heirs")){
-        //childSpousesとgrandChildsの配列を合体してソートする
-        const childHeirs = getSortedChildsHeirsInstance();
-
-        //データがあるとき、データを反映させる
-        for(let i = 0, len = childHeirs.length; i < len; i++){
-            //子の配偶者のとき
-            if(childHeirs[i].constructor.name === "ChildSpouse"){
-                loadNameData(child_heirs_data[i]["name"], childHeirs[i].inputs[ChildSpouse.idxs.name.input]);
-
-                if(child_heirs_data[i]["is_exist"] === true){
-                    loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isExist.input[yes]]);
-
-                    if(child_heirs_data[i]["is_live"] === true){
-                        loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isLive.input[yes]]);
-        
-                        if(child_heirs_data[i]["is_refuse"] === true){
-                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[yes]]);
-                        }else if(child_heirs_data[i]["is_refuse"] === false){
-                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[no]]);
-
-                            if(child_heirs_data[i]["is_japan"] === true){
-                                loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isJapan.input[yes]]);
-                            }else if(child_heirs_data[i]["is_japan"] === false){
-                                loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isJapan.input[no]]);
-                            }
-                        }
-                    }else if(child_heirs_data[i]["is_live"] === false){
-                        loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isLive.input[no]]);
-                        
-                        if(child_heirs_data[i]["is_refuse"] === true){
-                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[yes]]);
-                        }else if(child_heirs_data[i]["is_refuse"] === false){
-                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRefuse.input[no]]);
-                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isRemarriage.input[no]]);
-                            loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isStepChild.input[no]]);
-                        }
-                    }
-                }else if(child_heirs_data[i]["is_exist"] === false){
-                    loadRbData(childHeirs[i].inputs[ChildSpouse.idxs.isExist.input[no]]);
-                }
-            }else{
-                //子の子のとき
-                loadNameData(child_heirs_data[i]["name"], childHeirs[i].inputs[GName.input]);
-    
-                if(child_heirs_data[i]["content_type2"] && child_heirs_data[i]["content_type2"] == 21){
-                    loadRbData(childHeirs[i].inputs[GIsSameParents.input[yes]]);
-                }else if(child_heirs_data[i]["content_type2"] === null || child_heirs_data[i]["content_type2"] == 27){
-                    loadRbData(childHeirs[i].inputs[GIsSameParents.input[no]]);
-                }
-    
-                if(child_heirs_data[i]["is_live"] === true){
-                    loadRbData(childHeirs[i].inputs[GIsLive.input[yes]]);
-    
-                    if(child_heirs_data[i]["is_refuse"] === true){
-                        loadRbData(childHeirs[i].inputs[GIsRefuse.input[yes]]);
-                    }else if(child_heirs_data[i]["is_refuse"] === false){
-                        loadRbData(childHeirs[i].inputs[GIsRefuse.input[no]]);
-
-                        if(child_heirs_data[i]["is_adult"] === true){
-                            loadRbData(childHeirs[i].inputs[GIsAdult.input[yes]]);
-                        }else if(child_heirs_data[i]["is_adult"] === false){
-                            loadRbData(childHeirs[i].inputs[GIsAdult.input[no]]);
-                        }
-            
-                        if(child_heirs_data[i]["is_japan"] === true){
-                            loadRbData(childHeirs[i].inputs[GIsJapan.input[yes]]);
-                        }else if(child_heirs_data[i]["is_japan"] === false){
-                            loadRbData(childHeirs[i].inputs[GIsJapan.input[no]]);
-                        }
-                    }
-    
-                }else if(child_heirs_data[i]["is_live"] === false){
-                    loadRbData(childHeirs[i].inputs[GIsLive.input[no]]);
-    
-                    if(child_heirs_data[i]["is_exist"] === true){
-                        loadRbData(childHeirs[i].inputs[GIsExist.input[yes]]);
-    
-                        if(child_heirs_data[i]["is_refuse"] === true){
-                            loadRbData(childHeirs[i].inputs[GIsRefuse.input[yes]]);
-                        }else if(child_heirs_data[i]["is_refuse"] === false){
-                            loadRbData(childHeirs[i].inputs[GIsRefuse.input[no]]);
-                            loadRbData(childHeirs[i].inputs[GIsSpouse.input[no]]);
-                            loadRbData(childHeirs[i].inputs[GIsChild.input[no]]);
-                        }
-                    }else if(child_heirs_data[i]["is_exist"] === false){
-                        loadRbData(childHeirs[i].inputs[GIsExist.input[no]]);
-                        loadRbData(childHeirs[i].inputs[GIsChild.input[no]]);
-                    }
-                }
-            }
-
-            //すべて適切に入力されているとき次へボタンを有効化する
-            oneStepFowardOrScrollToTarget(childHeirs[i]);
-        }
-    }   
+    if(userDataScope.includes("child_heirs"))
+        loadChildHeirsData();
 
     //父母、父方の祖父母、母方の祖父母
-    if(userDataScope.includes("ascendant")){
-        //父母のデータを反映させる
-        for(let i = 0; i < ascendants.length; i++){
-            loadNameData(ascendant_data[i]["name"], ascendants[i].inputs[AName.input]);
-
-            if(ascendant_data[i]["is_live"] === true){
-                loadRbData(ascendants[i].inputs[AIsLive.input[yes]]);
-
-                if(ascendant_data[i]["is_refuse"] === true){
-                    loadRbData(ascendants[i].inputs[AIsRefuse.input[yes]]);
-                }else if(ascendant_data[i]["is_refuse"] === false){
-                    loadRbData(ascendants[i].inputs[AIsRefuse.input[no]]);
-                }
-
-            }else if(ascendant_data[i]["is_live"] === false){
-                loadRbData(ascendants[i].inputs[AIsLive.input[no]]);
-
-                if(ascendant_data[i]["is_exist"] === true){
-                    loadRbData(ascendants[i].inputs[AIsExist.input[yes]]);
-
-                    if(ascendant_data[i]["is_refuse"] === true){
-                        loadRbData(ascendants[i].inputs[AIsRefuse.input[yes]]);
-                    }else if(ascendant_data[i]["is_refuse"] === false){
-                        loadRbData(ascendants[i].inputs[AIsRefuse.input[no]]);
-                        loadRbData(ascendants[i].inputs[AIsSpouse.input[no]]);
-                        loadRbData(ascendants[i].inputs[AIsChild.input[yes]]);
-                    }
-                }else if(ascendant_data[i]["is_exist"] === false){
-                    loadRbData(ascendants[i].inputs[AIsExist.input[no]]);
-                }
-            }
-
-            if(ascendant_data[i]["is_japan"] === true){
-                loadRbData(ascendants[i].inputs[AIsJapan.input[yes]]);
-            }else if(ascendant_data[i]["is_japan"] === false){
-                loadRbData(ascendants[i].inputs[AIsJapan.input[no]]);
-            }
-
-            //すべて適切に入力されているとき次へボタンを有効化する
-            oneStepFowardOrScrollToTarget(ascendants[i]);
-        }
-        // //祖父母がいるとき、祖父母のデータを反映させる
-        // if(ascendants.length > 2){
-
-        // }
-    }
+    if(userDataScope.includes("ascendant"))
+        loadAscendantsData();
 
     //兄弟姉妹共通
-    if(userDataScope.includes("collateral_common")){
-        //子の数データを取得する（is_existがtrueの場合、1が入力されてしまうため）
-        const count = collateralCommons[0].inputs[CoCCount.input].value;
-        const event = new Event("change");
-
-        for(let i = 0, len = collateralCommons[0].inputs.length; i < len; i++){
-            //データがあるとき
-            if(i !== CoCCount.input && collateralCommons[0].inputs[i].checked){
-                //チェックされたボタンに付随するイベントを発生させる
-                collateralCommons[0].inputs[i].dispatchEvent(event);
-            }else if(i === CoCCount.input && count > 1){
-                collateralCommons[0].inputs[CoCCount.input].value = count;
-                collateralCommons[0].inputs[i].dispatchEvent(event);
-            }
-        }
-        //すべて適切に入力されているとき次へボタンを有効化する
-        oneStepFowardOrScrollToTarget(collateralCommons[0]);
-    }
+    if(userDataScope.includes("collateral_common"))
+        loadCollateralCommonData();
 
     //兄弟姉妹
-    if(userDataScope.includes("collateral")){
-        for(let i = 0, len = collaterals.length; i < len; i++){
-            //データがあるとき、データを反映させる
-            loadNameData(collateral_data[i]["name"], collaterals[i].inputs[ColName.input]);
-
-            if(collateral_data[i]["object_id2"] && collaterals[i].inputs[ColIsSameParents.input[yes]].disabled === false){
-                loadRbData(collaterals[i].inputs[ColIsSameParents.input[yes]]);
-            }else if(collateral_data[i]["object_id2"] === null && collaterals[i].inputs[ColIsSameParents.input[no]].disabled === false){
-                loadRbData(collaterals[i].inputs[ColIsSameParents.input[no]]);
-            }
-
-            if(collateral_data[i]["is_live"] === true && collaterals[i].inputs[ColIsLive.input[yes]].disabled === false){
-                loadRbData(collaterals[i].inputs[ColIsLive.input[yes]]);
-
-                if(collateral_data[i]["is_refuse"] === true){
-                    loadRbData(collaterals[i].inputs[ColIsRefuse.input[yes]]);
-                }else if(collateral_data[i]["is_refuse"] === false && collaterals[i].inputs[ColIsRefuse.input[no]].disabled === false){
-                    loadRbData(collaterals[i].inputs[ColIsRefuse.input[no]]);
-                }
-
-            }else if(collateral_data[i]["is_live"] === false){
-                loadRbData(collaterals[i].inputs[ColIsLive.input[no]]);
-
-                if(collateral_data[i]["is_exist"] === true){
-                    loadRbData(collaterals[i].inputs[ColIsExist.input[yes]]);
-
-                    if(collateral_data[i]["is_refuse"] === true){
-                        loadRbData(collaterals[i].inputs[ColIsRefuse.input[yes]]);
-                    }else if(collateral_data[i]["is_refuse"] === false && collaterals[i].inputs[ColIsRefuse.input[no]].disabled === false){
-                        loadRbData(collaterals[i].inputs[ColIsRefuse.input[no]]);
-                        loadRbData(collaterals[i].inputs[ColIsSpouse.input[no]]);
-                        loadRbData(collaterals[i].inputs[ColIsChild.input[no]]);
-                    }
-                }else if(collateral_data[i]["is_exist"] === false){
-                    loadRbData(collaterals[i].inputs[ColIsExist.input[no]]);
-                    loadRbData(collaterals[i].inputs[ColIsChild.input[no]]);
-                }
-            }
-
-            if(collateral_data[i]["is_adult"] === true && collaterals[i].inputs[ColIsAdult.input[yes]].disabled === false){
-                loadRbData(collaterals[i].inputs[ColIsAdult.input[yes]]);
-            }else if(collateral_data[i]["is_adult"] === false){
-                loadRbData(collaterals[i].inputs[ColIsAdult.input[no]]);
-            }
-
-            if(collateral_data[i]["is_japan"] === true && collaterals[i].inputs[ColIsJapan.input[yes]].disabled === false){
-                loadRbData(collaterals[i].inputs[ColIsJapan.input[yes]]);
-            }else if(collateral_data[i]["is_japan"] === false){
-                loadRbData(collaterals[i].inputs[ColIsJapan.input[no]]);
-            }
-
-            //すべて適切に入力されているとき次へボタンを有効化する
-            oneStepFowardOrScrollToTarget(collaterals[i]);
-        }
-    }
+    if(userDataScope.includes("collateral"))
+        loadCollateralData();
 }
 
 /**
@@ -4235,8 +4346,8 @@ function linkChildsHeirInstanceAndFieldset(instances, fieldsets){
             instance.noInputs = Array.from(fieldset.getElementsByTagName("input"));
             if(instance.constructor === ChildSpouse)
                 instance.noInputs = instance.noInputs.filter((_, i) =>
-                                        i !== ChildSpouse.idxs.index.input && 
-                                        i !== ChildSpouse.idxs.target.input);
+                                        i !== CSIndex.input && 
+                                        i !== CSTarget.input);
             else
                 instance.noInputs = instance.noInputs.filter((_, i) => 
                                         i !== GrandChild.idxs.index.input && 

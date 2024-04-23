@@ -134,17 +134,6 @@
                             次へ
                         </button>
                     </div>
-                    {% if decedent_form.errors %}
-                        <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                            {% for field, errors in decedent_form.errors.items %}
-                                <ul>
-                                    {% for error in errors %}
-                                        <li style="list-style-type: none;">{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
                 </fieldset>
                 <fieldset id="id_spouse-0-fieldset" class="spouseFieldset" style="display: none;">
                     <div class="pb-3">
@@ -255,17 +244,6 @@
                                 次へ
                             </button>
                         </div>
-                        {% if spouse_form.errors %}
-                            <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                {% for field, errors in spouse_form.errors.items %}
-                                    <ul>
-                                        {% for error in errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
                 </fieldset>
                 <fieldset id="id_child_common-0-fieldset" class="childCommonFieldset" style="display: none;">
@@ -337,17 +315,6 @@
                                 次へ
                             </button>
                         </div>
-                        {% if child_common_form.errors %}
-                            <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                {% for field, errors in child_common_form.errors.items %}
-                                    <ul>
-                                        {% for error in errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
                 </fieldset>
                 {{ child_form_set.management_form }}
@@ -508,17 +475,6 @@
                                     次へ
                                 </button>
                             </div>
-                            {% if form.errors %}
-                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                    {% for field, errors in form.errors.items %}
-                                        <ul>
-                                            {% for error in errors %}
-                                                <li>{{ error }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -642,17 +598,6 @@
                                     次へ
                                 </button>
                             </div>
-                            {% if form.errors %}
-                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                    {% for field, errors in form.errors.items %}
-                                        <ul>
-                                            {% for error in errors %}
-                                                <li>{{ error }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -790,17 +735,6 @@
                                     次へ
                                 </button>
                             </div>
-                            {% if form.errors %}
-                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                    {% for field, errors in form.errors.items %}
-                                        <ul>
-                                            {% for error in errors %}
-                                                <li>{{ error }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -957,19 +891,6 @@
                                     次へ
                                 </button>
                             </div>
-                            {% if form.errors %}
-                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                    {% for field, errors in form.errors.items %}
-                                        <div>
-                                            <ul>
-                                                {% for error in errors %}
-                                                    <li>{{ error }}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -1201,17 +1122,6 @@
                                     次へ
                                 </button>
                             </div>
-                            {% if form.errors %}
-                                <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                                    {% for field, errors in form.errors.items %}
-                                        <ul>
-                                            {% for error in errors %}
-                                                <li>{{ error }}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     </fieldset>
                 {% endfor %}
@@ -1354,7 +1264,7 @@
                         </li>
                         <li id="id_collateral_common-0-guide" class="card-title guide collateralCommonGuide" style="display: none;">
                             <button type="button" class="border-0 bg-white p-0 guideBtn" disabled="true">
-                                ５－１．兄弟姉妹全員
+                                ５－１．兄弟姉妹共通
                             </button>
                             <svg style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill guideCaret" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>

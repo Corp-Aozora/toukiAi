@@ -2,7 +2,7 @@ class Sections:
     STEP1 = "基本データ入力"
     STEP1_1 = "お亡くなりになった方（被相続人）"
     STEP1_2 = "配偶者"
-    STEP1_3 = "子供全員"
+    STEP1_3 = "子供共通"
     STEP1_4 = "各子"
     STEP1_5 = "子の配偶者"
     STEP1_6 = "孫"
@@ -12,7 +12,7 @@ class Sections:
     STEP1_10 = "父方の祖母" 
     STEP1_11 = "母方の祖父"
     STEP1_12 = "母方の祖母"
-    STEP1_13 = "兄弟姉妹全員"
+    STEP1_13 = "兄弟姉妹共通"
     STEP1_14 = "各兄弟姉妹"
     STEP1_15 = "その他"
     STEP1_CONTENT = [

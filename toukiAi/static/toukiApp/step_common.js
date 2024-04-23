@@ -165,7 +165,7 @@ function iniAllInputs(els){
         for(let j = 0; j < inputs.length; j++){
             const input = inputs[j];
             input.disabled = false;
-            if(input.type === 'text')
+            if(['text', "hidden"].includes(input.type))
                 input.value = '';
             else if(input.type === 'radio')
                 input.checked = false;
@@ -182,7 +182,7 @@ function iniAllInputs(els){
 function removeAll(els){
     if(!Array.isArray(els))
         els = Array.from(els);
-    
+
     if(els.length > 0){
         els.forEach((el) => {
             el.parentNode.removeChild(el);

@@ -764,9 +764,9 @@ function isActivateOkBtn(instance){
 /**
  * 次へボタンを実行する
  */
-function dispatchNextBtnEvent(instance, functionName){
+async function dispatchNextBtnEvent(instance, functionName){
     if(!instance.nextBtn.disabled)
-        oneStepFoward(instance);
+        await oneStepFoward(instance);
     else
         throw new Error(ErrorMessageTemplate.someInvalidInputWhenLoad(functionName, instance)); 
 }
@@ -807,7 +807,7 @@ async function loadDecedentData(){
     }
 
     //すべて入力されているとき、次へボタンを有効化する
-    dispatchNextBtnEvent(decedent, functionName);
+    await dispatchNextBtnEvent(decedent, functionName);
 }
 
 /**
@@ -827,7 +827,7 @@ function toggleInputAndDispatchChangeEvent(data, yesInput, noInput){
 /**
  * 被相続人の配偶者のデータをロード
  */
-function loadDecedantSpouseData(){
+async function loadDecedantSpouseData(){
     
     function loadIsRefuseWhenIsLiveFalse(data, inputs){
         if(data){
@@ -867,7 +867,7 @@ function loadDecedantSpouseData(){
             loadRbData(inputs[SIsExist.input[no]])
         }
 
-        dispatchNextBtnEvent(spouse, functionName);
+        await dispatchNextBtnEvent(spouse, functionName);
     }catch(e){
         throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, spouse, e));
     }
@@ -876,7 +876,7 @@ function loadDecedantSpouseData(){
 /**
  * 子供全員のデータロード
  */
-function loadChildCommonData(){
+async function loadChildCommonData(){
     const functionName = "loadChildCommonData";
 
     //子の数データを取得する（is_existがtrueの場合、1が入力されてしまうため）
@@ -904,13 +904,13 @@ function loadChildCommonData(){
         }
     }
 
-    dispatchNextBtnEvent(childCommon, functionName);
+    await dispatchNextBtnEvent(childCommon, functionName);
 }
 
 /**
  * 子のデータをロード
  */
-function loadChildsData(){
+async function loadChildsData(){
 
     // 親確認欄のロード、自動入力があるか判別して入力とイベント発生させる
     function loadIsSameSpouse(objectId2Data, yesInput, noInput){
@@ -970,7 +970,7 @@ function loadChildsData(){
             toggleInputAndDispatchChangeEvent(childData["is_adult"], inputs[CIsAdult.input[yes]], inputs[CIsAdult.input[no]]);
             toggleInputAndDispatchChangeEvent(childData["is_japan"], inputs[CIsJapan.input[yes]], inputs[CIsJapan.input[no]]);
 
-            dispatchNextBtnEvent(child, functionName);
+            await dispatchNextBtnEvent(child, functionName);
         }catch(e){
             throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, child, e));
         }
@@ -980,13 +980,13 @@ function loadChildsData(){
 /**
  * 子の相続人のデータロード
  */
-function loadChildHeirsData(){
+async function loadChildHeirsData(){
     const functionName = "loadChildHeirsData";
     const instances = getSortedChildsHeirsInstance();
 
     for(let i = 0, len = instances.length; i < len; i++){
         const instance = instances[i];
-        const {inputs, nextBtn, constructor} = instance;
+        const {inputs, constructor} = instance;
         const data = child_heirs_data[i];
         //子の配偶者のとき
         if(constructor.name === "ChildSpouse"){
@@ -1077,14 +1077,14 @@ function loadChildHeirsData(){
             }
         }
 
-        dispatchNextBtnEvent(instance, functionName);
+        await dispatchNextBtnEvent(instance, functionName);
     }
 }
 
 /**
  * 尊属のデータロード
  */
-function loadAscendantsData(){
+async function loadAscendantsData(){
     const functionName = "loadAscendantsData";
 
     for(let i = 0; i < ascendants.length; i++){
@@ -1122,7 +1122,7 @@ function loadAscendantsData(){
             }
     
             toggleInputAndDispatchChangeEvent(data["is_japan"], inputs[AIsJapan.input[yes]], inputs[AIsJapan.input[no]]);
-            dispatchNextBtnEvent(instance, functionName)
+            await dispatchNextBtnEvent(instance, functionName)
         }catch(e){
             throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
         }
@@ -1132,7 +1132,7 @@ function loadAscendantsData(){
 /**
  * 兄弟姉妹共通のデータロード
  */
-function loadCollateralCommonData(){
+async function loadCollateralCommonData(){
     const functionName = "loadCollateralCommonData";
     const instance = collateralCommons[0];
     const {inputs} = instance;
@@ -1152,13 +1152,13 @@ function loadCollateralCommonData(){
         }
     }
 
-    dispatchNextBtnEvent(instance, functionName);
+    await dispatchNextBtnEvent(instance, functionName);
 }
 
 /**
  * 兄弟姉妹のデータロード
  */
-function loadCollateralData(){
+async function loadCollateralData(){
     const functionName = "loadCollateralData";
     for(let i = 0, len = collaterals.length; i < len; i++){
         const instance = collaterals[i];
@@ -1177,9 +1177,9 @@ function loadCollateralData(){
             }
             
             if(data["object_id1"])
-                loadRbData(true, inputs[ColIsFather.input[yes]]);
+                loadRbData(inputs[ColIsFather.input[yes]]);
             else if(data["object_id2"])
-                loadRbData(true, inputs[ColIsFather.input[no]]);
+                loadRbData(inputs[ColIsFather.input[no]]);
 
             if(data["is_live"] === true && inputs[ColIsLive.input[yes]].disabled === false){
                 loadRbData(inputs[ColIsLive.input[yes]]);
@@ -1221,7 +1221,7 @@ function loadCollateralData(){
                 loadRbData(inputs[ColIsJapan.input[no]]);
             }
     
-            dispatchNextBtnEvent(instance, functionName);
+            await dispatchNextBtnEvent(instance, functionName);
         }catch(e){
             throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
         }
@@ -1233,45 +1233,36 @@ function loadCollateralData(){
  */
 async function loadData(){
     //被相続人データのチェック
-    if(userDataScope.includes("decedent")){
+    if(userDataScope.includes("decedent"))
         await loadDecedentData();
-    }else{
-        return;
-    }
 
     //配偶者（入力によって初期化される欄があるため手動入力とイベント発生）
-    if(userDataScope.includes("spouse")){
-        loadDecedantSpouseData();
-    }else{
-        return;
-    }
+    if(userDataScope.includes("spouse"))
+        await loadDecedantSpouseData();
 
     //子共通
-    if(userDataScope.includes("child_common")){
-        loadChildCommonData();
-    }else{
-        return;
-    }
+    if(userDataScope.includes("child_common"))
+        await loadChildCommonData();
 
     //子
     if(userDataScope.includes("child"))
-        loadChildsData();
+        await loadChildsData();
 
     //子の相続人
     if(userDataScope.includes("child_heirs"))
-        loadChildHeirsData();
+        await loadChildHeirsData();
 
     //父母、父方の祖父母、母方の祖父母
     if(userDataScope.includes("ascendant"))
-        loadAscendantsData();
+        await loadAscendantsData();
 
     //兄弟姉妹共通
     if(userDataScope.includes("collateral_common"))
-        loadCollateralCommonData();
+        await loadCollateralCommonData();
 
     //兄弟姉妹
     if(userDataScope.includes("collateral"))
-        loadCollateralData();
+        await loadCollateralData();
 }
 
 /**
@@ -1309,11 +1300,10 @@ function createChildOrCollateralFieldset(preFieldset, relation, newIdx){
  */
 async function displayNextFieldset(nextFieldset){
     //次のfieldsetを表示/hrを挿入/次のfieldsetにスクロール/最初の入力欄にフォーカス
-    slideDownIfHidden(nextFieldset);
+    await slideDownIfHidden(nextFieldset);
     const hr = document.createElement("hr");
     hr.className = "my-5";
     nextFieldset.before(hr);
-    scrollToTarget(nextFieldset);
     nextFieldset.querySelector("input").focus();
 }
 
@@ -3308,13 +3298,13 @@ function toggleCommonFormByCount(instance){
                 inputs[constructor.idxs.isJapan.input[no]].checked,
             ].some(x => x === true);
 
+            slideDownIfHidden(Qs[constructor.idxs.isSameParents.form]);
+
             if(isDone){
                 instance.noInputs.length = 0;
                 nextBtn.disabled = false;
                 return;
             }
-
-            slideDownIfHidden(Qs[constructor.idxs.isSameParents.form]);
         }
     }
 }
@@ -3978,67 +3968,60 @@ function handleSubmitBtnFieldsetPreBtnClick(e){
     getLastElFromArray(reqInstance).inputs[0].focus();
     enablePreGuide(true);
     //このイベントを削除する
-    const preBtn = submitBtnFieldset.getElementsByClassName("preBtn")[0];
-    preBtn.removeEventListener("click", handleSubmitBtnFieldsetPreBtnClick);
-}
-
-/**
- * 対象の続柄を初期化する
- * @param {EveryIndivisual} instances 
- * @param {string} className 
- * @param {string} totalFormId 
- */
-function iniTargetRelation(instances, className, totalFormId, isAscendant=false){
-    if(instances.length > 0){
-        if(!isAscendant)
-            removeAllExceptFirst(Array.from(className));
-        iniIndivisualFieldsets(instances[0]);
-        instances.length = 0;
-        document.getElementById(totalFormId).value = 0;
-    }
+    replaceElements(submitBtnFieldset, "input");
 }
 
 /**
  * 最後の入力欄の続柄に応じて必要ない続柄のフィールドセットと
  * インスタンスを初期化してデータが送信されないようにする
- * @param {Child|ChildSpouse|GrandChild|Ascendant|Collateral} fromInstance 
+ * @param {Child|ChildSpouse|GrandChild|Ascendant|CollateralCommon|Collateral} fromInstance 
  */
 function beforeSubmit(fromInstance){
 
-    // 卑属関連の初期化
-    function iniChildRelated(isChild){
-        iniTargetRelation(childSpouses, Classes.fieldset.childSpouse, Ids.totalForm.childSpouse);
-        iniTargetRelation(grandChilds, Classes.fieldset.grandChild, Ids.totalForm.grandChild);
+    // 卑属関連のフォームがpostされないようにする
+    function delChildRelated(isChild){
+        document.getElementById(Ids.totalForm.childSpouse).value = 0;
+        document.getElementById(Ids.totalForm.grandChild).value = 0;
 
         if(isChild)
-            iniTargetRelation(childs, Classes.fieldset.child, Ids.totalForm.child);
+            document.getElementById(Ids.totalForm.child).value = 0;
     }
 
-    // 尊属と傍系の初期化
-    function iniAscendantAndCollateral(isCollateral){
-        iniTargetRelation(ascendants, Classes.fieldset.ascendant, Ids.totalForm.ascendant);
-
-        if(isCollateral)
-            iniTargetRelation(collaterals, Classes.fieldset.collateral, Ids.totalForm.collateral);
+    // 尊属と傍系がpostされないようにする
+    function delAscendantAndCollateral(isAscendant, isCollateral){
+        if(isAscendant)
+            document.getElementById(Ids.totalForm.ascendant).value = 0;
+        
+        if(isCollateral && collateralCommons.length > 0){
+            iniIndivisualFieldsets(collateralCommons[0]);
+            collateralCommons.length = 0;
+            document.getElementById(Ids.totalForm.collateral).value = 0;
+        }
     }
 
     // 子のとき、子の相続人、尊属、傍系を初期化
     if(fromInstance === getLastElFromArray(childs)){
-        iniChildRelated(false);
-        iniAscendantAndCollateral(true);
+        delChildRelated(false);
+        delAscendantAndCollateral(true, true);
     }else if([getLastElFromArray(childSpouses), getLastElFromArray(grandChilds)].includes(fromInstance)){
         // 子の相続人のとき、尊属、傍系を初期化する
-        iniAscendantAndCollateral(true);
+        delAscendantAndCollateral(true, true);
     }else if(fromInstance === getLastElFromArray(ascendants)){
-        // 尊属のとき、傍系を初期化/ 子がいないとき、子関連も初期化
-        iniAscendantAndCollateral(false);
+        // 尊属のとき、兄弟姉妹共通と兄弟姉妹を初期化/ 子がいないとき、子関連も初期化
+        delAscendantAndCollateral(false, true);
 
         if(childCommon.countChilds() === 0)
-            iniChildRelated(true);
+            delChildRelated(true);
+    }else if(fromInstance === collateralCommons[0]){
+        // 兄弟姉妹共通のとき、兄弟姉妹を初期化/ 子がいないとき、子関連も初期化
+        document.getElementById(Ids.totalForm.collateral).value = 0;
+
+        if(childCommon.countChilds() === 0)
+            delChildRelated(true);
     }else if(fromInstance === getLastElFromArray(collaterals)){
         // 兄弟姉妹のとき、かつ子がいないとき、子関連を初期化
         if(childCommon.countChilds() === 0)
-            iniChildRelated(true);
+            delChildRelated(true);
     }else{
         throw new Error(`beforeSubmitでエラー\n想定しないフォームからsubmitされました\nfromInstance=${fromInstance}`);
     }
@@ -4053,10 +4036,10 @@ function beforeSubmit(fromInstance){
  * inputFieldやGuideのデータは１つ前のfieldsetのもののままにする
  * @param {EveryIndivisual} fromInstance 
  */
-function enableSubmitBtnFieldset(fromInstance){
+async function enableSubmitBtnFieldset(fromInstance){
     //完了fieldsetを表示する
     const submitBtnFieldset = document.getElementById("submitBtnFieldset");
-    displayNextFieldset(submitBtnFieldset);
+    await displayNextFieldset(submitBtnFieldset);
     //最後のガイドのactiveを削除／キャレットを非表示、チェックを表示
     inactiveGuide(true);
     //戻るボタンにイベントを設定
@@ -4460,7 +4443,7 @@ function fixCollateralCommonFollowingData(inputs, { isSameParents=false, isLive=
         if(collaterals.every(x => x.inputs[ColIsLive.input[yes]].checked)){
             inputOrCheckAndDispatchChangeEvent(inputs[CoCIsLive.input[yes]]);
             disableInstancesSpecificInputs(collaterals, ColIsLive.input);
-            fixChildCommonFollowingData(inputs, { isLive : true });
+            fixCollateralCommonFollowingData(inputs, { isLive : true });
         }else{
             inputOrCheckAndDispatchChangeEvent(inputs[CoCIsLive.input[no]]);
         }
@@ -4470,7 +4453,7 @@ function fixCollateralCommonFollowingData(inputs, { isSameParents=false, isLive=
         if(collaterals.every(x => x.inputs[ColIsRefuse.input[no]].checked)){
             inputOrCheckAndDispatchChangeEvent(inputs[CoCIsRefuse.input[no]]);
             disableInstancesSpecificInputs(collaterals, ColIsRefuse.input);
-            fixChildCommonFollowingData(inputs, { isRefuse : true });
+            fixCollateralCommonFollowingData(inputs, { isRefuse : true });
         }else{
             inputOrCheckAndDispatchChangeEvent(inputs[CoCIsRefuse.input[yes]]);
         }
@@ -4506,7 +4489,7 @@ function disableInstancesSpecificInputs(instances, idxs){
 }
 
 /**
- * 子供全員または兄弟姉妹全員欄の矛盾データを修正する
+ * 子供全員の矛盾データを修正する
  */
 function alertAndfixChildCommonData(){
     try{
@@ -4537,12 +4520,13 @@ function alertAndfixChildCommonData(){
 }
 
 /**
- * 兄弟姉妹全員または兄弟姉妹全員欄の矛盾データを修正する
+ * 兄弟姉妹全員欄の矛盾データを修正する
  */
 function alertAndfixCollateralCommonData(){
     try{
         const inputs = collateralCommons[0].inputs;
         const formTitle = UpdateTitle.getFieldsetTitle({instance: collateralCommons[0]});
+        // 
         if(AlertForContradictionToCollateralCommon.isSameParents(false)){
             alertAndFixData(inputs[CoCIsSameParents.input[yes]], formTitle, "全員被相続人と同じ両親ですか？", "はい");
             disableInstancesSpecificInputs(collaterals, ColIsSameParents.input);
@@ -4901,6 +4885,8 @@ function selectMotherTo(fromInstance){
         return toCollateralCommon(fromInstance, 2);
 
     // いずれにも該当しないとき、入力完了フラグを返す
+    iniIndivisualFieldsets(ascendants.slice(2));
+    ascendants.length = 2;
     return true;
 }
 
@@ -4938,6 +4924,8 @@ function selectFatherGMTo(fromInstance){
         return toCollateralCommon(fromInstance, 4);
     
     // 完了フラグを返す
+    iniIndivisualFieldsets(ascendants.slice(4));
+    ascendants.length = 4;
     return true;
 }
 
@@ -5023,7 +5011,7 @@ function selectCollateralTo(fromInstance){
  * @param {EveryInstance} fromInstance 前の人
  * @returns 次に回答してもらう人を返す|trueのとき入力完了|falseのとき該当なし（エラー）
  */
-function getNextRelation(fromInstance){
+function getNextInstance(fromInstance){
     //１つ前が被相続人インスタンスのとき、配偶者インスタンスを返す
     if(fromInstance === decedents[0])
         return spouse;
@@ -5049,7 +5037,7 @@ function getNextRelation(fromInstance){
     if(collaterals.includes(fromInstance))
         return selectCollateralTo(fromInstance);
     //該当がないとき
-    throw new Error(`getNextRelationでエラー\nfromInstance(${fromInstance})に一致する続柄がありません`);
+    throw new Error(`getNextInstanceでエラー\nfromInstance(${fromInstance})に一致する続柄がありません`);
 }
 
 /**
@@ -5077,10 +5065,10 @@ function setEventAndIniData(nextInstance){
  * 次の項目と次のガイドを有効化して前の項目を無効化する
  * @param fromInstance 直前に入力されていた欄
  */
-function oneStepFoward(fromInstance){
+async function oneStepFoward(fromInstance){
     try{
         // 次に表示すべきフィールドセットとインスタンスを用意する
-        const nextInstance = getNextRelation(fromInstance);
+        const nextInstance = getNextInstance(fromInstance);
         if(!nextInstance)
             return;
 
@@ -5090,7 +5078,7 @@ function oneStepFoward(fromInstance){
         // 次の入力欄がboolかつtrueのとき
         if(typeof nextInstance === "boolean" && nextInstance){
             // 入力完了のとき完了fieldsetを表示する
-            enableSubmitBtnFieldset(fromInstance);
+            await enableSubmitBtnFieldset(fromInstance);
             return;
         }
 
@@ -5099,7 +5087,7 @@ function oneStepFoward(fromInstance){
 
         // 次のfieldsetを表示と要素を取得
         const {fieldset: nextFieldset, preBtn: nextPreBtn, nextBtn: nextNextBtn} = nextInstance;
-        displayNextFieldset(nextFieldset);
+        await displayNextFieldset(nextFieldset);
         
         // ガイドを更新
         updateGuide(fromInstance, nextInstance);
@@ -5277,11 +5265,24 @@ function setDecedentEvent(){
 }
 
 /**
+ * 判定結果を表示する
+ */
+function showResult(){
+    const modalEl = document.getElementById("result-modal");
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+
+/**
  * イベント
  */
 // 最初の画面表示後の処理
 window.addEventListener("load", async ()=>{
     try{
+        // 判定結果を表示する
+        if(result_for_modal.length > 0)
+            showResult();
+
         updateSideBar(); // サイドバーの設定
         setDecedentEvent(); // 被相続人欄にイベントを設定する
         await loadData(); // データをロードする

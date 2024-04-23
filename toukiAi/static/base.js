@@ -76,7 +76,7 @@ function hankakuToZenkaku(val) {
  * @param {HTMLElement} el 
  * @param {number} duration 
  */
-const slideUp = (el, duration = 250, callback = null) => {
+const slideUp = (el, duration = 100, callback = null) => {
     el.style.height = el.offsetHeight + "px";
     el.offsetHeight;
     el.style.transitionProperty = "height, margin, padding";
@@ -110,7 +110,7 @@ const slideUp = (el, duration = 250, callback = null) => {
  * @param {HTMLElement} el 
  * @param {number} duration 
  */
-const slideDown = (el, duration = 250) => {
+const slideDown = (el, duration = 100) => {
     return new Promise((resolve, reject) => {
         el.style.removeProperty("display");
         let display = window.getComputedStyle(el).display;
@@ -151,9 +151,9 @@ const slideDown = (el, duration = 250) => {
  * slideDownの後にscrollToTargetを実行する
  * @param {HTMLElement} el 対象の要素
  */
-async function slideDownAndScroll(el, slideDownDuration = 250, scrollToTargetDuration = 250){
-    slideDown(el, slideDownDuration);
-    scrollToTarget(el, scrollToTargetDuration);
+async function slideDownAndScroll(el, slideDownDuration = 100, scrollToTargetDuration = 100){
+    await slideDown(el, slideDownDuration);
+    await scrollToTarget(el, scrollToTargetDuration);
 }
 
 /**
@@ -161,8 +161,10 @@ async function slideDownAndScroll(el, slideDownDuration = 250, scrollToTargetDur
  * @param {HTMLElement} el 対象の要素
  */
 function slideToggle(el){
-    if(window.getComputedStyle(el).display !== 'none') slideUp(el);
-    else slideDownAndScroll(el);
+    if(window.getComputedStyle(el).display !== 'none')
+        slideUp(el);
+    else
+        slideDownAndScroll(el);
 }
 
 
@@ -170,9 +172,9 @@ function slideToggle(el){
  * 非表示のとき対象の要素を表示する
  * @param {HTMLElement} el 表示する要素
  */
-function slideDownIfHidden(el){
+async function slideDownIfHidden(el, sdDuration = 100, stduration = 100){
     if(window.getComputedStyle(el).display === "none")
-        slideDownAndScroll(el);
+        await slideDownAndScroll(el, sdDuration, stduration);
 }
 
 /**
@@ -192,7 +194,7 @@ function slideDownAfterDelay(el, time = 250){
  * @param {HTMLElement} el 表示対象の要素
  * @param {number} duration スクロールまでの待ち時間
  */
-function scrollToTarget(el, duration = 250) {
+function scrollToTarget(el, duration = 100) {
     return new Promise(resolve => {
         let rect = el.getBoundingClientRect();
         let gap = header.clientHeight + 40;

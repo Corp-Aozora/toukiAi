@@ -76,7 +76,7 @@ def index(request):
     try:
         function_name = get_current_function_name()
         redirect_to = "toukiApp:index"
-        render_html = "toukiApp/index.html"
+        current_html = "toukiApp/index.html"
         tab_title = "トップページ"
         
         # お問い合わせが成功したメッセージを表示するためのセッション（messagesのsuccessはログアウトメッセージと重複するため）
@@ -112,7 +112,7 @@ def index(request):
             "company_service": Service,
             "is_inquiry": is_inquiry,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -486,7 +486,7 @@ def step_one_trial(request):
 
         function_name = get_current_function_name()
         redirect_to = "toukiApp:step_one_trial"
-        render_html = "toukiApp/step_one_trial.html"
+        current_html = "toukiApp/step_one_trial.html"
         
         user = User.objects.get(email = request.user)
         
@@ -518,12 +518,14 @@ def step_one_trial(request):
                 try:
                     with transaction.atomic():
                         save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], True)
-                        return redirect(redirect_to)
                 except Exception as e:
                     basic_log(function_name, e, user, "POSTでエラー")
                     raise e
             else:
-                messages.warning(request, "入力内容を保存できませんでした。 入力欄に想定しない値があったためデータを保存できませんでした。\n恐れ入りますが、再度入力をお願いします。")
+                messages.warning(request, "入力内容を保存できませんでした。 \n恐れ入りますが、再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
+
+            
+            return redirect(redirect_to)
         
         userDataScope = []
         spouse_data = {}
@@ -532,6 +534,180 @@ def step_one_trial(request):
         ascendant_data = []
         collateral_data = []
         progress = 0
+        
+        result = [] # 判定結果を格納する（相続人の名前）
+        
+        decedent_form = StepOneDecedentForm(prefix="decedent")
+        spouse_form = StepOneSpouseForm(prefix="spouse")
+        child_common_form = StepOneDescendantCommonForm(prefix="child_common")
+        collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
+        
+        decedent = user.decedent.first() # 被相続人
+        if decedent:
+            progress = decedent.progress
+            decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
+            userDataScope.append("decedent")
+            
+            spouse = Spouse.objects.filter(decedent=decedent, object_id=decedent.id).first() # 被相続人の被相続人
+            if spouse:
+                spouse_data = model_to_dict(spouse)
+                userDataScope.append("spouse")
+
+            child_common = DescendantCommon.objects.filter(decedent=decedent).first() # 子共通
+            if child_common:
+                child_common_form = StepOneDescendantCommonForm(prefix="child_common", instance=child_common)
+                userDataScope.append("child_common")
+                
+                childs = Descendant.objects.filter(object_id1=decedent.id) # 子全員
+                if childs.exists():
+                    descendant_form_fields = StepOneDescendantForm().fields
+                    childs_data = get_step_one_childs_data(decedent, childs, descendant_form_fields)
+                    userDataScope.append("child")
+                    
+                    child_spouses = Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id)
+                    spouse_form_fields = StepOneSpouseForm().fields
+                    child_spouses_data = get_step_one_child_heirs_data(child_spouses, spouse_form_fields)
+                        
+                    grand_childs = Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id)
+                    grand_childs_data = get_step_one_child_heirs_data(grand_childs, descendant_form_fields)
+                        
+                    if child_spouses_data or grand_childs_data:
+                        child_heirs_data = child_spouses_data + grand_childs_data
+                        child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
+                        userDataScope.append("child_heirs")
+
+                ascendants = Ascendant.objects.filter(decedent=decedent)
+                if ascendants.exists():
+                    ascendant_form_fields = StepOneAscendantForm().fields
+                    ascendant_data = get_step_one_ascendant_or_collateral_data(ascendants, ascendant_form_fields)
+                    ascendant_data = sorted(ascendant_data, key=lambda x: x['id']) #父、母、父方の祖父、父方の祖母、母方の祖父、母方の祖母の順
+                    userDataScope.append("ascendant")
+
+                collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
+                if collateral_common:
+                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
+                    userDataScope.append("collateral_common")
+                    
+                    collaterals = Collateral.objects.filter(decedent=decedent)
+                    if collaterals.exists():
+                        collateral_form_fields = StepOneCollateralForm().fields
+                        collateral_data = get_step_one_ascendant_or_collateral_data(collaterals, collateral_form_fields)
+                        userDataScope.append("collateral")
+                        
+            heir_querysets = get_legal_heirs(decedent)
+            result = [x.name for x in heir_querysets]
+        
+        decedent_form_internal_field_name = ["user", "progress"]
+        spouse_or_ascendant_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
+        common_form_internal_field_name = ["decedent"]
+        descendant_or_collateral_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
+        ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
+        
+        context = {
+            "title" : "１．" + Sections.STEP1,
+            "user" : user,
+            "progress": progress,
+            "result": result,
+            "decedent_form": decedent_form,
+            "decedent_form_internal_field_name": decedent_form_internal_field_name,
+            "spouse_form": spouse_form,
+            "spouse_or_ascendant_internal_field_name": spouse_or_ascendant_internal_field_name,
+            "child_common_form" : child_common_form,
+            "collateral_common_form" : collateral_common_form,
+            "common_form_internal_field_name" : common_form_internal_field_name,
+            "sections" : Sections.SECTIONS[Sections.STEP1],
+            "service_content" : Sections.SERVICE_CONTENT,
+            "child_form_set" : child_form_set(prefix="child"),
+            "child_spouse_form_set" : child_spouse_form_set(prefix="child_spouse"),
+            "grand_child_form_set" : grand_child_form_set(prefix="grand_child"),
+            "ascendant_form_set" : ascendant_form_set(prefix="ascendant"),
+            "descendant_or_collateral_internal_field_name" : descendant_or_collateral_internal_field_name,
+            "ascendants_relation" : ascendants_relation,
+            "collateral_form_set" : collateral_form_set(prefix="collateral"),
+            "userDataScope" : json.dumps(userDataScope),
+            "spouse_data" : json.dumps(spouse_data),
+            "childs_data" : json.dumps(childs_data),
+            "child_heirs_data" : json.dumps(child_heirs_data),
+            "ascendant_data" : json.dumps(ascendant_data),
+            "collateral_data" : json.dumps(collateral_data),
+            "result_for_modal": json.dumps(result)
+        }
+
+        return render(request, current_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            redirect_to,
+        )
+   
+def step_one(request):
+    """ステップ１"""
+    
+    try:
+        # 会員以外はアカウント登録ページに遷移させる
+        if not request.user.is_authenticated:
+            messages.warning(request, "有料会員専用のページです")
+            return redirect("accounts:signup")
+        
+        if not request.user.basic:
+            messages.warning(request, "有料会員専用のページです")
+            return redirect("toukiApp:step_one_trial")
+
+        function_name = get_current_function_name()
+        current_url_name = "toukiApp:step_one"
+        current_html = "toukiApp/step_one.html"
+        next_url_name = "toukiApp:step_two"
+        
+        user = User.objects.get(email = request.user)
+        
+        child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
+        grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
+        ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
+        child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
+        collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
+        
+        if request.method == "POST":
+            forms = [
+                ("被相続人", StepOneDecedentForm(request.POST, prefix="decedent")),
+                ("配偶者", StepOneSpouseForm(request.POST, prefix="spouse")),
+                ("子供全員", StepOneDescendantCommonForm(request.POST, prefix="child_common")),
+                ("兄弟姉妹全員", StepOneCollateralCommonForm(request.POST, prefix="collateral_common")),
+            ]
+            form_sets = [
+                ("子", child_form_set(request.POST, prefix="child")),
+                ("子の配偶者", child_spouse_form_set(request.POST or None, prefix="child_spouse")),
+                ("孫", grand_child_form_set(request.POST or None, prefix="grand_child")), 
+                ("父母または祖父母", ascendant_form_set(request.POST or None, prefix="ascendant")),
+                ("兄弟姉妹", collateral_form_set(request.POST or None, prefix="collateral"))
+            ]
+
+            valid_forms = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
+            valid_form_sets = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
+
+            if valid_forms and valid_form_sets:
+                try:
+                    with transaction.atomic():
+                        save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], False)
+                        return redirect(next_url_name)
+                except Exception as e:
+                    basic_log(function_name, e, user, "POSTでエラー")
+                    raise e
+            else:
+                messages.warning(request, "入力内容を保存できませんでした。 \n恐れ入りますが、再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
+            
+            current_url_name(current_url_name)
+            
+        
+        userDataScope = []
+        spouse_data = {}
+        childs_data = []
+        child_heirs_data = []
+        ascendant_data = []
+        collateral_data = []
+        progress = 1
         
         decedent_form = StepOneDecedentForm(prefix="decedent")
         spouse_form = StepOneSpouseForm(prefix="spouse")
@@ -624,214 +800,25 @@ def step_one_trial(request):
             "collateral_data" : json.dumps(collateral_data),
         }
 
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         handle_error(
             e,
             request,
             user,
             function_name,
-            redirect_to,
+            current_url_name,
         )
-   
-def step_one(request):
-    """ステップ１のメイン処理
 
-    Args:
-        request (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    
+def sort_out_trial(request):
+    """ユーザーの属性に応じて遷移先を振り分ける"""
     if not request.user.is_authenticated:
-        messages.error(request, "ユーザー登録が必要です")
-        return redirect(to='/account/login/')
-    
-    user = User.objects.get(email = request.user)
-    child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
-    grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
-    ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
-    child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
-    collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
-    
-    function_name = get_current_function_name()
-    
-    if request.method == "POST":
-        forms = [
-            StepOneDecedentForm(request.POST, prefix="decedent"),
-            StepOneSpouseForm(request.POST, prefix="spouse"),
-            StepOneDescendantCommonForm(request.POST, prefix="child_common"),
-            StepOneCollateralCommonForm(request.POST, prefix="collateral_common"),
-        ]
-        form_sets = [
-            child_form_set(request.POST, prefix="child"),
-            child_spouse_form_set(request.POST or None, prefix="child_spouse"),
-            grand_child_form_set(request.POST or None, prefix="grand_child"), 
-            ascendant_form_set(request.POST or None, prefix="ascendant"),
-            collateral_form_set(request.POST or None, prefix="collateral")
-        ]
-
-        if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
-            try:
-                with transaction.atomic():
-                    save_step_one_datas(user, forms, form_sets, False)
-                    return redirect('/toukiApp/step_two')
-            except Exception as e:
-                basic_log(function_name, e, user, "POSTでエラー")
-                return redirect('/toukiApp/step_one')
-        else:
-            for form in forms:
-                if not form.is_valid():
-                    basic_log(function_name, None, user, f"form {form} errors: {form.errors}")
-            for form_set in form_sets:
-                if not form_set.is_valid():
-                    basic_log(function_name, None, user, f"formset {form_set} errors: {form_set.errors}")
-            return redirect('/toukiApp/step_one')
-    
-    userDataScope = []
-    spouse_data = {}
-    childs_data = []
-    child_heirs_data = []
-    ascendant_data = []
-    collateral_data = []
-    progress = 1
-    
-    if user.decedent.first():
-        decedent = user.decedent.first()
-        progress = decedent.progress
-        decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
-        userDataScope.append("decedent")
+        return redirect("accounts:signup")
         
-        spouse_form = StepOneSpouseForm(prefix="spouse")
-        spouse = Spouse.objects.filter(decedent=decedent, object_id=decedent.id).first()
-        if spouse:
-            spouse_data = model_to_dict(spouse)
-            userDataScope.append("spouse")
-
-            child_common = DescendantCommon.objects.filter(decedent=decedent).first()
-            if child_common:
-                child_common_form = StepOneDescendantCommonForm(prefix="child_common", instance=child_common)
-                userDataScope.append("child_common")
-                
-                childs = Descendant.objects.filter(object_id1=decedent.id)
-                if childs.exists():
-                    childs_data = [
-                        {
-                            **{'id': child.id},
-                            **{'count': Descendant.objects.filter(object_id1=child.id).count()},
-                            **{'is_spouse': Spouse.objects.filter(decedent=decedent, object_id=child.id).count()},
-                            **{f: model_to_dict(child).get(f) for f in StepOneDescendantForm().fields if f in model_to_dict(child)}
-                        }
-                        for child in childs
-                    ]
-                    userDataScope.append("child")
-                    
-                    child_spouses = Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id)
-                    if child_spouses.exists():
-                        child_spouses_data = [
-                            {
-                                **{"child_id":child_spouse.object_id},
-                                **{f: model_to_dict(child_spouse).get(f) for f in StepOneSpouseForm().fields if f in model_to_dict(child_spouse)}
-                            }
-                            for child_spouse in child_spouses
-                        ]
-                    else:
-                        child_spouses_data = []
-                        
-                    grand_childs = Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id)
-                    if grand_childs.exists():
-                        grand_childs_data = [
-                            {
-                                **{"child_id":grand_child.object_id1},
-                                **{f: model_to_dict(grand_child).get(f) for f in StepOneDescendantForm().fields if f in model_to_dict(grand_child)}
-                            }
-                            for grand_child in grand_childs
-                        ]
-                    else:
-                        grand_childs_data = []
-                        
-                    if child_spouses_data or grand_childs_data:
-                        userDataScope.append("child_heirs")
-                        child_heirs_data = child_spouses_data + grand_childs_data
-                        child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
-
-                ascendants = Ascendant.objects.filter(decedent=decedent)
-                if ascendants.exists():
-                    ascendant_data = [
-                        {
-                            **{'id': ascendant.id},
-                            **{f: model_to_dict(ascendant).get(f) for f in StepOneAscendantForm().fields if f in model_to_dict(ascendant)}
-                        }
-                        for ascendant in ascendants
-                    ]
-                    ascendant_data = sorted(ascendant_data, key=lambda x: x['id'])
-                    userDataScope.append("ascendant")
-
-                collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
-                if collateral_common:
-                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
-                    userDataScope.append("collateral_common")
-                    
-                    collaterals = Collateral.objects.filter(decedent=decedent)
-                    if collaterals.exists():
-                        collateral_data = [
-                            {
-                                **{'id': collateral.id},
-                                **{f: model_to_dict(collateral).get(f) for f in StepOneCollateralForm().fields if f in model_to_dict(collateral)}
-                            }
-                            for collateral in collaterals
-                        ]
-                        userDataScope.append("collateral")
-                else:
-                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common")
-            else:
-                child_common_form = StepOneDescendantCommonForm(prefix="child_common")
-    else:
-        decedent_form = StepOneDecedentForm(prefix="decedent")
-        spouse_form = StepOneSpouseForm(prefix="spouse")
-        child_common_form = StepOneDescendantCommonForm(prefix="child_common")
-        collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
-    
-    decedent_form_internal_field_name = ["user", "progress"]
-    spouse_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
-    common_form_internal_field_name = ["decedent"]
-    child_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
-    ascendant_form_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
-    ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
-    collateral_form_internal_field_name = ["decedent", "content_type1", "object_id1", "content_type2", "object_id2", "is_heir"]
-    
-    context = {
-        "title" : "１．" + Sections.STEP1,
-        "user" : user,
-        "progress": progress,
-        "decedent_form": decedent_form,
-        "decedent_form_internal_field_name": decedent_form_internal_field_name,
-        "spouse_form": spouse_form,
-        "spouse_form_internal_field_name": spouse_form_internal_field_name,
-        "child_common_form" : child_common_form,
-        "collateral_common_form" : collateral_common_form,
-        "common_form_internal_field_name" : common_form_internal_field_name,
-        "sections" : Sections.SECTIONS[Sections.STEP1],
-        "service_content" : Sections.SERVICE_CONTENT,
-        "child_form_set" : child_form_set(prefix="child"),
-        "child_spouse_form_set" : child_spouse_form_set(prefix="child_spouse"),
-        "grand_child_form_set" : grand_child_form_set(prefix="grand_child"),
-        "ascendant_form_set" : ascendant_form_set(prefix="ascendant"),
-        "child_form_internal_field_name" : child_form_internal_field_name,
-        "ascendant_form_internal_field_name": ascendant_form_internal_field_name,
-        "ascendants_relation" : ascendants_relation,
-        "collateral_form_set" : collateral_form_set(prefix="collateral"),
-        "collateral_form_internal_field_name" : collateral_form_internal_field_name,
-        "userDataScope" : json.dumps(userDataScope),
-        "spouse_data" : json.dumps(spouse_data),
-        "childs_data" : json.dumps(childs_data),
-        "child_heirs_data" : json.dumps(child_heirs_data),
-        "ascendant_data" : json.dumps(ascendant_data),
-        "collateral_data" : json.dumps(collateral_data),
-    }
-    
-    return render(request, "toukiApp/step_one.html", context)
+    if not request.user.basic:
+        return redirect("toukiApp:step_one_trial")
+        
+    return redirect("toukiApp:step_one")
 
 def get_deceased_persons(decedent):
     """手続前に死亡した法定相続人を取得する
@@ -2735,7 +2722,7 @@ def step_four(request):
     """
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_four.html"
+        current_html = "toukiApp/step_four.html"
         redirect_to = "toukiApp:step_four"
         
         response, user, decedent = check_user_and_decedent(request)
@@ -2779,7 +2766,7 @@ def step_four(request):
             "sections" : Sections.SECTIONS[Sections.STEP4],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     
     except Exception as e:
         return handle_error(
@@ -2880,7 +2867,7 @@ def step_division_agreement(request):
     """
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_division_agreement.html"
+        current_html = "toukiApp/step_division_agreement.html"
         redirect_to = "toukiApp:step_four"
         
         responese, user, decedent = check_user_and_decedent(request)
@@ -2912,7 +2899,7 @@ def step_division_agreement(request):
             "exchange_division_properties": exchange_division_properties,
             "sites": sites,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -3221,7 +3208,7 @@ def step_diagram(request):
     """相続関係説明図の表示"""
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_diagram.html"
+        current_html = "toukiApp/step_diagram.html"
         redirect_to = "toukiApp/step_four"
         
         response, user, decedent = check_user_and_decedent(request)
@@ -3242,7 +3229,7 @@ def step_diagram(request):
             "diagram_data": diagram_data,
             "related_persons_data": related_persons_data,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -3700,7 +3687,7 @@ def step_application_form(request):
     try:
         function_name = get_current_function_name()
         redirect_to = "toukiApp:step_four"
-        render_html = "toukiApp/step_application_form.html"
+        current_html = "toukiApp/step_application_form.html"
         tab_title = "登記申請書"
         
         response, user, decedent = check_user_and_decedent(request)
@@ -3717,7 +3704,7 @@ def step_application_form(request):
             "application_data": application_data,
             "decedent_name": decedent.name,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -4142,7 +4129,7 @@ def step_POA(request):
     """
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_POA.html"
+        current_html = "toukiApp/step_POA.html"
         redirect_to = "toukiApp:step_four"
         tab_title = "委任状"
         
@@ -4159,7 +4146,7 @@ def step_POA(request):
             "POA_data": POA_data,
             "decedent_name": decedent.name,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -4251,7 +4238,7 @@ def step_five(request):
     """ステップ５のメイン処理"""
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_five.html"
+        current_html = "toukiApp/step_five.html"
         redirect_to = "toukiApp:step_five"
         
         response, user, decedent = check_user_and_decedent(request)
@@ -4301,7 +4288,7 @@ def step_five(request):
             "sections" : Sections.SECTIONS[Sections.STEP5],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     
     except Exception as e:
         return handle_error(
@@ -4330,7 +4317,7 @@ def step_six(request):
     """申請後のメイン処理"""
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_six.html"
+        current_html = "toukiApp/step_six.html"
         redirect_to = "toukiApp:step_six"
         title = Service.STEP_TITLES["six"]
         
@@ -4347,7 +4334,7 @@ def step_six(request):
             "sections" : Sections.SECTIONS[Sections.STEP6],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     
     except Exception as e:
         return handle_error(
@@ -4382,7 +4369,7 @@ def step_inquiry(request):
     """
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/step_inquiry.html"
+        current_html = "toukiApp/step_inquiry.html"
         redirect_to = "toukiApp:step_inquiry"
         
         if not request.user.is_authenticated:
@@ -4426,7 +4413,7 @@ def step_inquiry(request):
             "sections" : Sections.SECTIONS,
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -4502,7 +4489,7 @@ def condition(request):
     """
     try:
         function_name = get_current_function_name()
-        render_html = "toukiApp/condition.html"
+        current_html = "toukiApp/condition.html"
         error_redirect_to = "toukiApp:condition"
         next_redirect_to = "accounts:signup"
         page_title = "利用条件確認"
@@ -4520,7 +4507,7 @@ def condition(request):
         context = {
             "title" : page_title,
         }
-        return render(request, render_html, context)
+        return render(request, current_html, context)
     
     except Exception as e:
         return handle_error(
@@ -4782,7 +4769,7 @@ def nav_to_last_user_page(request):
     """ログインしたとき会員が最後に滞在していた会員ページに遷移させる、ないときは進捗状況に合わせたページ"""
     try:
         function_name = get_current_function_name()
-        render_html = "account/login.html"
+        current_html = "account/login.html"
         redirect_to = "account:login"
         
         # セッションから前の会員ページのURLを取得

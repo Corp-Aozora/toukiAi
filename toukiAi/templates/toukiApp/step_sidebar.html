@@ -3,7 +3,7 @@
     <hr>
     <ul class="nav flex-column">
         <li class="nav-item py-2 d-flex">
-            <a class="text-decoration-none" href="{% url 'toukiApp:step_one' %}">
+            <a class="text-decoration-none" href="{% url 'toukiApp:sort_out_trial' %}">
                 {% url 'toukiApp:step_one' as step_one_url %}
                 {% url 'toukiApp:step_one_trial' as step_one_trial_url %}
                 <button type="button" id="btnStepOne" class="border-0 bg-white fs-5 {% if request.path == step_one_url or request.path == step_one_trial_url %}fw-bold{% endif %}">

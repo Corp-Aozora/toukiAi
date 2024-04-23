@@ -25,15 +25,50 @@
             </div>
             <div class="modal-body pb-3">
                 <p class="fw-bold">
-                    利用条件をご確認いただいているため原則返金はしておりませんが、戸籍謄本等の事実確認により返金させていただく場合があります。
-                </p>
-                <p class="fw-bold">
-                    詳細を確認されたい場合は、お問い合わせをお願いします。
+                    利用条件を満たさない相続の場合は、システム対応外のため相続人判定はできません。
                 </p>
             </div>
         </div>
     </div>
 </div>
+{% if result|length > 0 %}
+    <div id="result-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
+                    <h4 class="modal-title fw-bold">
+                        相続人は以下の方々です。
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <ul class="p-0">
+                            {% for heir_name in result %}
+                                <li class="d-flex fs-4 border-bottom border-primary px-3">
+                                    <div>
+                                        <span class="fw-bold">
+                                            {{heir_name}}
+                                        </span>
+                                    </div>
+                                    <div class="ms-3">
+                                        <span class="fw-bold">
+                                            さん
+                                        </span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="form-text">
+                        ※この結果はページ上部にも表示されてます。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
@@ -41,12 +76,31 @@
         <h4>
             相続人を判定するために以下の項目を入力してください。
         </h4>
-        <div class="form-text">
+        <p class="form-text">
             （入力時間の目安は5~10分です）
-        </div>
+        </p>
         <span class="border-bottom fst-italic">
             ※実際のシステムをそのまま引用しているため相続人判定に必要な項目以外の質問があります。
         </span>
+        {% if result|length > 0 %}
+            <section id="heirs_list" class="p-3">
+                <h5 class="fw-bold text-primary">
+                    相続人は、以下の方々です。
+                </h5>
+                <ul>
+                    {% for heir_name in result %}
+                        <li>
+                            <span class="border-bottom border-primary fw-bold px-3">
+                                {{heir_name}}
+                                <span class="ms-3">
+                                    さん
+                                </span>
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
         <form action="{% url 'toukiApp:step_one_trial' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
             <section class="container ms-0">
@@ -1133,7 +1187,7 @@
                     </p>
                     <div class="d-flex justify-content-evenly px-3 pb-3">
                         <input type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold" value="修正する">
-                        <input id="submitBtn" type="submit" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" value="２．必要書類一覧に進む">
+                        <input id="submitBtn" type="submit" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" value="判定結果を見る">
                     </div>
                 </fieldset>
             </section>
@@ -1286,9 +1340,6 @@
                         </li>
                     </ul>
                 </div>
-                <!-- <div class="card-footer text-center bg-success-subtle p-0">
-                    <input id="saveBtn" type="button" class="border-0 bg-success-subtle fw-bold text-success w-100 p-2 fs-5" value="一旦保存する">
-                </div> -->
             </section>
         </form>
     </div>
@@ -1314,4 +1365,5 @@
     <script> const child_heirs_data = JSON.parse("{{child_heirs_data|escapejs}}"); </script>
     <script> const ascendant_data = JSON.parse("{{ascendant_data|escapejs}}"); </script>
     <script> const collateral_data = JSON.parse("{{collateral_data|escapejs}}"); </script>
+    <script> const result_for_modal = JSON.parse("{{result_for_modal|escapejs}}"); </script>
 {% endblock %}

@@ -45,7 +45,7 @@
             （入力時間の目安は5~10分です）
         </div>
         </span>
-        <form action="{% url 'toukiApp:step_one_trial' %}" method="POST" class="my-4 d-flex" novalidate>
+        <form action="{% url 'toukiApp:step_one' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
             <section class="container ms-0">
                 <fieldset id="id_decedent-0-fieldset" class="decedentFieldset">

@@ -2,10 +2,6 @@ label{
     width: 110px;
 }
 
-label[for="id_remember"]{
-    width: 135px;
-}
-
 #eyeToggleBtn{
     top: 10px;
     left: 102%;

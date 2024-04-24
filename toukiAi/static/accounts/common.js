@@ -5,7 +5,9 @@ class AccountForm{
     constructor(){
         this.form = document.getElementsByTagName("form")[0];
         this.inputs = Array.from(this.form.getElementsByTagName("input")).slice(1);
+        this.login = document.getElementById("id_login");
         this.email = document.getElementById("id_email");
+        this.password = document.getElementById("id_password");
         this.password1 = document.getElementById("id_password1");
         this.password2 = document.getElementById("id_password2");
         this.errMsgEls = this.form.getElementsByClassName("errorMessage");

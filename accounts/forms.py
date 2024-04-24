@@ -127,3 +127,26 @@ class ChangeEmailForm(forms.ModelForm):
         })
                 
         super().__init__(*args, **kwargs)
+
+# アカウント削除
+class DeleteAccountForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = model.delete_account_fields
+        labels = {
+            "email": "メールアドレス",
+            "password": "パスワード"
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields["email"].widget.attrs.update({
+            "class": "form-control",
+            "placeholder": "ご登録時に使用したメールアドレス",
+        })
+        
+        self.fields["password"].widget.attrs.update({
+            "class": "form-control",
+            "placeholder": "半角で英数記号を含む8文字以上"
+        })

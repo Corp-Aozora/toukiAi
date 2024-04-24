@@ -17,13 +17,13 @@ class MyUserCreationForm(UserCreationForm):
 
 class MyUserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username', 'email', "phone_number",'password',)}),
+        (None, {'fields': ('username', 'email', "phone_number",'password', "basic", "option1", "option2", "option3", "option4", "option5", "payment", "pay_amount")}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', "last_update", 'date_joined')}),
     )
     
-    readonly_fields = ("last_login", "last_update", "date_joined")
+    readonly_fields = ("last_login", "last_update", "date_joined", "basic_date", "option1_date", "option2_date", "option3_date", "option4_date", "option5_date")
     
     # ユーザーを追加画面の入力欄
     add_fieldsets = (

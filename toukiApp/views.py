@@ -943,6 +943,9 @@ def step_two(request):
     Returns:
         _type_: _description_
     """
+    function_name = get_current_function_name()
+    current_url_name = ("toukiApp:step_two")
+    
     try:
         response, user, decedent = check_user_and_decedent(request)
         if response:
@@ -1071,25 +1074,14 @@ def step_two(request):
         }
         return render(request, "toukiApp/step_two.html", context)
     
-    except DatabaseError as e:
-        messages.error(request, 'データベース処理でエラーが発生しました。\n再度このエラーが出る場合は、お問い合わせからお知らせお願いします。')
-        return redirect('/toukiApp/step_two')
-    except HTTPError as e:
-        basic_log(function_name, e, user)
-        messages.error(request, f'通信エラー（コード：{e.response.status_code}）が発生したため処理が中止されました。\
-                       \nコードが５００の場合は、お手数ですがお問い合わせからご連絡をお願いします。')
-        return render(request, "toukiApp/step_two.html", context)
-    except ConnectionError as e:
-        basic_log(function_name, e, user)
-        messages.error(request, '通信エラーが発生したため処理が中止されました。\nお手数ですが、再入力をお願いします。')
-        return render(request, "toukiApp/step_two.html", context)        
-    except Timeout as e:
-        basic_log(function_name, e, user)
-        messages.error(request, 'システムに接続できませんでした。\nお手数ですが、ネットワーク環境をご確認のうえ再入力をお願いします。')
-        return render(request, "toukiApp/step_two.html", context)   
     except Exception as e:
-        basic_log(function_name, e, user)
-        return HttpResponse("想定しないエラーが発生しました\nお手数ですが、お問い合わせをお願いします", status=500)
+        handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            current_url_name,
+        )
 
 
 """

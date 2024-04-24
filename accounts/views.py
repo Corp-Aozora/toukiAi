@@ -1,6 +1,6 @@
 from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation
 from allauth.account.utils import send_email_confirmation
-from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView
+from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -111,7 +111,14 @@ class CustomConfirmEmailView(ConfirmEmailView):
     def get_success_url(self):
         # メール確認が完了した後にユーザーをリダイレクトするURL
         return reverse_lazy('toukiApp:step_one_trial')
-
+    
+class CustomPasswordResetView(PasswordResetView):
+    """"パスワードの再設定（ログイン前でするページ）"""
+    def get_context_data(self, **kwargs):
+        context = super(CustomPasswordResetView, self).get_context_data(**kwargs)
+        context['company_email_address'] = CompanyData.MAIL_ADDRESS
+        return context
+    
 def is_valid_email_pattern(request):
     """Djangoのメール形式に合致するか判定する"""
     input_email = request.POST.get("email")
@@ -125,6 +132,42 @@ def is_valid_email_pattern(request):
         
     return JsonResponse(context)
 
+def delete_account(request):
+    """アカウント削除"""
+    function_name = get_current_function_name()
+    current_url_name = "accounts:delete_account"
+    current_html = "account/delete_account.html"
+    next_url_name = "toukiApp:index"
+
+    try:
+        if not request.user.is_authenticated:
+            messages.warning(request, "会員専用のページです アカウント登録が必要です")
+            return redirect("accounts:signup")
+        
+        user = User.objects.get(email=request.user)
+        if request.method == "POST":
+            form = DeleteAccountForm(request.POST, instance=request.user)
+            if form.is_valid():
+                request.user.delete()
+                messages.info()
+                return redirect(next_url_name)
+        else:            
+            form = DeleteAccountForm()
+        
+        context = {
+            "form": form,
+        }
+        
+        return render(request, current_html, context)
+        
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            current_url_name,
+        )
 
 def is_new_email(request):
     """djangoのメールアドレス検証と重複チェック"""
@@ -158,19 +201,31 @@ def is_new_email(request):
             None,
             function_name,
             None,
-            None,
             True,
         )
 
 #djangoのメール形式チェックと登録済みメールアドレスチェック
 def is_user_email(request):
+    function_name = get_current_function_name()
     input_email = request.POST.get("email")
     
     try:
         validate_email(input_email)
-    except ValidationError:
-        context = {"message" : "メールアドレスの規格と一致しません",}
+    except (ValueError, ValidationError) as e:
+        context = {
+            "error_level": "warning",
+            "message": "有効なメールアドレスを入力してください",
+         }
         return JsonResponse(context)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            None,
+            True,
+        )
     
     try:
         user = User.objects.get(email = input_email)
@@ -179,6 +234,15 @@ def is_user_email(request):
     except User.DoesNotExist:
         context = {"message" : "入力されたメールアドレスは登録されてません",}
         return JsonResponse(context)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            None,
+            True,
+        )
 
 #パスワードの同一チェック
 def is_oldpassword(request):
@@ -228,7 +292,6 @@ def resend_confirmation(request):
             request,
             None,
             function_name,
-            None,
             None,
             True,
         )

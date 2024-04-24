@@ -62,22 +62,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number_regex = RegexValidator(regex=r'^[0-9]+$', message = ("ハイフンなしの10桁又は11桁で入力してください"))
     phone_number = models.CharField(verbose_name="電話番号", validators=[phone_number_regex], max_length=11, default="")
     basic = models.BooleanField(verbose_name="システムの有料版", default=False) #システムの本使用
-    basic_date = models.DateTimeField(verbose_name="システムの有料版の利用開始日", null=True)
+    basic_date = models.DateTimeField(verbose_name="システムの有料版の利用開始日", null=True, blank=True)
     option1 = models.BooleanField(verbose_name="戸籍取得代行の利用状況", default=False)
-    option1_date = models.DateTimeField(verbose_name="戸籍取得代行の利用開始日", null=True)
+    option1_date = models.DateTimeField(verbose_name="戸籍取得代行の利用開始日", null=True, blank=True)
     option2 = models.BooleanField(verbose_name="司法書士紹介の利用状況", default=False)
-    option2_date = models.DateTimeField(verbose_name="司法書士紹介の利用開始日", null=True)
+    option2_date = models.DateTimeField(verbose_name="司法書士紹介の利用開始日", null=True, blank=True)
     option3 = models.BooleanField(verbose_name="オプション3の利用状況", default=False)
-    option3_date = models.DateTimeField(verbose_name="オプション3の利用開始日", null=True)
+    option3_date = models.DateTimeField(verbose_name="オプション3の利用開始日", null=True, blank=True)
     option4 = models.BooleanField(verbose_name="オプション4の利用状況", default=False)
-    option4_date = models.DateTimeField(verbose_name="オプション4の利用開始日", null=True)
+    option4_date = models.DateTimeField(verbose_name="オプション4の利用開始日", null=True, blank=True)
     option5 = models.BooleanField(verbose_name="オプション5の利用状況", default=False)
-    option5_date = models.DateTimeField(verbose_name="オプション5の利用開始日", null=True)
+    option5_date = models.DateTimeField(verbose_name="オプション5の利用開始日", null=True, blank=True)
     payment_choice = (
-        (0, "振込"),
-        (1, "カード"),
+        ("振込", "振込"),
+        ("カード", "カード"),
     )
-    payment = models.CharField(verbose_name="支払方法", default=1, choices=payment_choice, max_length=30)
+    payment = models.CharField(verbose_name="支払方法", choices=payment_choice, max_length=30, null=True, blank=True)
     pay_amount = models.PositiveIntegerField(verbose_name="支払額", default=0)
     is_staff = models.BooleanField(verbose_name="スタッフ権限", default=False)
     is_active = models.BooleanField(verbose_name="利用状況", default=True)
@@ -99,6 +99,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
+        
+    delete_account_fields = [
+        "email",
+        "password"
+    ]
 
 class EmailChange(models.Model):
     """メールアドレス変更申請データ

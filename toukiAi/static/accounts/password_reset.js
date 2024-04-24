@@ -9,7 +9,8 @@ msgs = [emailMessage];
  * @param {string} input 
  */
 function accountResetPassword(input){
-    let url = "is_user_email"
+    const functionName = "accountResetPassword";
+    let url = "is_user_email/"
   
     fetch(url, {
         method: 'POST',
@@ -35,22 +36,22 @@ function accountResetPassword(input){
             }).then(response => {
                 return response.json();
             }).catch(error => {
-                console.log(error);
+                throw new Error(`${functionName}でエラー\n/account/password/reset/の処理\n${error.message}`);
             });
         }
     }).catch(error => {
-        console.log(error);
+        throw new Error(`${functionName}でエラー\nis_user_emailの処理\n${error.message}`);
     }).finally(()=>{
         location.href = "done/"
     });
 }
 
 /**
- * 重複メールアドレスとdjangoによるメールアドレス形式チェック
+ * djangoによるメールアドレス形式チェック
  * @param {string} input 
  */
 function isValidEmailPattern(input){
-    let url = "is_valid_email_pattern"
+    let url = "is_valid_email_pattern/"
   
     fetch(url, {
         method: 'POST',
@@ -101,8 +102,8 @@ window.addEventListener("load", ()=>{
 
     for(let i = 0; i < reqInputs.length; i++){
         //フォーカス移動イベント
-        reqInputs[i].addEventListener("keypress", (e)=>{
-            if(e.code === "Enter" || e.code === "NumpadEnter"){
+        reqInputs[i].addEventListener("keydown", (e)=>{
+            if(e.key === "Enter"){
                 e.preventDefault();
                 submitBtn.focus();
             }
@@ -119,7 +120,8 @@ window.addEventListener("load", ()=>{
         })
 
         //モデルのバリデーションでエラーが出たとき用
-        if(errorlist !== null) emailCheck();
+        if(errorlist !== null)
+            emailCheck();
     }
 })
 
@@ -127,14 +129,18 @@ window.addEventListener("load", ()=>{
 form.addEventListener("submit", (e)=>{
 
     e.preventDefault();
-    emailCheck();
+    try{
+        emailCheck();
+        
+        //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
+        if(invalidEls.length > 0){
+            invalidEls[0].focus();
+            return;
+        } 
     
-    //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidEls.length > 0){
-        invalidEls[0].focus();
-        return;
-    } 
-
-    //メール送信するかどうか判別して次のページへ遷移する
-    accountResetPassword(reqInputs[emailIndex].value);
+        //メール送信するかどうか判別して次のページへ遷移する
+        accountResetPassword(reqInputs[emailIndex].value);
+    }catch(e){
+        basicLog("submit", e, "パスワードの再設定処理中にエラー")
+    }
 })

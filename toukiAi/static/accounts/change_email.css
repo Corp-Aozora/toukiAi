@@ -1,8 +1,20 @@
+/* 入力欄のラベル */
 label{
-    width: 110px;
+    width: 155px;
 }
 
+/* 表示するエラーメッセージの位置 */
 .emPosition {
     left: 110px;
     top: -55px;
+}
+
+form:first-child{
+    margin-top: 1rem;
+}
+
+/* パスワードの目隠し */
+#eyeToggleBtn{
+    top: 10px;
+    left: 102%;
 }

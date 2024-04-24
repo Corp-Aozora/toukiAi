@@ -56,10 +56,10 @@ from .prefectures_and_city import *
 from .sections import *
 from .toukiAi_commons import *
 
-def get_open_inquiry_result(session):
-    """一般問い合わせフラグを確認する"""
-    if "post_success" in session and session["post_success"]:
-        del session["post_success"]
+def get_boolean_session(session, session_name):
+    """booleanのセッションを取得する"""
+    if session_name in session and session[session_name]:
+        del session[session_name]
         return True
     
     return False
@@ -80,7 +80,8 @@ def index(request):
         tab_title = "トップページ"
         
         # お問い合わせが成功したメッセージを表示するためのセッション（messagesのsuccessはログアウトメッセージと重複するため）
-        is_inquiry = get_open_inquiry_result(request.session)
+        is_inquiry = get_boolean_session(request.session, "post_success")
+        is_account_delete = get_boolean_session(request.session, "account_delete")
         
         if request.method == "POST":
             form = OpenInquiryForm(request.POST)
@@ -111,6 +112,7 @@ def index(request):
             "company_data": CompanyData,
             "company_service": Service,
             "is_inquiry": is_inquiry,
+            "is_account_delete": is_account_delete,
         }
         return render(request, current_html, context)
     except Exception as e:
@@ -4769,7 +4771,7 @@ def nav_to_last_user_page(request):
         if last_page:
             return redirect(last_page)
         
-        return redirect_to_progress_page(request.user)     
+        return redirect_to_progress_page(request)     
     
     except Exception as e:
         return handle_error(
@@ -4780,12 +4782,15 @@ def nav_to_last_user_page(request):
             redirect_to, 
         )
 
-def redirect_to_progress_page(user):
+def redirect_to_progress_page(request):
     """ユーザーの進捗状況に基づいてリダイレクトする"""
-    decedent = user.decedent.first()
+    decedent = request.user.decedent.first()
     if decedent:
         return redirect_to_step(decedent.progress)
     
+    if request.user.basic:
+        return redirect(reverse("toukiApp:step_one"))
+        
     return redirect(reverse("toukiApp:step_one_trial"))
 
 def redirect_to_step(progress):

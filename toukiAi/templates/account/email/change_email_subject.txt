@@ -1,0 +1,1 @@
+[{{company_data.APP_NAME}}]＜メールアドレス変更リンク＞

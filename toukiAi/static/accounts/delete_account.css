@@ -11,3 +11,7 @@ label{
     left: 110px;
     top: -55px;
 }
+
+form:first-child{
+    margin-top: 1rem;
+}

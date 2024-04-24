@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from toukiApp.company_data import Service
 from django.utils import timezone
 from .models import *
@@ -23,13 +23,14 @@ class CustomSignupForm(SignupForm):
         
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control rounded-end',
-            'autocomplete': 'on',
+            'autocomplete': 'off',
             "placeholder": "半角で英数記号を含む8文字以上",
         })
         
         self.fields['password2'].widget.attrs.update({
             'class': 'form-control rounded-end',
             'placeholder': 'もう一度ご入力ください',
+            'autocomplete': 'off',
             "maxlength": "0",
         })
 
@@ -41,13 +42,15 @@ class CustomLoginForm(LoginForm):
         self.error_messages["invalid_login"] = "・メールアドレス又はパスワードが登録されたものと一致しません。\n・英語は大文字と小文字を区別します。"                
         
         self.fields["login"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "ご登録時に使用したメールアドレス",
+            "class": "form-control rounded-end",
+            "placeholder": "登録したメールアドレス",
+            'autocomplete': 'on',
         })
         
         self.fields["password"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "半角で英数記号を含む8文字以上"
+            "class": "form-control rounded-end",
+            "placeholder": "半角で英数記号を含む8文字以上",
+            'autocomplete': 'off',
         })
         self.fields["remember"].widget.attrs.update({
             "class": "form-check-input ms-0 float-none"
@@ -60,7 +63,8 @@ class CustomResetPasswordForm(ResetPasswordForm):
         
         self.fields["email"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "ご登録時に使用したメールアドレス",
+            "placeholder": "登録したメールアドレス",
+            'autocomplete': 'on',
         })
         
     def save(self, request):
@@ -77,11 +81,13 @@ class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
         self.fields["password1"].widget.attrs.update({
             "class": "form-control rounded-end",
             "placeholder": "半角英数記号を含むで8文字以上",
+            'autocomplete': 'off',
         })
         
         self.fields["password2"].widget.attrs.update({
             "class": "form-control rounded-end",
             "placeholder": "もう一度ご入力ください",
+            'autocomplete': 'off',
             "maxlength": "0",
         })
         
@@ -101,12 +107,14 @@ class CustomChangePasswordForm(ChangePasswordForm):
         self.fields["password1"].widget.attrs.update({
             "class": "form-control rounded-end",
             "placeholder": "半角英数記号を含むで8文字以上",
+            'autocomplete': 'off',
             "maxlength" :"30",
         })
         
         self.fields["password2"].widget.attrs.update({
             "class": "form-control rounded-end",
             "placeholder": "もう一度ご入力ください",
+            'autocomplete': 'off',
             "maxlength": "0",
         })
         
@@ -114,39 +122,93 @@ class CustomChangePasswordForm(ChangePasswordForm):
 
 # メールアドレスの変更
 class ChangeEmailForm(forms.ModelForm):
+    current_email = forms.EmailField(label="現在のメールアドレス")
+    password = forms.CharField(label="パスワード", widget=forms.PasswordInput())
     
     class Meta:
         model = EmailChange
         fields = model.fields
-        labels = {"email":"メールアドレス"}
+        labels = {"email":"新しいメールアドレス"}
 
-    def __init__(self, *args, **kwargs):
-        self.base_fields['email'].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "新しいメールアドレス",
-        })
-                
-        super().__init__(*args, **kwargs)
-
-# アカウント削除
-class DeleteAccountForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = model.delete_account_fields
-        labels = {
-            "email": "メールアドレス",
-            "password": "パスワード"
-        }
-    
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
+        
+        self.user = user
+        
         super().__init__(*args, **kwargs)
         
-        self.fields["email"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "ご登録時に使用したメールアドレス",
+        self.fields['email'].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "新しいメールアドレス",
+            'autocomplete': 'off',
+        })
+        
+        self.fields["current_email"].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "現在のメールアドレス",
+            'autocomplete': 'off',
         })
         
         self.fields["password"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "半角で英数記号を含む8文字以上"
+            "class": "form-control rounded-end",
+            "placeholder": "半角で英数記号を含む8文字以上",
+            'autocomplete': 'off',
         })
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        current_email = cleaned_data.get("current_email")
+        new_email = cleaned_data.get("email")
+        correct_email = self.user.email
+        
+        if User.objects.filter(email=new_email).exists():
+            raise forms.ValidationError("新しいメールアドレスはすでに使用されています。")
+        
+        if current_email != correct_email:
+            raise forms.ValidationError("入力されたメールアドレスがアカウントと一致しません。")
+        
+        password = cleaned_data.get("password")
+        user = authenticate(email=correct_email, password=password)
+        
+        if user is None:
+            raise forms.ValidationError("パスワードが正しくありません。")
+        
+        return cleaned_data
+
+# アカウント削除
+class DeleteAccountForm(forms.Form):
+    email = forms.EmailField(label="メールアドレス")
+    password = forms.CharField(label="パスワード", widget=forms.PasswordInput())
+    
+    def __init__(self, user, *args, **kwargs):
+        
+        self.user = user
+        
+        super().__init__(*args, **kwargs)
+        
+        self.fields["email"].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "登録したメールアドレス",
+            'autocomplete': 'off',
+        })
+        
+        self.fields["password"].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "半角で英数記号を含む8文字以上",
+            'autocomplete': 'off',
+        })
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        email = cleaned_data.get("email")
+        if email != self.user.email:
+            raise forms.ValidationError("入力されたメールアドレスがアカウントと一致しません。")
+        
+        password = cleaned_data.get("password")
+        user = authenticate(email=self.user.email, password=password)
+        
+        if user is None:
+            raise forms.ValidationError("パスワードが正しくありません。")
+        
+        return cleaned_data

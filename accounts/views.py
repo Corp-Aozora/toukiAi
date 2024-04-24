@@ -1,4 +1,4 @@
-from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation
+from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation, EmailAddress
 from allauth.account.utils import send_email_confirmation
 from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView
 from datetime import datetime, timedelta
@@ -26,6 +26,7 @@ import textwrap
 import secrets
 from .forms import *
 from .models import *
+from .account_common import *
 from accounts.models import User
 from toukiApp.company_data import *
 from toukiApp.toukiAi_commons import *
@@ -78,28 +79,15 @@ class CustomConfirmEmailView(ConfirmEmailView):
         key = kwargs.get('key')
         email_confirmation = EmailConfirmationHMAC.from_key(key)
         if email_confirmation:
-            self.send_registration_complete_email(email_confirmation.email_address.user)
+            EmailSender.send_email(
+                email_confirmation.email_address.user,
+                "account/email/registration_complete_subject.txt",
+                "account/email/registration_complete_message.txt"
+            )
             return super().post(request, *args, **kwargs)
         else:
             basic_log(get_current_function_name(), "CustomConfirmEmailView", email_confirmation.email_address.user.email, "アカウント登録完了後の処理でエラー")
             return super().post(request, *args, **kwargs)
-    
-    def send_registration_complete_email(self, user):
-        """登録完了メールを送信する"""
-        context = {
-            "company_data": CompanyData,
-            "user_email": user.email,
-        }
-        subject = render_to_string('account/email/registration_complete_subject.txt', context).strip()
-        message = render_to_string('account/email/registration_complete_message.txt', context).strip()
-        
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
     
     def get(self, request, *args, **kwargs):
         """会員登録した直後のページからの遷移かチェック"""
@@ -144,22 +132,25 @@ def delete_account(request):
             messages.warning(request, "会員専用のページです アカウント登録が必要です")
             return redirect("accounts:signup")
         
-        user = User.objects.get(email=request.user)
+        user = request.user
+        
         if request.method == "POST":
-            form = DeleteAccountForm(request.POST, instance=request.user)
+            form = DeleteAccountForm(user, request.POST,)
             if form.is_valid():
                 request.user.delete()
-                messages.info()
+                logout(request)
+                request.session["account_delete"] = True
                 return redirect(next_url_name)
+            else:
+                messages.error(request, "アカウントを削除できませんでした 入力されたメールアドレスまたはパスワードに誤りがあります")
         else:            
-            form = DeleteAccountForm()
+            form = DeleteAccountForm(user)
         
         context = {
             "form": form,
         }
         
         return render(request, current_html, context)
-        
     except Exception as e:
         return handle_error(
             e,
@@ -296,118 +287,130 @@ def resend_confirmation(request):
             True,
         )
 
-# メールアドレス認証リンクの再発行
 def change_email(request):
-    user = request.user
-    email = user.email
-
-    if request.method == "POST":
-        data = request.POST.copy()
-        data["user"] = user.id
-        data["token"] = secrets.token_hex()
-        forms = ChangeEmailForm(data)
-        if forms.is_valid():
-            with transaction.atomic():
-                try:
-                    forms.save()
-                    #他のトークンがあるとき削除する
-                    if EmailChange.objects.filter(user = user).count() > 1:
-                         # 今回の申請より前のトークンを取得
-                        old_tokens = EmailChange.objects.filter(user=user).exclude(id=forms.instance.id)
-                        # 古いトークンを削除
-                        old_tokens.delete()
-                        
-                    subject = CompanyData.APP_NAME + "：メールアドレス変更認証リンク"
-                    content = textwrap.dedent('''
-                        このメールはシステムからの自動返信です。
-                        送信専用のメールアドレスのため、こちらにメールいただいても対応できません。
-
-                        ----------------------------------
-                        以下のリンク先にある確定ボタンを押してメールアドレスの変更を確定させてください
-                        http://127.0.0.1:8000/account/confirm/{token}
-                        
-                        -----------------------------------
-                        {company_name}
-                        {company_post_number}
-                        {company_address}
-                        受信専用電話番号 {company_receiving_phone_number}
-                        発信専用電話番号 {company_calling_phone_number}
-                        ※弊社からの電話は発信専用番号が表示されます。
-                        営業時間 {company_opening_hours}
-                        ホームページ {company_url}
-                    ''').format(
-                        company_name=CompanyData.NAME,
-                        company_post_number=CompanyData.POST_NUMBER,
-                        company_address=CompanyData.ADDRESS,
-                        company_receiving_phone_number=CompanyData.RECEIVING_PHONE_NUMBER,
-                        company_calling_phone_number=CompanyData.CALLING_PHONE_NUMBER,
-                        company_opening_hours=CompanyData.OPENING_HOURS,
-                        company_url=CompanyData.URL,
-                        token=forms.instance.token,
-                    )
-                    to_list = [forms.cleaned_data["email"]]
-                    bcc_list = ["toukiaidev@gmail.com"]
-                    message = EmailMessage(subject=subject, body=content, from_email="toukiaidev@gmail.com", to=to_list, bcc=bcc_list)
-                    message.send()
-                    messages.success(request, "メールを送信しました")
-                    
-                except BadHeaderError:
-                    return HttpResponse("無効なヘッダが検出されました。")
-                except SMTPException as e:
-                    messages.error(request, f'SMTPエラーが発生しました {e}')
-                except socket.error as e:
-                    messages.error(request, f'ネットワークエラーが発生しました {e}')
-                except ValidationError as e:
-                    messages.warning(request, "データの保存に失敗しました。入力内容を確認してください。")
-                except Exception as e:
-                    messages.error(request, f'予期しないエラーが発生しました {e}')
-            
-            return redirect("/account/change_email/")
-            
-    else:
-        forms = ChangeEmailForm()
+    """メールアドレスの変更"""
+    function_name = get_current_function_name()
+    current_url_name = "accounts:change_email"
+    current_html = "account/change_email.html"
     
-    context = {
-        "title" : "メールアドレスを変更",
-        "forms": forms,
-        "email": email,
-    }
-    
-    return render(request, "account/change_email.html", context)
-
-#メールアドレス変更の認証リンクがクリックされたとき
-def confirm_email(request, token):
     try:
-        data = EmailChange.objects.filter(token = token).first()
+        if not request.user.is_authenticated:
+            messages.warning(request, "会員専用のページです アカウント登録が必要です")
+            return redirect("accounts:signup")
+        
+        user = request.user
+
+        if request.method == "POST":
+            
+            # トークンを持たせる
+            data = request.POST.copy()
+            data["user"] = user.id
+            data["token"] = secrets.token_hex()
+            form = ChangeEmailForm(user, data)
+            
+            if form.is_valid():
+                
+                with transaction.atomic():
+                    try:
+                        form.save()
+                        # 他のトークンがあるとき削除する
+                        if EmailChange.objects.filter(user = user).count() > 1:
+                            # 今回の申請より前のトークンを取得
+                            old_tokens = EmailChange.objects.filter(user=user).exclude(id=form.instance.id)
+                            # 古いトークンを削除
+                            old_tokens.delete()
+                        
+                        EmailSender.send_email(
+                            user,
+                            "account/email/change_email_subject.txt",
+                            "account/email/change_email_message.txt",
+                            {"token": data["token"]}
+                        )
+                        
+                        messages.success(request, "変更を受付ました 新しいメールアドレス宛に変更を完了させるためのURLをお送りしましたので、そのURLにアクセスをお願いします。")
+                        
+                    except Exception as e:
+                        basic_log(function_name, e, user, "POSTでのエラー")
+                        raise e
+                
+                return redirect(current_url_name)
+            else:
+                messages.warning(request, f"メールアドレスを変更できませんでした 新しいメールアドレスが既に使用されているか、入力されたメールアドレスとパスワードがアカウント情報と一致しません。")
+        else:
+            form = ChangeEmailForm(user)
+        
+        context = {
+            "title" : "メールアドレスを変更",
+            "form": form,
+            "company_mail_address": CompanyData.MAIL_ADDRESS
+        }
+        
+        return render(request, current_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            current_url_name
+        )
+
+def confirm_email(request, token):
+    """メールアドレス変更の認証リンクがクリックされたとき"""
+    
+    function_name = get_current_function_name()
+    login_url_name = "accounts:login"
+    signup_url_name = "accounts:signup"
+    change_email_url_name = "accounts:change_email"
+    
+    try:
+        email_change_data = EmailChange.objects.filter(token = token).first()
         
         #データがない又は申請から1日以上経過しているときは、リンク切れのページを表示する
-        if not data or (timezone.now() - data.updated_at) > timedelta(days = 1):
-            return redirect("403")
+        if not email_change_data or (timezone.now() - email_change_data.updated_at) > timedelta(days = 1):
+            messages.warning(request, "メールアドレス変更のリンクが無効になっています。")
+            return redirect(login_url_name)
         
         with transaction.atomic():
             
             # ログイン処理をする
-            user = User.objects.get(id=data.user.id)
+            user = User.objects.get(id=email_change_data.user.id)
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
             
-            # ユーザーのアドレスを変更する
-            user.email = data.email
+            # Userのアドレスを変更する
+            new_email = email_change_data.email
+            user.email = new_email
             user.save()
             
-            # 申請データを削除する
-            data.delete()
-           
-            messages.success(request,"メールアドレスの変更が完了しました")
+            # EmailChangeから削除する
+            email_change_data.delete()
             
-            return redirect("/account/change_email/")
+            # allauthのメールアドレス管理テーブルからユーザーデータを削除して新規登録する
+            EmailAddress.objects.filter(user=user).delete()
+            new_email_address = EmailAddress.objects.create(
+                user=user,
+                email=new_email,
+                primary=True,
+                verified=True
+            )
+            new_email_address.save()
+            
+            messages.success(request,"メールアドレスの変更が完了しました")
+            return redirect(change_email_url_name)
            
     except User.DoesNotExist:
-        messages.error(request, "ユーザーが存在しません") 
+        messages.error(request, "ユーザーが存在しません")
+        basic_log(function_name, e, None, "メールアドレス変更処理でUser.DoesNotExistのエラー発生")
+        return redirect(signup_url_name)
     except Exception as e:
-        messages.error(request, f'予期しないエラーが発生しました {e}')
-    
-    return redirect("/403/")
+        handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            login_url_name
+        )    
 
 #403が発生したとき
 def error_403(request):

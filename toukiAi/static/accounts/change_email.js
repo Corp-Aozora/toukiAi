@@ -1,98 +1,153 @@
 "use strict";
 
-reqInputs = [email];
-msgEls = [emailMessageEl];
-msgs = [emailMessage];
-
 /**
- * 重複メールアドレスとdjangoによるメールアドレス形式チェック
- * @param {string} val 
+ * メールアドレス検証
+ * ・カスタム検証、django検証、重複検証
+ * @param {string} email メールアドレス
+ * @param {HTMLElement} errMsgEl 
  */
-function isNewEmail(val){
-    const url = 'is_new_email';
-    const verifyingEl = `<span id="id_email_verifyingEl" class="verifying emPosition">
-                    検証中
-                    <div class="spinner-border text-white spinner-border-sm" role="status">
-                    </div>
-                    </span>`;
-    email.insertAdjacentHTML('afterend', verifyingEl);
-    submitBtn.disabled = true;
-
-    fetch(url, {
-        method: 'POST',
-        body: `email=${val}`,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        if(response.message !== ""){
-            toggleErrorMessage(false, msgEls[emailIndex], response.message);
-            invalidEls.push(reqInputs[emailIndex]);
-        }else{
-            toggleErrorMessage(true, msgEls[emailIndex], response.message);
-        }
-    }).catch(error => {
-        console.log(error);
-    }).finally(()=>{
-        document.getElementById("id_email_verifyingEl").remove();
-        submitBtn.disabled = false;
-        submitBtn.focus();
-    });
-}
-
-/**
- * メールアドレス☑
- * @param {string} val メールアドレス
- */
-function emailCheck(val){
-    invalidEls.filter(x => x !== reqInputs[emailIndex]);
-
-    if(isEmail(val)[0]){
-        isNewEmail(val)
+async function emailValidation(email, errMsgEl){
+    const result = isEmail(email);
+    if(result[0] === false){
+        toggleErrorMessage(result[0], errMsgEl, result[1]);
     }else{
-        toggleErrorMessage(false, msgEls[emailIndex], msgs[emailIndex]);
-        invalidEls.push(reqInputs[emailIndex]);
+        await isNewEmail(email, errMsgEl);
     }
 }
 
-//ロード
+/**
+ * バリデーションリスト
+ * @param {AccountForm} instance 
+ * @param {number} index 
+ * @param {Object<string, number>} idxs 
+ */
+function validationList(instance, index, idxs){
+    const {inputs, errMsgEls, errMsgs} = instance;
+    const input = inputs[index];
+    const val = input.value;
+    const errMsgEl = errMsgEls[index];
+
+    if(index === idxs["email"]){
+        emailValidation(val, errMsgEl);
+    }else if(index === idxs["currentEmail"]){
+        const result = isEmail(val);
+        toggleErrorMessage(result, errMsgEl, errMsgs[0]);
+    }else{
+        const result = checkPassword(val, input);
+        toggleErrorMessage(result, errMsgEl, errMsgs[1]);
+    }
+}
+
+/**
+ * keydownイベント
+ * @param {Event} e 
+ * @param {HTMLInputElement} nextInput
+ * @param {HTMLButtonElement} submitBtn
+ */
+function handleKeydownEvent(e, nextInput, submitBtn){
+    setEnterKeyFocusNext(e, nextInput? nextInput: submitBtn);
+}
+
+/**
+ * changeイベント
+ * @param {AccountForm} instance 
+ * @param {number} index 
+ * @param {Object<string, number>} idxs 
+ */
+function handleChangeEvent(instance, index, idxs){
+    validationList(instance, index, idxs);
+}
+
+/**
+ * イベント設定
+ * @param {AccountForm} instance
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToInputs(instance, idxs){
+
+    const {inputs, submitBtn} = instance;
+
+    for(let i = 0, len = inputs.length; i < len; i++){
+
+        const input = inputs[i];
+        
+        input.addEventListener("keydown", (e)=>{
+            handleKeydownEvent(e, inputs[i + 1], submitBtn);
+        })
+
+        input.addEventListener("change", ()=>{
+            handleChangeEvent(instance, i, idxs);
+        })
+    }
+}
+
+/**
+ * 
+ * @param {AccountForm} instance 
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToSubmit(instance, idxs){
+    const spinner = document.getElementById("submitSpinner");
+    const {inputs, errMsgEls, submitBtn, form} = instance;
+
+    form.addEventListener("submit", (event)=>{
+        try{
+            submitBtn.disabled = true;
+            spinner.style.display = "";
+
+            // 送信前に各入力欄をチェックする
+            for(let i = 0, len = inputs.length; i < len; i++){
+                validationList(instance, i, idxs);
+            }
+
+            const errIndex = findInvalidInputIndex(Array.from(errMsgEls));
+            if(errIndex !== -1){
+                inputs[errIndex].focus();
+                restore(event);
+            }
+        }catch(error){
+            basicLog("submit", error);
+            alert(error.message);
+            restore(event);
+        }   
+    })
+
+    function restore(e){
+        e.preventDefault();
+        spinner.style.display = "none";
+        submitBtn.disabled = false;    
+    }
+}
+
+/**
+ * 目隠しトグルボタンにイベントを設定
+ * @param {AccountForm} instance 
+ */
+function setEventToEyeToggleBtn(instance){
+    const {eye, password, eyeSlash} = instance;
+    instance.eyeToggleBtn.addEventListener("click", ()=>{
+        handleEyeToggleClickEvent(eye, password, eyeSlash);
+    })
+}
+
+/**
+ * ロード時の処理
+ */
 window.addEventListener("load", ()=>{
-    //モデルのバリデーションでエラーが出たとき用
-    if(errorlist !== null){
-        emailCheck(email.value);
-        if(invalidEls.length > 0) invalidEls[0].focus();
+    const instance = new AccountForm();
+    instance.inputs = [instance.email, instance.currentEmail, instance.password];
+    const idxs = {
+        email: 0,
+        currentEmail: 1,
+        password: 2,
     }
-})
 
-//メールアドレス
-email.addEventListener("change", (e)=>{
-    emailCheck(e.target.value);
-})
-
-email.addEventListener("input", (e)=>{
-    msgEls[emailIndex].style.display = "none";
-})
-
-email.addEventListener("keypress", (e)=>{
-    //フォーカス移動イベント
-    if(e.code === "Enter" || e.code === "NumpadEnter"){
-        e.preventDefault();
-        submitBtn.focus();
-    }
-})
-
-//送信ボタン
-form.addEventListener("submit", ()=>{
-    //メールアドレスの形式チェック
-    emailCheck(email.value);
-
-    //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidEls.length > 0){
-        invalidEls[0].focus();
-        e.preventDefault();
-    } 
+    // 入力欄にイベントを設定する
+    setEventToInputs(instance , idxs);
+    // 目隠しボタンにイベントを設定する
+    setEventToEyeToggleBtn(instance);
+    // 元のページに戻るボタン
+    setEventToReturnBtn();
+    // 送信ボタンにイベント設定する
+    setEventToSubmit(instance, idxs);
 })

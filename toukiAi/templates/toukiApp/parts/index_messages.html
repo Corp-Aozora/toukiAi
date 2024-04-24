@@ -37,6 +37,27 @@
     </div>
 {% endif %}
 
+{% if is_account_delete %}
+    <div class="modal message_modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center bg-success-subtle">
+                    <h5 class="modal-title fw-bold">
+                        アカウントが削除されました
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <span class="fw-bold">
+                        ご利用ありがとうございました。
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
 {% for message in messages %}
     {% if message.tags == "success"%}
         <div class="modal message_modal" tabindex="-1">

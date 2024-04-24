@@ -31,17 +31,13 @@
                     </a>
                 </li>
                 <li class="nav-item mx-3">
-                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'accounts:change_email' %}">
-                        <button class="btn btn-outline-primary p-2 fw-bold">
-                            メールアドレスを変更
-                        </button>
+                    <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:change_email' %}" onclick="storeCurrentLocation()">
+                        メールアドレスを変更
                     </a>
                 </li>
                 <li class="nav-item mx-3">
-                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'accounts:delete_account' %}">
-                        <button class="btn btn-outline-primary p-2 fw-bold">
-                            アカウントを削除
-                        </button>
+                    <a type="button" class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:delete_account' %}" onclick="storeCurrentLocation()">
+                        アカウントを削除
                     </a>
                 </li>
                 <li id="linkToProgressArea" class="nav-item ms-3" style="display: none;">
@@ -54,3 +50,21 @@
         </div>
     </nav>
 </header>
+
+<script>
+    function storeCurrentLocation(){
+        // ヘッダーのメニューのときは取得しない
+        const exclude = [
+            "/toukiApp/step_option_select/", 
+            "/account/password/change/", 
+            "/account/change_email/", 
+            "/account/delete_account/", 
+            "/account/logout/"
+        ];
+
+        const currentUrl = window.location.pathname;
+
+        if(!exclude.includes(currentUrl))
+            sessionStorage.setItem('preUrl', window.location.href);
+    }
+</script>

@@ -23,7 +23,7 @@ function validationList(instance, index, idxs){
     const errMsgEl = instance.errMsgEls[index];
     const errMsg = instance.errMsgs[index];
 
-    if(index === idxs["login"]){
+    if(index === idxs["email"]){
         emailValidation(val, errMsgEl);
     }else{
         isValid = checkPassword(val, input);
@@ -57,12 +57,13 @@ function handleChangeEvent(instance, index, idxs){
  * @param {Object<string, number>} idxs 
  */
 function setEventToInputs(instance, idxs){
-    const inputs = instance.inputs;
+    const {inputs, form} = instance;
+    const confirmBtn = form.querySelector("#confirm-btn");
     for(let i = 0, len = inputs.length; i < len; i++){
         const input = inputs[i];
         
         input.addEventListener("keydown", (e)=>{
-            handleKeydownEvent(e, inputs[i + 1], instance.submitBtn);
+            handleKeydownEvent(e, inputs[i + 1], confirmBtn);
         })
 
         input.addEventListener("change", ()=>{
@@ -76,11 +77,43 @@ function setEventToInputs(instance, idxs){
  * @param {AccountForm} instance 
  * @param {Object<string, number>} idxs 
  */
+function setEventToConfirmBtn(instance, idxs){
+    const {form, inputs, errMsgEls} = instance;
+    const confirmBtn = form.querySelector("#confirm-btn");
+
+    confirmBtn.addEventListener("click", ()=>{
+        try{
+            // 送信前に各入力欄をチェックする
+            for(let i = 0, len = inputs.length; i < len; i++){
+                validationList(instance, i, idxs);
+            }
+
+            const errIndex = findInvalidInputIndex(Array.from(errMsgEls));
+            if(errIndex !== -1){
+                inputs[errIndex].focus();
+                return;
+            }
+
+            const modalEl = document.getElementById("confirm-modal");
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }catch(e){
+            basicLog("confirmBtn", e);
+            alert(e.message);
+        }   
+    })
+}
+
+/**
+ * 
+ * @param {AccountForm} instance 
+ * @param {Object<string, number>} idxs 
+ */
 function setEventToSubmit(instance, idxs){
     const spinner = document.getElementById("submitSpinner");
-    const {inputs, errMsgEls, submitBtn} = instance;
+    const {form, inputs, errMsgEls, submitBtn} = instance;
 
-    instance.form.addEventListener("submit", (event)=>{
+    form.addEventListener("submit", (event)=>{
         try{
             submitBtn.disabled = true;
             spinner.style.display = "";
@@ -111,31 +144,22 @@ function setEventToSubmit(instance, idxs){
 }
 
 /**
- * 目隠しトグルボタンにイベントを設定
- * @param {AccountForm} instance 
- */
-function setEventToEyeToggleBtn(instance){
-    const {eye, password, eyeSlash} = instance;
-    instance.eyeToggleBtn.addEventListener("click", ()=>{
-        handleEyeToggleClickEvent(eye, password, eyeSlash);
-    })
-}
-
-/**
  * ロード時の処理
  */
 window.addEventListener("load", ()=>{
     const instance = new AccountForm();
-    instance.inputs = instance.form.querySelectorAll("#id_login, #id_password");
+    instance.inputs = instance.form.querySelectorAll("#id_email, #id_password");
     const idxs = {
-        "login": 0,
+        "email": 0,
         "password": 1,
     }
 
     // 入力欄にイベントを設定する
     setEventToInputs(instance , idxs);
-    // 目隠しボタンにイベントを設定する
-    setEventToEyeToggleBtn(instance);
+    // 元に戻るボタンにイベントを設定する
+    setEventToReturnBtn();
+    // 確認ボタンにイベントを設定する
+    setEventToConfirmBtn(instance, idxs);
     // 送信ボタンにイベント設定する
     setEventToSubmit(instance, idxs);
 })

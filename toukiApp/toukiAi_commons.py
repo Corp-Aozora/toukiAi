@@ -484,6 +484,8 @@ def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
 def send_email_to_inquiry(cleaned_data, is_to_user=True):
     """問い合わせに回答したときのメール送信処理
 
+        お問い合わせの回答は管理者サイトから行う
+        
     Args:
         cleaned_data (): 回答データ
         to_email (): 問い合わせをしたユーザーのメールアドレス
@@ -516,4 +518,3 @@ def send_email_to_inquiry(cleaned_data, is_to_user=True):
         bcc=bcc_list
     )
     message.send()
-    

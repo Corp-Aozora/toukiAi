@@ -1,104 +1,137 @@
-const password1 = document.getElementById("id_password1");
-const password2 = document.getElementById("id_password2");
-reqInputs = [password1, password2];
-
-const form = document.querySelector("form");
-
-const passDisplayToggle = document.getElementById("passDisplayToggle");
-const eye = document.getElementById("eye");
-const eyeSlash = document.getElementById("eyeSlash");
-
-const password1MessageEl = document.getElementById("id_password1_messageEl");
-const password2MessageEl = document.getElementById("id_password2_messageEl");
-msgEls = [password1MessageEl, password2MessageEl];
-
-const password1Message = "半角で英数記号を含む8文字以上を入力してください";
-const password2Message = "上記パスワードと一致しません";
-msgs = [password1Message, password2Message];
-
-const password1Index = 0;
-const password2Index = 1;
-
-/**
- * パスワード2の入力制御
- */
-function togglePassword2(){
-    if(password1.value === "" || password1MessageEl.style.display !== "none"){
-        password2.setAttribute("maxlength", 0);
-        password2.value = "";
-    }else{
-        password2.removeAttribute("maxlength");
-    }
-}
+"use strict";
 
 /**
  * バリデーションリスト
+ * @param {AccountForm} instance 
  * @param {number} index 
+ * @param {Object<string, number>} idxs 
  */
-function validationList(index){
-    if(index === password1Index) isValid = checkPassword(reqInputs[index].value, reqInputs[index]);
-    else if(index === password2Index) isValid = password1.value === password2.value ? true: false;
+function validationList(instance, index, idxs){
+    const {inputs, errMsgEls, errMsgs} = instance;
+    const input = inputs[index];
+    const val = input.value;
+    const errMsgEl = errMsgEls[index];
+    const errMsg = errMsgs[index];
+
+    if(index === idxs["password1"])
+        isValid = checkPassword(val, input);
+    else
+        isValid = inputs[idxs["password1"]].value === input.value;
 
     //各バリデーションでエラーがあるとき
-    toggleErrorMessage(isValid, msgEls[index], msgs[index]);
-    
-    if(isValid === false){
-        if(invalidEls.indexOf(reqInputs[index]) === -1) invalidEls.push(reqInputs[index]);
-    }else{
-        invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
+    toggleErrorMessage(isValid, errMsgEl, errMsg);
+}
+
+/**
+ * keydownイベント
+ * @param {Event} e 
+ * @param {HTMLInputElement} nextInput
+ * @param {HTMLButtonElement} submitBtn
+ */
+function handleKeydownEvent(e, nextInput, submitBtn){
+    setEnterKeyFocusNext(e, nextInput? nextInput: submitBtn);
+}
+
+/**
+ * changeイベント
+ * @param {AccountForm} instance 
+ * @param {number} index 
+ * @param {Object<string, number>} idxs 
+ */
+function handleChangeEvent(instance, index, idxs){
+    validationList(instance, index, idxs);
+    if(index === idxs["password1"])
+        togglePassword2(instance.inputs[idxs["password1"]], instance.errMsgEls[idxs["password1"]], instance.inputs[idxs["password2"]]);
+}
+
+/**
+ * 入力欄にイベント設定
+ * @param {AccountForm} instance
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToInputs(instance, idxs){
+
+    const {inputs, submitBtn} = instance;
+
+    for(let i = 0, len = inputs.length; i < len; i++){
+
+        const input = inputs[i];
+        
+        input.addEventListener("keydown", (e)=>{
+            handleKeydownEvent(e, inputs[i + 1], submitBtn);
+        })
+
+        input.addEventListener("change", ()=>{
+            handleChangeEvent(instance, i, idxs);
+        })
     }
 }
 
 /**
- * イベント
+ * 送信ボタンにイベント設定
+ * @param {AccountForm} instance 
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToSubmit(instance, idxs){
+    const spinner = document.getElementById("submitSpinner");
+    const {inputs, errMsgEls, submitBtn} = instance;
+
+    instance.form.addEventListener("submit", (event)=>{
+        try{
+            submitBtn.disabled = true;
+            spinner.style.display = "";
+
+            // 送信前に各入力欄をチェックする
+            for(let i = 0, len = inputs.length; i < len; i++){
+                validationList(instance, i, idxs);
+            }
+
+            const errIndex = findInvalidInputIndex(Array.from(errMsgEls));
+            if(errIndex !== -1){
+                inputs[errIndex].focus();
+                restore(event);
+            }
+
+        }catch(error){
+            basicLog("submit", error);
+            alert(error.message);
+            restore(event);
+        }   
+    })
+
+    function restore(e){
+        e.preventDefault();
+        spinner.style.display = "none";
+        submitBtn.disabled = false;    
+    }
+}
+
+/**
+ * 目隠しトグルボタンにイベントを設定
+ * @param {AccountForm} instance 
+ */
+function setEventToEyeToggleBtn(instance){
+    const {eye, password1, eyeSlash} = instance;
+    instance.eyeToggleBtn.addEventListener("click", ()=>{
+        handleEyeToggleClickEvent(eye, password1, eyeSlash);
+    })
+}
+
+/**
+ * ロード時の処理
  */
 window.addEventListener("load", ()=>{
-
-    for(let i = 0; i < reqInputs.length; i++){
-        //フォーカス移動イベント
-        reqInputs[i].addEventListener("keypress", (e)=>{
-            if(e.code === "Enter" || e.code === "NumpadEnter"){
-                e.preventDefault();
-                if(e.target === password2){
-                    submitBtn.focus();
-                }else{
-                    reqInputs[i + 1].focus();}
-            }
-        })
-
-        //モデルのバリデーションでエラーが出たとき用
-        if(errorlist !== null) validationList(i);
+    const instance = new AccountForm();
+    instance.errMsgs = instance.errMsgs.slice(1);
+    const idxs = {
+        "password1": 0,
+        "password2": 1,
     }
 
-    //パスワード1が空欄又はエラーメッセージが出ているとき
-    if(errorlist !== null){
-        togglePassword2();
-        if(invalidEls.length > 0) invalidEls[0].focus();
-    }
-})
-
-//パスワード1
-password1.addEventListener("change", (e)=>{
-    validationList(password1Index);
-    togglePassword2();
-})
-
-//パスワード2
-password2.addEventListener("change", (e)=>{
-    validationList(password2Index);
-})
-
-//フォーム
-form.addEventListener("submit", (e)=>{
-
-    // 送信前に各入力欄をチェックする
-    for(let i = 0; i < reqInputs.length; i++){
-        validationList(i);
-    }
-
-    //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidEls.length > 0){
-        invalidEls[0].focus();
-        e.preventDefault();
-    } 
+    // 入力欄にイベントを設定する
+    setEventToInputs(instance , idxs);
+    // 目隠しボタンにイベントを設定する
+    setEventToEyeToggleBtn(instance);
+    // 送信ボタンにイベント設定する
+    setEventToSubmit(instance, idxs);
 })

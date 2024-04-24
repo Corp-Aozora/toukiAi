@@ -1,33 +1,6 @@
 "use strict";
 
 /**
- * 重複メールアドレスとdjangoによるメールアドレス形式チェック
- * @param {string} email 
- * @param {HTMLElement} errMsgEl 
- */
-async function isNewEmail(email, errMsgEl){
-    const url = 'is_new_email/';
-    fetch(url, {
-        method: 'POST',
-        body: `email=${email}`,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        if(["success", "warning"].includes(response.error_level))
-            toggleErrorMessage((response.message === ""), errMsgEl, response.message);
-        else
-            alert(response.message);
-    }).catch(e => {
-        basicLog("isNewEmail", e);
-    });
-}
-
-/**
  * メールアドレス検証
  * ・カスタム検証、django検証、重複検証
  * @param {string} email メールアドレス

@@ -1,5 +1,5 @@
 /**
- * アカウント関連共通で使用する変数
+ * アカウント共通フォーム
  */
 class AccountForm{
     constructor(){
@@ -7,6 +7,7 @@ class AccountForm{
         this.inputs = Array.from(this.form.getElementsByTagName("input")).slice(1);
         this.login = document.getElementById("id_login");
         this.email = document.getElementById("id_email");
+        this.currentEmail = document.getElementById("id_current_email");
         this.password = document.getElementById("id_password");
         this.password1 = document.getElementById("id_password1");
         this.password2 = document.getElementById("id_password2");
@@ -81,8 +82,52 @@ function handleEyeToggleClickEvent(eye, pass1, eyeSlash){
     eyeSlash.style.display = isHidden ? "none" : "block";
 }
 
-// window.addEventListener("load", ()=>{
-//     //パスワード欄があるとき、パスワードの表示ボタンのトグル機能を追加する
-//     if(passDisplayToggle !== null)
-//         passDisplayToggle.addEventListener("click", handleEyeToggleClickEvent);
-// })
+
+// 元のページに戻るボタンが押されたとき
+function setEventToReturnBtn(){
+
+    const returnBtn = document.getElementById("returnBtn");
+    returnBtn.addEventListener("click", ()=>{
+
+        const preUrl = sessionStorage.getItem("preUrl");
+        const spinner = document.getElementById("return-spinner");
+
+        try{
+            spinner.style.display = "";
+            returnBtn.disabled = true;
+
+            window.location.href = preUrl? preUrl: "/toukiApp/redirect_to_progress_page";
+        }catch(e){
+            spinner.style.display = "none"
+            returnBtn.disabled = false;
+            basicLog("setEventToReturnBtn", e, "アカウント削除ページの元のページに戻るボタンの処理でエラー");
+        }
+    })
+}
+
+/**
+ * 重複メールアドレスとdjangoによるメールアドレス形式チェック
+ * @param {string} email 
+ * @param {HTMLElement} errMsgEl 
+ */
+async function isNewEmail(email, errMsgEl){
+    const url = '/account/is_new_email/';
+    fetch(url, {
+        method: 'POST',
+        body: `email=${email}`,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'X-CSRFToken': csrftoken,
+        },
+        mode: "same-origin"
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        if(["success", "warning"].includes(response.error_level))
+            toggleErrorMessage((response.message === ""), errMsgEl, response.message);
+        else
+            alert(response.message);
+    }).catch(e => {
+        basicLog("isNewEmail", e);
+    });
+}

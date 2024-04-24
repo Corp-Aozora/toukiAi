@@ -7,3 +7,8 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         context["email"] = email
         context['company_data'] = CompanyData
         return super(CustomAccountAdapter, self).send_mail(template_prefix, email, context)
+    
+    def add_message(self, request, level, message_template,
+                message_context=None, extra_tags=''):
+        # allauthのデフォルトのメッセージを追加しないようにする
+        pass

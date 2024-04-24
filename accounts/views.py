@@ -1,6 +1,6 @@
 from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation, EmailAddress
 from allauth.account.utils import send_email_confirmation
-from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView
+from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView, PasswordChangeView
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -107,6 +107,49 @@ class CustomPasswordResetView(PasswordResetView):
         context['company_email_address'] = CompanyData.MAIL_ADDRESS
         return context
     
+class CustomPasswordChangeView(PasswordChangeView):
+    """パスワードの変更（会員ページ内）"""
+    success_url = reverse_lazy('accounts:account_change_password')  # パスワード変更後のリダイレクト先
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'パスワードの変更が完了しました')
+        return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'パスワードを変更できませんでした 現在のパスワードに誤りがある、または新しいパスワードと再入力が一致しなかったことによりパスワードを変更できませんでした。')
+        return super().form_invalid(form)
+
+def option_select(request):
+    """オプション選択"""
+    function_name = get_current_function_name()
+    current_url_name = "accounts:option_select"
+    current_html = 'account/option_select.html'
+    
+    try:
+        
+        if not request.user.is_authenticated:
+            messages.warning(request, "会員専用のページです アカウント登録が必要です")
+            return redirect("accounts:signup")
+        
+        user = request.user
+        
+        context = {
+            "title": "オプション選択",
+            "company_data": CompanyData,
+            "service": Service,
+        }
+
+        return render(request, current_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            user if "user" in locals() else None,
+            function_name,
+            current_url_name
+        )
+
 def is_valid_email_pattern(request):
     """Djangoのメール形式に合致するか判定する"""
     input_email = request.POST.get("email")
@@ -359,7 +402,7 @@ def confirm_email(request, token):
     """メールアドレス変更の認証リンクがクリックされたとき"""
     
     function_name = get_current_function_name()
-    login_url_name = "accounts:login"
+    login_url_name = "account_login"
     signup_url_name = "accounts:signup"
     change_email_url_name = "accounts:change_email"
     
@@ -407,7 +450,7 @@ def confirm_email(request, token):
         handle_error(
             e,
             request,
-            user,
+            user if "user" in locals() else None,
             function_name,
             login_url_name
         )    

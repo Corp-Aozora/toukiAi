@@ -1,116 +1,158 @@
-reqInputs = [oldpassword, password1, password2];
-msgEls = [oldpasswordMessageEl, password1MessageEl, password2MessageEl];
-msgs = [oldpasswordMessage, password1Message, password2Message];
+"use strict";
 
 /**
  * バリデーションリスト
+ * @param {AccountForm} instance 
  * @param {number} index 
+ * @param {Object<string, number>} idxs 
  */
-function validationList(index){
-    invalidEls = invalidEls.filter(x => x !== reqInputs[index]);
-
-    //各欄のバリデーション
-    if(index === oldpasswordIndex){
-        verificatePassword(reqInputs[index].value, reqInputs[index]);
-        return;
-    }
-    else if(index === password1Index){
-        isValid = checkPassword(reqInputs[index].value, reqInputs[index]);
-    }else if(index === password2Index){
-        isValid = password1.value === password2.value ? true: false;
-    } 
-
-    //エラーメッセージトグル
-    toggleErrorMessage(isValid, msgEls[index], msgs[index]);
+function validationList(instance, index, idxs){
+    const {inputs, errMsgEls, errMsgs} = instance;
+    const input = inputs[index];
+    const val = input.value;
     
-    //エラーが有るときは、その要素を取得し、適切なときは削除する
-    if(isValid === false) invalidEls.push(reqInputs[index]);
+    if(index === idxs["oldPassword"] || index === idxs["password1"])
+        isValid = checkPassword(val, input);
+    else
+        isValid = inputs[idxs["password1"]].value === input.value;
+
+    //各バリデーションでエラーがあるとき
+    const errMsgEl = errMsgEls[index];
+    const msg = index === idxs["password2"]? errMsgs[2]: errMsgs[1];
+    toggleErrorMessage(isValid, errMsgEl, msg);
 }
 
 /**
- * 入力されたパスワードと登録されているパスワードを照合する
- * @param {string} val 
+ * keydownイベント
+ * @param {Event} e 
+ * @param {HTMLInputElement} nextInput
+ * @param {HTMLButtonElement} submitBtn
  */
-function verificatePassword(val){
-    const url = 'is_oldpassword';
-    const verifyingEl = `<span id="id_oldpassword_verifyingEl" class="verifying emPosition">
-                    照合中
-                    <div class="spinner-border text-white spinner-border-sm" role="status">
-                    </div>
-                    </span>`;
-    oldpassword.insertAdjacentHTML('afterend', verifyingEl);
-
-    fetch(url, {
-        method: 'POST',
-        body: `oldpassword=${val}`,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        if(response.is_valid){
-            toggleErrorMessage(true, msgEls[oldpasswordIndex]);
-        }else{
-            toggleErrorMessage(false, msgEls[oldpasswordIndex], oldpasswordMessage);
-            invalidEls.push(reqInputs[oldpasswordIndex]);
-        }
-    }).catch(error => {
-        console.log(error);
-    }).finally(()=>{
-        document.getElementById("id_oldpassword_verifyingEl").remove();
-    });
+function handleKeydownEvent(e, nextInput, submitBtn){
+    setEnterKeyFocusNext(e, nextInput? nextInput: submitBtn);
 }
 
 /**
- * イベント
+ * changeイベント
+ * @param {AccountForm} instance 
+ * @param {number} index 
+ * @param {Object<string, number>} idxs 
+ */
+function handleChangeEvent(instance, index, idxs){
+    validationList(instance, index, idxs);
+    if(index === idxs["password1"])
+        togglePassword2(instance.inputs[idxs["password1"]], instance.errMsgEls[idxs["password1"]], instance.inputs[idxs["password2"]]);
+}
+
+/**
+ * イベント設定
+ * @param {AccountForm} instance
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToInputs(instance, idxs){
+    const {inputs, submitBtn} = instance;
+    for(let i = 0, len = inputs.length; i < len; i++){
+        const input = inputs[i];
+        
+        input.addEventListener("keydown", (e)=>{
+            handleKeydownEvent(e, inputs[i + 1], submitBtn);
+        })
+
+        input.addEventListener("change", ()=>{
+            handleChangeEvent(instance, i, idxs);
+        })
+    }
+}
+
+/**
+ * 
+ * @param {AccountForm} instance 
+ * @param {Object<string, number>} idxs 
+ */
+function setEventToSubmit(instance, idxs){
+    const spinner = document.getElementById("submitSpinner");
+    const {inputs, errMsgEls, submitBtn, form} = instance;
+
+    form.addEventListener("submit", (event)=>{
+        try{
+            submitBtn.disabled = true;
+            spinner.style.display = "";
+
+            // 送信前に各入力欄をチェックする
+            for(let i = 0, len = inputs.length; i < len; i++){
+                validationList(instance, i, idxs);
+            }
+
+            const errIndex = findInvalidInputIndex(Array.from(errMsgEls));
+            if(errIndex !== -1){
+                inputs[errIndex].focus();
+                restore(event);
+            }
+
+        }catch(error){
+            basicLog("submit", error);
+            alert(error.message);
+            restore(event);
+        }   
+    })
+
+    function restore(e){
+        e.preventDefault();
+        spinner.style.display = "none";
+        submitBtn.disabled = false;    
+    }
+}
+
+/**
+ * 目隠しトグルボタンにイベントを設定
+ * @param {AccountForm} instance 
+ */
+function setEventToEyeToggleBtn(instance){
+    const {eye, password1, eyeSlash} = instance;
+    instance.eyeToggleBtn.addEventListener("click", ()=>{
+        handleEyeToggleClickEvent(eye, password1, eyeSlash);
+    })
+}
+
+// 元のページに戻るボタンが押されたとき
+function setEventToReturnBtn(){
+
+    const returnBtn = document.getElementById("returnBtn");
+    returnBtn.addEventListener("click", ()=>{
+
+        const preUrl = sessionStorage.getItem("preUrl");
+        const spinner = document.getElementById("return-spinner");
+
+        try{
+            spinner.style.display = "";
+            returnBtn.disabled = true;
+
+            window.location.href = preUrl? preUrl: "/toukiApp/redirect_to_progress_page";
+        }catch(e){
+            spinner.style.display = "none"
+            returnBtn.disabled = false;
+            basicLog("setEventToReturnBtn", e, "アカウント削除ページの元のページに戻るボタンの処理でエラー");
+        }
+    })
+}
+
+/**
+ * ロード時の処理
  */
 window.addEventListener("load", ()=>{
-
-    for(let i = 0; i < reqInputs.length; i++){
-        //フォーカス移動イベント
-        reqInputs[i].addEventListener("keypress", (e)=>{
-            if(e.code === "Enter" || e.code === "NumpadEnter"){
-                e.preventDefault();
-                e.target === password2 ? submitBtn.focus(): reqInputs[i + 1].focus();
-            }
-        })
-
-        //各入力欄にバリデーションを設定
-        reqInputs[i].addEventListener("change",(e)=>{
-            validationList(i);
-            if(reqInputs[i] === password1) togglePassword2();
-        })
-
-        //入力中はエラー表示を消す
-        reqInputs[i].addEventListener("input", ()=>{
-            msgEls[i].style.display = "none";
-        })
-
-        //モデルのバリデーションでエラーが出たとき用
-        if(errorlist !== null) validationList(i);
+    const instance = new AccountForm();
+    const idxs = {
+        "oldPassword": 0,
+        "password1": 1,
+        "password2": 2,
     }
 
-    //パスワード1が空欄又はエラーメッセージが出ているとき
-    if(errorlist !== null){
-        togglePassword2();
-        if(invalidEls.length > 0) invalidEls[0].focus();
-    }
-})
-
-//フォーム
-form.addEventListener("submit", (e)=>{
-
-    // 送信前に各入力欄をチェックする
-    for(let i = 0; i < reqInputs.length; i++){
-        validationList(i);
-    }
-
-    //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-    if(invalidEls.length > 0){
-        invalidEls[0].focus();
-        e.preventDefault();
-    } 
+    // 入力欄にイベントを設定する
+    setEventToInputs(instance , idxs);
+    // 目隠しボタンにイベントを設定する
+    setEventToEyeToggleBtn(instance);
+    // 元のページに戻るボタン
+    setEventToReturnBtn()
+    // 送信ボタンにイベント設定する
+    setEventToSubmit(instance, idxs);
 })

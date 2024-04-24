@@ -35,6 +35,7 @@ class CompanyData:
     BANK_ACCOUNT_NAME = "カ）アオゾラ"
     
 class Service:
+    BASIC_NAME = "システムの利用"
     BASIC_PRICE = "４９，０００円"
     BASIC_PRICE_INT = 49000
     CAMPAIGN_BASIC_PRICE_STR = "３９，０００円"

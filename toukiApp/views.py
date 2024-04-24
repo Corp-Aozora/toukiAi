@@ -4339,20 +4339,6 @@ def step_six(request):
             redirect_to, 
         )
 
-#ユーザー情報
-def step_option_select(request):
-    if not request.user.is_authenticated:
-        return redirect(to='/account/login/')
-    
-    user = request.user
-    
-    context = {
-        "title": "ユーザー情報",
-        "user": user,
-    }
-
-    return render(request, 'toukiApp/step_option_select.html', context)
-
 def step_inquiry(request):
     """会員からのお問い合わせ
 
@@ -4369,7 +4355,7 @@ def step_inquiry(request):
         if not request.user.is_authenticated:
             messages.error(request, "会員専用のページです 先にアカウント登録をしてください。")
             basic_log(function_name, None, None, "非会員が会員登録ページにアクセスを試みました")
-            return redirect("accounts:login")
+            return redirect("account_login")
         
         user = User.objects.get(email=request.user.email)
         decedent = user.decedent.first()

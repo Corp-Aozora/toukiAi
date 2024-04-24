@@ -17,7 +17,7 @@ class CustomSignupForm(SignupForm):
         self.fields['email'].widget.attrs.update({
             'class': 'form-control rounded-end',
             'autocomplete': 'on',
-            "placeholder": "",
+            "placeholder": "メールアドレス",
             "autofocus": True,
         })
         
@@ -101,6 +101,7 @@ class CustomChangePasswordForm(ChangePasswordForm):
         self.fields["oldpassword"].widget.attrs.update({
             "class": "form-control rounded-end",
             "placeholder": "現在のパスワード",
+            'autocomplete': 'off',
             "maxlength" :"30",
         })
                 

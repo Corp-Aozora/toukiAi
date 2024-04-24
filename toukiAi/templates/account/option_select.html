@@ -1,0 +1,233 @@
+{% extends "toukiApp/base.html" %}
+
+{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/option_select.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/messages.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
+<form class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3" action="{% url 'accounts:option_select' %}" method="POST" novalidate>
+    {% csrf_token %}
+    <h4 class="text-center mb-0">
+        オプション選択
+        <br>
+        （令和６年６月末までのキャンペーン価格です）
+    </h4>
+    <section class="card shadow mt-3">
+        <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
+            <h5 class="card-title text-center mb-0">
+                {{service.BASIC_NAME}}
+                <span class="ms-3">
+                    {{service.CAMPAIGN_BASIC_PRICE_STR}}（税込）
+                </span>
+            </h5>
+        </div>
+        <div class="card-body px-5">
+            <div>
+                システムの相続人判定以降の必要書類のリストや申請書類の作成など全部分を使用することができます。
+            </div>
+        </div>
+    </section>
+    <section class="card shadow">
+        <div class="card-header p-3 bg-success-subtle bg-gradient bg-opacity-50">
+            <h5 class="card-title text-center mb-0">
+                {{service.OPTION1_NAME}}
+                <span class="ms-3">
+                    {{service.CAMPAIGN_OPTION1_PRICE_STR}}（税込）
+                </span>
+            </h5>
+        </div>
+        <div class="card-body px-5">
+            {% if form.errors %}
+                <div class="fw-bold bg-danger-subtle border rounded-3 p-3 mt-4">
+                    {% for field, errors in form.errors.items %}
+                        <div>
+                            {% if field == "__all__" %}
+                                <div>アカウントデータに関するエラー</div>
+                            {% elif field == "oldpassword" %}
+                                <div>現在のパスワードのエラー</div>
+                            {% elif field == "password1" %}
+                                <div>新しいパスワードのエラー</div>
+                            {% elif field == "password2" %}
+                                <div>再入力のエラー</div>
+                            {% endif %}
+                            <ul class="ps-0 mb-0 ps-3">
+                                {% for error in errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div>
+                <p>
+                    被相続人の出生から死亡までの戸籍謄本の取得を代行します。
+                    <br>
+                    役所で全て取得できなかった場合や面倒と感じる場合におすすめです。
+                </p>
+                <div>
+                    <div class="d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            配偶者、直系卑属（子、孫...）、直系尊属（父母、祖父母...）に該当する方は、最寄りの役所で全て取得できることが多いと思いますので、ひとまずご自身で取得してみることをおすすめします。
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            被相続人に関して必要な書類は戸籍謄本以外にもあります。
+                            <button type="button" class="ps-3 fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#decedentCertificationListModal">
+                                （被相続人に関する必要書類一覧はこちら）
+                            </button>    
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="decedentCertificationListModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning-subtle">
+                                <h1 class="modal-title fs-5">お亡くなりになった方に関する必要書類一覧</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="pe-3">
+                                    <li class="border-bottom">
+                                        ・出生から死亡までの戸籍謄本
+                                        <span class="fw-bold">
+                                            （取得代行対象）
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <div class="border-bottom">
+                                            ・死亡時の住所を証する住民票の除票など
+                                        </div>
+                                        <div class="d-flex">
+                                            <div>
+                                                ※
+                                            </div>
+                                            <div>
+                                                死亡時の住所が登記記録上の住所と異なるとき登記記録上の住所までの履歴がわかるものも必要です。
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="border-bottom">
+                                        ・所有する不動産の評価額を確認できるもの
+                                    </li>
+                                    <li class="border-bottom">
+                                        ・所有する不動産の登記記録を確認できるもの
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="input-group">
+                        <label class="input-group-text label" for="{{ field.auto_id }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <section class="card shadow">
+        <div class="card-header p-3 bg-warning-subtle bg-gradient bg-opacity-50">
+            <h5 class="card-title text-center mb-0">
+                {{service.OPTION2_NAME}}
+                <span class="ms-3">
+                    {{service.CAMPAIGN_OPTION2_PRICE_STR}}（税込）
+                </span>
+            </h5>
+        </div>
+        <div class="card-body px-5">
+            {% if form.errors %}
+                <div class="fw-bold bg-danger-subtle border rounded-3 p-3 mt-4">
+                    {% for field, errors in form.errors.items %}
+                        <div>
+                            {% if field == "__all__" %}
+                                <div>アカウントデータに関するエラー</div>
+                            {% elif field == "oldpassword" %}
+                                <div>現在のパスワードのエラー</div>
+                            {% elif field == "password1" %}
+                                <div>新しいパスワードのエラー</div>
+                            {% elif field == "password2" %}
+                                <div>再入力のエラー</div>
+                            {% endif %}
+                            <ul class="ps-0 mb-0 ps-3">
+                                {% for error in errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div>
+                
+            </div>
+            <div class="mt-3">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="input-group">
+                        <label class="input-group-text label" for="{{ field.auto_id }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
+                        </span>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </section>
+    <div class="mt-3 d-flex justify-content-between">
+        <p class="mt-3 text-center">
+            <button id="returnBtn" type="button" class="btn btn-secondary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
+                元のページに戻る
+                <span id="return-spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                </span>
+            </button>
+        </p>
+        <p class="mt-3 text-center">
+            <button id="submitBtn" type="submit" class="px-4 btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
+                確定する
+                <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                </span>
+            </button>
+        </p>
+    </div>
+</form>
+{% endblock %}
+
+{% block footer %}
+{% include "toukiApp/step_footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'accounts/option_select.js' %}"></script>
+    <script src="{% static 'toukiApp/messages.js' %}"></script>
+{% endblock %}

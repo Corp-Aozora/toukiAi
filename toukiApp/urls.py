@@ -23,7 +23,6 @@ urlpatterns = [
     path('step_diagram', views.step_diagram, name='step_diagram'),
     path('step_five', views.step_five, name='step_five'),
     path('step_six', views.step_six, name='step_six'),
-    path("step_option_select", views.step_option_select, name="step_option_select"),
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 
     path("get_decedent_city_data", views.get_decedent_city_data, name="get_decedent_city_data"),

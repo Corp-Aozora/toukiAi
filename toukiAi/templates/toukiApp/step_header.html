@@ -17,17 +17,15 @@
         <div id="headerMenus" class="collapse navbar-collapse">
             <ul class="navbar-nav py-md-0 justify-content-start">
                 <li class="nav-item mx-3">
-                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'toukiApp:step_option_select' %}">
+                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'accounts:option_select' %}" onclick="storeCurrentLocation()">
                         <button class="btn btn-outline-primary p-2 fw-bold">
                             オプションを利用する
                         </button>
                     </a>
                 </li>
                 <li class="nav-item mx-3">
-                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'account_change_password' %}">
-                        <button class="btn btn-outline-primary p-2 fw-bold">
-                            パスワードを変更
-                        </button>
+                    <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_change_password' %}" onclick="storeCurrentLocation()">
+                        パスワードを変更
                     </a>
                 </li>
                 <li class="nav-item mx-3">

@@ -1,10 +1,12 @@
+from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm, ChangePasswordForm, AddEmailForm
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
-from toukiApp.company_data import Service
 from django.utils import timezone
+
+from toukiApp.company_data import Service
 from .models import *
-from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm, ChangePasswordForm, AddEmailForm
+from common.widgets import *
 
 CustomUser = get_user_model()
 
@@ -213,3 +215,43 @@ class DeleteAccountForm(forms.Form):
             raise forms.ValidationError("パスワードが正しくありません。")
         
         return cleaned_data
+    
+class OptionSelectForm(forms.ModelForm):
+    """"オプション選択フォーム"""
+    
+    class Meta:
+        model = OptionRequest
+        fields = model.fields
+        widgets = {
+            "basic": forms.HiddenInput(),
+            "option1": forms.HiddenInput(),
+            "option2": forms.HiddenInput(),
+        }
+        labels = {
+            "is_phone_required": "電話によるやりとりを希望する"
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields["name"].widget.attrs.update(WidgetAttributes.name_normal)
+        self.fields["payer"].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "カタカナのみ",
+            "maxlength": "30"
+        })
+        self.fields["address"].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "書類が届く宛先",
+            "maxlength": "100"
+        })
+        self.fields["phone_number"].widget.attrs.update({
+            "class": "form-control rounded-end",
+            "placeholder": "ハイフンなし",
+            "maxlength": "11"
+        })
+        self.fields["basic"].widget.attrs.update(WidgetAttributes.hidden_input)
+        self.fields["option1"].widget.attrs.update(WidgetAttributes.hidden_input)
+        self.fields["option2"].widget.attrs.update(WidgetAttributes.hidden_input)
+        self.fields["is_phone_required"].widget.attrs.update(WidgetAttributes.radio)
+        

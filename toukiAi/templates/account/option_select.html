@@ -1,11 +1,13 @@
-{% extends "toukiApp/base.html" %}
+{% extends "account/base.html" %}
 
-{% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+{% block title %}
+    {{ title }} | {{ block.super}}
+{% endblock title %}
 
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'accounts/option_select.css' %}">
-    <link rel="stylesheet" href="{% static 'toukiApp/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 
 {% block header %}
@@ -16,88 +18,242 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 
-<form class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3" action="{% url 'accounts:option_select' %}" method="POST" novalidate>
-    {% csrf_token %}
+<div class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3">
     <h4 class="text-center mb-0">
         オプション選択
         <br>
-        （令和６年６月末までのキャンペーン価格です）
+        （令和６年６月末までの限定価格です）
     </h4>
-    <section class="card shadow mt-3">
+    <hr>
+    <div>
+        <p class="text-center fw-bold">
+            お支払い方法について
+        </p>
+        <p class="text-center fw-bold">
+            <span class="text-danger">
+                ※現在、銀行振込のみの対応となっております。
+            </span>
+        </p>
+        <div class="fw-bold">
+            お振込みいただいたことがわかる
+            <span class="border-bottom border-dark">
+                画像を弊社にメール
+            </span>
+            いただくと弊社へ着金される前でも対象のオプションを利用できるようになります。
+            <div class="d-flex">
+                <div>
+                    ※
+                </div>
+                <div>
+                    振込日の翌銀行営業日中に入金を確認できない場合、アカウントを凍結します。
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="fw-bold">
+        利用を希望するオプションに☑してください
+    </div>
+    <section id="basic-section" class="card shadow mt-3">
         <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
-            <h5 class="card-title text-center mb-0">
-                {{service.BASIC_NAME}}
-                <span class="ms-3">
-                    {{service.CAMPAIGN_BASIC_PRICE_STR}}（税込）
-                </span>
-            </h5>
+            <div class="card-title text-center mb-0 d-flex justify-content-center align-items-center">
+                <div>
+                    <input id="proxy-basic-checkbox" type="checkbox" class="proxy-checkbox form-check-input">
+                </div>
+                <div class="ms-3">
+                    <label class="fs-5 fw-bold" for="proxy-basic-checkbox">
+                        {{service.BASIC_NAME}}
+                        <span class="ms-3">
+                            {{service.CAMPAIGN_BASIC_PRICE_STR}}（税込）
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="supplement text-center mt-3" style="display: none;">
+                <button type="button" class="fw-bold text-primary">
+                    ページ下部に表示された項目の入力をお願いします。
+                </button>
+            </div>
         </div>
         <div class="card-body px-5">
             <div>
-                システムの相続人判定以降の必要書類のリストや申請書類の作成など全部分を使用することができます。
+                相続人判定（１．基本データ入力）以降の
+                <span class="fw-bold">
+                    全ての機能
+                </span>
+                も使用することができます。
+                <ul>
+                    <li>
+                        <span class="fw-bold">
+                            １．基本データ入力
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    相続人を判定するためのデータ入力
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="fw-bold">
+                            ２．必要書類一覧
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    表示された一覧をもとに役所などで書類を取得
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="fw-bold">
+                            ３．詳細データ入力
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    申請書類を作成するためのデータ入力
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="fw-bold">
+                            ４．書類の印刷
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    作成された書類の印刷、各相続人への配布、署名押印など
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="fw-bold">
+                            ５．法務局に申請
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    表示された案内に従って書類を整理して法務局へ郵送
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="fw-bold">
+                            ６．申請後について
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    書類に不備があった場合の対応など
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="fw-bold">
+                            お問い合わせ
+                        </span>
+                        <div class="d-flex">
+                            <div class="ms-3 min-width85">
+                                作業内容：
+                            </div>
+                            <div>
+                                <span class="border-bottom border-dark">
+                                    各工程での不明点を解消
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </section>
-    <section class="card shadow">
+    <section id="option1-section" class="card shadow">
         <div class="card-header p-3 bg-success-subtle bg-gradient bg-opacity-50">
-            <h5 class="card-title text-center mb-0">
-                {{service.OPTION1_NAME}}
-                <span class="ms-3">
-                    {{service.CAMPAIGN_OPTION1_PRICE_STR}}（税込）
-                </span>
-            </h5>
+            <div class="card-title text-center mb-0 d-flex justify-content-center align-items-center">
+                <div>
+                    <input id="proxy-option1-checkbox" type="checkbox" class="proxy-checkbox form-check-input">
+                </div>
+                <div class="ms-3">
+                    <label class="fs-5 fw-bold" for="proxy-option1-checkbox">
+                        {{service.OPTION1_NAME}}
+                        <span class="ms-3">
+                            {{service.CAMPAIGN_OPTION1_PRICE_STR}}（税込）
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="supplement text-center mt-3" style="display: none;">
+                <button type="button" class="fw-bold text-primary">
+                    ページ下部に表示された項目の入力をお願いします。
+                </button>
+            </div>
         </div>
         <div class="card-body px-5">
-            {% if form.errors %}
-                <div class="fw-bold bg-danger-subtle border rounded-3 p-3 mt-4">
-                    {% for field, errors in form.errors.items %}
-                        <div>
-                            {% if field == "__all__" %}
-                                <div>アカウントデータに関するエラー</div>
-                            {% elif field == "oldpassword" %}
-                                <div>現在のパスワードのエラー</div>
-                            {% elif field == "password1" %}
-                                <div>新しいパスワードのエラー</div>
-                            {% elif field == "password2" %}
-                                <div>再入力のエラー</div>
-                            {% endif %}
-                            <ul class="ps-0 mb-0 ps-3">
-                                {% for error in errors %}
-                                <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
             <div>
                 <p>
-                    被相続人の出生から死亡までの戸籍謄本の取得を代行します。
+                    <span class="fw-bold">
+                        被相続人の出生から死亡までの戸籍謄本
+                    </span>
+                    の取得を代行します。
                     <br>
-                    役所で全て取得できなかった場合や面倒と感じる場合におすすめです。
+                    <span>
+                        システムもご利用されている場合に、弊社でシステムに入力を反映させることはできません。
+                    </span>
+                </p>
+                <p>
+                    役所で全て取得できず次どこに請求すればわからない場合やお時間がない場合におすすめです。
                 </p>
                 <div>
                     <div class="d-flex">
-                        <div>
+                        <div class="fw-bold">
                             ※
                         </div>
                         <div>
-                            配偶者、直系卑属（子、孫...）、直系尊属（父母、祖父母...）に該当する方は、最寄りの役所で全て取得できることが多いと思いますので、ひとまずご自身で取得してみることをおすすめします。
+                            被相続人に関して必要な書類は出生から死亡前の戸籍謄本以外にもあります
+                            <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#decedent-certification-list-modal">
+                                （被相続人に関する必要書類一覧はこちら）
+                            </button>    
+                            。
                         </div>
                     </div>
                     <div class="d-flex">
-                        <div>
+                        <div class="fw-bold">
                             ※
                         </div>
                         <div>
-                            被相続人に関して必要な書類は戸籍謄本以外にもあります。
-                            <button type="button" class="ps-3 fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#decedentCertificationListModal">
-                                （被相続人に関する必要書類一覧はこちら）
-                            </button>    
+                            <span class="border-bottom border-dark">
+                                配偶者、直系卑属（子、孫...）、直系尊属（父母、祖父母...）に該当する相続人の方は、
+                            </span>
+                            最寄りの役所で全て取得できることが多いため、まずはご自身で取得してみることをおすすめします。
                         </div>
                     </div>
                 </div>
-                <div class="modal fade" id="decedentCertificationListModal" tabindex="-1">
+                <div class="modal fade" id="decedent-certification-list-modal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header bg-warning-subtle">
@@ -105,17 +261,19 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <ul class="pe-3">
-                                    <li class="border-bottom">
-                                        ・出生から死亡までの戸籍謄本
-                                        <span class="fw-bold">
-                                            （取得代行対象）
+                                <ul class="pe-3 pb-3">
+                                    <li>
+                                        <span class="border-bottom border-dark px-3">
+                                            出生から死亡までの戸籍謄本
+                                            <span class="fw-bold">
+                                                （取得代行対象）
+                                            </span>
                                         </span>
                                     </li>
                                     <li>
-                                        <div class="border-bottom">
-                                            ・死亡時の住所を証する住民票の除票など
-                                        </div>
+                                        <span class="border-bottom border-dark px-3">
+                                            死亡時の住所を証する住民票の除票など
+                                        </span>
                                         <div class="d-flex">
                                             <div>
                                                 ※
@@ -125,11 +283,15 @@
                                             </div>
                                         </div>
                                     </li>
-                                    <li class="border-bottom">
-                                        ・所有する不動産の評価額を確認できるもの
+                                    <li>
+                                        <span class="border-bottom border-dark px-3">
+                                            所有する不動産の評価額を確認できるもの
+                                        </span>
                                     </li>
-                                    <li class="border-bottom">
-                                        ・所有する不動産の登記記録を確認できるもの
+                                    <li>
+                                        <span class="border-bottom border-dark px-3">
+                                            所有する不動産の登記記録を確認できるもの
+                                        </span>
                                     </li>
                                 </ul>
                             </div>
@@ -137,28 +299,129 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-3">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="input-group">
-                        <label class="input-group-text label" for="{{ field.auto_id }}">
-                            {{ field.label }}
-                        </label>
-                        {{ field }}
-                        <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
+        </div>
+    </section>
+    <section id="option2-section" class="card shadow">
+        <div class="card-header p-3 bg-warning-subtle bg-gradient bg-opacity-50">
+            <div class="card-title text-center mb-0 d-flex justify-content-center align-items-center">
+                <div>
+                    <input id="proxy-option2-checkbox" type="checkbox" class="proxy-checkbox form-check-input">
+                </div>
+                <div class="ms-3">
+                    <label class="fs-5 fw-bold" for="proxy-option2-checkbox">
+                        {{service.OPTION2_NAME}}
+                        <span class="ms-3">
+                            {{service.CAMPAIGN_OPTION2_PRICE_STR}}（税込）
                         </span>
+                    </label>
+                </div>
+            </div>
+            <div class="supplement text-center mt-3" style="display: none;">
+                <button type="button" class="fw-bold text-primary">
+                    ページ下部に表示された項目の入力をお願いします。
+                </button>
+            </div>
+        </div>
+        <div class="card-body px-5">
+            <div>
+                <p>
+                    <span class="fw-bold">
+                        福岡県内の提携の司法書士が全て代理で行い登記手続きを完了させます。
+                    </span>
+                </p>
+                <p>
+                    システムや戸籍謄本の取得代行を利用中にこちらに切り替える場合、
+                    <span class="border-bottom border-dark">
+                        差額のみのお支払い
+                    </span>
+                    でご利用できます。
+                </p>
+                <div class="d-flex">
+                    <div>
+                        ※
                     </div>
-                {% endfor %}
+                    <div>
+                        不動産を取得する方からのご依頼のみ受け付けてます。
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        遠方の方でも郵送でやり取りできます。
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        対面での相談をご希望の場合、原則web面談で対応させていただきます。
+                    </div>
+                </div>
             </div>
         </div>
     </section>
-    <section class="card shadow">
-        <div class="card-header p-3 bg-warning-subtle bg-gradient bg-opacity-50">
+    <section id="charge-section" class="card shadow">
+        <div class="card-header p-3 bg-danger-subtle bg-gradient bg-opacity-50">
             <h5 class="card-title text-center mb-0">
-                {{service.OPTION2_NAME}}
-                <span class="ms-3">
-                    {{service.CAMPAIGN_OPTION2_PRICE_STR}}（税込）
-                </span>
+                合計額
+            </h5>
+        </div>
+        <div class="card-body px-5">
+            <ul>
+                <li class="no-option fw-bold text-center">
+                    オプションが選択されてません
+                </li>
+                <li class="d-flex justify-content-center">
+                    <ul class="option-detail-wrapper">
+                        <li style="display: none;">
+                            <div class="d-flex">
+                                <div class="price">
+                                    {{service.CAMPAIGN_BASIC_PRICE_STR}}
+                                </div>
+                                <div class="ms-3">
+                                    {{service.BASIC_NAME}}
+                                </div>
+                            </div>
+                        </li>
+                        <li style="display: none;">
+                            <div class="d-flex">
+                                <div class="price">
+                                    {{service.CAMPAIGN_OPTION1_PRICE_STR}}
+                                </div>
+                                <div class="ms-3">
+                                    {{service.OPTION1_NAME}}
+                                </div>
+                            </div>
+                        </li>
+                        <li style="display: none;">
+                            <div class="d-flex">
+                                <div class="price">
+                                    {{service.CAMPAIGN_OPTION2_PRICE_STR}}
+                                </div>
+                                <div class="ms-3">
+                                    {{service.OPTION2_NAME}}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <hr>
+                <li class="fw-bold text-center">
+                    <span class="total-price">
+                        0
+                    </span>
+                    円（税込）
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section id="form-section" class="card shadow">
+        <div class="card-header p-3 bg-secondary-subtle bg-gradient bg-opacity-50">
+            <h5 class="card-title text-center mb-0">
+                入力事項
             </h5>
         </div>
         <div class="card-body px-5">
@@ -184,42 +447,63 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <div>
-                
-            </div>
-            <div class="mt-3">
+            <form class="mt-3" action="{% url 'accounts:option_select' %}" method="POST" novalidate>
                 {% csrf_token %}
-                {% for field in form %}
-                    <div class="input-group">
-                        <label class="input-group-text label" for="{{ field.auto_id }}">
-                            {{ field.label }}
-                        </label>
-                        {{ field }}
-                        <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
-                        </span>
-                    </div>
-                {% endfor %}
-
-            </div>
+                <fieldset style="display: none;">
+                    {% for field in form %}
+                        {% if field.name == "basic" or field.name == "option1" or field.name == "option2" %}
+                            {{field}}
+                        {% elif field.name == "is_phone_required" %}
+                            <div class="input-group position-relative">
+                                <label class="input-group-text label" for="{{ field.auto_id }}">
+                                    {{field.label}}
+                                </label>
+                                <div class="form-control rounded-end d-flex justify-content-center">
+                                    {{ field }}
+                                </div>
+                                <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                </span>
+                                <div class="form-text d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        チェックがない場合でもご本人様確認やその他司法書士が必要と判断した場合は、お電話がありますのでご対応をお願いします。
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="input-group">
+                                <label class="input-group-text label" for="{{ field.auto_id }}">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
+                                </span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </fieldset>
+                <div class="mt-3 d-flex justify-content-between">
+                    <p class="mt-3 text-center">
+                        <button id="returnBtn" type="button" class="btn btn-secondary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
+                            元のページに戻る
+                            <span id="return-spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            </span>
+                        </button>
+                    </p>
+                    <p class="mt-3 text-center">
+                        <button id="submitBtn" disabled type="submit" class="px-4 btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
+                            支払いページへ
+                            <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            </span>
+                        </button>
+                    </p>
+                </div>
+            </form>
         </div>
     </section>
-    <div class="mt-3 d-flex justify-content-between">
-        <p class="mt-3 text-center">
-            <button id="returnBtn" type="button" class="btn btn-secondary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
-                元のページに戻る
-                <span id="return-spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
-                </span>
-            </button>
-        </p>
-        <p class="mt-3 text-center">
-            <button id="submitBtn" type="submit" class="px-4 btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
-                確定する
-                <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
-                </span>
-            </button>
-        </p>
-    </div>
-</form>
+</div>
 {% endblock %}
 
 {% block footer %}
@@ -229,5 +513,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'accounts/option_select.js' %}"></script>
-    <script src="{% static 'toukiApp/messages.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

@@ -133,11 +133,23 @@ def option_select(request):
             return redirect("accounts:signup")
         
         user = request.user
+        option_select_data = OptionRequest.objects.filter(user=user).first()
         
+        if request.method == "POST":
+            form = OptionSelectForm(request.POST, instance=option_select_data)
+            
+            if form.is_valid():
+                pass
+            else:
+                messages.warning(request, "受付できませんでした 入力内容に誤りがあります。")
+        else:
+            form = OptionSelectForm(instance=option_select_data)
+            
         context = {
             "title": "オプション選択",
             "company_data": CompanyData,
             "service": Service,
+            "form": form
         }
 
         return render(request, current_html, context)

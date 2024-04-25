@@ -1,3 +1,35 @@
-#decedentCertificationListModal li{
+section ul{
+    padding-left: 0!important;
+    margin-bottom: 0!important;
+    padding-left: 1rem!important;
+    margin-top: 1rem!important;
+}
+
+section ul li{
     margin-top: 1rem;
+}
+
+.min-width85{
+    min-width: 85px;
+}
+
+section:nth-of-type(n+2){
+    margin-top: 1rem;
+}
+
+#charge-section ul > li > ul{
+    margin-top: 0px!important;
+    padding-left: 0px!important;
+}
+
+#charge-section ul > li > ul > li:first-child{
+    margin-top: 0px!important;
+}
+
+label{
+    min-width: 110px;
+}
+
+::placeholder{
+    text-align: center;
 }

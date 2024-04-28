@@ -6039,6 +6039,7 @@ function handleSubmitBtnEvent(event){
  */
 window.addEventListener("load", ()=>{
     initialize();
+    disablePage(progress); // progressに応じたページの無効化
 })
 
 /**
@@ -6090,6 +6091,6 @@ preBtn.addEventListener("click", ()=>{
  * ４．に進むボタンのクリックイベント
  */
 
-form.addEventListener("submit", (e)=>{
+document.getElementsByTagName("form")[0].addEventListener("submit", (e)=>{
     handleSubmitBtnEvent(e);
 })

@@ -5273,10 +5273,8 @@ window.addEventListener("load", async ()=>{
         updateSideBar(); // サイドバーの設定
         setDecedentEvent(); // 被相続人欄にイベントを設定する
         await loadData(); // データをロードする
-        const submit = document.getElementById("submitBtn");
-        submit.addEventListener("submit", ()=>{
-            submit.disabled = true
-        });
+
+        disablePage(progress); // progressに応じたページの無効化
     }catch(e){
         basicLog("load", e);
     }

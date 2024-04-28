@@ -84,7 +84,7 @@
                 <div class="modal-content">
                     <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
                         <h5 class="modal-title">
-                            {{message.message|until:" "}}
+                            {{message.message|until:" "|safe}}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         </button>
@@ -147,14 +147,14 @@
                 <div class="modal-content">
                     <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
                         <h5 class="modal-title">
-                            {{message.message|until:" "}}
+                            {{message.message|until:" "|safe}}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         </button>
                     </div>
                     <div class="modal-body pb-3">
                         <span class="fw-bold">
-                            {{message.message|after:" "}}
+                            {{message.message|after:" "|safe}}
                         </span>
                     </div>
                     <div class="modal-footer">

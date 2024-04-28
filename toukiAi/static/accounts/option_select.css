@@ -9,9 +9,10 @@ section ul li{
     margin-top: 1rem;
 }
 
-.min-width85{
+#basic-section ul li .d-flex > div:first-child{
     min-width: 85px;
-}
+    margin-left: 2rem!important;
+} 
 
 section:nth-of-type(n+2){
     margin-top: 1rem;
@@ -22,12 +23,23 @@ section:nth-of-type(n+2){
     padding-left: 0px!important;
 }
 
-#charge-section ul > li > ul > li:first-child{
+#charge-section ul > li > ul > li{
+    margin-top: 0px!important;
+}
+
+
+/* 入力欄セクション */
+#form-errors .ms-3, #form-errors li:first-child(){
     margin-top: 0px!important;
 }
 
 label{
     min-width: 110px;
+}
+
+.emPosition {
+    left: 145px;
+    top: -55px;
 }
 
 ::placeholder{

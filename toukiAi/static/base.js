@@ -22,7 +22,6 @@ let preserveInvalidEls = [];
 let isValid;
 
 const submitBtn = document.getElementById("submitBtn");
-const form = document.querySelector("form");
 const errorlist = document.querySelector(".errorlist");
 
 //定数
@@ -68,6 +67,27 @@ function hankakuToZenkaku(val) {
     val = String(val);
     return val.replace(/[!-~]/g, function(s) {
         return String.fromCharCode(s.charCodeAt(0) + 0xFEE0);
+    });
+}
+
+/**
+ * ひらがな又はカタカナのみか検証
+ * @param {string} str 
+ * @returns {boolean}
+ */
+function isOnlyHiraganaOrKatakana(str) {
+    const hiraganaKatakanaRegex = /^[\u3040-\u309F\u30A0-\u30FF]+$/;
+    return hiraganaKatakanaRegex.test(str);
+}
+
+/**
+ * 
+ * @param {string} str 
+ * @returns 
+ */
+function hiraganaToKatakana(str) {
+    return str.replace(/[\u3041-\u3096]/g, function(match) {
+        return String.fromCharCode(match.charCodeAt(0) + 0x60);
     });
 }
 
@@ -283,7 +303,7 @@ function isDigit(input, type) {
  * 電話番号形式チェック（ハイフンの有無両方対応可）
  * @param {HTMLInputElement} input 
  * @param {boolean} isHyphen
- * @returns {boolean} 形式に合致するときはtrue、合致しないときはfalse
+ * @returns {boolean} 形式に合致するときはtrue、合致しないときはエラーメッセージ
  */
 function checkPhoneNumber(input, isHyphen){
     //元の値を保持する
@@ -305,14 +325,17 @@ function checkPhoneNumber(input, isHyphen){
         input.value = "";
         return "数字で入力してください";
     }
-    //ハイフンの前後に１文字以上の存在することをチェック
-    const pattern = /^.+[-－ー].+[-－ー].+$/;
-    // パターンに一致するかチェック
-    if (!pattern.test(originalVal)) {
-        return "ハイフンの前後に１字以上の数字を入力してください";
+
+    if(isHyphen){
+        //ハイフンの前後に１文字以上の存在することをチェック
+        const pattern = /^.+[-－ー].+[-－ー].+$/;
+        // パターンに一致するかチェック
+        if (!pattern.test(originalVal)) {
+            return "ハイフンの前後に１字以上の数字を入力してください";
+        }
     }
 
-    input.value = originalVal;
+    input.value = hankakuToZenkaku(originalVal);
     result = isDigit(input, isHyphen? "phoneNumberWithHyphen": "phoneNumber");
     if(typeof result === "string"){
         input.value = "";
@@ -651,7 +674,35 @@ function addCommas(num) {
  * @returns
  */
 function removeCommas(str) {
-    return str.replace(/,|，/g, "");
+    if(str)
+        return str.replace(/,|，/g, "");
+    else
+        return;
+}
+
+/**
+ * 全角の通貨（コンマ有り）からintを返す
+ * @param {string} str 
+ * @returns {number|string}
+ */
+function zenkakuCurrencyToInt(str){
+    if(!str)    
+        return;
+
+    const removedComma = removeCommas(str);
+    const hankaku = ZenkakuToHankaku(removedComma);
+    const num = parseInt(hankaku);
+
+    return num >= 0? num: "";
+}
+
+/**
+ * intから全角の通貨（コンマ有り）を返す
+ * @param {number} num 
+ */
+function intToZenkakuCurrency(num){
+    const str = addCommas(num);
+    return hankakuToZenkaku(str);
 }
 
 /**

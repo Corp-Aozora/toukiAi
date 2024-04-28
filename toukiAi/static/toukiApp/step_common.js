@@ -502,6 +502,36 @@ function updateAttribute(clone, att, regex, newIdx){
     });       
 }
 
+/**
+ * 入力欄を全て無効化する
+ */
+function disableAllInputs() {
+
+    const form = document.getElementsByTagName("form")[0];
+    const formElements = form.querySelectorAll('input, textarea, select, button');
+    formElements.forEach(el => {
+        el.disabled = true;
+    });
+}
+
+/**
+ * progressと一致するページ以外は入力欄を無効化して表示する
+ * 
+ * @param {number} progress 作業中の番号
+ */
+function disablePage(progress){
+
+    const path = window.location.pathname;
+
+    if((progress >= 1 && progress < 2 && path !== '/toukiApp/step_one') ||
+        (progress >= 2 && progress < 3 && path !== '/toukiApp/step_two') ||
+        (progress >= 3 && progress < 4 && path !== '/toukiApp/step_three') ||
+        (progress >= 4 && progress < 5 && path !== '/toukiApp/step_four') ||
+        (progress >= 5 && progress < 6 && path !== '/toukiApp/step_five')){
+        disableAllInputs();
+    }
+}
+
 /*
     イベント
 */

@@ -11,23 +11,29 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 from django.db import transaction
+from django.db.models import Max, Sum, Q, Func
+from django.db.models.functions import Coalesce
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django_ratelimit.decorators import ratelimit
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views.decorators.cache import never_cache
 from smtplib import SMTPException
+
 import json
 import requests
 import socket
 import textwrap
 import secrets
+
+from .account_common import *
 from .forms import *
 from .models import *
-from .account_common import *
 from accounts.models import User
+from common import *
 from toukiApp.company_data import *
 from toukiApp.toukiAi_commons import *
 
@@ -120,36 +126,99 @@ class CustomPasswordChangeView(PasswordChangeView):
         messages.error(self.request, 'パスワードを変更できませんでした 現在のパスワードに誤りがある、または新しいパスワードと再入力が一致しなかったことによりパスワードを変更できませんでした。')
         return super().form_invalid(form)
 
+def save_option_select(user, form):
+    """オプション選択のデータ登録"""
+    function_name = get_current_function_name()
+    try:
+        instance = form.save(commit=False)
+        instance.user = user
+        instance.updated_by = user
+
+        # 作成者は新規登録のときのみ
+        if not instance.pk:
+            instance.created_by = user
+            
+        instance.save()
+    except Exception as e:
+        basic_log(function_name, e, user)
+        raise e
+
 def option_select(request):
     """オプション選択"""
     function_name = get_current_function_name()
     current_url_name = "accounts:option_select"
     current_html = 'account/option_select.html'
+    next_url_name = "accounts:bank_transfer"
     
     try:
-        
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです アカウント登録が必要です")
-            return redirect("accounts:signup")
+            messages.warning(request, "会員専用のページです ログインしてください")
+            return redirect("account_login")
         
         user = request.user
-        option_select_data = OptionRequest.objects.filter(user=user).first()
+        option_request_data = OptionRequest.objects.filter(user=user, is_recieved=False).first() # 未払の申込み
+        
+        original_paid_option_request_data = OptionRequest.objects.filter(user=user, is_recieved=True) # 支払済みの申込み
+        latest_paid_option_request_data = original_paid_option_request_data.order_by('-updated_at').first()
+        paid_option_and_amount = {
+                'basic': False,
+                'option1': False,
+                'option2': False,
+                'charge': 0,
+            }
+        if original_paid_option_request_data:
+            paid_option_and_amount = {
+                'basic': original_paid_option_request_data.aggregate(any_basic_true=BoolOr('basic'))['any_basic_true'],
+                'option1': original_paid_option_request_data.aggregate(any_option1_true=BoolOr('option1'))['any_option1_true'],
+                'option2': original_paid_option_request_data.aggregate(any_option2_true=BoolOr('option2'))['any_option2_true'],
+                'charge': sum([zenkaku_currency_to_int(r.charge) for r in original_paid_option_request_data]),
+            }
         
         if request.method == "POST":
-            form = OptionSelectForm(request.POST, instance=option_select_data)
+            form = OptionSelectForm(request.POST, paid_option_and_amount=paid_option_and_amount, instance=option_request_data)
             
-            if form.is_valid():
-                pass
-            else:
-                messages.warning(request, "受付できませんでした 入力内容に誤りがあります。")
+            try:
+                if form.is_valid():
+                    
+                    # 変更がないときは何もせずに銀行振込のページへ
+                    if not form.has_changed():
+                        return redirect(next_url_name)
+
+                    with transaction.atomic():
+                        save_option_select(user, form)
+                        return redirect(next_url_name)
+                else:
+                    msg = mark_safe("受付できませんでした 入力に不備がありました。<br>エラー内容をご確認ください。")
+                    messages.warning(request, msg)
+                    
+            except Exception as e:
+                basic_log(function_name, e, user, "POSTでエラー")
+                raise e
+ 
         else:
-            form = OptionSelectForm(instance=option_select_data)
+            form = None
+            if option_request_data:
+                form = OptionSelectForm(instance=option_request_data)
+            elif latest_paid_option_request_data:
+                form = OptionSelectForm(initial={
+                    "name": latest_paid_option_request_data.name,
+                    "payer": latest_paid_option_request_data.payer,
+                    "address": latest_paid_option_request_data.address,
+                    "phone_number": latest_paid_option_request_data.phone_number,
+                })
+            else:
+                form = OptionSelectForm()
+                
+            if paid_option_and_amount["option2"]:
+                messages.info(request, "選択できるオプションがありません 司法書士にご依頼いただいた場合、その他のオプションはご利用できなくなります。")
             
         context = {
             "title": "オプション選択",
             "company_data": CompanyData,
             "service": Service,
-            "form": form
+            "form": form,
+            "paid_option_and_amount": paid_option_and_amount,
+            "paid": paid_option_and_amount["charge"]
         }
 
         return render(request, current_html, context)
@@ -161,7 +230,54 @@ def option_select(request):
             function_name,
             current_url_name
         )
+        
+def bank_transfer(request):
+    """銀行振込の場合"""
+    function_name = get_current_function_name()
+    current_url_name = "accounts:bank_transfer"
+    current_html = 'account/bank_transfer.html'
+    pre_url_name = "accounts:option_select"
+    tab_title = "銀行振込の場合"
+    
+    try:
+        
+        if not request.user.is_authenticated:
+            messages.warning(request, "会員専用のページです ログインしてください")
+            return redirect("account_login")
+        
+        user = request.user
+        option_request_data = OptionRequest.objects.filter(user=user)
+        
+        # 司法書士に依頼して連絡を確認済みのとき
+        if option_request_data.filter(is_recieved=True, option2=True).exists():
+            return redirect(pre_url_name)
 
+        not_paid_data = option_request_data.filter(is_recieved=False).first()
+        # 未払の利用申込みがないとき、オプション選択ページにリダイレクトする
+        if not not_paid_data:
+            messages.warning(request, "オプションを選択してください")
+            return redirect(pre_url_name)
+
+        unique_payer = not_paid_data.payer + not_paid_data.phone_number[-4:]
+        
+        context = {
+            "title": tab_title,
+            "company_data": CompanyData,
+            "service": Service,
+            "unique_payer": unique_payer,
+            "not_paid_data": not_paid_data
+        }
+
+        return render(request, current_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            user if "user" in locals() else None,
+            function_name,
+            current_url_name
+        )
+        
 def is_valid_email_pattern(request):
     """Djangoのメール形式に合致するか判定する"""
     input_email = request.POST.get("email")
@@ -210,7 +326,7 @@ def delete_account(request):
         return handle_error(
             e,
             request,
-            user,
+            user if "user" in locals() else None,
             function_name,
             current_url_name,
         )
@@ -405,7 +521,7 @@ def change_email(request):
         handle_error(
             e,
             request,
-            user,
+            user if "user" in locals() else None,
             function_name,
             current_url_name
         )

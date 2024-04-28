@@ -1,10 +1,5 @@
 "use strict";
 
-function initialize(){
-    updateSideBar();
-}
-
-
 /**
  * ４．に戻るボタンのイベント設定処理
  * ・progressを４．５にする
@@ -12,15 +7,22 @@ function initialize(){
  * ・処理が成功したときは前のページに戻る
  * ・エラーのときはこのページに留まる
  */
-function handlePreBtnEvent(){
-    const dialogTitle = "ここでの入力内容が一部初期化されますがよろしいですか？";
-    const html = "内容を確認するだけの場合は、画面左側にある進捗状況から確認したい項目をクリックしてください";
+function handlePreBtnClickEvent(event){
+
+    const dialogTitle = "ここでの入力が一部破棄されますがよろしいですか？";
+    const html = "前のページの内容を確認するだけの場合は、画面左側にある進捗状況から確認したい項目をクリックしてください";
     const icon = "warning";
+
     showConfirmDialog(dialogTitle, html, icon).then((result) =>{
+
+        // ダイアログで確認ボタンが押されたとき、前のページに戻る処理を実行する
         if(result.isConfirmed){
+
             document.getElementById("spinner").style.display = "";
-            preBtn.disabled = true;
+            event.target.disabled = true;
+            
             const data = { "progress" : 4.5 };
+
             fetch('step_back', {  // PythonビューのURL
                 method: 'POST',
                 body: JSON.stringify(data),
@@ -32,45 +34,70 @@ function handlePreBtnEvent(){
             }).then(response => {
                 return response.json();
             }).then(response => {
+
                 if (response.status === 'success'){
                     window.location.href = 'step_four';
                 }else if(response.status === "error"){
                     window.location.href = 'step_five';
                 }
-            }).catch(error => {
-                console.error('Error:', error);
+            }).catch(e => {
+                basicLog("showConfirmDialog", e, "前のページに戻る処理の実行中にエラー");
                 window.location.href = 'step_five';
             });
         }
     })
 }
 
-function checkAndToggleSubmitBtn(inputs){
-    if(inputs.every(x => x.checked)){
-        submitBtn.disabled = false;
-        return
-    }
-
-    submitBtn.disabled = true;
+/**
+ * フォーム検証
+ * @param {HTMLInputElement} inputs 
+ */
+function isFormValid(inputs){
+    submitBtn.disabled = !inputs.every(x => x.checked);
 }
 
-/*
-    ロード時全てのチェックボックスにイベント設定と先の戻ってきたときは、全てチェックされている状態にする
-*/
-window.addEventListener("load", ()=>{ 
-    initialize();
+/**
+ * inputにchangeイベントを設定する
+ */
+function setInputChangeEvent(){
 
     //csrfトークンのinputがあるためクラス名で全inputを取得
     const inputs = Array.from(document.getElementsByClassName("form-check-input")); 
     for(let i = 0, len = inputs.length; i < len; i++){
-        inputs[i].addEventListener("change", ()=>{
-            checkAndToggleSubmitBtn(inputs);
+
+        const input = inputs[i];
+        input.addEventListener("change", ()=>{
+            isFormValid(inputs);
         })
     }
+}
+
+/**
+ * 戻るボタンにイベント設定
+ */
+function setPreBtnClickEvent(){
+
+    const preBtn = document.getElementById("preBtn");
+    preBtn.addEventListener("click", (e)=>{
+        handlePreBtnClickEvent(e);
+    })
+}
+
+/*
+ *  ロード
+ *  全てのチェックボックスにイベント設定/ 戻ってきたとき、全てチェックされている状態にする
+*/
+window.addEventListener("load", ()=>{ 
+
+    updateSideBar();
+    setInputChangeEvent();
+    setPreBtnClickEvent();
 
     //先のステップから戻ってきたときは、全てチェックされている状態にする
     if(progress >= 5.5)
         inputs.forEach(x => x.checked = true);
+
+    disablePage(progress); // progressに応じたページの無効化
 })
 
 /**
@@ -79,11 +106,3 @@ window.addEventListener("load", ()=>{
 window.addEventListener('resize', () => {
     setSidebarHeight();
 });
-
-/*
- * ４．に戻るボタンのクリックイベント
- */
-preBtn.addEventListener("click", ()=>{
-    handlePreBtnEvent();
-})
-

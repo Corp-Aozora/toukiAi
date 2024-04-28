@@ -115,6 +115,48 @@ function addFileName(file){
     }
 }
 
+/**
+ * 送信イベントを設定
+ */
+function setSubmitEvent(){
+
+    const form = document.getElementsByTagName("form")[0];
+    
+    form.addEventListener("submit", function(e){
+
+        e.preventDefault();
+        
+        let formData = new FormData(this);
+
+        // 各PDFファイルを追加
+        registryFiles.forEach((pdfFile, index) => {
+            formData.append('pdf' + index, pdfFile);  
+        });
+
+        // ローディングメッセージを表示
+        document.getElementById("submitSpinner").style.display = "";
+        submitBtn.disabled = true;
+    
+        fetch('step_two', {  // PythonビューのURL
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            return response.json();
+        }).then(data => {
+            if (data.status === 'success'){
+                window.location.href = 'step_three';
+            }else if(data.status === "error"){
+                window.location.href = 'step_two';
+            }
+        })
+        .catch(error => {
+            window.location.href = 'step_two';
+            console.error('Error:', error);
+        });
+    })
+}
+
 /*
     イベント
 */
@@ -150,6 +192,10 @@ window.addEventListener("load", ()=>{
     Array.from(reqDocCbs).forEach(el => {
         el.addEventListener("click", () => isComp());
     });
+
+    setSubmitEvent();
+
+    disablePage(progress); // progressに応じたページの無効化
 })
 
 //表示画面のサイズが変わったとき
@@ -248,38 +294,9 @@ trash.addEventListener("click", (e)=>{
     trash.disabled = true;
 })
 
-form.addEventListener("submit", function(e){
-    e.preventDefault();  // フォームのデフォルトの送信動作をキャンセル
-    
-    let formData = new FormData(this);  // 既存のフォームデータを取得
-    registryFiles.forEach((pdfFile, index) => {
-        formData.append('pdf' + index, pdfFile);  // 各PDFファイルを追加
-    });
-    // ローディングメッセージを表示
-    document.getElementById("spinner").style.display = "";
-    submitBtn.disabled = true;
-
-    fetch('step_two', {  // PythonビューのURL
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        return response.json();
-    }).then(data => {
-        if (data.status === 'success'){
-            window.location.href = 'step_three';
-        }else if(data.status === "error"){
-            window.location.href = 'step_two';
-        }
-    })
-    .catch(error => {
-        window.location.href = 'step_two';
-        console.error('Error:', error);
-    });
-})
 
 preBtn.addEventListener("click", ()=>{
-    document.getElementById("spinner").style.display = "";
+    document.getElementById("preBtnspinner").style.display = "";
     preBtn.disabled = true;
     const data = { "progress" : 1.5 };
     fetch('step_back', {  // PythonビューのURL

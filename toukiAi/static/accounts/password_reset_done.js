@@ -123,24 +123,27 @@ window.addEventListener("load", ()=>{
         //モデルのバリデーションでエラーが出たとき用
         if(errorlist !== null) emailCheck();
     }
-})
 
-//フォーム
-form.addEventListener("submit", (e)=>{
-
-    e.preventDefault();
-    try{
-        emailCheck();
-        
-        //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
-        if(invalidEls.length > 0){
-            invalidEls[0].focus();
-            return;
-        } 
     
-        //メール送信するかどうか判別して次のページへ遷移する
-        accountResetPassword(reqInputs[emailIndex].value);
-    }catch(e){
-        basicLog("submit", e, "パスワードの再設定処理中にエラー")
-    }
+    //フォーム
+    const form = document.getElementsByTagName("form")[0];
+    form.addEventListener("submit", (e)=>{
+
+        e.preventDefault();
+        try{
+            emailCheck();
+            
+            //エラーがあるときは、そのうちの最初のエラー入力欄にフォーカスして送信をやめる
+            if(invalidEls.length > 0){
+                invalidEls[0].focus();
+                return;
+            } 
+        
+            //メール送信するかどうか判別して次のページへ遷移する
+            accountResetPassword(reqInputs[emailIndex].value);
+        }catch(e){
+            basicLog("submit", e, "パスワードの再設定処理中にエラー")
+        }
+    })
+
 })

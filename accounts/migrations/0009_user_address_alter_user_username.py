@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='username',
-            field=models.CharField(default='', max_length=30, validators=[common.validations.JapaneseOnlyUsernameValidator()], verbose_name='氏名'),
+            field=models.CharField(default='', max_length=30, validators=[common.validations.JapaneseOnlyValidator()], verbose_name='氏名'),
         ),
     ]

@@ -1,13 +1,18 @@
 "use strict";
 
 class InquiryForm{
-    constructor(el){
-        this.inputs = el.querySelectorAll("select, textarea");
+    constructor(){
+        this.form = document.getElementsByTagName("form")[0];
+        this.inputs = form.querySelectorAll("select, textarea");
+
         for(let i = 0, len = this.inputs.length; i < len; i++){
+
             const input = this.inputs[i];
             input.addEventListener("change", (e)=>{
+
                 const val = e.target.value;
                 const nextEl = this.inputs[i + 1];
+
                 if(i === 0)
                     InquiryForm.categoryChangeEvent(val, nextEl);
                 else if(i === 1)
@@ -19,7 +24,9 @@ class InquiryForm{
                     showModalBtn.disabled = e.target.value.length > 0? false: true;
                 })
             }
-        }      
+        }
+
+        
     }
 
     static inputIdxs = {
@@ -86,6 +93,29 @@ function iniAndDispatchChangeEvent(el){
     el.dispatchEvent(new Event("change"));
 }
 
+/**
+ * 送信ボタンにイベント設定
+ * @param {InquiryForm} instance 
+ */
+function setSubmitEvent(instance){
+    
+    const {form} = instance;
+    form.addEventListener("submit", (event)=>{
+        // 送信前に入力チェック
+        const spinner = document.getElementById("submitSpinner");
+        try{    
+            //複数回submitされないようにする
+            submitBtn.disabled = true;
+            spinner.style.display = "";
+            // categoryの値がとsubjectの先頭の数字と一致するものがあるか判別する
+        }catch(error){
+            console.error(`submit\n詳細：${error}`);
+            event.preventDefault();
+            spinner.style.display = "none";
+        }
+    })
+}
+
 /*
     イベント
 */
@@ -93,7 +123,8 @@ window.addEventListener("load", ()=>{
     initialize();
 
     const showModalBtn = document.getElementById("showModalBtn");
-    const formInstance = new InquiryForm(form);
+    const formInstance = new InquiryForm();
+
     // 進捗状況に応じて選択肢を変更する
     const fixedProgress = progress < 1? 1: progress;
     const selectElement = formInstance.inputs[InquiryForm.inputIdxs["category"]];
@@ -115,23 +146,7 @@ window.addEventListener("load", ()=>{
         const modalBody = modal.querySelector(".modal-body");
         modalBody.innerHTML = formInstance.inputs[InquiryForm.inputIdxs.content].value.replace(/\n/g, '<br>');
     })
+
+    setSubmitEvent(formInstance);
 })
 
-/**
- * 送信イベント
- */
-
-form.addEventListener("submit", (event)=>{
-    // 送信前に入力チェック
-    const spinner = document.getElementById("submitSpinner");
-    try{    
-        //複数回submitされないようにする
-        submitBtn.disabled = true;
-        spinner.style.display = "";
-        // categoryの値がとsubjectの先頭の数字と一致するものがあるか判別する
-    }catch(e){
-        console.error(`submit\n詳細：${e}`);
-        event.preventDefault();
-        spinner.style.display = "none";
-    }
-})

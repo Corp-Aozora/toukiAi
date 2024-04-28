@@ -1,0 +1,344 @@
+{% extends "account/base.html" %}
+
+{% block title %}
+    {{ title }} | {{ block.super}}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/bank_transfer.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+
+{% load custom_filters %}
+
+{% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
+<div class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3">
+    <section class="card shadow" {% if not_paid_data.option2 %}style="display: none;"{% else %}style="display: block;"{% endif %}>
+        <div class="card-header p-3 bg-danger-subtle bg-gradient bg-opacity-50">
+            <h4 class="text-center">
+                ご請求額
+            </h4>
+        </div>
+        <div class="card-body px-5">
+            <ul class="ps-0 mb-0">
+                <li class="d-flex justify-content-center">
+                    <ul class="option-detail-wrapper">
+                        <li {% if not_paid_data.basic %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                            <div class="d-flex">
+                                <div class="price">
+                                    {{service.CAMPAIGN_BASIC_PRICE_STR}}
+                                </div>
+                                <div class="ms-3">
+                                    {{service.BASIC_NAME}}
+                                </div>
+                            </div>
+                        </li>
+                        <li {% if not_paid_data.option1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                            <div class="d-flex">
+                                <div class="price">
+                                    {{service.CAMPAIGN_OPTION1_PRICE_STR}}
+                                </div>
+                                <div class="ms-3">
+                                    {{service.OPTION1_NAME}}
+                                </div>
+                            </div>
+                        </li>
+                        <li {% if not_paid_data.option2 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                            <div class="d-flex">
+                                <div class="price">
+                                    {{service.CAMPAIGN_OPTION2_PRICE_STR}}
+                                </div>
+                                <div class="ms-3">
+                                    {{service.OPTION2_NAME}}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <hr>
+                <li class="fw-bold text-center fs-5">
+                    {{not_paid_data.charge}}円（税込）
+                </li>
+            </ul>
+        </div>
+        <hr>
+        <ul class="px-3">
+            <li>
+                <div class="d-flex fw-bold">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        こちらが表示されてから１週間以内にお支払いが完了しない場合はキャンセルされたものとします。
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="d-flex fw-bold">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        弊社で着金確認後は原則としてキャンセルできません。
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </section>
+    <section class="card shadow mt-3" {% if not_paid_data.option2 %}style="display: none;"{% else %}style="display: block;"{% endif %}>
+        <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
+            <div class="text-center d-flex justify-content-center align-items-center">
+                <h4>
+                    銀行振込の場合
+                </h4>
+            </div>
+        </div>
+        <div class="card-body px-5">
+            <p class="text-center">
+                下記口座に上記金額の振込をお願いします。
+            </p>
+            <div class="d-flex justify-content-center">
+                <p class="fw-bold text-center border border-danger rounded-3 p-2">
+                    ※振込名義人は以下の表記で入力をお願いします。
+                    <br>
+                    <span class="text-danger fw-bold">
+                        {{ unique_payer }}
+                    </span>
+                </p>
+            </div>
+            <ul class="ps-0 d-flex justify-content-center">
+                <div>
+                    <li class="d-flex">
+                        <div class="label">
+                            金融機関名
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.BANK_NAME }}    
+                        </div>
+                    </li>
+                    <li class="d-flex">
+                        <div class="label">
+                            支店名
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.BANK_BRANCH_NAME }}     
+                        </div>
+                    </li>
+                    <li class="d-flex">
+                        <div class="label">
+                            口座種類
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.BANK_ACCOUNT_TYPE }}    
+                        </div>
+                    </li>
+                    <li class="d-flex">
+                        <div class="label">
+                            口座番号
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.BANK_ACCOUNT_NUMBER }}    
+                        </div>
+                    </li>
+                    <li class="d-flex">
+                        <div class="label">
+                            名義人
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.BANK_ACCOUNT_NAME }}    
+                        </div>
+                    </li>
+                </div>
+            </ul>
+            <div {% if not_paid_data.basic %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                <hr>
+                <p class="fw-bold fst-italic">
+                    システムの有料版をお申し込みいただいた方
+                </p>
+                <div class="ms-3">
+                    <div class="text-indent">
+                        お振込後、次のメールアドレス宛に
+                        <span class="border-bottom border-dark">
+                            お振込内容を確認できる画像
+                        </span>
+                        をお送りください。
+                    </div>
+                    <p class="text-center">
+                        {% with "オプションの利用料の振込連絡" as subject %}
+                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ subject|urlencode }}&body=※振込内容を確認できる画像を添付してください%0D%0A%0D%0A名義人：{{unique_payer|urlencode}}%0D%0A金額：{{not_paid_data.charge|urlencode}}円">
+                            {{ company_data.MAIL_ADDRESS }}
+                        </a>
+                        {% endwith %}
+                        <br>
+                        （クリックするとお客様のメールソフトが起動します）
+                    </p>
+                    <div>
+                        <div class="text-indent">
+                            弊社の担当者が画像を確認した後、お客様がシステムを利用できる状態に設定してメールでお知らせいたします。
+                        </div>
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                毎日（土日祝日を含む）１０時から２０時まで確認を行ってます。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex mt-3">
+                        <div>
+                            <span class="border-bottom border-dark">
+                                ※
+                            </span>
+                        </div>
+                        <div>
+                            <span class="border-bottom border-dark">
+                                ２４時間以内に弊社からメールが届かない場合
+                            </span>
+                            <br>
+                            システム障害などの可能性がありますので、お手数ですが、弊社にお電話をお願いします。
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center mt-3">
+                        <div class="fw-bold bordre-bottom border-dark">
+                            お問い合わせ先
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.MAIL_ADDRESS }}
+                            <br>
+                            {{ company_data.RECEIVING_PHONE_NUMBER }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3" {% if not_paid_data.option1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                <hr>
+                <p class="fw-bold fst-italic">
+                    戸籍取得代行をお申し込みいただいた方
+                </p>
+                <div class="ms-3">
+                    <div class="text-indent">
+                        弊社に着金したことを確認後、ご登録いただいた以下の住所に委任状などの書類を郵送してメールでその旨をお知らせいたします。
+                    </div>
+                    <div class="fw-bold text-center my-3">
+                        {{ not_paid_data.address }}
+                    </div>
+                    <div class="d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            住所に誤りがある場合、お問い合わせ先からお知らせください。
+                        </div>
+                    </div>
+                    <div class="d-flex mt-3">
+                        <div>
+                            <span class="border-bottom border-dark">
+                                ※
+                            </span>
+                        </div>
+                        <div>
+                            <span class="border-bottom border-dark">
+                                振込日を除いて金融機関の３営業日以内に弊社からメールが届かない場合
+                            </span>
+                            <br>
+                            誤振込の可能性がありますので、お手数ですが、弊社にメールまたはお電話をお願いします。
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center mt-3">
+                        <div class="fw-bold bordre-bottom border-dark">
+                            お問い合わせ先
+                        </div>
+                        <div class="ms-3">
+                            {{ company_data.MAIL_ADDRESS }}
+                            <br>
+                            {{ company_data.RECEIVING_PHONE_NUMBER }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="card shadow mt-3" {% if not_paid_data.option2 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+        <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
+            <div class="text-center mb-0 d-flex justify-content-center align-items-center">
+                <h5>
+                    弊社提携の司法書士に依頼をお申し込みいただいた方
+                </h5>
+            </div>
+        </div>
+        <div class="card-body px-5">
+            <p class="text-indent">
+                <span class="fw-bold">
+                    受任する司法書士が決まりましたら弊社からお客様に司法書士の連絡先をメールします。
+                </span>
+                その後、
+                <span class="border-bottom border-dark">
+                    数日内に
+                </span>
+                司法書士からお客様に電話またはメールにてご連絡があります。
+            </p>
+            <div class="d-flex">
+                <div>
+                    ※
+                </div>
+                <div>
+                    {{not_paid_data.charge}}円（税込）のお支払いは直接司法書士とやり取りをお願いします（お支払いのタイミングは司法書士によります）。
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="d-flex">
+                    <div class="border-bottom border-dark">
+                        ※
+                    </div>
+                    <div class="border-bottom border-dark">
+                        以下の場合は、弊社までお問い合わせをお願いします。
+                    </div>
+                </div>
+                <ul class="ps-3 mb-0 mt-1">
+                    <li class="mt-3">
+                        ・弊社から３日以内（土日祝日を除く）にメールが届かない
+                    </li>
+                    <li class="mt-3">
+                        ・弊社からメールが届いて３日経過（土日祝日を除く）しても司法書士から連絡がない
+                    </li>
+                    <li class="mt-3">
+                        ・キャンセルしたい（直接司法書士にお伝えいただいても大丈夫です）
+                    </li>
+                </ul>
+            </div>
+            <hr>
+            <div class="text-center mt-3">
+                <div class="fw-bold bordre-bottom border-dark">
+                    お問い合わせ先
+                </div>
+                <div class="ms-3">
+                    {{ company_data.MAIL_ADDRESS }}
+                    <br>
+                    {{ company_data.RECEIVING_PHONE_NUMBER }}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'accounts/bank_transfer.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

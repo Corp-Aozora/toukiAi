@@ -74,9 +74,9 @@ function setEventToInputs(instance, idxs){
  */
 function setEventToSubmit(instance, idxs){
     const spinner = document.getElementById("submitSpinner");
-    const {inputs, errMsgEls, submitBtn} = instance;
+    const {inputs, errMsgEls, submitBtn, form} = instance;
 
-    instance.form.addEventListener("submit", (event)=>{
+    form.addEventListener("submit", (event)=>{
         try{
             submitBtn.disabled = true;
             spinner.style.display = "";

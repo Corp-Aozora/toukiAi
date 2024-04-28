@@ -4,9 +4,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
 from django.utils import timezone
 
-from toukiApp.company_data import Service
+from toukiApp.company_data import *
 from .models import *
 from common.widgets import *
+from common.utils import *
 
 CustomUser = get_user_model()
 
@@ -222,36 +223,68 @@ class OptionSelectForm(forms.ModelForm):
     class Meta:
         model = OptionRequest
         fields = model.fields
-        widgets = {
-            "basic": forms.HiddenInput(),
-            "option1": forms.HiddenInput(),
-            "option2": forms.HiddenInput(),
-        }
         labels = {
-            "is_phone_required": "電話によるやりとりを希望する"
+            "charge": "ご請求額"
         }
         
     def __init__(self, *args, **kwargs):
+        # 支払済みデータ
+        self.paid_option_and_amount = kwargs.pop("paid_option_and_amount", None)
         super().__init__(*args, **kwargs)
         
         self.fields["name"].widget.attrs.update(WidgetAttributes.name_normal)
-        self.fields["payer"].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "カタカナのみ",
-            "maxlength": "30"
-        })
-        self.fields["address"].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "書類が届く宛先",
-            "maxlength": "100"
-        })
-        self.fields["phone_number"].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "ハイフンなし",
-            "maxlength": "11"
-        })
-        self.fields["basic"].widget.attrs.update(WidgetAttributes.hidden_input)
-        self.fields["option1"].widget.attrs.update(WidgetAttributes.hidden_input)
-        self.fields["option2"].widget.attrs.update(WidgetAttributes.hidden_input)
-        self.fields["is_phone_required"].widget.attrs.update(WidgetAttributes.radio)
+        self.fields["name"].validators.append(JapaneseOnlyValidator()) # 日本語のみ検証
+        
+        self.fields["payer"].widget.attrs.update(WidgetAttributes.payer)
+        self.fields["payer"].validators.append(validate_katakana) # カタカナのみ検証
+        
+        self.fields["address"].widget.attrs.update(WidgetAttributes.full_address_2)
+        self.fields["address"].required = False
+        
+        self.fields["phone_number"].widget.attrs.update(WidgetAttributes.phone_number_no_hyphen)
+        self.fields["phone_number"].validators.append(validate_no_hyphen_phone_number) # 10桁または11桁の全角数字検証
+        
+        self.fields["basic"].widget.attrs.update(WidgetAttributes.checkbox)
+        self.fields["option1"].widget.attrs.update(WidgetAttributes.checkbox)
+        self.fields["option2"].widget.attrs.update(WidgetAttributes.checkbox)
+        self.fields["charge"].widget.attrs.update(WidgetAttributes.charge)
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # いずれかのオプションが選択されている
+        if not any([cleaned_data.get("basic"), cleaned_data.get("option1"), cleaned_data.get("option2")]):
+            raise ValidationError("オプションが選択されてません。")
+        
+        # 支払い済みのオプションと違うオプションが選択されている
+        if cleaned_data.get("basic") == True and self.paid_option_and_amount["basic"] == True:
+            raise ValidationError("システムの利用料はすでにお支払いいただいてます。")
+            
+        if cleaned_data.get("option1") == True and self.paid_option_and_amount["option1"] == True:
+            raise ValidationError("戸籍取得代行の利用料すでにお支払いいただいてます。")
+
+        if cleaned_data.get("option2") == True and self.paid_option_and_amount["option2"] == True:
+            raise ValidationError("すでにお申し込みいただいてます。")
+        
+        # 選択と金額が一致している
+        total_price = 0
+        if cleaned_data.get("basic"):
+            total_price += Service.CAMPAIGN_BASIC_PRICE_INT
+        if cleaned_data.get("option1"):
+            total_price += Service.CAMPAIGN_OPTION1_PRICE_INT
+        
+        # オプション２のときは、既払金額を差し引く
+        if cleaned_data.get("option2"):
+            total_price += Service.CAMPAIGN_OPTION2_PRICE_INT - self.paid_option_and_amount["charge"]
+        
+        # データとPOSTデータの請求額の一致を確認
+        posted_charge = zenkaku_currency_to_int(cleaned_data.get("charge"))
+        if posted_charge != total_price:
+            raise ValidationError("ご請求額が登録されている金額データと一致しません。")
+        
+        # 住所 有料版以外のオプションが選択されているとき、入力が必須
+        if (cleaned_data.get("option1") or cleaned_data.get("option2")) and cleaned_data.get("address") == "":
+            raise ValidationError("住所を入力してください")
+        
+        return cleaned_data
         

@@ -5,6 +5,10 @@ class WidgetAttributes:
     radio = {
         "class": "form-check-input",
     }
+    # チェックボックス
+    checkbox = {
+        "class": "form-check-input cb",
+    }
     # セレクト
     select = {
         "class": "form-select text-center cursor-pointer rounded-end"
@@ -30,6 +34,13 @@ class WidgetAttributes:
         "class": "form-control text-center rounded-end",
         "maxlength": "16",
     }
+    # 請求額
+    charge = {
+        "placeholder": "",
+        "class": "form-control text-center rounded-end fw-bold",
+        "maxlength": "7",
+        "disabled": "true"
+    }
     # 氏名（登記用）
     name = {
         "class": "form-control rounded-end",
@@ -41,6 +52,12 @@ class WidgetAttributes:
         "class": "form-control rounded-end",
         "placeholder": "",
         "maxlength": "30",
+    }
+    # 振込名義人
+    payer = {
+        "class": "form-control rounded-end",
+        "placeholder": "ひらがな又はカタカナで入力",
+        "maxlength": "30"
     }
     # カウントする入力欄
     count = {
@@ -123,9 +140,20 @@ class WidgetAttributes:
         "placeholder": "福岡県福岡市中央区天神１丁目１番１号",
         "maxlength": "100",        
     }
-    # 電話番号
+    full_address_2 = {
+        "class": "form-control rounded-end",
+        "placeholder": "書類が届く宛先",
+        "maxlength": "100"
+    }
+    # 電話番号（ハイフンあり）
     phone_number = {
         "class": "form-control rounded-end",
         "placeholder": "ハイフンあり",
         "maxlength": "13",
+    }
+    # 電話番号（ハイフンなし）
+    phone_number_no_hyphen = {
+        "class": "form-control rounded-end",
+        "placeholder": "ハイフンなし",
+        "maxlength": "11",
     }

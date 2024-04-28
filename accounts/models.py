@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         AbstractBaseUser (_type_): _description_
         PermissionsMixin (_type_): _description_
     """
-    username = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyUsernameValidator()], unique=False, default="")
+    username = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyValidator()], unique=False, default="")
     address = models.CharField(verbose_name="住所", max_length=100, default="")
     email = models.EmailField(verbose_name="メールアドレス", unique=True)
     phone_number_regex = RegexValidator(regex=r'^[0-9]+$', message = ("ハイフンなしの10桁又は11桁で入力してください"))
@@ -121,17 +121,15 @@ class OptionRequest(CommonModel):
     
     is_recieved = models.BooleanField(verbose_name="着金確認", default=False)
     is_recieved_date = models.DateTimeField(verbose_name="着金確認日", null=True, blank=True)
-    name = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyUsernameValidator()], null=False, blank=False)
+    name = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyValidator()], null=False, blank=False)
     payer = models.CharField(verbose_name="支払名義人", max_length=30, validators=[validate_katakana], null=False, blank=False)
-    address = models.CharField(verbose_name="住所", max_length=100, default="")
-    
-    phone_number_regex = RegexValidator(regex=r'^[0-9]+$', message = ("ハイフンなしの10桁又は11桁で入力してください"))
-    phone_number = models.CharField(verbose_name="電話番号", validators=[phone_number_regex], max_length=11, null=False, blank=False)
+    address = models.CharField(verbose_name="住所", max_length=100, default="", null=True, blank=True)
+    phone_number = models.CharField(verbose_name="電話番号", validators=[validate_no_hyphen_phone_number], max_length=11, null=False, blank=False)
     
     basic = models.BooleanField(verbose_name="システムの有料版の申込み", default=False)
     option1 = models.BooleanField(verbose_name="戸籍取得代行の申込み", default=False)
     option2 = models.BooleanField(verbose_name="司法書士紹介の申込み", default=False)
-    is_phone_required = models.BooleanField(verbose_name="電話による連絡を希望", default=False)
+    charge = models.CharField(verbose_name="支払額", max_length=7, default="０")
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -158,13 +156,13 @@ class OptionRequest(CommonModel):
         "basic",
         "option1",
         "option2",
-        "is_phone_required",
+        "charge",
     ]
     
     class Meta:
         verbose_name = _("オプション利用申請")
         verbose_name_plural = _("オプション利用申請")
-
+        
 class EmailChange(models.Model):
     """メールアドレス変更申請データ
 

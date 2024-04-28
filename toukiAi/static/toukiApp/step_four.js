@@ -73,6 +73,9 @@ window.addEventListener("load", ()=>{
         inputs.forEach(x => x.checked = true);
         submitBtn.disabled = false;
     }
+
+    disablePage(progress); // progressに応じたページの無効化
+
 })
 
 window.addEventListener('resize', () => {

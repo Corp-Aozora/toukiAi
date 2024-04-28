@@ -1,7 +1,9 @@
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.http import HttpResponse
+from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from .models import *
 
@@ -63,3 +65,50 @@ class EmailChangeAdmin(admin.ModelAdmin):
     ordering = ["-updated_at"]
 
 admin.site.register(EmailChange, EmailChangeAdmin)
+
+"""
+    オプションの利用申請    
+"""
+class OptionRequestForm(forms.ModelForm):
+    class Meta:
+        model = OptionRequest
+        fields = '__all__'
+
+class OptionRequestAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('user', "is_recieved", "is_recieved_date", "name", "payer", "address", "phone_number", "basic", "option1", "option2", "charge")}),
+        (_('Important dates'), {'fields': ('updated_at', "created_at")}),
+    )
+    
+    readonly_fields = ("user", 'updated_at', "created_at")
+    
+    form = OptionRequestForm
+    list_display = ('updated_at', 'user', "name", "payer", "phone_number", "basic", "option1", "option2", "charge", "is_recieved")
+    list_filter = ('updated_at', 'user', "name", "payer", "is_recieved")
+    search_fields = ('updated_at', 'user', "name", "payer", "phone_number")
+    ordering = ["-updated_at"]
+        
+    # def get_urls(self):
+    #     urls = super().get_urls()
+    #     custom_urls = [
+    #         path('<int:object_id>/check_reciept/', self.admin_site.admin_view(self.check_reciept), name='check_reciept'),
+    #     ]
+    #     return custom_urls + urls
+
+    # def check_reciept(self, request, object_id, *args, **kwargs):
+    #     """領収書の内容チェック"""
+    #     pass
+    #     # instance = self.model.objects.get(pk=object_id)
+    #     # # ここで何らかの処理を行う
+    #     # instance.save()
+    #     # return HttpResponse("Processed!")
+        
+    # def check_reciept(self, request, object_id, *args, **kwargs):
+    #     """メールの内容チェック"""
+    #     pass
+    #     # instance = self.model.objects.get(pk=object_id)
+    #     # # ここで何らかの処理を行う
+    #     # instance.save()
+    #     # return HttpResponse("Processed!")
+    
+admin.site.register(OptionRequest, OptionRequestAdmin)

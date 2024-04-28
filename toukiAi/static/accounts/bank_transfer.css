@@ -1,0 +1,16 @@
+h4, h5{
+    margin-bottom: 0px!important;
+}
+
+.label{
+    min-width: 85px;
+}
+
+.emPosition {
+    left: 145px;
+    top: -55px;
+}
+
+::placeholder{
+    text-align: center;
+}

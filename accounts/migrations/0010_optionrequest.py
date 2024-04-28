@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='最終更新日')),
                 ('is_recieved', models.BooleanField(default=False, verbose_name='着金確認')),
                 ('is_recieved_date', models.DateTimeField(blank=True, null=True, verbose_name='着金確認日')),
-                ('name', models.CharField(max_length=30, validators=[common.validations.JapaneseOnlyUsernameValidator()], verbose_name='氏名')),
+                ('name', models.CharField(max_length=30, validators=[common.validations.JapaneseOnlyValidator()], verbose_name='氏名')),
                 ('payer', models.CharField(max_length=30, validators=[common.validations.validate_katakana], verbose_name='支払名義人')),
                 ('address', models.CharField(default='', max_length=100, verbose_name='住所')),
                 ('phone_number', models.CharField(max_length=11, validators=[django.core.validators.RegexValidator(message='ハイフンなしの10桁又は11桁で入力してください', regex='^[0-9]+$')], verbose_name='電話番号')),

@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+
+from common.create_reciept import *
  
 app_name = 'accounts'
 
@@ -15,11 +17,13 @@ urlpatterns = [
     path("change_email/", views.change_email, name="change_email"),
     path('confirm/<str:token>/', views.confirm_email, name='confirm_email'),
     path("delete_account/", views.delete_account, name="delete_account"), # 汎用の重複メールアドレスチェック
-    path("option_select/", views.option_select, name="option_select"), # 汎用の重複メールアドレスチェック
+    path("option_select/", views.option_select, name="option_select"), # オプション選択
+    path("bank_transfer/", views.bank_transfer, name="bank_transfer"), # 銀行振込のとき
     
     path("password/reset/is_user_email/", views.is_user_email, name="is_user_email"), 
     path("password/reset/is_valid_email_pattern/", views.is_valid_email_pattern, name="is_valid_email_pattern"),
     path("password/reset/done/is_user_email/", views.is_user_email, name="is_user_email"),
     path("password/reset/done/is_valid_email_pattern/", views.is_valid_email_pattern, name="is_valid_email_pattern"),
     path("is_new_email/", views.is_new_email, name="is_new_email"), # 汎用の重複メールアドレスチェック
+    path('create_reciept_view/', CreateRecieptView.as_view(), name='create_reciept_view'),
 ]

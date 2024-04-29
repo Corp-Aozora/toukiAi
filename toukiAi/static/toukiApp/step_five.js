@@ -53,7 +53,7 @@ function handlePreBtnClickEvent(event){
  * @param {HTMLInputElement} inputs 
  */
 function isFormValid(inputs){
-    submitBtn.disabled = !inputs.every(x => x.checked);
+    document.getElementById("submitBtn").disabled = !inputs.every(x => x.checked);
 }
 
 /**

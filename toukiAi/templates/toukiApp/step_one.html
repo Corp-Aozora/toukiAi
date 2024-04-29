@@ -1130,8 +1130,18 @@
                         </span>
                     </p>
                     <div class="d-flex justify-content-evenly px-3 pb-3">
-                        <input type="button" class="btn btn-secondary preBtn bg-gradient bg-opacity-50 fw-bold" value="修正する">
-                        <input id="submitBtn" type="submit" class="btn btn-primary nextBtn bg-gradient bg-opacity-50 fw-bold" value="２．必要書類一覧に進む">
+                        <div>
+                            <button type="button" class="btn btn-secondary preBtn">
+                                修正する
+                            </button>
+                        </div>
+                        <div>
+                            <button id="submitBtn" type="submit" class="btn btn-primary nextBtn">
+                                ２．必要書類一覧に進む
+                                <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </fieldset>
             </section>

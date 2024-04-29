@@ -106,7 +106,7 @@ window.addEventListener("load", ()=>{
         reqInputs[i].addEventListener("keypress", (e)=>{
             if(e.key === "Enter"){
                 e.preventDefault();
-                submitBtn.focus();
+                document.getElementById("submitBtn").focus();
             }
         })
 

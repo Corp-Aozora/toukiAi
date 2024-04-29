@@ -4,7 +4,7 @@ class InquiryForm{
     constructor(){
         this.form = document.getElementsByTagName("form")[0];
         this.inputs = form.querySelectorAll("select, textarea");
-
+        this.submitBtn = document.getElementById("submitBtn");
         for(let i = 0, len = this.inputs.length; i < len; i++){
 
             const input = this.inputs[i];
@@ -99,7 +99,7 @@ function iniAndDispatchChangeEvent(el){
  */
 function setSubmitEvent(instance){
     
-    const {form} = instance;
+    const {form, submitBtn} = instance;
     form.addEventListener("submit", (event)=>{
         // 送信前に入力チェック
         const spinner = document.getElementById("submitSpinner");

@@ -21,7 +21,6 @@ let invalidEls = [];
 let preserveInvalidEls = [];
 let isValid;
 
-const submitBtn = document.getElementById("submitBtn");
 const errorlist = document.querySelector(".errorlist");
 
 //定数

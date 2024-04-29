@@ -1304,7 +1304,10 @@ async function displayNextFieldset(nextFieldset){
     const hr = document.createElement("hr");
     hr.className = "my-5";
     nextFieldset.before(hr);
-    nextFieldset.querySelector("input").focus();
+    if(nextFieldset.id === "submitBtnFieldset")
+        nextFieldset.querySelector(".nextBtn").focus();
+    else
+        nextFieldset.querySelector("input").focus();
 }
 
 /**
@@ -2506,7 +2509,7 @@ class CollateralRbHandler extends CommonRbHandler{
                 ()=>{
                     //yesAction
                     // 初回入力のとき、保留していたイベントを発生させる
-                    if(window.getComputedStyle(Qs[CIsLive.form]).display === "none")
+                    if(window.getComputedStyle(Qs[ColIsLive.form]).display === "none")
                         dispatchIniChangeEvent(instance, true);
                 
                     slideDownIfHidden(Qs[ColIsLive.form]);
@@ -4048,7 +4051,8 @@ async function enableSubmitBtnFieldset(fromInstance){
     //完了ボタンにフォーカスを移動する
     const nextBtn = submitBtnFieldset.getElementsByClassName("nextBtn")[0];
     const handleSubmitBtnFieldsetNextBtnClick  = () => beforeSubmit(fromInstance);
-    nextBtn.addEventListener("click", handleSubmitBtnFieldsetNextBtnClick)
+    nextBtn.addEventListener("click", handleSubmitBtnFieldsetNextBtnClick);
+
     nextBtn.focus();
 }
 
@@ -5265,6 +5269,32 @@ function setDecedentEvent(){
 }
 
 /**
+ * フォームの送信イベント設定
+ */
+function setFormSubmitEvent(){
+
+    const form = document.getElementsByTagName("form")[0];
+    form.addEventListener("submit", (event) =>{
+
+        const submitBtn = document.getElementById("submitBtn");
+        const spinner = document.getElementById("submitSpinner");
+
+        try{    
+            
+            //複数回submitされないようにする
+            submitBtn.disabled = true;
+            spinner.style.display = "";
+            
+        }catch(error){
+            basicLog("setFormSubmitEvent", error, "POST処理でエラー発生");
+            event.preventDefault();
+            submitBtn.disabled = false;
+            spinner.style.display = "none";
+        }
+    })
+}
+
+/**
  * イベント
  */
 // 最初の画面表示後の処理
@@ -5275,6 +5305,8 @@ window.addEventListener("load", async ()=>{
         await loadData(); // データをロードする
 
         disablePage(progress); // progressに応じたページの無効化
+
+        setFormSubmitEvent();
     }catch(e){
         basicLog("load", e);
     }

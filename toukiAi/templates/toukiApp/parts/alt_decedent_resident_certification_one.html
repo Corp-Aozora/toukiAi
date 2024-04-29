@@ -1,0 +1,42 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="alt_decedent_resident_certification_one" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">
+                    登記済証（色々な書式がありますが、同じ内容が記載されてます。）
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-center">
+                    表紙に登記済証や登記済み権利証と記載されていることが多いです。
+                </h5>
+                <div class="d-flex justify-content-center mt-4">
+                    <div class="supplement">
+                        <p>
+                            <span class="px-3 border-bottom border-dark">
+                                以下の記載があることをご確認ください。
+                            </span>
+                        </p>
+                        <ul class="ps-5 mb-0">
+                            <li>
+                                登記の目的に「所有権移転」または「〇〇持分移転」の記載がある
+                            </li>
+                            <li class="mt-3">
+                                ページ末尾に押されたスタンプに記載された年月日と番号が登記簿謄本のものと一致している
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="d-flex justify-content-center">
+                    <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
+                </p>
+                <p class="d-flex justify-content-center">
+                    <img class="modal-image" src="{% static 'toukiApp/img/登記済証２ページ.png' %}" alt="登記済証２ページの参考画像">
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

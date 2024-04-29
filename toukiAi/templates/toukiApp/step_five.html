@@ -34,6 +34,12 @@
     {% endif %}
 {% endfor %}
 
+{% include "toukiApp/parts/decedent_resident_certification_one.html" %}
+{% include "toukiApp/parts/decedent_resident_certification_two.html" %}
+{% include "toukiApp/parts/alt_decedent_resident_certification_one.html" %}
+{% include "toukiApp/parts/alt_decedent_resident_certification_two.html" %}
+{% include "toukiApp/parts/alt_decedent_resident_certification_three.html" %}
+
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
@@ -244,324 +250,232 @@
                     </div>
                 </li>
                 <hr>
-                    <li class="container mt-3">
-                        <h5>
-                            下記書類を登記申請書（申請書）と同じ通数コピーする
-                        </h5>
-                        <span class="px-3 form-text border-bottom border-secondary">
-                            書類名をクリックすると参考例が表示されます。
-                        </span>
-                        <div class="d-flex ms-3 mt-3">
-                            <div class="text-danger">
-                                ※
-                            </div>
-                            <p class="text-danger">
-                                コピーは必要なページのみでなく、全ページをコピーしてください。<br>
-                                ただし、何も記載がない裏面は不要です。
-                            </p>
+                <li class="container mt-3">
+                    <h5>
+                        下記書類を登記申請書（申請書）と同じ通数コピーする
+                    </h5>
+                    <span class="px-3 form-text border-bottom border-secondary">
+                        書類名をクリックすると参考例が表示されます。
+                    </span>
+                    <div class="d-flex ms-3 mt-3">
+                        <div class="text-danger">
+                            ※
                         </div>
-                        <ul class="list-group list-group-flush border-bottom d-inline-block">
-                            <li class="list-group-item">
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#price_certification">
-                                    固定資産評価証明書（評価証明書）
-                                </button>
-                                <div class="d-flex">
-                                    <div class="text-primary">
-                                        ※
-                                    </div>
-                                    <button type="button" class="text-primary" data-bs-toggle="modal" data-bs-target="#about_price_certification_copy">
-                                        申請書が２通以上ある、かつ２か所以上の役所から評価証明書を取得しているとき
-                                    </button>
+                        <p class="text-danger">
+                            コピーは必要なページのみでなく、全ページをコピーしてください。<br>
+                            ただし、何も記載がない裏面は不要です。
+                        </p>
+                    </div>
+                    <ul class="list-group list-group-flush border-bottom d-inline-block">
+                        <li class="list-group-item">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#price_certification">
+                                固定資産評価証明書（評価証明書）
+                            </button>
+                            <div class="d-flex">
+                                <div class="text-primary">
+                                    ※
                                 </div>
-                            </li>
-                            <li class="list-group-item">
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_one">
-                                    被相続人の住民票の除票
+                                <button type="button" class="text-primary" data-bs-toggle="modal" data-bs-target="#about_price_certification_copy">
+                                    申請書が２通以上ある、かつ２か所以上の役所から評価証明書を取得しているとき
                                 </button>
-                                又は
-                                <button type="button" class="cursor-pointer text-start" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_two">
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_one">
+                                被相続人の住民票の除票
+                            </button>
+                            又は
+                            <button type="button" class="cursor-pointer text-start" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_two">
+                                戸籍の附票
+                            </button>                           
+                            <div>
+                                ※被相続人の住所の履歴を確認できなかった場合でも、取得しているときは法務局に提出するためコピーしてください。
+                            </div>
+                            <div>
+                                ※役所の保管期間切れになど役所の事情により取得できなかった場合は不要です。
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_one">
+                                登記済証
+                            </button>
+                            、
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_two">
+                                登記識別情報通知書
+                            </button>
+                            、
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_three">
+                                不在住証明書
+                            </button>
+                            を用意しているときは、用意しているもの
+                            <br>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                不動産を取得する方の住民票または
+                                <button type="button" class="text-start" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_two">
                                     戸籍の附票
-                                </button>                           
-                                <div>
-                                    ※被相続人の住所の履歴を確認できなかった場合でも、取得しているときは法務局に提出するためコピーしてください。
-                                </div>
-                                <div>
-                                    ※役所の保管期間切れになど役所の事情により取得できなかった場合は不要です。
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_one">
-                                    登記済証
                                 </button>
-                                、
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_two">
-                                    登記識別情報通知書
-                                </button>
-                                、
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_three">
-                                    不在住証明書
-                                </button>
-                                を用意しているときは、用意しているもの
-                                <br>
-                            </li>
-                            <li class="list-group-item">
+                            </div>
+                            {% if overseas_acquirers|length > 0 %}
                                 <div>
-                                    不動産を取得する方の住民票または
-                                    <button type="button" class="text-start" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_two">
-                                        戸籍の附票
+                                    ※日本に住民票がない方は、
+                                    <button type="button" class="text-start" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_three">
+                                        在留証明書。
                                     </button>
                                 </div>
-                                {% if overseas_acquirers|length > 0 %}
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item">
+                            相続人全員分の遺産分割協議証明書と印鑑証明書
+                        </li>
+                    </ul>
+                </li>
+                <div class="modal fade" id="price_certification" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">
+                                    固定資産評価証明書
+                                </h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（あり）.png' %}" alt="固定資産評価証明書の説明画像">
+                            </div>
+                        </div>
+                    </div>
+                </div>         
+                <div class="modal fade" id="land_info" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">
+                                    不動産の登記情報（全部事項証明書も同じ内容が記載されてます）
+                                </h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="土地登記情報の説明画像">
+                            </div>
+                        </div>
+                    </div>
+                </div>          
+                <div class="modal fade" id="about_price_certification_copy" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">
+                                    評価証明書のコピーについて
+                                </h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="ms-3">
+                                    <p>
+                                        <span class="fw-bold border-bottom border-secondary">
+                                            各申請書には、その申請書の不動産の表示に対応する評価証明書のコピーが必要です。
+                                        </span>
+                                        <br>
+                                        <span class="ms-3">
+                                            １通の評価証明書に２以上の不動産が記載されていて、その一部は申請書の不動産の表示に記載されてないものが含まれていても全ページをコピーしてください。
+                                        </span>                                    
+                                    </p>
+                                    <p>
+                                        <span class="fw-bold border-bottom border-secondary">
+                                            同じ法務局に提出する申請書が２通以上あり、同じ評価証明書を使用できるとき
+                                        </span><br>
+                                        <span class="ms-3">
+                                            同じ法務局でもそれぞれの申請書に評価証明書のコピーが必要なため、その法務局に提出する申請書の通数分コピーしてください。
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="check_decedent_address" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">
+                                    被相続人の登記簿上の住所から死亡時の住所までの履歴の確認方法
+                                </h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body mx-auto">
+                                <div>
+                                    <p class="ms-3">
+                                        登記対象の各不動産について以下の作業が必要です
+                                    </p>
+                                </div>
+                                <div class="mt-4">
                                     <div>
-                                        ※日本に住民票がない方は、
-                                        <button type="button" class="text-start" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_three">
-                                            在留証明書。
-                                        </button>
-                                    </div>
-                                {% endif %}
-                            </li>
-                            <li class="list-group-item">
-                                相続人全員分の遺産分割協議証明書と印鑑証明書
-                            </li>
-                        </ul>
-                    </li>
-                    <div class="modal fade" id="price_certification" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        固定資産評価証明書
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（あり）.png' %}" alt="固定資産評価証明書の説明画像">
-                                </div>
-                            </div>
-                        </div>
-                    </div>         
-                    <div class="modal fade" id="land_info" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        不動産の登記情報（全部事項証明書も同じ内容が記載されてます）
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="土地登記情報の説明画像">
-                                </div>
-                            </div>
-                        </div>
-                    </div>          
-                    <div class="modal fade" id="about_price_certification_copy" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        評価証明書のコピーについて
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="ms-3">
-                                        <p>
+                                        <div class="text-center">
                                             <span class="fw-bold border-bottom border-secondary">
-                                                各申請書には、その申請書の不動産の表示に対応する評価証明書のコピーが必要です。
+                                                １
                                             </span>
-                                            <br>
-                                            <span class="ms-3">
-                                                １通の評価証明書に２以上の不動産が記載されていて、その一部は申請書の不動産の表示に記載されてないものが含まれていても全ページをコピーしてください。
-                                            </span>                                    
-                                        </p>
-                                        <p>
-                                            <span class="fw-bold border-bottom border-secondary">
-                                                同じ法務局に提出する申請書が２通以上あり、同じ評価証明書を使用できるとき
-                                            </span><br>
-                                            <span class="ms-3">
-                                                同じ法務局でもそれぞれの申請書に評価証明書のコピーが必要なため、その法務局に提出する申請書の通数分コピーしてください。
+                                            <span class="ps-3 fw-bold border-bottom border-secondary">
+                                                不動産の登記情報または全部事項証明書の被相続人の住所氏名を確認
                                             </span>
+                                        </div>
+                                        <p class="d-flex justify-content-center">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報の参考画像">
                                         </p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="check_decedent_address" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        被相続人の登記簿上の住所から死亡時の住所までの履歴の確認方法
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body mx-auto">
                                     <div>
-                                        <p class="ms-3">
-                                            登記対象の各不動産について以下の作業が必要です
+                                        <p class="text-center mt-5">
+                                            <span class="fw-bold border-bottom border-secondary">
+                                                ２
+                                            </span>
+                                            <span class="ps-3 fw-bold border-bottom border-secondary">
+                                                住民票の除票または戸籍の附票を取得して記載されている被相続人の住所氏名を確認
+                                            </span>
+                                        </p>
+                                        <p class="text-center">
+                                            ※先にどちらかを取得して、そちらで履歴を確認できないときは、もう一方も取得する必要があります。
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票（住所チェック）.png' %}" alt="住民票の除票の参考画像">
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/戸籍の除票.png' %}" alt="現在戸籍の附票の参考画像">
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/改製原戸籍の附票.png' %}" alt="改製原戸籍の附票の参考画像">
                                         </p>
                                     </div>
-                                    <div class="mt-4">
-                                        <div>
-                                            <div class="text-center">
-                                                <span class="fw-bold border-bottom border-secondary">
-                                                    １
-                                                </span>
-                                                <span class="ps-3 fw-bold border-bottom border-secondary">
-                                                    不動産の登記情報または全部事項証明書の被相続人の住所氏名を確認
-                                                </span>
-                                            </div>
-                                            <p class="d-flex justify-content-center">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報の参考画像">
-                                            </p>
+                                    <div>
+                                        <div class="text-center mt-5">
+                                            <span class="fw-bold border-bottom border-secondary">
+                                                ３
+                                            </span>
+                                            <span class="ps-3 fw-bold border-bottom border-secondary">
+                                                ２で履歴を確認できないとき、登記済証、登記識別情報通知書、不在住証明書のいずれかを用意する。
+                                            </span>
                                         </div>
-                                        <div>
-                                            <p class="text-center mt-5">
-                                                <span class="fw-bold border-bottom border-secondary">
-                                                    ２
-                                                </span>
-                                                <span class="ps-3 fw-bold border-bottom border-secondary">
-                                                    住民票の除票または戸籍の附票を取得して記載されている被相続人の住所氏名を確認
-                                                </span>
-                                            </p>
-                                            <p class="text-center">
-                                                ※先にどちらかを取得して、そちらで履歴を確認できないときは、もう一方も取得する必要があります。
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票（住所チェック）.png' %}" alt="住民票の除票の参考画像">
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/戸籍の除票.png' %}" alt="現在戸籍の附票の参考画像">
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/改製原戸籍の附票.png' %}" alt="改製原戸籍の附票の参考画像">
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <div class="text-center mt-5">
-                                                <span class="fw-bold border-bottom border-secondary">
-                                                    ３
-                                                </span>
-                                                <span class="ps-3 fw-bold border-bottom border-secondary">
-                                                    ２で履歴を確認できないとき、登記済証、登記識別情報通知書、不在住証明書のいずれかを用意する。
-                                                </span>
-                                            </div>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/登記済証２ページ.png' %}" alt="登記済証２ページの参考画像">
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知１.png' %}" alt="登記識別情報通知１の参考画像">
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知２.png' %}" alt="登記識別情報通知２の参考画像">
-                                            </p>
-                                            <p class="d-flex justify-content-center mt-5">
-                                                <img class="modal-image" src="{% static 'toukiApp/img/不在住証明書.png' %}" alt="不在住証明書の参考画像">
-                                            </p>
-                                        </div>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/登記済証２ページ.png' %}" alt="登記済証２ページの参考画像">
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知１.png' %}" alt="登記識別情報通知１の参考画像">
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知２.png' %}" alt="登記識別情報通知２の参考画像">
+                                        </p>
+                                        <p class="d-flex justify-content-center mt-5">
+                                            <img class="modal-image" src="{% static 'toukiApp/img/不在住証明書.png' %}" alt="不在住証明書の参考画像">
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal fade" id="decedent_resident_certification_one" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        住民票の除票
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body mx-auto">
-                                    <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票.png' %}" alt="住民票の除票の参考画像">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="decedent_resident_certification_two" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        戸籍の附票
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/戸籍の除票.png' %}" alt="戸籍の除票の参考画像">
-                                    </p>
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/改製原戸籍の附票.png' %}" alt="改製原戸籍の附票の参考画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="alt_decedent_resident_certification_one" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        登記済証（他の書式もありますが、同じ内容が記載されてます。）
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
-                                    </p>
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/登記済証２ページ.png' %}" alt="登記済証２ページの参考画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="alt_decedent_resident_certification_two" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        登記識別情報通知（いずれかの書式）
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知１.png' %}" alt="登記識別情報通知１の参考画像">
-                                    </p>
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知２.png' %}" alt="登記識別情報通知２の参考画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="alt_decedent_resident_certification_three" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        不在住証明書（他の書式もありますが、同じ内容が記載されてます。）
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/不在住証明書.png' %}" alt="不在住証明書の参考画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
+                </div>
+                <hr>
                 <li class="container mt-3" id="papersOrderColumn">
                     <h5>
                         下記の順番で書類を全て重ねて左側2か所をホッチキスで留めする

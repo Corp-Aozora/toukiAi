@@ -880,7 +880,7 @@ function isActivateOkBtn(instance){
         verifyPropertySection(isParentInstance? instance: instance.belongsTo);
     }else if(instance instanceof Application){
         //申請情報
-        submitBtn.disabled = isInstanceVerified? false: true;
+        document.getElementById("submitBtn").disabled = isInstanceVerified? false: true;
     }else{
         //その他
         okBtn.disabled = isInstanceVerified? false: true;
@@ -1774,7 +1774,7 @@ function pushInvalidEl(instance, el){
             }
         }else if(instance instanceof Application){
             //申請情報のとき、４．へボタンも無効化する
-            submitBtn.disabled = true;
+            document.getElementById("submitBtn").disabled = true;
         }
     }
 }
@@ -2277,7 +2277,7 @@ function handleCorrectBtnEvent(){
             const fieldsets = Array.from(preSection.getElementsByTagName("fieldset"));
             fieldsets.forEach(x => x.disabled = false);
             okBtn.disabled = false;
-            submitBtn.disabled = true;
+            document.getElementById("submitBtn").disabled = true;
             const preSectionNumbering = preSection.querySelector("h5").textContent.trim().substring(0, 1);
             statusText.textContent = `現在${preSectionNumbering}／５項目`;
             //被相続人情報に戻るとき、不動産取得者がいない旨のエラーメッセージを非表示にする、前の項目を修正するボタンを無効化する
@@ -5997,7 +5997,7 @@ function handleSubmitBtnEvent(event){
         //不動産のフォーム数とインスタンス数を確定する
         confirmPropertyCount();
         //複数回submitされないようにする
-        submitBtn.disabled = true;
+        document.getElementById("submitBtn").disabled = true;
         spinner.style.display = "";
         //全てのフォームをチェック
         const instances = [decedents, registryNameAndAddresses, heirs, typeOfDivisions, numberOfProperties, lands, houses, bldgs, applications];

@@ -56,6 +56,19 @@ from .prefectures_and_city import *
 from .sections import *
 from .toukiAi_commons import *
 
+class ToukiAppUrlName:
+    """toukiAppで使用するurlのname"""
+    root = "toukiApp:"
+    
+    step_one = f"{root}step_one"
+    step_two = f"{root}step_two"
+    step_three = f"{root}step_three"
+    step_four = f"{root}step_four"
+    step_five = f"{root}step_five"
+    step_six = f"{root}step_six"
+    step_inquiry = f"{root}step_inquiry"
+
+
 def get_boolean_session(session, session_name):
     """booleanのセッションを取得する"""
     if session_name in session and session[session_name]:
@@ -674,7 +687,7 @@ def step_one(request):
         
         if request.method == "POST":
             
-            if is_progress_equal_to_step(decedent.progress, step_progress):
+            if not is_progress_equal_to_step(decedent.progress, step_progress):
                 return redirect_to_progress_page(request)
                 
             forms = [
@@ -842,8 +855,8 @@ def get_sorted_child_heirs(child_heirs):
 def get_persons_by_condition(model, decedent, **filters):
     """引数で与えられた条件に一致する相続人を返す"""
     querysets = model.objects.filter(decedent=decedent, **filters)
-    if querysets.exists():
-        return [x for x in querysets]
+    return [x for x in querysets] if querysets.exists() else []
+    
     
 def get_deceased_persons(decedent):
     """相続時に生存していて手続前に死亡した相続人を取得する"""
@@ -916,19 +929,21 @@ def step_two(request):
     step_progress = 2
     
     try:
+        # 会員判定
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
         
         progress = decedent.progress
-        if is_fulfill_required_progress(progress, step_progress):
+        # アクセス権限判定
+        if not is_fulfill_required_progress(progress, step_progress):
             return redirect_to_progress_page(request)
         
         registry_files = Register.objects.filter(decedent=decedent)
         
         if request.method == "POST":
             try:
-                if is_progress_equal_to_step(progress, step_progress):
+                if not is_progress_equal_to_step(progress, step_progress):
                     return redirect_to_progress_page(request)
                 
                 with transaction.atomic():
@@ -1021,16 +1036,21 @@ def step_two(request):
         # 配列をJSON形式に変換
         app_server_file_name_and_file_path = json.dumps(app_server_file_name_and_file_path)
         
-        deceased_persons = get_deceased_persons(decedent)
         heirs = get_legal_heirs(decedent)
+        if not heirs:
+            basic_log(function_name, None, user, "相続人が登録されていない状態でstep_twoにアクセスしました")
+            messages.error(request, "相続人が登録されてません 先に基本データ入力を入力してください")
+            return redirect(ToukiAppUrlName.step_one)
+            
+        deceased_persons = get_deceased_persons(decedent)
         minors = get_filtered_instances(heirs, "is_adult", False)
         overseas = get_filtered_instances(heirs, "is_japan", False)
         
-        search_word = "戸籍 郵送請求"
-        query = f"{get_prefecture_name(decedent.domicile_prefecture)}{decedent.domicile_city} {search_word}"
-        response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={query}")
-        data = response.json()
-        top_link = data["items"][0]["link"]
+        # search_word = "戸籍 郵送請求"
+        # query = f"{get_prefecture_name(decedent.domicile_prefecture)}{decedent.domicile_city} {search_word}"
+        # response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={query}")
+        # data = response.json()
+        # top_link = data["items"][0]["link"]
         
         context = {
             "title" : Sections.STEP2,
@@ -1040,7 +1060,7 @@ def step_two(request):
             "decedent": decedent,
             "app_server_file_name_and_file_path": app_server_file_name_and_file_path,
             "file_server_file_name_and_file_path": file_server_file_name_and_file_path,
-            "top_link": top_link,
+            # "top_link": top_link,
             "deceased_persons": deceased_persons,
             "heirs": heirs,
             "minors": minors,
@@ -4678,20 +4698,39 @@ def is_email(request):
     return JsonResponse(context)
 
 def step_back(request):
-    """前のステップに戻るとき
-
-        進捗状況データを更新する
-    """
-    user = User.objects.get(email = request.user)
-    decedent = Decedent.objects.filter(user=user).first()
-    data = json.loads(request.body)
-    progress = data.get('progress')
-    if progress is not None:
-        decedent.progress = int(progress)
-        decedent.save()
-        return JsonResponse({'status': 'success'})
-    else:
-        return JsonResponse({'status': 'error'})
+    """前のステップに戻る処理"""
+    function_name = get_current_function_name()
+    
+    try:
+        user = request.user
+        decedent = Decedent.objects.filter(user=user).first()
+        
+        data = json.loads(request.body)
+        progress = data.get('progress')
+        
+        if not progress:
+            return JsonResponse({
+                'status': 'error',
+                "message": "progressに値が設定されていません。"
+            })
+        
+        with transaction.atomic():
+            decedent.progress = int(progress)
+            decedent.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            "message": ""
+        })
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            user,
+            function_name,
+            None,
+            True        
+        )
 
 def nav_to_last_user_page(request):
     """ログインしたとき会員が最後に滞在していた会員ページに遷移させる、ないときは進捗状況に合わせたページ"""
@@ -4719,6 +4758,7 @@ def nav_to_last_user_page(request):
 def redirect_to_progress_page(request):
     """ユーザーの進捗状況に基づいてリダイレクトする"""
     decedent = request.user.decedent.first()
+    
     if decedent:
         return redirect_to_step(decedent.progress)
     

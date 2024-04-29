@@ -1,7 +1,43 @@
-#registryUploader{
-    height:200px;
+#heirs-list{
+    max-width: 300px;
 }
 
-#spinner{
-    font-size: 1rem;
+#about-family-card-modal ul li:not(:first-child), 
+#duplicate-family-card-modal ul li:not(:first-child){
+    margin-top: 1rem;
+}
+
+#about-family-card-modal ul li > div:first-child,
+#duplicate-family-card-modal ul li > div:first-child{
+    font-weight: 700;
+}
+
+#about-family-card-modal, #duplicate-family-card-modal{
+    --bs-modal-width: 600px!important;
+}
+
+.overview{
+    max-width: 800px;
+}
+
+.attachment-document{
+    max-width: 800px;
+    padding-top: 1rem;
+}
+
+.attachment-document > ul{
+    padding-left: 2rem;
+}
+
+.attachment-document li{
+    margin-top: 1rem;
+}
+
+.attachment-document li > span:first-child{
+    border-bottom: 1px solid black;
+    font-weight: 700;
+}
+
+#registryUploader{
+    height:200px;
 }

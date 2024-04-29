@@ -53,11 +53,12 @@
     function storeCurrentLocation(){
         // ヘッダーのメニューのときは取得しない
         const exclude = [
-            "/toukiApp/step_option_select/", 
+            "/account/option_select/", 
             "/account/password/change/", 
             "/account/change_email/", 
             "/account/delete_account/", 
-            "/account/logout/"
+            "/account/logout/",
+            "/account/bank_transfer/"
         ];
 
         const currentUrl = window.location.pathname;

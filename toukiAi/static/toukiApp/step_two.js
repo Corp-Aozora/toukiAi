@@ -1,5 +1,16 @@
 "use strict";
 
+
+class Form{
+    constructor(){
+        this.form = document.getElementsByTagName("form")[0];
+        this.preBtn = document.getElementById("preBtn");
+        this.preBtnSpinner = document.getElementById("preBtnSpinner")
+        this.submitBtn = document.getElementById("submitBtn");
+        this.submitSpinner = document.getElementById("submitSpinner");
+    }
+}
+
 /*
     変数
 */
@@ -11,7 +22,6 @@ const registryFiles = [];
 const displayNextEls = document.getElementsByClassName("displayNextEl");
 const certificateRbs = document.getElementsByName("certificate");
 const reqDocCbs = document.getElementsByClassName("reqDocCb");
-const preBtn = document.getElementById("preBtn");
 
 /**
  * 初期値を入力する
@@ -116,27 +126,64 @@ function addFileName(file){
 }
 
 /**
- * 送信イベントを設定
+ * 戻るボタンイベントを設定
+ * @param {Form} instance 
  */
-function setSubmitEvent(){
+function setPreBtnClickEvent(instance){
 
-    const form = document.getElementsByTagName("form")[0];
+    const {preBtn, preBtnSpinner} = instance;
+    preBtn.addEventListener("click", ()=>{
     
+        preBtnSpinner.style.display = "";
+        preBtn.disabled = true;
+        submitBtn.disabled = true;
+
+        const data = { "progress" : 1.5 };
+        fetch('step_back', {  // PythonビューのURL
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            mode: "same-origin"
+        }).then(response => {
+            return response.json();
+        }).then(response => {
+            if (response.status === 'success'){
+                window.location.href = 'step_one';
+            }else if(response.status === "error"){
+                window.location.href = 'step_two';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.href = 'step_two';
+        });
+    })
+}
+
+/**
+ * 送信イベントを設定
+ * @param {Form} instance 
+ */
+function setSubmitEvent(instance){
+
+    const {form, submitBtn, submitSpinner} = instance;
+
     form.addEventListener("submit", function(e){
 
         e.preventDefault();
         
+        submitSpinner.style.display = "";
+        submitBtn.disabled = true;
+        
         let formData = new FormData(this);
-
         // 各PDFファイルを追加
         registryFiles.forEach((pdfFile, index) => {
             formData.append('pdf' + index, pdfFile);  
         });
 
-        // ローディングメッセージを表示
-        document.getElementById("submitSpinner").style.display = "";
-        submitBtn.disabled = true;
-    
         fetch('step_two', {  // PythonビューのURL
             method: 'POST',
             body: formData
@@ -163,7 +210,7 @@ function setSubmitEvent(){
 window.addEventListener("load", ()=>{
     //初期処理
     initialize();
-
+    
     //displayNextElクラスを持つボタン要素にイベントを設定
     Array.from(displayNextEls).forEach(el => {
         el.addEventListener("click", () => displayNextEl(el));
@@ -193,7 +240,10 @@ window.addEventListener("load", ()=>{
         el.addEventListener("click", () => isComp());
     });
 
-    setSubmitEvent();
+    const form = new Form();
+    setPreBtnClickEvent(form);
+
+    setSubmitEvent(form);
 
     disablePage(progress); // progressに応じたページの無効化
 })
@@ -294,31 +344,3 @@ trash.addEventListener("click", (e)=>{
     trash.disabled = true;
 })
 
-
-preBtn.addEventListener("click", ()=>{
-    document.getElementById("preBtnspinner").style.display = "";
-    preBtn.disabled = true;
-    const data = { "progress" : 1.5 };
-    fetch('step_back', {  // PythonビューのURL
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        if (response.status === 'success'){
-            window.location.href = 'step_one';
-        }else if(response.status === "error"){
-            window.location.href = 'step_two';
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        window.location.href = 'step_two';
-
-    });
-})

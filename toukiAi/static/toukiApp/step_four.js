@@ -47,11 +47,11 @@ function handlePreBtnEvent(){
 
 function checkAndToggleSubmitBtn(inputs){
     if(inputs.every(x => x.checked)){
-        submitBtn.disabled = false;
+        document.getElementById("submitBtn").disabled = false;
         return
     }
 
-    submitBtn.disabled = true;
+    document.getElementById("submitBtn").disabled = true;
 }
 
 /*
@@ -71,7 +71,7 @@ window.addEventListener("load", ()=>{
     //先のステップから戻ってきたときは、全てチェックされている状態にする
     if(progress >= 4.5){
         inputs.forEach(x => x.checked = true);
-        submitBtn.disabled = false;
+        document.getElementById("submitBtn").disabled = false;
     }
 
     disablePage(progress); // progressに応じたページの無効化

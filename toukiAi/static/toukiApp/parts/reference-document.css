@@ -1,0 +1,7 @@
+.reference-document{
+    --bs-modal-width: 1000px!important;
+}
+
+.reference-document .supplement{
+    max-width: 500px;
+}

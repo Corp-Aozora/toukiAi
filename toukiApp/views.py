@@ -619,7 +619,7 @@ def step_one_trial(request):
         ascendants_relation = ["父", "母", "父方の祖父", "父方の祖母", "母方の祖父", "母方の祖母"]
         
         context = {
-            "title" : "１．" + Sections.STEP1,
+            "title" : Sections.STEP1,
             "user" : user,
             "progress": progress,
             "result": result,
@@ -920,6 +920,17 @@ def extract_file_id_from_url(url):
     params = parse_qs(query)
     return params['id'][0]
 
+def get_refused_heirs(decedent):
+    """相続放棄した相続人を取得する"""
+    result = []
+    
+    heir_types = [Spouse, Descendant, Ascendant, Collateral]
+    
+    for x in heir_types:
+        result.extend(get_persons_by_condition(x, decedent, is_refuse=True))
+    
+    return result
+
 def step_two(request):
     """ステップ２．必要書類一覧"""
     function_name = get_current_function_name()
@@ -1046,6 +1057,8 @@ def step_two(request):
         minors = get_filtered_instances(heirs, "is_adult", False)
         overseas = get_filtered_instances(heirs, "is_japan", False)
         
+        refused_heirs = get_refused_heirs(decedent)
+        
         # search_word = "戸籍 郵送請求"
         # query = f"{get_prefecture_name(decedent.domicile_prefecture)}{decedent.domicile_city} {search_word}"
         # response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={query}")
@@ -1063,8 +1076,10 @@ def step_two(request):
             # "top_link": top_link,
             "deceased_persons": deceased_persons,
             "heirs": heirs,
+            "refused_heirs": refused_heirs,
             "minors": minors,
             "overseas": overseas,
+            "company_data": CompanyData,
             "sections" : Sections.SECTIONS[Sections.STEP2],
             "service_content" : Sections.SERVICE_CONTENT,
         }

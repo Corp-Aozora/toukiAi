@@ -4,10 +4,18 @@
 class Form{
     constructor(){
         this.form = document.getElementsByTagName("form")[0];
+        this.altResidentCardSection = document.getElementById("resident-card-section");
+        this.decedentResidentCardCb = document.getElementById("decedentResidentCardCb");
+        this.toAltResidentCardSectionBtn = document.getElementById("to-alt-resident-card-section-btn");
         this.preBtn = document.getElementById("preBtn");
         this.preBtnSpinner = document.getElementById("preBtnSpinner")
         this.submitBtn = document.getElementById("submitBtn");
         this.submitSpinner = document.getElementById("submitSpinner");
+
+        this.toAltResidentCardSectionBtn.addEventListener("click", ()=>{
+            scrollToTarget(this.altResidentCardSection);
+        })
+
     }
 }
 
@@ -56,7 +64,7 @@ function inputInitData(){
     //ステップ３以上に進んでいるとき
     if(progress >= 3){
         //必要書類全てにチェックを入れる
-        Array.from(reqDocCbs).forEach(cb => cb.checked = true);
+        Array.from(reqDocCbs).forEach(x => x.checked = true);
         submitBtn.disabled = false;
     }
 }
@@ -217,18 +225,22 @@ window.addEventListener("load", ()=>{
     });
 
     //権利証の有無のラジオボタンにイベントを設定
+    const form = new Form();
     for(let i = 0, len = certificateRbs.length; i < len; i++){
+
         if(i === 0){
             certificateRbs[i].addEventListener("change", (e)=>{
                 if(e.target.checked){
-                    document.getElementById("CbdecedentResidentCard").checked = true;
+                    form.decedentResidentCardCb.checked = true;
+                    isComp();
                     slideUp(document.getElementById("DivAltCertificate"));
                 }
             })
         }else{
             certificateRbs[i].addEventListener("change", (e)=>{
                 if(e.target.checked){
-                    document.getElementById("CbdecedentResidentCard").checked = false;
+                    form.decedentResidentCardCb.checked = false;
+                    isComp();
                     slideDown(document.getElementById("DivAltCertificate"));
                 }
             })
@@ -240,7 +252,6 @@ window.addEventListener("load", ()=>{
         el.addEventListener("click", () => isComp());
     });
 
-    const form = new Form();
     setPreBtnClickEvent(form);
 
     setSubmitEvent(form);

@@ -1,0 +1,62 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="refuse-inheritance-document-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    相続放棄申述受理通知書または相続放棄申述受理証明書
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-center lh-lg">
+                    相続人が家庭裁判所で相続放棄（相続人ではなくなる手続）をしたときに発行される書類です。
+                </h5>
+                <div class="d-flex justify-content-center mt-4">
+                    <div class="supplement">
+                        <p>
+                            <span class="border-bottom border-dark px-3">
+                                相続放棄申述受理通知書の場合は以下の記載があるかご確認ください。
+                            </span>
+                            <br>
+                            ※記載がない場合は、相続放棄申述受理証明書が必要です。
+                        </p>
+                        <ul class="mb-0">
+                            <li>
+                                事件番号
+                            </li>
+                            <li>
+                                申述人の氏名
+                            </li>
+                            <li>
+                                被相続人の氏名、本籍、死亡年月日
+                            </li>
+                            <li>
+                                手続が受理された年月日
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <hr class="border-primary border-5">
+                <div>
+                    <p class="text-center fw-bold fs-5">
+                        （相続放棄申述受理通知書）
+                    </p>
+                    <div class=text-center>
+                        <img class="modal-image" src="{% static 'toukiApp/img/相続放棄申述受理通知書.png' %}" alt="相続放棄申述受理通知書の説明画像">
+                    </div>
+                </div>
+                <hr class="border-primary border-5">
+                <div>
+                    <p class="text-center fw-bold fs-5">
+                        （相続放棄申述受理証明書）
+                    </p>
+                    <div class="text-center">
+                        <img class="modal-image" src="{% static 'toukiApp/img/相続放棄申述受理証明書.png' %}" alt="相続放棄申述受理証明書の説明画像">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>         

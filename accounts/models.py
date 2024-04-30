@@ -65,6 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="メールアドレス", unique=True)
     phone_number_regex = RegexValidator(regex=r'^[0-9]+$', message = ("ハイフンなしの10桁又は11桁で入力してください"))
     phone_number = models.CharField(verbose_name="電話番号", validators=[phone_number_regex], max_length=11, default="")
+    
     basic = models.BooleanField(verbose_name="システムの有料版", default=False) # システムの本使用
     basic_date = models.DateTimeField(verbose_name="システムの有料版の利用開始日", null=True, blank=True)
     option1 = models.BooleanField(verbose_name="戸籍取得代行の利用状況", default=False)
@@ -83,8 +84,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     payment = models.CharField(verbose_name="支払方法", choices=payment_choice, max_length=30, null=True, blank=True)
     pay_amount = models.PositiveIntegerField(verbose_name="支払額", default=0)
+    
+    last_login_session_key = models.CharField(max_length=40, blank=True, null=True)
+    
     is_staff = models.BooleanField(verbose_name="スタッフ権限", default=False)
+    
     is_active = models.BooleanField(verbose_name="利用状況", default=True)
+    
     last_update = models.DateTimeField(verbose_name="最終更新日", auto_now=True)
     date_joined = models.DateTimeField(verbose_name="利用開始日", auto_now_add=True)
 

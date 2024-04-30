@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "toukiAi.middleware.SaveLastUserPageMiddleware",
     'toukiAi.middleware.RateLimitMiddleware',
+    'toukiAi.middleware.OneSessionPerUserMiddleware',
     # 'axes.middleware.AxesMiddleware',
 ]
 

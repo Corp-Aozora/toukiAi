@@ -1,6 +1,8 @@
+from django.contrib.sessions.models import Session
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.timezone import now
 
 from toukiApp.toukiAi_commons import *
 
@@ -32,4 +34,27 @@ class RateLimitMiddleware:
                 "error_level": "warning",
                 "message": "回数制限に達しました\n時間をおいて再度お試しください"
             }, status=429)
+        return response
+
+class OneSessionPerUserMiddleware:
+    """ログインを１つの端末に制限する"""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # ログインしているかどうかをチェック
+        if request.user.is_authenticated:
+            current_session_key = request.session.session_key
+            last_login_session_key = request.user.last_login_session_key
+
+            # 保存されたセッションキーが現在のセッションキーと異なる場合、古いセッションを削除
+            if last_login_session_key and last_login_session_key != current_session_key:
+                Session.objects.filter(session_key=last_login_session_key).delete()
+
+            # 現在のセッションキーをユーザープロファイルに保存
+            if not last_login_session_key or last_login_session_key != current_session_key:
+                request.user.last_login_session_key = current_session_key
+                request.user.save(update_fields=['last_login_session_key'])
+
+        response = self.get_response(request)
         return response

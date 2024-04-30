@@ -1,0 +1,66 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="price_certification" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    本年度の固定資産評価証明書
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-center lh-lg">
+                    市区町村が設定した不動産の価格（評価額）が記載された証明書です。
+                    <br>
+                    被相続人がその市区町村に所有する不動産が全て記載されてます。
+                </h5>
+                <p class="text-center">
+                    ※画像は公課証明書ですが、固定資産評価証明書も同様の内容が記載されています。
+                </p>
+                <div class="d-flex justify-content-center mt-4">
+                    <div class="supplement">
+                        <div>
+                            所在地には住所と異なる表記（地番、家屋番号）がされていることもあります。
+                            <ul class="ps-3 mt-3">
+                                <li>
+                                    住所は、人が住んでいる場所を特定するためのもの
+                                </li>
+                                <li>
+                                    地番は、土地の場所を特定するためのもの
+                                </li>
+                                <li>
+                                    家屋番号は、建物の場所を特定するためのもの
+                                </li>
+                            </ul>
+                        </div>
+                        <p>
+                            原則、全ての不動産について評価額が設定されてますが、
+                            <span class="border-bottom border-dark">
+                                ２つ目のように評価額が記載されてないものもあります。
+                            </span>
+                        </p>
+                        <p class="fw-bold">
+                            評価額がない不動産がある場合は、法務局への照会が必要になりますのでお問い合わせをお願いします（可能であれば画像の添付もお願いします）。
+                        <p>
+                        <p class=text-center>
+                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0A法務局への照会する方法を教えてください。">
+                                {{ company_data.MAIL_ADDRESS }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <hr>
+                <p class="text-center fw-bold fs-5">
+                    （全ての不動産に評価額がある場合）
+                </p>
+                <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（あり）.png' %}" alt="固定資産評価証明書（あり）の説明画像">
+                <hr>
+                <p class="text-center fw-bold fs-5">
+                    （評価額がない不動産がある場合）
+                </p>
+                <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（なし）.png' %}" alt="固定資産評価証明書（なし）の説明画像">
+            </div>
+        </div>
+    </div>
+</div>         

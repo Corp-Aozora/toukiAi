@@ -39,6 +39,10 @@
 {% include "toukiApp/parts/alt_decedent_resident_certification_one.html" %}
 {% include "toukiApp/parts/alt_decedent_resident_certification_two.html" %}
 {% include "toukiApp/parts/alt_decedent_resident_certification_three.html" %}
+{% include "toukiApp/parts/price_certification.html" %}
+{% include "toukiApp/parts/check_decedent_address.html" %}
+{% include "toukiApp/parts/acquirer_resident_certification_three.html" %}
+{% include "toukiApp/parts/heir_family_certification.html" %}
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
@@ -197,23 +201,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal fade" id="heir_family_certification" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        戸籍の全部事項証明書
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/戸籍の全部事項証明書.png' %}" alt="戸籍の全部事項証明書の説明画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="modal fade" id="acquirer_resident_certification_two" tabindex="-1">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -231,23 +218,6 @@
                             </div>
                         </div>
                     </div> 
-                    <div class="modal fade" id="acquirer_resident_certification_three" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        在留証明書（各大使館または領事館により書式が異なりますが、住所についての証明書です）
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/在留証明書１.png' %}" alt="在留証明書１の説明画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </li>
                 <hr>
                 <li class="container mt-3">
@@ -331,21 +301,6 @@
                         </li>
                     </ul>
                 </li>
-                <div class="modal fade" id="price_certification" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5">
-                                    固定資産評価証明書
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（あり）.png' %}" alt="固定資産評価証明書の説明画像">
-                            </div>
-                        </div>
-                    </div>
-                </div>         
                 <div class="modal fade" id="land_info" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -389,87 +344,6 @@
                                             同じ法務局でもそれぞれの申請書に評価証明書のコピーが必要なため、その法務局に提出する申請書の通数分コピーしてください。
                                         </span>
                                     </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="check_decedent_address" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5">
-                                    被相続人の登記簿上の住所から死亡時の住所までの履歴の確認方法
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body mx-auto">
-                                <div>
-                                    <p class="ms-3">
-                                        登記対象の各不動産について以下の作業が必要です
-                                    </p>
-                                </div>
-                                <div class="mt-4">
-                                    <div>
-                                        <div class="text-center">
-                                            <span class="fw-bold border-bottom border-secondary">
-                                                １
-                                            </span>
-                                            <span class="ps-3 fw-bold border-bottom border-secondary">
-                                                不動産の登記情報または全部事項証明書の被相続人の住所氏名を確認
-                                            </span>
-                                        </div>
-                                        <p class="d-flex justify-content-center">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報の参考画像">
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p class="text-center mt-5">
-                                            <span class="fw-bold border-bottom border-secondary">
-                                                ２
-                                            </span>
-                                            <span class="ps-3 fw-bold border-bottom border-secondary">
-                                                住民票の除票または戸籍の附票を取得して記載されている被相続人の住所氏名を確認
-                                            </span>
-                                        </p>
-                                        <p class="text-center">
-                                            ※先にどちらかを取得して、そちらで履歴を確認できないときは、もう一方も取得する必要があります。
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票（住所チェック）.png' %}" alt="住民票の除票の参考画像">
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/戸籍の除票.png' %}" alt="現在戸籍の附票の参考画像">
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/改製原戸籍の附票.png' %}" alt="改製原戸籍の附票の参考画像">
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <div class="text-center mt-5">
-                                            <span class="fw-bold border-bottom border-secondary">
-                                                ３
-                                            </span>
-                                            <span class="ps-3 fw-bold border-bottom border-secondary">
-                                                ２で履歴を確認できないとき、登記済証、登記識別情報通知書、不在住証明書のいずれかを用意する。
-                                            </span>
-                                        </div>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/登記済証２ページ.png' %}" alt="登記済証２ページの参考画像">
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知１.png' %}" alt="登記識別情報通知１の参考画像">
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知２.png' %}" alt="登記識別情報通知２の参考画像">
-                                        </p>
-                                        <p class="d-flex justify-content-center mt-5">
-                                            <img class="modal-image" src="{% static 'toukiApp/img/不在住証明書.png' %}" alt="不在住証明書の参考画像">
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
                         </div>

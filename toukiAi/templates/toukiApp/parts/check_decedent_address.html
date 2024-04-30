@@ -1,0 +1,81 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="check_decedent_address" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    被相続人の登記簿上の住所氏名と証明書類の住所氏名の一致を確認する手順
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body mx-auto">
+                <h5 class="text-center">
+                    登記対象の各不動産について以下の作業が必要です
+                </h5>
+                <div class="mt-4">
+                    <div>
+                        <div class="text-center">
+                            <span class="fw-bold border-bottom border-secondary">
+                                １
+                            </span>
+                            <span class="ps-3 fw-bold border-bottom border-secondary">
+                                登記簿謄本の所有者の住所氏名を確認
+                            </span>
+                        </div>
+                        <p class="d-flex justify-content-center">
+                            <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報の参考画像">
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-center mt-5">
+                            <span class="fw-bold border-bottom border-secondary">
+                                ２
+                            </span>
+                            <span class="ps-3 fw-bold border-bottom border-secondary">
+                                住民票の除票または戸籍の附票に記載されている所有者の住所氏名に現れることを確認
+                            </span>
+                        </p>
+                        <p class="text-center">
+                            ※先にどちらかを取得して、そこに現れないときは、もう一方も取得する必要があります。
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票（住所チェック）.png' %}" alt="住民票の除票の参考画像">
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/戸籍の除票.png' %}" alt="現在戸籍の附票の参考画像">
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/改製原戸籍の附票.png' %}" alt="改製原戸籍の附票の参考画像">
+                        </p>
+                    </div>
+                    <div>
+                        <div class="text-center mt-5">
+                            <span class="fw-bold border-bottom border-secondary">
+                                ３
+                            </span>
+                            <span class="ps-3 fw-bold border-bottom border-secondary">
+                                ２で所有者の住所氏名が現れないとき、登記済証、登記識別情報通知書、不在住証明書のいずれかを用意する必要があります。
+                            </span>
+                        </div>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/登記済証２ページ.png' %}" alt="登記済証２ページの参考画像">
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知１.png' %}" alt="登記識別情報通知１の参考画像">
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/登記識別情報通知２.png' %}" alt="登記識別情報通知２の参考画像">
+                        </p>
+                        <p class="d-flex justify-content-center mt-5">
+                            <img class="modal-image" src="{% static 'toukiApp/img/不在住証明書.png' %}" alt="不在住証明書の参考画像">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-7 col-md-9 col-sm-10 mx-auto mt-3">
+<div class="col-lg-8 col-md-10 px-4 mx-auto mt-3">
     <div>
         <h3 class="text-center">
             <img class="company_logo" src="{% static 'toukiApp/img/会社ロゴ.png' %}" alt="会社ロゴ">
@@ -65,106 +65,106 @@
         <h5 class="text-center my-3">
             運営者・お問い合わせ先
         </h5>
-        <div id="company_info" class="col-11 mt-3 mx-auto">
+        <div id="company_info" class="mt-3 mx-auto">
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     運営者
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.NAME}}
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     住所
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.ADDRESS}}<br>
                     {{company_data.BLDG}}
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     代表取締役
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.CEO}}
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     電話番号
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.RECEIVING_PHONE_NUMBER}}<br>
                     ※弊社からの電話は以下の番号がお客様に表示されます。<br>
                     {{company_data.CALLING_PHONE_NUMBER}}<br>
-                    ※お問い合わせはメール又はＬＩＮＥのみで受け付けてます。
+                    ※お問い合わせはメール又はLINEのみで受け付けてます。
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     メールアドレス
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.MAIL_ADDRESS}}
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex align-items-center">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex align-items-center">
+                <div class="col-md-4 fw-bold">
                     ＬＩＮＥ
                     <br>
                     お問い合わせ受付
                 </div>
-                <div class="col-sm-8 my-auto">
+                <div class="col-md-8 my-auto">
                     <img class="ms-3 line-qr" src="{{company_data.OPEN_LINE_QR}}">
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     営業時間
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.OPENING_HOURS}}
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     設立年月日
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.ESTABLISH_DATE}}
                 </div>
             </div>
             <hr>
-            <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     資本金
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.CAPITAL}}
                 </div>
             </div>
             <hr>
-            <!-- <div class="d-sm-flex">
-                <div class="col-sm-4 fw-bold">
+            <!-- <div class="d-md-flex">
+                <div class="col-md-4 fw-bold">
                     監修者
                 </div>
-                <div class="col-sm-8">
+                <div class="col-md-8">
                     {{company_data.SUPERVISER}}<br>
                     {{company_data.SUPERVISER_BELONG_1}}<br>
                     {{company_data.SUPERVISER_BELONG_2}}
                 </div>
-            </div> -->
-            <hr>
+            </div>
+            <hr> -->
         </div>
     </div>
 </div>

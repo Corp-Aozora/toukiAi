@@ -18,8 +18,6 @@ const toQABtn = document.getElementById("toQABtn");
 const toInquiryBtn = document.getElementById("toInquiryBtn");
 const headerBtns = [toIntroBtn, toSupportBtn, toChargeBtn, toCompareBtn, toQABtn, toInquiryBtn];
 
-const toggler = document.getElementById("toggler");
-
 /*
     index以外のページにいるときにヘッダーにあるボタンが押されたとき、
     どのボタンが押されたかを取得してindexに移動する
@@ -56,8 +54,4 @@ window.addEventListener("load",()=>{
             closeBtn.dispatchEvent(event);
         })
     }
-
-    toggler.addEventListener("click",(e)=>{
-        //
-    })
 })

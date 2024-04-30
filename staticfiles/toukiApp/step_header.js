@@ -6,15 +6,6 @@ const linkToProgressArea = document.getElementById("linkToProgressArea");
 /**
  * 以下、イベント
  */
-logo.addEventListener("mouseover", ()=>{
-    logo.classList.remove("text-dark");
-    emphasizeText(logo);
-})
-
-logo.addEventListener("mouseout", ()=>{
-    logo.classList.add("text-dark");
-    removeEmphasizeText(logo);
-})
 
 logout.addEventListener("click", ()=>{
     const date1 = new Date();

@@ -1,27 +1,23 @@
 @media (max-width: 575px){
-    #accountLink .signupBtn{
+    #accountLink{
         display: none!important;
     }
-    #menuList .signupBtn{
+    
+    #offcanvasMenus .account-menu{
         display: initial!important;
+    }
+
+    #header .navbar-toggler{
+        position: absolute;
     }
 }
 
 @media (min-width: 576px){
-    #accountLink .signupBtn{
+    #accountLink{
         display: initial!important;
     }
-    #menuList .signupBtn{
+    #offcanvasMenus .account-menu{
         display: none!important;
-    }
-}
-
-@media (max-width: 991px){
-    #menuList li:first-child{
-        margin-left: 1rem;
-    }
-    #menuList li{
-        margin-top: 1rem;
     }
 }
 
@@ -31,6 +27,43 @@
     }
 }
 
-.header_logo{
-    width: 75px!important;
+@media (max-width: 991px){
+    #offcanvasMenus li:first-child{
+        margin-left: 1rem;
+    }
+
+    #offcanvasMenus li{
+        margin-top: 1rem;
+    }
+
+    footer{
+        display: none!important;
+    }
+
+    .last-header-li{
+        padding-bottom: 1rem;
+        border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
+    }
+
+    #offcanvasMenus .proxy-footer-li{
+        display: block!important;
+    }
+}
+
+
+.logo-img{
+    max-width: 75px!important;
+}
+
+#offcanvasMenus li{
+    margin-left: 1rem!important;
+}
+
+#offcanvasMenus .proxy-footer-li{
+    display: none;
+}
+
+#offcanvasMenus .proxy-footer{
+    text-decoration: none;
+    font-weight: 700;
 }

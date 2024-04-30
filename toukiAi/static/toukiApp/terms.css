@@ -1,11 +1,23 @@
+.label{
+    width: 105px!important;
+}
+
+@media (max-width: 768px){
+    #company-info{
+        text-align: center!important;
+    }
+
+    .label{
+        width: initial!important;
+        text-align: center!important;
+        text-align-last: initial!important;
+    }
+}
+
 .content_wrapper > div:not(:first-child){
     margin-top: 1rem;
 }
 
 .card-text{
     text-indent: 1rem;
-}
-
-.label{
-    min-width: 100px;
 }

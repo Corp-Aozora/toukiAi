@@ -11,18 +11,20 @@
 {% endblock %}
 
 {% block content %}
-<div class="mx-auto col-lg-8">
+<div class="mx-auto col-lg-9">
     <div class="card shadow-sm bg-light">
         <div class="card-body">
             <h4 class="card-title border-bottom">
-                <span class="border-start border-5 border-primary ps-3">{{ title }}</span>
+                <span class="border-start border-5 border-primary ps-3">
+                    {{ title }}
+                </span>
             </h4>
             <div class="content_wrapper px-lg-3">
                 <p class="card-text pt-3">
                     {{company_data.NAME}}（以下「当社」といいます。）は、{{company_data.APP_NAME}}（以下、「本サービス」といいます。）におけるユーザーの個人情報の取り扱いについて以下のとおり定めます。
                 </p>
                 <div>
-                    <div class="fw-bold" >
+                    <div class="fw-bold">
                         １
                         <span class="ms-3">
                             個人情報の定義
@@ -235,8 +237,8 @@
                         </span>
                     </div>
                     <div class="card-text bg-white border rounded-3 p-3">
-                        <div id="companyInfo" class="mx-auto">
-                            <div class="d-flex">
+                        <div id="company-info" class="mx-auto">
+                            <div class="d-md-flex">
                                 <div class="label">
                                     会社名
                                 </div>
@@ -244,7 +246,7 @@
                                     {{company_data.NAME}}
                                 </div>
                             </div>
-                            <div class="d-flex mt-3">
+                            <div class="d-md-flex mt-3">
                                 <div class="label">
                                     所在地
                                 </div>
@@ -257,7 +259,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex mt-3">
+                            <div class="d-md-flex mt-3">
                                 <div class="label">
                                     代表取締役
                                 </div>
@@ -265,7 +267,7 @@
                                     {{company_data.CEO}}
                                 </div>
                             </div>
-                            <div class="d-flex mt-3">
+                            <div class="d-md-flex mt-3">
                                 <div class="label">
                                     メールアドレス
                                 </div>

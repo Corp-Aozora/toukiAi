@@ -54,6 +54,7 @@
 
     #QA .accordion-body{
         font-size: 1rem!important;
+        padding-left: 2rem!important;
     }
 }
 
@@ -131,11 +132,6 @@
 }
 
 /* Q&A */
-.accordion-item p:first-child > span{
-    font-weight: 700!important;
-    border-bottom: 1px solid black;
-}
-
 #whoToA ul{
     padding-left: 0;
     padding-right: 2rem!important;
@@ -147,13 +143,12 @@
 
 #whoToA li > div{
     display: flex!important;
-    margin-left: 1rem!important;
 }
 
 
 /* 問い合わせ */
 .label{
-    width: 110px;
+    width: 110px!important;
 }
 
 .emPosition{

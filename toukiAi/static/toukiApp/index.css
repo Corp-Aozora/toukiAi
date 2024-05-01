@@ -3,10 +3,60 @@
     cursor: hand;
 }
 
+/* 画面がxl以下のとき */
+@media (max-width:1199px){
+
+    /* 料金表の長所と短所 */
+    .plus-and-minus{
+        display: flex;
+    }
+
+    .plus-and-minus > div{
+        width: 50%!important;
+    }
+
+    #compare .card-body > div:nth-child(2) > p{
+        text-align: center;
+    }
+
+    .plus-and-minus > div:first-child{
+        margin-right: 0.5rem;
+    }
+
+    .plus-and-minus > div:nth-child(2){
+        margin-left: 0.5rem;
+    }
+}
+
+/* 画面のサイズがmd以下 */
+@media (max-width:575px){
+
+    /* 料金表の長所と短所 */
+    .plus-and-minus{
+        display: block!important;
+    }
+
+    .plus-and-minus > div{
+        width: 100%!important;
+    }
+
+    .plus-and-minus > div:first-child{
+        margin-right: 0px;
+    }
+
+    .plus-and-minus > div:nth-child(2){
+        margin-left: 0px;
+    }
+}
+
 @media(min-width: 992px){
     #introSubtitle{
         display: flex!important;
         justify-content: center!important;
+    }
+
+    .option .card-body{
+        min-height: 305px;
     }
 }
 
@@ -50,18 +100,21 @@
     --bs-modal-width: 1000px;
 }
 
-/* 課題 */
-.task .card-body{
-    min-height: 230px;
+/* 画面がxl以上のとき */
+@media (min-width:1200px){
+    /* 課題 */
+    .task .card-body{
+        min-height: 230px;
+    }
+    /* 料金表 */
+    .option .card-body{
+        min-height: 280px;
+    }
 }
 
 /* 料金表 */
 #decedentCertificationListModal li:not(:first-child){
     margin-top: 1rem!important;
-}
-
-.option1 .card-body, .option2 .card-body{
-    min-height: 250px;
 }
 
 /* 他社比較 */

@@ -3,6 +3,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'accounts/login.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 {% block header %}
     {% include "header.html" %}
@@ -19,7 +20,7 @@
                 ログイン
             </h4>
         </div>
-        <div class="card-body pe-5 px-md-5">
+        <div class="card-body pe-4 px-md-5">
             <form method="POST" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
@@ -159,4 +160,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'accounts/login.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

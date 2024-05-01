@@ -1,14 +1,12 @@
-@media (max-width:575px){
-    #mainContainer > div:first-child{
-        width: 90%;
-    }
-}
-
 label{
     width: 110px;
 }
 
 @media (max-width:575px){
+
+    #mainContainer > div:first-child{
+        width: 90%;
+    }
 
     form .input-group .label{
         width: 100%!important;
@@ -33,6 +31,7 @@ label{
 
     #eyeToggleBtn{
         top: 50px!important;
+        left: 101%;
     }
 }
 

@@ -18,7 +18,7 @@ class AccountForm{
         this.submitBtn = this.form.querySelector("button[type='submit']");
         this.errMsgs = [
             "メールアドレスの規格と一致しません",
-            "半角で英数記号を含む8文字以上を入力してください",
+            "半角で英数記号3種類を含む8文字以上",
             "パスワードが一致しません"
         ]
     }

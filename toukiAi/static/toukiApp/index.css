@@ -33,7 +33,7 @@
     }
 }
 
-/* 画面のサイズがmd以下 */
+/* 画面のサイズがxs以下 */
 @media (max-width:575px){
 
     /* 料金表の長所と短所 */
@@ -62,8 +62,8 @@
         padding-left: 1.5rem!important;
     }
 
-    form .input-group:first-child label{
-        font-size: .7rem!important;
+    form .input-group:first-of-type .label{
+        font-size: .8rem!important;
         overflow-wrap: break-word!important;
     }
 }

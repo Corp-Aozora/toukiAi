@@ -46,13 +46,13 @@ class CustomLoginForm(LoginForm):
         
         self.fields["login"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "登録したメールアドレス",
+            "placeholder": "",
             'autocomplete': 'on',
         })
         
         self.fields["password"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "半角で英数記号を含む8文字以上",
+            "placeholder": "",
             'autocomplete': 'off',
         })
         self.fields["remember"].widget.attrs.update({

@@ -1,9 +1,22 @@
+@media (max-width:575px){
+    #mainContainer > div:first-child{
+        width: 90%;
+    }
+}
+
 label{
     width: 110px;
 }
 
 label[for="id_remember"]{
     width: 135px;
+}
+
+@media (max-width:575px){
+    .label:first-of-type{
+        font-size: .8rem!important;
+        overflow-wrap: break-word!important;
+    }
 }
 
 #eyeToggleBtn{

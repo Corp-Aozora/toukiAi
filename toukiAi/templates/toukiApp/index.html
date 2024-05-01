@@ -849,9 +849,9 @@
                                             </div>
                                             <div>
                                                 司法書士によってサービス内容に差がある
-                                            </div>
+                                          </div>
                                         </li>
-                                    </ul>
+                                    </ul>  
                                 </div>
                             </div>
                         </div>
@@ -1582,9 +1582,11 @@
                     </div>
                 {% else %}
                     <div class="mt-4">
-                        <span class="fw-bold">
-                            お問い合わせ内容
-                        </span>
+                        <div class="text-center">
+                            <span class="fw-bold">
+                                お問い合わせ内容
+                            </span>
+                        </div>
                         <p class="input-group mt-1">
                             {{ field }}
                             <span id="{{field.auto_id}}_messageEl" class="errorMessage emPosition rounded-3" style="display: none;">

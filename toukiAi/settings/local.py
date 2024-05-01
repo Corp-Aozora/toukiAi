@@ -17,7 +17,7 @@ SECRET_KEY=env("LOCAL_SECRET_KEY")
 INTERNAL_IPS = ['127.0.0.1']
 
 ALLOWED_HOSTS = [
-    '.localhost', '127.0.0.1', '[::1]'
+    '127.0.0.1', '0.0.0.0', '.localhost', '[::1]', "192.168.0.10"
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する

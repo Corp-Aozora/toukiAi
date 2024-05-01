@@ -3,6 +3,11 @@
     cursor: hand;
 }
 
+/* 問い合わせ */
+.label{
+    width: 110px!important;
+}
+
 /* 画面がxl以下のとき */
 @media (max-width:1199px){
 
@@ -54,7 +59,11 @@
 
     #QA .accordion-body{
         font-size: 1rem!important;
-        padding-left: 2rem!important;
+        padding-left: 1.5rem!important;
+    }
+
+    form label:first-child{
+        font-size: .5rem!important;
     }
 }
 
@@ -146,10 +155,6 @@
 }
 
 
-/* 問い合わせ */
-.label{
-    width: 110px!important;
-}
 
 .emPosition{
     top: -55px;

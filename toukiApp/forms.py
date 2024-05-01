@@ -32,7 +32,7 @@ class WidgetAttributes:
     email = {
         'class': 'form-control rounded-end',
         'autocomplete': 'on',
-        "placeholder": "弊社からの回答を受け取るメールアドレス",
+        "placeholder": "",
     }
     # 問い合わせ内容
     inquiry_content = {

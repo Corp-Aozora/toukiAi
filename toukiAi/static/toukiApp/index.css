@@ -47,6 +47,14 @@
     .plus-and-minus > div:nth-child(2){
         margin-left: 0px;
     }
+
+    #QA button{
+        font-size: 1rem!important;
+    }
+
+    #QA .accordion-body{
+        font-size: 1rem!important;
+    }
 }
 
 @media(min-width: 992px){

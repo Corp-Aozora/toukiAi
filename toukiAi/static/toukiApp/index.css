@@ -63,7 +63,7 @@
     }
 
     form .input-group:first-of-type .label{
-        font-size: .8rem!important;
+        font-size: 1rem!important;
         overflow-wrap: break-word!important;
     }
 }

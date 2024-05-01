@@ -8,14 +8,31 @@ label{
     width: 110px;
 }
 
-label[for="id_remember"]{
-    width: 135px;
-}
-
 @media (max-width:575px){
-    .label:first-of-type{
-        font-size: .8rem!important;
-        overflow-wrap: break-word!important;
+
+    form .input-group .label{
+        width: 100%!important;
+        text-align-last: initial!important;
+        text-align: center!important;
+        border-radius: 0!important;
+        border-top-left-radius:var(--bs-border-radius)!important;
+        border-top-right-radius:var(--bs-border-radius)!important;
+    }
+
+    form .input-group input, form .input-group select{
+        margin-left: 0px!important;
+        border-radius: 0!important;
+        border-bottom-left-radius:var(--bs-border-radius)!important;
+        border-bottom-right-radius:var(--bs-border-radius)!important;
+        text-align: center!important;
+    }
+
+    .emPosition{
+        left: 0px!important;
+    }
+
+    #eyeToggleBtn{
+        top: 50px!important;
     }
 }
 

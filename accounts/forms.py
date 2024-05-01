@@ -58,6 +58,8 @@ class CustomLoginForm(LoginForm):
         self.fields["remember"].widget.attrs.update({
             "class": "form-check-input ms-0 float-none"
         })
+        
+        self.fields["remember"].label = "ログインを記憶"
 
 # パスワードの再設定申請       
 class CustomResetPasswordForm(ResetPasswordForm):

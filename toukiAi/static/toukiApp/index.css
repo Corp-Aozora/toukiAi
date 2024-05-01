@@ -78,6 +78,10 @@
         border-bottom-right-radius:var(--bs-border-radius)!important;
         text-align: center!important;
     }
+    
+    .emPosition{
+        left: 0px!important;
+    }
 }
 
 @media(min-width: 992px){

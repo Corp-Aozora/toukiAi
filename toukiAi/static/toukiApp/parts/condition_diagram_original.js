@@ -8,6 +8,13 @@ function adjustModalScale() {
   
     modal.style.transform = `scale(${scale})`;
     modal.style.transformOrigin = 'top center';
+
+    // スケールに基づいて高さも調整
+    // if (scale < 1) {
+    //     modal.style.height = `calc(100vh / ${scale})`;
+    // } else {
+    //     modal.style.height = 'auto';  // スケールが1の場合は元の高さに戻す
+    // }
 }
 
 window.addEventListener("load", adjustModalScale);

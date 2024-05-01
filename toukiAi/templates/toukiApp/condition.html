@@ -2,8 +2,9 @@
 {% block title %}利用条件確認 | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'condition_diagram.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/condition_diagram.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/condition.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 
 {% block header %}
@@ -14,26 +15,7 @@
 
 {% block content %}
 
-{% for message in messages %}
-    <div class="modal inquiry-modal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header justify-content-center">
-                    <h5 class="modal-title fw-bold">{{message.message|until:" "}}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pb-3">
-                    <span class="fw-bold">
-                        {{message.message|after:" "}}
-                    </span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endfor %}
+{% include "toukiApp/parts/step_messages.html" %}
 
 <div class="mx-auto mt-3">
     <form action="{% url 'toukiApp:condition' %}" method="POST" novalidate>
@@ -89,7 +71,7 @@
                             </span>
                                 を確認した
                         </span>
-                        {% include "condition_diagram.html" %}
+                        {% include "toukiApp/parts/condition_diagram.html" %}
                     </div>
                     <div class="input-group mt-3">
                         <label class="input-group-text cursor-pointer">
@@ -175,6 +157,7 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'condition_diagram.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/condition_diagram.js' %}"></script>
     <script src="{% static 'toukiApp/condition.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

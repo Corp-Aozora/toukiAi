@@ -1,5 +1,7 @@
 #condition_diagram_modal{
     --bs-modal-width: 820px;
+    max-width: 100%; 
+    overflow: hidden;
 }
 
 #decedent{

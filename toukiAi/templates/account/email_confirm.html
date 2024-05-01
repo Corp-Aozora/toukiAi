@@ -12,7 +12,7 @@
 {% block content %}
 
 {% if confirmation %}
-    <div class="col-lg-7 col-md-9 col-sm-9 mx-auto my-5">
+    <div class="col-lg-7 col-md-9 mx-auto my-5 px-2">
         <div class="card shadow">
             <div class="card-header bg-warning-subtle bg-gradient bg-opacity-50">
                 <h4 class="card-title text-center mb-0 p-3">
@@ -28,9 +28,8 @@
                                 <a class="text-decoration-none" href="{% url 'toukiApp:terms' %}" target="_blank" rel="noopener noreferrer">
                                     利用規約
                                 </a>
-                                が適用される
+                                が適用されるようになります。
                             </span>
-                            ようになります。
                             <br>
                             <div class="d-flex">
                                 <div>
@@ -52,19 +51,18 @@
                                 </div>
                                 <div>
                                     <button type="button" class="ps-1 text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#condition_diagram_modal">
-                                        システムが対応可能な相続関係の範囲
+                                        システムが対応可能な相続関係の範囲でしか判定できません。
                                     </button>
-                                    でしか判定できません。
                                 </div>
                             </div>
-                            {% include "condition_diagram.html" %}
+                            {% include "toukiApp/parts/condition_diagram.html" %}
                         </li>
                         <li class="list-group-item">
                             無料のアカウントは、登録から３ヶ月経過後、弊社の都合により削除されることがあります。
                         </li>
                         <li class="list-group-item">
                             <span class="border-bottom border-secondary">
-                                システムの全部分を利用する、またはオプションを利用する場合は、登録後に表示されるページの上部にある「オプション」をクリックしてください。
+                                システムの全機能を利用する、またはオプションを利用する場合は、登録後に表示されるページの上部にある「オプション」をクリックしてください。
                             </span>
                         </li>
                         <li class="list-group-item">

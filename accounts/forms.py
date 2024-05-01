@@ -20,7 +20,7 @@ class CustomSignupForm(SignupForm):
         self.fields['email'].widget.attrs.update({
             'class': 'form-control rounded-end',
             'autocomplete': 'on',
-            "placeholder": "メールアドレス",
+            "placeholder": "",
             "autofocus": True,
         })
         

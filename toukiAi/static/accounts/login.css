@@ -17,12 +17,17 @@ label{
         border-top-right-radius:var(--bs-border-radius)!important;
     }
 
-    form .input-group input, form .input-group select{
+    form .input-group input{
         margin-left: 0px!important;
         border-radius: 0!important;
         border-bottom-left-radius:var(--bs-border-radius)!important;
         border-bottom-right-radius:var(--bs-border-radius)!important;
         text-align: center!important;
+    }
+
+    label[for="id_remember"]{
+        width: initial!important;
+
     }
 
     .emPosition{
@@ -31,7 +36,12 @@ label{
 
     #eyeToggleBtn{
         top: 50px!important;
-        left: 101%;
+    }
+}
+
+@media (max-width:767px){
+    #eyeToggleBtn{
+        left: 101%!important;
     }
 }
 

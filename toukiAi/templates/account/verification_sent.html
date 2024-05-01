@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block content %}
-<section class="mx-auto my-4">
+<section class="mx-auto col-sm-9 col-md-8 col-lg-7 my-4">
     <div>
         <div>
             <h4 class="text-center mt-4">
-                届いたメールのご確認をお願いします。
+                本登録リンクをメールしました。
             </h4>
             <p class="form-text text-end">
                 ※リンクの有効期限は1日です。
@@ -25,11 +25,11 @@
         <div class="mt-5">
             <p>
                 <span class="fw-bold bg-warning-subtle rounded-3 p-1">
-                    ※数分経っても受信フォルダに届いていない場合
+                    ※受信フォルダに届いていない場合
                 </span>
             </p>
             <p class="ps-3">
-                迷惑フォルダにも届いてない場合は、下記に登録したメールアドレスを入力してください。
+                迷惑フォルダにも届いてない場合は、受信設定をご確認のうえ再度先ほど登録したメールアドレスを入力してください。
             </p>
             <form class="text-center mt-3" method="POST" novalidate>
                 {% csrf_token %}

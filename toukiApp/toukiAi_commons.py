@@ -427,11 +427,11 @@ ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + EMAIL_SIGNATURE
 
 # 問い合わせへの自動返信メールテンプレート
 AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
-    お問い合わせありがとうございます                                        
+    お問い合わせありがとうございます。                                        
                                             
     以下の内容でお問い合わせを受け付けました。
-    原則２４時間以内にご回答いたします。
-    ※金土日祝日にお問い合わせいただいた場合は、翌週の月曜日になることもあります。
+    ※原則２４時間以内にご回答いたします。
+    ※金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
     
     ----------------------------------
 ''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE

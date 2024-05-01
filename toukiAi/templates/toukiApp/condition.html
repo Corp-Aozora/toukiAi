@@ -2,7 +2,6 @@
 {% block title %}利用条件確認 | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiApp/parts/condition_diagram.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/condition.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
@@ -157,7 +156,6 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiApp/parts/condition_diagram.js' %}"></script>
     <script src="{% static 'toukiApp/condition.js' %}"></script>
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

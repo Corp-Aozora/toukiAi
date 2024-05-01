@@ -1,4 +1,7 @@
-{% load static %}
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/condition_diagram.css' %}">
+{% endblock %}
 
 <div id="condition_diagram_modal" class="modal fade" tabindex="-1">
     <div class="modal-dialog">
@@ -18,3 +21,9 @@
         </div>
     </div>
 </div>
+
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/condition_diagram.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="touki_info_modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    各種不動産の登記情報の例
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="mt-3 text-center">
+                    不動産登記では不動産が土地、建物、区分建物の３種類に分類されます。
+                </h5>
+                <div class="mt-3 d-flex justify-content-center">
+                    <ul class="ps-0 supplement">
+                        <li>
+                            <div class="d-flex">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    画像は登記情報のものですが、全部事項証明書の場合も同じです。
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="d-flex">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    <span class="fw-bold">
+                                        区分建物とは、
+                                    </span>
+                                    複数の独立した部屋を持ち、各部屋に別々の所有者を設定することができる建物のことです。
+                                    <span class="border-bottom border-dark">
+                                        具体的には分譲マンションのような建物が該当します。
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <hr class="border-3">
+                <div>
+                    <h5 class="text-center">
+                        土地
+                    </h5>
+                    <p class="text-center fw-bold">
+                        左上に「表題部（土地の表示）」と記載があります。
+                    </p>
+                    <p class="d-flex justify-content-center">
+                        <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報（土地）の説明画像">
+                    </p>
+                </div>
+                <hr class="border-3">
+                <div>
+                    <h5 class="text-center">
+                        建物
+                    </h5>
+                    <p class="text-center fw-bold">
+                        左上に「表題部（主である建物の表示）」と記載があります。
+                        <br>
+                        ※一緒に「附属建物の表示」として「倉庫」などが記載されている場合もあります。
+                    </p>
+                    <p class="d-flex justify-content-center">
+                        <img class="modal-image" src="{% static 'toukiApp/img/登記情報（建物）.png' %}" alt="登記情報（建物）の説明画像">
+                    </p>
+                </div>
+                <hr class="border-3">
+                <div>
+                    <h5 class="text-center">
+                        区分建物
+                    </h5>
+                    <div class="text-center fw-bold">
+                        左上に「表題部（一棟の建物の表示）」と表示がありマンション名も記載されていることがあります。
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                一緒に「専有部分の建物の表示」の欄に部屋番号などが記載されています。
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                「敷地権の表示」の欄もあり土地の記載がありますが、「土地の数」に含めないでください。
+                            </div>
+                        </div>
+                    </div>
+                    <p class="d-flex justify-content-center">
+                        <img class="modal-image" src="{% static 'toukiApp/img/登記情報（区分建物）.png' %}" alt="登記情報（区分建物）の説明画像">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

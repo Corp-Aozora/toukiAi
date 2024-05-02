@@ -65,7 +65,7 @@ class WidgetAttributes:
     # 住所の町域・番地
     address = {
         "class": "form-control rounded-end",
-        "placeholder": "中央区天神１丁目１番１号",
+        "placeholder": "中央区天神一丁目１番１号",
         "maxlength": "100",
     }
     # 住所の建物
@@ -77,25 +77,25 @@ class WidgetAttributes:
     # 不動産番号
     rs_number = {
         "class": "form-control rounded-end",
-        "placeholder": "謄本右上にある１３桁の数字",
+        "placeholder": "１３桁の数字",
         "maxlength": "13",
     }
     # 土地の所在地
     land_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神１丁目",
+        "placeholder": "「◯丁目」の◯は漢数字で入力",
         "maxlength": "100",
     }
     # 建物の所在地
     house_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神１丁目１番地１",
+        "placeholder": "「◯丁目」の◯は漢数字で入力",
         "maxlength": "100",
     }
     # 一棟の建物の所在
     bldg_address = {
         "class": "form-control rounded-end",
-        "placeholder": "一棟の建物の表示にある所在",
+        "placeholder": "「◯丁目」の◯は漢数字で入力",
         "maxlength": "100",        
     }
     # 区分建物の家屋番号
@@ -107,7 +107,7 @@ class WidgetAttributes:
     # 敷地権の所在及び地番
     site_address_and_number = {
         "class": "form-control rounded-end",
-        "placeholder": "地番の表記は「番地」ではなく「番」です",
+        "placeholder": "「番地」ではなく「番」",
         "maxlength": "100",
     }
     # 敷地権の土地の符号
@@ -130,7 +130,7 @@ class WidgetAttributes:
     # 一括住所
     full_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神１丁目１番１号",
+        "placeholder": "福岡県福岡市中央区天神一丁目１番１号",
         "maxlength": "100",        
     }
     # 電話番号
@@ -229,7 +229,13 @@ class WidgetGroup:
             "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している")]),
             **({"is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")])} if model_name in ["Descendant", "Collateral"] else {})
         }
-    
+
+def conversion_bool_value(form):
+    """boolのデータ（TrueまたはFalse）を変換する（trueまたはfalse）"""
+    for name in ["is_exist", "is_same_parents", "is_live", "is_refuse", "is_adult", "is_japan", "is_acquire", "is_heir"]:
+        if name in form.fields and form.initial.get(name) is not None:
+            form.initial[name] = 'true' if form.initial[name] else 'false'
+
 """
 
     トップページ
@@ -272,12 +278,6 @@ class OpenInquiryForm(forms.ModelForm):
     ステップ１関連
 
 """
-def conversion_bool_value(form):
-    """boolのデータ（TrueまたはFalse）を変換する（trueまたはfalse）"""
-    for name in ["is_exist", "is_same_parents", "is_live", "is_refuse", "is_adult", "is_japan"]:
-        if name in form.fields and form.initial.get(name) is not None:
-            form.initial[name] = 'true' if form.initial[name] else 'false'
-
 def set_step_one_decedent_form(form):
     """被相続人のフォームの初期化処理"""
     for i, (name, field) in enumerate(form.base_fields.items()):
@@ -551,9 +551,8 @@ class StepThreeSpouseForm(forms.ModelForm):
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
-        for field in ["is_acquire"]:
-            if self.initial.get(field) is not None:
-                self.initial[field] = 'true' if self.initial[field] else 'false'
+            
+        conversion_bool_value(self)
         
         
 #相続人情報（子、孫）
@@ -606,9 +605,9 @@ class StepThreeDescendantForm(forms.ModelForm):
                 
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
-        for field in ["is_acquire"]:
-            if self.initial.get(field) is not None:
-                self.initial[field] = 'true' if self.initial[field] else 'false'
+            
+        conversion_bool_value(self)
+
 
         
 #相続人情報（尊属）
@@ -656,9 +655,8 @@ class StepThreeAscendantForm(forms.ModelForm):
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
-        for field in ["is_acquire"]:
-            if self.initial.get(field) is not None:
-                self.initial[field] = 'true' if self.initial[field] else 'false'
+        
+        conversion_bool_value(self)
 
         
 #相続人情報（兄弟姉妹）
@@ -709,9 +707,9 @@ class StepThreeCollateralForm(forms.ModelForm):
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
-        for field in ["is_acquire"]:
-            if self.initial.get(field) is not None:
-                self.initial[field] = 'true' if self.initial[field] else 'false'
+
+        conversion_bool_value(self)
+
         
 #遺産分割の方法
 class StepThreeTypeOfDivisionForm(forms.ModelForm):

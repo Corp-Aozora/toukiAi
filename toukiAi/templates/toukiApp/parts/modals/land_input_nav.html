@@ -1,0 +1,146 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="land_input_nav_modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    土地情報の入力について
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <h5 class="text-center">
+                        登記情報の記載のうち入力する部分に印をしてます。
+                    </h5>
+                    <div class="mt-3 d-flex justify-content-center">
+                        <ul class="ps-0 supplement">
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        画像は登記情報のものですが、全部事項証明書の場合も同じです。
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="mt-3">
+                                <div>
+                                    <span class="px-3 border-bottom border-dark">
+                                        ①不動産番号
+                                    </span>
+                                </div>
+                                <p class="ms-5">
+                                    右上に記載がある13桁の数字。
+                                </p>
+                            </li>
+                            <li class="mt-3">
+                                <div>
+                                    <span class="px-3 border-bottom border-dark">
+                                        ②所在地
+                                    </span>
+                                </div>
+                                <p class="ms-5">
+                                    上の方にある「所在」の欄。
+                                    <br>
+                                    ※「◯丁目」の記載があるとき、◯は漢数字でご入力ください。
+                                </p>
+                            </li>
+                            <li class="mt-3">
+                                <div>
+                                    <span class="px-3 border-bottom border-dark">
+                                        ③地番
+                                    </span>
+                                </div>
+                                <p class="ms-5">
+                                    複数の地番が記載されていることがありますが、一番下にある下線が引かれていないものをご入力ください。
+                                </p>
+                            </li>
+                            <li class="mt-3">
+                                <div>
+                                    <span class="px-3 border-bottom border-dark">
+                                        ④所有権・持分
+                                    </span>
+                                </div>
+                                <p class="ms-5">
+                                    所有者の場合は、「所有者」にチェックをするか「１分の１」とご入力ください。
+                                    <br>
+                                    共有者の場合は、「◯分の◯」と記載されている部分をご入力ください。
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                    <p class="d-flex justify-content-center">
+                        <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）（入力部分）.png' %}" alt="登記情報（土地）（入力部分）の説明画像">
+                    </p>
+                </div>
+                <hr class="border-3">
+                <div>
+                    <h5 class="text-center">
+                        評価額について
+                    </h5>
+                    <p class="text-center">
+                        ※画像は公課証明書ですが、固定資産評価証明書も同じ部分をご確認ください。
+                    </p>
+                    <div class="d-flex justify-content-center">
+                        <ul class="ps-0 supplement">
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        各土地に対応する評価額をご入力ください。
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        共有の場合でも、評価額を持分で割らずにそのままご入力ください
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        評価額が０円や無記載などになっている場合で「２．必要書類一覧」でお問い合わせされていないときは、お問い合わせをお願いします。
+                                        <br>
+                                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0A法務局への照会する方法を教えてください。">
+                                            {{ company_data.MAIL_ADDRESS }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        登記情報に記載の地積と異なる土地がある場合は、お問い合わせをお願いします。
+                                        <br>
+                                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記簿上の地積と評価上の地積が異なる場合について&body=※登記情報と固定資産評価証明書の画像を添付してください%0D%0A%0D%0A登記簿上の地積と評価上の地積が異なる場合の評価額の計算方法を教えてください">
+                                            {{ company_data.MAIL_ADDRESS }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <p class="d-flex justify-content-center">
+                        <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（あり）（入力部分）.png' %}" alt="公課証明書（あり）（入力部分）の説明画像">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

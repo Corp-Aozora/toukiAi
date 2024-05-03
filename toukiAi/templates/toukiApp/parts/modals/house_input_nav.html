@@ -61,11 +61,22 @@
                                         ④所有権・持分
                                     </span>
                                 </div>
-                                <p class="ms-5">
-                                    所有者の場合は、「所有者」にチェックをするか「１分の１」とご入力ください。
-                                    <br>
-                                    共有者の場合は、「◯分の◯」と記載されている部分をご入力ください。
-                                </p>
+                                <div class="ms-5">
+                                    <div>
+                                        所有者の場合は、「所有者」にチェックをするか「１分の１」とご入力ください。
+                                    </div>
+                                    <div>
+                                        共有者の場合は、「◯分の◯」と記載されている部分をご入力ください。
+                                        <div class="ms-3 d-flex">
+                                            <div>
+                                                ※
+                                            </div>
+                                            <div>
+                                                被相続人が複数回に分けて取得している場合もありますので、下線が引かれていない共有者として他の欄に記載がないかご確認ください。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -81,42 +92,45 @@
                     <p class="text-center">
                         ※画像は公課証明書ですが、固定資産評価証明書も同じ部分をご確認ください。
                     </p>
-                    <ul class="ps-0 supplement">
-                        <li>
-                            <div class="d-flex">
-                                <div>
-                                    ※
+                    <div class="d-flex justify-content-center">
+                        <ul class="ps-0 supplement">
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        各建物に対応する評価額をご入力ください。
+                                    </div>
                                 </div>
-                                <div>
-                                    各建物に対応する評価額をご入力ください。
+                            </li>
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        共有の場合でも、評価額を持分で割らずにそのままご入力ください
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="d-flex">
-                                <div>
-                                    ※
+                            </li>
+                            <li>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        登記情報に記載の延床面積より２０％以上小さいものがある場合は、お問い合わせをお願いします。
+                                        <p class="text-center">
+                                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記簿上の延床面積と評価上の延床面積が異なる場合について&body=※登記情報と固定資産評価証明書の画像を添付してください%0D%0A%0D%0A登記簿上の延床面積と評価上の延床面積が異なる場合の評価額の計算方法を教えてください">
+                                                {{ company_data.MAIL_ADDRESS }}
+                                            </a>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    共有の場合でも、評価額を持分で割らずにそのままご入力ください
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="d-flex">
-                                <div>
-                                    ※
-                                </div>
-                                <div>
-                                    登記情報に記載の延床面積より２０％以上小さいものがある場合は、お問い合わせをお願いします。
-                                    <br>
-                                    <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記簿上の延床面積と評価上の延床面積が異なる場合について&body=※登記情報と固定資産評価証明書の画像を添付してください%0D%0A%0D%0A登記簿上の延床面積と評価上の延床面積が異なる場合の評価額の計算方法を教えてください">
-                                        {{ company_data.MAIL_ADDRESS }}
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                            </li>
+                        </ul>
+                    </div>
                     <p class="d-flex justify-content-center">
                         <img class="modal-image" src="{% static 'toukiApp/img/公課証明書（あり）（入力部分）.png' %}" alt="公課証明書（あり）（入力部分）の説明画像">
                     </p>

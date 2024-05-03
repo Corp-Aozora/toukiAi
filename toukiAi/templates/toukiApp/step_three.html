@@ -689,7 +689,7 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value == 21 %} style="display: none;"{% endif %}>
+                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value == 9 %} style="display: none;"{% endif %}>
                                         <div class="form-label">
                                             <span class="fs-5 fw-bold">
                                                 被相続人とは他方の親の氏名
@@ -1100,7 +1100,7 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value == 21 %} style="display: none;"{% endif %}>
+                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value == 9 %} style="display: none;"{% endif %}>
                                         <div class="form-label">
                                             <span class="fs-5 fw-bold">
                                                 子とは他方の親の氏名
@@ -1527,11 +1527,11 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.content_type1.value == 18 and form.content_type2.value == 18 %}style="display: none;"{% endif %}>
+                                    <div class="mt-4 otherParentDiv" {% if form.content_type1.value == 5 and form.content_type2.value == 5 %}style="display: none;"{% endif %}>
                                         <span class="form-label fs-5 fw-bold">
-                                            {% if form.content_type1.value == 18 %}
+                                            {% if form.content_type1.value == 5 %}
                                                 母の氏名
-                                            {% elif form.content_type2.value == 18 %}
+                                            {% elif form.content_type2.value == 5 %}
                                                 父の氏名
                                             {% endif %}
                                         </span>
@@ -1837,10 +1837,10 @@
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeTempLandAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeTempLandAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             不動産取得者を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addTempLandAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addTempLandAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             不動産取得者を追加する
                                         </button>
                                     </div>
@@ -1875,10 +1875,10 @@
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeTempLandCashAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeTempLandCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             金銭取得者を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addTempLandCashAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addTempLandCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             金銭取得者を追加する
                                         </button>
                                     </div>
@@ -1909,10 +1909,10 @@
                         {% endfor %}
                     </div>
                     <div class="d-flex justify-content-evenly landBtnsDiv mt-5">
-                        <button type="button" id="landCorrectBtn" class="preBtn btn btn-secondary" disabled="true">
+                        <button type="button" id="landCorrectBtn" class="preBtn btn btn-secondary fw-bold bg-gradient bg-opacity-50" disabled="true">
                             前の土地を修正する
                         </button>
-                        <button type="button" id="landOkBtn" class="nextBtn btn btn-primary" disabled="true">
+                        <button type="button" id="landOkBtn" class="nextBtn btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled="true">
                             次の土地へ進む
                         </button>
                     </div>
@@ -2072,10 +2072,10 @@
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeTempHouseAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeTempHouseAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             不動産取得者を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addTempHouseAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addTempHouseAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             不動産取得者を追加する
                                         </button>
                                     </div>
@@ -2110,10 +2110,10 @@
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeTempHouseCashAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeTempHouseCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             金銭取得者を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addTempHouseCashAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addTempHouseCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             金銭取得者を追加する
                                         </button>
                                     </div>
@@ -2272,10 +2272,10 @@
                                 </fieldset>
                                 <div class="siteWrapper">
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeSiteBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeSiteBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             敷地権を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addSiteBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addSiteBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             敷地権を追加する
                                         </button>
                                     </div>                                    
@@ -2310,10 +2310,10 @@
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeTempBldgAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeTempBldgAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             不動産取得者を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addTempBldgAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addTempBldgAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             不動産取得者を追加する
                                         </button>
                                     </div>
@@ -2348,10 +2348,10 @@
                                         </div>
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
-                                        <button type="button" class="btn btn-secondary removeTempBldgCashAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-secondary removeTempBldgCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             金銭取得者を削除する
                                         </button>
-                                        <button type="button" class="btn btn-primary addTempBldgCashAcquirerBtn" disabled="true">
+                                        <button type="button" class="btn btn-primary addTempBldgCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
                                             金銭取得者を追加する
                                         </button>
                                     </div>
@@ -2432,10 +2432,10 @@
                     </fieldset>
                     {% endfor %}
                     <div class="d-flex justify-content-evenly bldgBtnsDiv mt-5">
-                        <button type="button" id="bldgCorrectBtn" class="preBtn btn btn-secondary" disabled="true">
+                        <button type="button" id="bldgCorrectBtn" class="preBtn btn btn-secondary fw-bold bg-gradient bg-opacity-50" disabled="true">
                             前の区分建物を修正する
                         </button>
-                        <button type="button" id="bldgOkBtn" class="nextBtn btn btn-primary" disabled="true">
+                        <button type="button" id="bldgOkBtn" class="nextBtn btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled="true">
                             次の区分建物へ進む
                         </button>
                     </div>
@@ -2537,7 +2537,7 @@
                                     </div>
                                 </div>
                             {% elif field.name == "is_return" %}
-                                <div class="mt-4">
+                                <div class="mt-4" style="display: none;">
                                     <span class="form-label fs-5 fw-bold">
                                         書類の原本還付をしますか？
                                     </span>
@@ -2561,7 +2561,7 @@
                                     </div>
                                 </div>
                             {% elif field.name == "is_mail" %}
-                                <div class="mt-4">
+                                <div class="mt-4" style="display: none;">
                                     <span class="form-label fs-5 fw-bold">
                                         申請書類は法務局へ郵送しますか？
                                     </span>
@@ -2607,14 +2607,14 @@
             <div class="mt-5">
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
-                        <button id="preBtn" type="button" class="btn btn-secondary">
+                        <button id="preBtn" type="button" class="btn btn-secondary fw-bold bg-gradient bg-opacity-50">
                             ２．必要書類一覧を修正する
                             <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                     <div>
-                        <button id="submitBtn" type="submit" class="btn btn-primary" disabled>
+                        <button id="submitBtn" type="submit" class="btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled>
                             ４．書類の作成に進む
                             <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
@@ -2623,8 +2623,9 @@
                 </div>
                 <div class="m-auto text-center">
                     <span class="fw-bold">
-                        ※修正するボタンを押すと、不動産情報の入力内容が初期化される場合があります。<br>
-                        他のページの入力を確認したいだけの場合は、左の進捗状況からクリックしてください。
+                        ※修正するボタンを押すと、不動産情報の入力内容が初期化される場合があります。
+                        <br>
+                        前の項目を確認するだけの場合は、画面左の進捗状況にある項目をクリックしてください。
                     </span>
                 </div>
             </div>

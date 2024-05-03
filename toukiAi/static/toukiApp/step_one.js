@@ -1027,9 +1027,9 @@ async function loadChildHeirsData(){
             try{
                 inputAndDispatchChangeEventIfVal(data["name"], inputs[GName.input]);
     
-                if(data["content_type2"] && data["content_type2"] == 21){
+                if(data["content_type2"] && data["content_type2"] == 9){
                     loadRbData(inputs[GIsSameParents.input[yes]]);
-                }else if(data["content_type2"] === null || data["content_type2"] == 27){
+                }else if(data["content_type2"] === null || data["content_type2"] == 14){
                     loadRbData(inputs[GIsSameParents.input[no]]);
                 }
     

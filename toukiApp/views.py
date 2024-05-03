@@ -687,7 +687,7 @@ def step_one(request):
         
         if request.method == "POST":
             
-            if not is_progress_equal_to_step(decedent.progress, step_progress):
+            if decedent and not is_progress_equal_to_step(decedent.progress, step_progress):
                 return redirect_to_progress_page(request)
                 
             forms = [
@@ -1300,18 +1300,22 @@ def get_descendant_or_collateral_initial_data(data, content_type_model):
     Returns:
         dict: 辞書型に格納したデータ
     """
+    
     content_type = ContentType.objects.get_for_model(content_type_model)
     related_individual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
 
     initial_data = []
     for d in data:
+        
         other_parent_name = None
         if d.content_type2 == related_individual_content_type:
+            
             related_individual = RelatedIndividual.objects.filter(
                 id=d.object_id2,
                 object_id=d.id,
                 content_type=content_type
             ).first()
+            
             other_parent_name = related_individual.name if related_individual else None
 
         # 辞書データを生成
@@ -1514,12 +1518,19 @@ def update_form_set(data, form_set, user, decedent, content_type = None, relatio
         
         form_class_name = get_form_set_class_name(form_set)
         if form_class_name in ["StepThreeDescendantForm", "StepThreeCollateralForm"]:
+            
             save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship)
+            
         elif form_class_name in ["StepThreeSpouseForm", "StepThreeAscendantForm"]:
+            
             save_step_three_child_spouse_or_ascendant(user, form_set, data)
+            
         else:
+            
             basic_log(get_current_function_name(), None, user, form_class_name)
+            
             raise ValidationError("想定しない形式のフォームが使用されてます")
+        
     except Exception as e:
         basic_log(function_name, e, user)
         raise e
@@ -1629,28 +1640,31 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
         update_fields = get_update_fields_for_form_set(data)
         for form in form_set:
             form_data = form.cleaned_data
-            #関係者の登録（関係者は削除と新規のため、子のcontent_type2object_id2は常に更新する必要あり）
+            
             other_parent_name = form_data.get("other_parent_name")
+            #関係者の登録（関係者は削除と新規のため、子のcontent_type2object_id2は常に更新する必要あり）
             if other_parent_name != "":
-                related_indivisual, created = RelatedIndividual.objects.get_or_create(
-                    decedent = decedent,
-                    name = other_parent_name,
-                    defaults={
-                        'content_type': content_type,
-                        'object_id': form_data.get("id"),
-                        'relationship': relationship,
-                        'created_by': user,
-                        'updated_by': user,
-                    }
+                related_indivisual = RelatedIndividual.objects.create(
+                    decedent=decedent,
+                    name=other_parent_name,
+                    content_type=content_type,  # ContentTypeインスタンスを事前に設定する必要がある
+                    object_id=form_data.get("id"),  # 適切なIDをフォームデータから取得する
+                    relationship=relationship,
+                    created_by=user,
+                    updated_by=user
                 )
+                
                 form_data["content_type2"] = related_indivisual_content_type
                 form_data["object_id2"] = related_indivisual.id
+                
             update_target_data = data_dict.get(int(form_data.get("id")))
             form_data['updated_by'] = user
+            
             for key, value in form_data.items():
                 if key in update_fields:
                     setattr(update_target_data, key, value)
                 update_target_data.save()
+                
     except Exception as e:
         basic_log(function_name, e, user, form_class_name)
         raise e
@@ -1871,6 +1885,7 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
     forms_idx = get_forms_idx_for_step_three()
     form_sets_idx = get_formsets_idx_for_step_three()
     function_name = get_current_function_name()
+    
     try:
         #被相続人
         decedent = save_step_three_decedent_data(forms[forms_idx["decedent"]], user)
@@ -2158,33 +2173,50 @@ def get_formsets_for_step_three():
 
 def get_forms_for_step_three_post(request, decedent, data, data_idx):
     """ステップ３で使用するフォームにPOSTデータを代入してリストに格納して返す"""
-    return [
-        StepThreeDecedentForm(
-            request.POST or None,
-            prefix="decedent",
-            instance=decedent,
-        ),
-        StepThreeSpouseForm(
-            request.POST or model_to_dict(data[data_idx["spouse"]]),
-            prefix="spouse",
-            instance=data[data_idx["spouse"]] if data[data_idx["spouse"]] else None,
-        ),
-        StepThreeTypeOfDivisionForm(
-            request.POST or None,
-            prefix="type_of_division",
-            instance=data[data_idx["type_of_division"]] if data[data_idx["type_of_division"]] else None,
-        ),
-        StepThreeNumberOfPropertiesForm(
-            request.POST or None,
-            prefix="number_of_properties",
-            instance=data[data_idx["number_of_properties"]] if data[data_idx["number_of_properties"]] else None,
-        ),
-        StepThreeApplicationForm(
-            request.POST or None,
-            prefix="application",
-            instance=data[data_idx["application"]] if data[data_idx["application"]] else None,
-        ),
-    ]    
+
+    function_name = get_current_function_name()
+    
+    def add_prefix_to_dict(data, prefix):
+        """辞書のキーにプレフィックスを追加する"""
+        return {f"{prefix}{key}": value for key, value in data.items()}
+    
+    try:
+        # StepThreeSpouseForm用のデータがPOSTに含まれているかチェック（配偶者はいなくても常にデータ登録されているため）
+        if any(key.startswith('spouse-') for key in request.POST):
+            spouse_form_data = request.POST
+        else:
+            spouse_form_data = add_prefix_to_dict(model_to_dict(data[data_idx["spouse"]]), "spouse-")
+        
+        return [
+            StepThreeDecedentForm(
+                request.POST or None,
+                prefix="decedent",
+                instance=decedent,
+            ),
+            StepThreeSpouseForm(
+                spouse_form_data,
+                prefix="spouse",
+                instance=data[data_idx["spouse"]] if data[data_idx["spouse"]] else None,
+            ),
+            StepThreeTypeOfDivisionForm(
+                request.POST or None,
+                prefix="type_of_division",
+                instance=data[data_idx["type_of_division"]] if data[data_idx["type_of_division"]] else None,
+            ),
+            StepThreeNumberOfPropertiesForm(
+                request.POST or None,
+                prefix="number_of_properties",
+                instance=data[data_idx["number_of_properties"]] if data[data_idx["number_of_properties"]] else None,
+            ),
+            StepThreeApplicationForm(
+                request.POST or None,
+                prefix="application",
+                instance=data[data_idx["application"]] if data[data_idx["application"]] else None,
+            ),
+        ]
+    except Exception as e:
+        basic_log(function_name, e, decedent.user, "POSTでのフォームのインスタンス生成に失敗しました")
+        raise e
 
 def get_formsets_idx_for_step_three():
     idxs = {
@@ -2316,7 +2348,7 @@ def step_three(request):
         #フォームセットを生成
         form_sets = get_formsets_for_step_three()
         form_sets_idx = get_formsets_idx_for_step_three()
-        
+
         #フォームからデータがPOSTされたとき
         if request.method == "POST":
 
@@ -2326,11 +2358,15 @@ def step_three(request):
             #フォームセットの属性を更新
             forms = get_forms_for_step_three_post(request, decedent, data, data_idx)
             form_sets = get_form_sets_for_step_three_post(request, form_sets, form_sets_idx, data, data_idx)
+            # StepThreeSpouseForm がリストの中で2番目にあると仮定（0から数える）
+            spouse_form = forms[1]
 
             if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
                 try:
                     with transaction.atomic():
+
                         save_step_three_datas(user, forms, form_sets, data, data_idx)
+                        
                         return redirect(next_url_name)
                 except Exception as e:
                     basic_log(function_name, e, user, "POSTのフォーム検証後にエラー")
@@ -2383,7 +2419,7 @@ def step_three(request):
                 user_data_scope.append("spouse")
         else:
             spouse_form = None
-            
+        
         #子
         child_data = data[data_idx["child"]]
         if child_data.exists():
@@ -4851,6 +4887,7 @@ def redirect_to_step(progress):
 #             except Exception as e:
 #                 # ログにエラーメッセージを記録します
 #                 print(f"Error occurred: {e}")
+
 # HTMLファイルのパスを指定して実行
 # import_offices('toukiApp/登記所選択.html')
 

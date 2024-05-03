@@ -3,6 +3,8 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_four.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -10,35 +12,16 @@
 {% load custom_filters %}
 {% block content %}
 
-{% for message in messages %}
-    {% if message.tags == "error" %}
-        <div class="modal inquiry-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center">
-                        <h5 class="modal-title fw-bold">エラーが発生しました</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body pb-3">
-                        <span class="fw-bold">
-                            {{message}}
-                        </span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endfor %}
+{% include "toukiApp/parts/step_messages.html" %}
+{% include "toukiApp/parts/modals/alt_stamp_certificate.html" %}
+{% include "toukiApp/parts/acquirer_resident_certification_three.html" %}
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
         <div>
             <h4>
-                下記書類を指定の通数印刷してご署名押印ください
+                各書類を指定の通数印刷してご署名押印ください
             </h4>
             <p class="text-danger fw-bold">
                 ※印刷前に内容（特に誤字脱字）の確認をお願いします。
@@ -62,71 +45,112 @@
                     </div>
                     <div class="mt-4">
                         <a href="{% url 'toukiApp:step_division_agreement' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
-                            遺産分割協議証明書を確認する
+                            印刷ページへ
                         </a>
                     </div>
                     <div class="mt-4">
                         <div>
                             <span class="fw-bold">
-                                相続人全員に印刷したものを配布して各自の署名押印（実印）をもらってください。
+                                相続人各自の署名押印（実印）をお願いします。
                             </span>
+                            <br>
+                            １通に全員が署名押印する形式のものではないです。
                         </div>
-                        <div>
+                        <div class="mt-3">
                             <span class="fw-bold">
-                                各相続人の印鑑証明書と戸籍の全部事項証明書（謄本、抄本どちらでも可）も１通ずつ必要です。
-                            </span><br>
-                            ※不動産を取得する方は
-                            <span class="border-bottom border-secondary">
-                                住民票１通（マイナンバー不要）
+                                ＞相続人に該当する方々
                             </span>
-                            も必要です。<br>
-                            ※ステップ２ですでに取得済みの場合は改めてご取得いただく必要はありません。
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <ol id="heirsList" class="list-group">
-                            <span class="fw-bold">
-                                相続人一覧
-                            </span>
-                            {% for heir in heirs %}
-                                <li class="ms-3">
-                                    {{heir.name}} さん
-                                </li>
-                            {% endfor %}
-                        </ol>
-                    </div>
-                    {% if minors|length > 0 %}
-                        <div>
-                            <span class="fw-bold border-bottom border-primary">
-                                以下の方は、未成年のため法定代理人の署名押印と印鑑証明書が必要です。<br>
-                                ただし、印鑑証明書を取得できる場合は、未成年者の署名押印と印鑑証明書で大丈夫です。
-                            </span>
-                            <ul>
-                                {% for minor in minors %}
-                                    <li class="ms-3">
-                                        {{minor.name}} さん
+                            <div class="ps-5">
+                                <ul id="heirsList" class="list-group">
+                                    {% for heir in heirs %}
+                                        <li class="text-success fw-bold">
+                                            {{heir.name}} さん
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <ul class="mt-3 ps-0 mb-0">
+                                    <li class="d-flex">
+                                        <div class="text-danger">
+                                            ※
+                                        </div>
+                                        <div>
+                                            <span class="text-danger">
+                                                各自の印鑑証明書と戸籍全部（または個人）事項証明書１通ずつも必要です。
+                                            </span>
+                                        </div>
                                     </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                    {% if overseas|length > 0 %}
-                        <div>
-                            <span class="fw-bold border-bottom border-primary">
-                                以下の方は、日本に住民票がないため、現地の領事館又は大使館で署名証明が必要です。<br>
-                                日本に一時的に滞在している場合は、日本の公証人役場での署名証明でも大丈夫です。
-                            </span>
-                            <ul>
-                                {% for oversea in overseas %}
-                                    <li class="ms-3">
-                                        {{oversea.name}} さん
+                                    <li class="d-flex">
+                                        <div>
+                                            ※
+                                        </div>
+                                        <div>
+                                            不動産を取得する方は
+                                            <span class="border-bottom border-secondary">
+                                                住民票（マイナンバー不要）または戸籍の附票１通
+                                            </span>
+                                            も必要です。
+                                        </div>
                                     </li>
-                                {% endfor %}
-                            </ul>
+                                </ul>
+                                {% if minors|length > 0 %}
+                                    <div class="mt-3">
+                                        <span class="fw-bold border-bottom border-primary">
+                                            未成年のため法定代理人の署名押印と印鑑証明書が必要です。
+                                            <br>
+                                            ただし、印鑑証明書を取得できる場合は、未成年者の署名押印と印鑑証明書で大丈夫です。
+                                        </span>
+                                        <ul>
+                                            {% for minor in minors %}
+                                                <li class="ms-3">
+                                                    {{minor.name}} さん
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                {% if overseas|length > 0 %}
+                                    <div class="mt-3">
+                                        <div class="d-flex">
+                                            <div>
+                                                ※
+                                            </div>
+                                            <div>
+                                                <div>
+                                                    <span class="fw-bold">
+                                                        日本に住民票がない方は、印鑑証明書の代わりに現地の領事館または大使館での
+                                                        <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#alt_stamp_certificate_modal">
+                                                            署名証明
+                                                        </button>
+                                                        が必要です。
+                                                    </span>
+                                                    <br>
+                                                    日本に帰国している場合は、日本の公証人役場での署名証明でも大丈夫です。
+                                                </div>
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        不動産を取得する場合は、住民票または戸籍の附票の代わりに
+                                                        <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_three">
+                                                            在留証明書
+                                                        </button>
+                                                        も必要です。
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <ul class="ps-5">
+                                            {% for oversea in overseas %}
+                                                <li class="fw-bold text-success">
+                                                    {{oversea.name}} さん
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% endif %}
-                    <div class="mt-4 fw-bold">
-                        申請する法務局が複数箇所ある場合、申請先の法務局の数だけ作成すると全箇所同時に申請することができます。
                     </div>
                 </section>
                 <hr>
@@ -143,10 +167,10 @@
                     </div>
                     <div class="mt-4">
                         <a href="{% url 'toukiApp:step_POA' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
-                            委任状を確認する
+                            印刷ページへ
                         </a>
                     </div>
-                    <div class="mt-4">
+                    <div class="mt-4 fw-bold">
                         {% if principal_names_and_POA_count|length > 1 %}
                             以下の方々を委任者、申請手続きをする
                             <span>
@@ -166,20 +190,22 @@
                         {% endif %}
                     </div>
                     {% if principal_names_and_POA_count|length > 1 %}
-                        <div class="mt-4">
-                            <ol class="list-group">
-                                <span class="fw-bold">
-                                    委任者一覧と各自の通数
-                                </span>
+                        <div class="mt-3">
+                            <span class="fw-bold">
+                                ＞委任者になる方々と各自の通数
+                            </span>
+                            <ul class="list-group ps-5">
                                 {% for x in principal_names_and_POA_count %}
-                                    <li class="ms-3">
-                                        {{x.name}} さん
+                                    <li class="fw-bold">
+                                        <span class="text-success">
+                                            {{x.name}} さん
+                                        </span>
                                         <span class="ms-4">
                                             {{x.count}}通
                                         </span>
                                     </li>
                                 {% endfor %}
-                            </ol>
+                            </ul>
                         </div>
                     {% endif %}
                 </section>
@@ -193,14 +219,17 @@
                     <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
                         登記申請書
                         <span class="ms-3">
-                            下記ボタンを押して表示されている分全て
+                            印刷ページで表示されている分全て
                         </span>
                     </label>
                 </div>
                 <div class="mt-4">
                     <a href="{% url 'toukiApp:step_application_form' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
-                        登記申請書を確認する
+                        印刷ページへ
                     </a>
+                </div>
+                <div class="mt-4 fw-bold">
+                    複数の市区町村にわたって不動産がある場合や、不動産ごとに取得者が異なる場合は２通以上になることもあります。
                 </div>
             </section>
             <hr>
@@ -212,17 +241,18 @@
                     <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbDiagram">
                         相続関係説明図
                         <span class="ms-3">
-                            下記ボタンを押して表示されている分全て
+                            印刷ページで表示されている分全て
                         </span>
                     </label>
                 </div>
                 <div class="mt-4">
                     <a href="{% url 'toukiApp:step_diagram' %}" class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" role="button" target="_blank" rel="noopener noreferrer">
-                        相続関係説明図を確認する
+                        印刷ページへ
                     </a>
                 </div>
-                <div class="mt-3">
-                    被相続人や各相続人の氏名生年月日等に誤りがないかご確認ください。<br>
+                <div class="mt-4">
+                    各登記申請書に１通の相続関係図が必要です。
+                    <br>
                     署名押印は不要です。
                 </div>
             </section>
@@ -230,14 +260,14 @@
             <div class="mt-5">
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
-                        <button id="preBtn" type="button" class="btn btn-secondary">
+                        <button id="preBtn" type="button" class="btn btn-secondary fw-bold bg-gradient bg-opacity-50">
                             ３．詳細データ入力に戻る
                             <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                     <div>
-                        <button id="submitBtn" type="submit" class="btn btn-primary" disabled>
+                        <button id="submitBtn" type="submit" class="btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled>
                             ５．法務局に申請に進む
                             <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
@@ -246,8 +276,9 @@
                 </div>
                 <div class="m-auto text-center">
                     <span class="fw-bold">
-                        ※修正するボタンを押すと、ここでのチェック状況が初期化される場合があります。<br>
-                        他のページの入力を確認したいだけの場合は、左の進捗状況からクリックしてください。
+                        ※修正するボタンを押すと、ここでのチェック状況が初期化されます。
+                        <br>
+                        前の項目を確認するだけの場合は、画面左の進捗状況にある項目をクリックしてください。
                     </span>
                 </div>
             </div>
@@ -263,5 +294,6 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_four.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

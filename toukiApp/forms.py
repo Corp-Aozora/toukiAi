@@ -547,13 +547,12 @@ class StepThreeSpouseForm(forms.ModelForm):
                 if field.label == "住所の市区町村":
                     field.widget.attrs['disabled'] = 'true'
                     
-        super().__init__(*args, **kwargs)
+        super(StepThreeSpouseForm, self).__init__(*args, **kwargs)
         
         if self.instance:
             self.fields["id_and_content_type"].initial = str(self.instance.id) + "_" + str(ContentType.objects.get_for_model(self.instance).id)
             
         conversion_bool_value(self)
-        
         
 #相続人情報（子、孫）
 class StepThreeDescendantForm(forms.ModelForm):
@@ -669,8 +668,10 @@ class StepThreeCollateralForm(forms.ModelForm):
     
     class Meta:
         model = Collateral
-        index = model.step_three_fields.index("is_refuse")
-        model.step_three_fields.insert(index, "other_parent_name")
+        other_parent_name_idx = model.step_three_fields.index("is_refuse")
+        model.step_three_fields.insert(other_parent_name_idx, "other_parent_name")
+        id_and_content_type_idx = model.step_three_fields.index("decedent")
+        model.step_three_fields.insert(id_and_content_type_idx, "id_and_content_type")      
         fields = model.step_three_fields
         widgets = {
             "city": forms.Select(),
@@ -1109,7 +1110,12 @@ class StepThreeApplicationForm(forms.ModelForm):
             else:
                 field.widget.attrs.update(WidgetAttributes.select)
 
+        
         super().__init__(*args, **kwargs)
+        # 本使用まで初期値としてtrueを代入する
+        self.initial.setdefault('is_return', 'true')
+        self.initial.setdefault('is_mail', 'true')
+        
         for field in ["is_agent", "is_return", "is_mail"]:
             if self.initial.get(field) is not None:
                 self.initial[field] = 'true' if self.initial[field] else 'false'

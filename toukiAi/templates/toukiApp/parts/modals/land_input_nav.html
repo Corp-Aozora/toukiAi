@@ -64,11 +64,22 @@
                                         ④所有権・持分
                                     </span>
                                 </div>
-                                <p class="ms-5">
-                                    所有者の場合は、「所有者」にチェックをするか「１分の１」とご入力ください。
-                                    <br>
-                                    共有者の場合は、「◯分の◯」と記載されている部分をご入力ください。
-                                </p>
+                                <div class="ms-5">
+                                    <div>
+                                        所有者の場合は、「所有者」にチェックをするか「１分の１」とご入力ください。
+                                    </div>
+                                    <div>
+                                        共有者の場合は、「◯分の◯」と記載されている部分をご入力ください。
+                                        <div class="ms-3 d-flex">
+                                            <div>
+                                                ※
+                                            </div>
+                                            <div>
+                                                被相続人が複数回に分けて取得している場合もありますので、下線が引かれていない共有者として他の欄に記載がないかご確認ください。
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -113,10 +124,11 @@
                                     </div>
                                     <div>
                                         評価額が０円や無記載などになっている場合で「２．必要書類一覧」でお問い合わせされていないときは、お問い合わせをお願いします。
-                                        <br>
-                                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0A法務局への照会する方法を教えてください。">
-                                            {{ company_data.MAIL_ADDRESS }}
-                                        </a>
+                                        <p class="text-center">
+                                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0A法務局への照会する方法を教えてください。">
+                                                {{ company_data.MAIL_ADDRESS }}
+                                            </a>
+                                        </p>
                                     </div>
                                 </div>
                             </li>
@@ -127,10 +139,11 @@
                                     </div>
                                     <div>
                                         登記情報に記載の地積と異なる土地がある場合は、お問い合わせをお願いします。
-                                        <br>
-                                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記簿上の地積と評価上の地積が異なる場合について&body=※登記情報と固定資産評価証明書の画像を添付してください%0D%0A%0D%0A登記簿上の地積と評価上の地積が異なる場合の評価額の計算方法を教えてください">
-                                            {{ company_data.MAIL_ADDRESS }}
-                                        </a>
+                                        <p class="text-center">
+                                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記簿上の地積と評価上の地積が異なる場合について&body=※登記情報と固定資産評価証明書の画像を添付してください%0D%0A%0D%0A登記簿上の地積と評価上の地積が異なる場合の評価額の計算方法を教えてください">
+                                                {{ company_data.MAIL_ADDRESS }}
+                                            </a>
+                                        </p>
                                     </div>
                                 </div>
                             </li>

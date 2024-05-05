@@ -3368,8 +3368,7 @@ def get_grand_child_data_for_diagram(data, acquirers_list):
     
     function_name = get_current_function_name()
     
-    grand_child = []
-    step_grand_child = []
+    grand_childs = []
     
     try:
         for d in data:
@@ -3389,12 +3388,12 @@ def get_grand_child_data_for_diagram(data, acquirers_list):
             #生存確認
             if d.is_live == False:
                 form["death_date"] = get_wareki(d, False)
-                step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
+                grand_childs.append(form)
                 continue
             #相続放棄
             if d.is_refuse:
                 form["position"] = "相続放棄"
-                step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
+                grand_childs.append(form)
                 continue
             #取得者確認
             matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
@@ -3404,12 +3403,12 @@ def get_grand_child_data_for_diagram(data, acquirers_list):
             else:
                 form["position"] = "分割"
             
-            step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
+            grand_childs.append(form)
             
-        return {
-            "grand_childs": grand_child,
-            "step_grand_childs": step_grand_child,
-        }
+        # ソート処理
+        type_priority = {'grand_child': 0, 'step_grand_child': 1}
+        grand_childs_sorted = sorted(grand_childs, key=lambda x: (x['relation_id'], type_priority[x['type']]))
+        return { "grand_childs": grand_childs_sorted }
     
     except Exception as e:
         raise Exception(f"{function_name}でエラー発生：{e}\ndata={data}\nacquirers_list={acquirers_list}")
@@ -3732,13 +3731,14 @@ def get_diagram_data(app_data, persons_data):
             #子の配偶者と子、孫のデータは順番を整理する
             new_data.update(get_rearranged_child_gen_data(childs, child_spouses))
 
+
             new_data_list.append(new_data)
             
         return new_data_list
     
     except Exception as e:
         raise e
-
+    
 def get_rearranged_child_gen_data(childs, child_spouses):
     """子の世代を並び替える
     
@@ -3787,8 +3787,7 @@ def get_diagram_data_form():
         "other_father_collaterals": None,
         "other_mother_collaterals": None,
         "child_gen": None,
-        "grand_childs": None,
-        "step_grand_childs": None,
+        "grand_childs": None
     }
     
 def get_diagram_person_form():
@@ -4494,12 +4493,12 @@ def step_five(request):
 
         #ユーザーが申請する法務局の名称を取得する
         offices = get_where_to_apply(decedent)
-        office_name_and_link = {}
-        for office in offices:
-            search_word = f"{office} 住所"
-            response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={search_word}")
-            data = response.json()
-            office_name_and_link[office] = data["items"][0]["link"]
+        # office_name_and_link = {}
+        # for office in offices:
+        #     search_word = f"{office} 住所"
+        #     response = requests.get(f"https://www.googleapis.com/customsearch/v1?key=AIzaSyAmeV3HS-AshtCAHWit7eAEEudyEkwtnxE&cx=9242f933284cb4535&q={search_word}")
+        #     data = response.json()
+        #     office_name_and_link[office] = data["items"][0]["link"]
             
         context = {
             "title" : title,
@@ -4509,7 +4508,7 @@ def step_five(request):
             "minors": minors,
             "offices": offices,
             "overseas_acquirers": overseas_acquirers,
-            "office_name_and_link": office_name_and_link,
+            # "office_name_and_link": office_name_and_link,
             "sections" : Sections.SECTIONS[Sections.STEP5],
             "service_content" : Sections.SERVICE_CONTENT,
         }

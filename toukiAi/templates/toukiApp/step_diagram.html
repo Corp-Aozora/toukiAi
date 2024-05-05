@@ -582,10 +582,10 @@
                             <div class="empty_p">
                             </div>
                         {% endif %}
-                        {% if data.grand_childs or data.step_grand_childs %}
+                        {% if data.grand_childs %}
                             <div class="level">
                                 {% for p in data.grand_childs %}
-                                    <ul class="grand_child">
+                                    <ul class="{% if p.type == "grand_child" %}grand_child {% else %}step_grand_child{% endif %}">
                                         {% if p.address %}
                                             <li>
                                                 <span>
@@ -632,54 +632,6 @@
                                         </li>
                                     </ul>
                                 {% endfor %}
-                                {% for p in data.step_grand_childs %}
-                                <ul class="step_grand_child">
-                                    {% if p.address %}
-                                        <li>
-                                            <span>
-                                                住所
-                                            </span>
-                                            <span>
-                                                {{p.address|to_half_width_digits}}
-                                            </span>
-                                        </li>
-                                    {% endif %}
-                                    {% if p.death_date %}
-                                        <li class="text-nowrap">
-                                            <span>
-                                                死亡
-                                            </span>
-                                            <span>
-                                                {{p.death_date|to_half_width_digits}}                                                        
-                                            </span>
-                                        </li>
-                                    {% endif %}
-                                    <li class="text-nowrap">
-                                        <span>
-                                            出生
-                                        </span>
-                                        <span>
-                                            {{p.birth_date|to_half_width_digits}}                                                        
-                                        </span>
-                                    </li>
-                                    <li class="text-nowrap">
-                                        <span>
-                                            {{p.position}}
-                                        </span>
-                                        <span class="ms-3">
-                                            {{p.name}}
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <input type="hidden" value="{{p.type}}">
-                                        <input type="hidden" value="{{p.id}}">
-                                        <input type="hidden" value="{{p.relation_type1}}">
-                                        <input type="hidden" value="{{p.relation_id1}}">
-                                        <input type="hidden" value="{{p.relation_type2}}">
-                                        <input type="hidden" value="{{p.relation_id2}}">
-                                    </li>
-                                </ul>
-                            {% endfor %}
                             </div>
                             <div class="empty_p">
                             </div>

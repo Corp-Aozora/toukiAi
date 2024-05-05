@@ -3,6 +3,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_five.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 {% block header %}
     {% include "toukiApp/step_header.html" %}
@@ -11,28 +12,7 @@
 
 {% block content %}
 
-{% for message in messages %}
-    {% if message.tags == "error" %}
-        <div class="modal inquiry-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center">
-                        <h5 class="modal-title fw-bold">エラーが発生しました</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body pb-3">
-                        <span class="fw-bold">
-                            {{message}}
-                        </span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endfor %}
+{% include "toukiApp/parts/step_messages.html" %}
 
 {% include "toukiApp/parts/decedent_resident_certification_one.html" %}
 {% include "toukiApp/parts/decedent_resident_certification_two.html" %}
@@ -674,14 +654,14 @@
             <div class="mt-5">
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
-                        <button id="preBtn" type="button" class="btn btn-secondary">
+                        <button id="preBtn" type="button" class="btn btn-secondary bg-gradient bg-opacity-50 fw-bold">
                             ４．書類の印刷に戻る
                             <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                     <div>
-                        <button id="submitBtn" type="submit" class="btn btn-primary" disabled>
+                        <button id="submitBtn" type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold" disabled>
                             申請後について
                             <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
@@ -701,5 +681,6 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_five.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

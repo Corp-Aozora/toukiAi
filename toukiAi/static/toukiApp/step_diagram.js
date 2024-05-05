@@ -58,7 +58,7 @@ function drawAllLine(){
         //被相続人と配偶者から子へのライン
         drawDecedentSpouseChildLines(content, contentRect, svgContainer);
 
-        //子と子の配偶者から孫へのライン
+        //孫へのライン
         const childGen = content.getElementsByClassName("child_gen")[0];
         const grandChilds = content.getElementsByClassName("grand_child");
         // 孫がいるとき
@@ -106,8 +106,7 @@ function drawAllLine(){
                 for(let j = 0, len2 = childExSpouses.length; j < len2; j++){
                     const ex = childExSpouses[j];
                     const exInputs = ex.querySelectorAll("input");
-                    console.log(childInputs[idxs["id"]].value);
-                    console.log(exInputs[idxs["relation_id2"]].value);
+
                     if(childInputs[idxs["id"]].value === exInputs[idxs["relation_id2"]].value){
                         targetExs.push(ex);
                     }
@@ -119,26 +118,38 @@ function drawAllLine(){
                 }
             }
 
-            //子と子の前配偶者から子の連れ子へのライン
-            //対象の前配偶者と一致する連れ子を判別する
             const stepGrandChilds = content.getElementsByClassName("step_grand_child");
+            // 連れ孫がいるとき
             if(stepGrandChilds.length > 0){
-                for(let i = 0, len1 = childExSpouses.length; i < len1; i++){
-                    const childExSpouseInputs = childExSpouses[i].querySelectorAll("input");
-                    const targetStepGrandChilds = [];
+
+                // 各子の前配偶者にループ処理
+                for(let i = 0, len = childExSpouses.length; i < len; i++){
+                    const es = childExSpouses[i];
+                    const esInputs = es.querySelectorAll("input");
+                    const targetGcs = [];
+
+                    // 各連れ孫に対するループ処理
                     for(let j = 0, len2 = stepGrandChilds.length; j < len2; j++){
-                        const stepGrandChild = stepGrandChilds[j];
-                        const stepGrandChildInputs = stepGrandChild.querySelectorAll("input");
-                        if(childExSpouseInputs[idxs["relation_id1"]].value === stepGrandChildInputs[idxs["id"]].value){
-                            targetStepGrandChilds.push(stepGrandChild);
+                        const targetGc = stepGrandChilds[j];
+                        const targetGcInputs = targetGc.querySelectorAll("input");
+
+                        // 対象の子の前配偶者に紐づく連れ孫のとき
+                        const esRelationIds = JSON.parse(esInputs[idxs["relation_id1"]].value);
+                        const targetGcId = parseInt(targetGcInputs[idxs["id"]].value);
+                        if(esRelationIds.includes(targetGcId)){
+                            targetGcs.push(targetGc);
                         }
                     }
-                    const childEXSpoouseLineRect = childExSpouses[i].getBoundingClientRect();
-                    temp(contentRect, svgContainer, childEXSpoouseLineRect, targetStepGrandChilds);
+
+                    // 対象の子の前配偶者に紐づく連れ孫がいるとき
+                    if(targetGcs.length > 0){
+                        const lineRect = content.getElementsByClassName("horizontal_line-child_ex_spouse")[i].getBoundingClientRect();
+                        const esRect = es.getBoundingClientRect();
+                        twoGenLine2(contentRect, svgContainer, lineRect, esRect, targetGcs, false);
+                    }
                 }
             }
         }
-
     }
 }
 
@@ -186,9 +197,9 @@ function drawStepChildLines(content, contentRect, svgContainer){
                         const lineRect = singleLine.getBoundingClientRect();
                         twoGenLine(contentRect, svgContainer, lineRect, targetStepChilds);
                     }else{
-                        const lineRect = document.getElementById(`horizontal_line-ex_spouse-${i}`).getBoundingClientRect();
+                        const lineRect = content.getElementsByClassName("horizontal_line-ex_spouse")[i - 1].getBoundingClientRect();
                         const exSpouseRect = exSpouses[i - 1].getBoundingClientRect();
-                        twoGenLine2(contentRect, svgContainer, lineRect, exSpouseRect, targetStepChilds);
+                        twoGenLine2(contentRect, svgContainer, lineRect, exSpouseRect, targetStepChilds, true);
                     }
                 }
             }
@@ -309,9 +320,9 @@ function drawParentsGen(content, contentRect, svgContainer){
                             const lineRect = singleLine.getBoundingClientRect();
                             twoGenLine(contentRect, svgContainer, lineRect, targetCollaterals);
                         }else{
-                            const lineRect = document.getElementById(`horizontal_line-other_mother-${i}`).getBoundingClientRect();
+                            const lineRect = gen.getElementsByClassName("horizontal_line-other_mother")[i - 1].getBoundingClientRect();
                             const otherMotherRect = otherMother.getBoundingClientRect();
-                            twoGenLine2(contentRect, svgContainer, lineRect, otherMotherRect, targetCollaterals);
+                            twoGenLine2(contentRect, svgContainer, lineRect, otherMotherRect, targetCollaterals, true);
                         }
                     }
                 }
@@ -359,9 +370,9 @@ function drawParentsGen(content, contentRect, svgContainer){
                             const lineRect = singleLine.getBoundingClientRect();
                             twoGenLine(contentRect, svgContainer, lineRect, targetCollaterals);
                         }else{
-                            const lineRect = document.getElementById(`horizontal_line-other_father-${i}`).getBoundingClientRect();
+                            const lineRect = gen.getElementsByClassName("horizontal_line-other_father")[i - 1].getBoundingClientRect();
                             const otherFatherRect = otherFathers[i - 1].getBoundingClientRect();
-                            twoGenLine2(contentRect, svgContainer, lineRect, otherFatherRect, targetCollaterals);
+                            twoGenLine2(contentRect, svgContainer, lineRect, otherFatherRect, targetCollaterals, true);
                         }
                     }
                 }
@@ -377,10 +388,10 @@ function drawParentsGen(content, contentRect, svgContainer){
  * @param {*} lineRect 
  * @param {*} toEls 
  */
-function twoGenLine2(contentRect, svgContainer, lineRect, elRect, toEls){
+function twoGenLine2(contentRect, svgContainer, lineRect, elRect, toEls, isRight){
     let lineHeight = 110;
     // 親要素を基準にした子要素の相対位置を算出
-    const fromX = elRect.right - contentRect.left; // 起点のx座標（横座標）
+    const fromX = isRight? elRect.right - contentRect.left: elRect.left - contentRect.left; // 起点のx座標（横座標）
     const fromY = lineRect.top - contentRect.top + lineRect.height; // 起点のy座標（縦座標）
     let toY = lineHeight + fromY; // 伸ばす線の終点座標
 
@@ -423,32 +434,6 @@ function twoGenLine2(contentRect, svgContainer, lineRect, elRect, toEls){
         //対象の要素の真ん中へ下線を書く
         const diff = toY - toRectTop;
         drawLine(svgContainer, toRectCenter, toY, toRectCenter, toY - diff)
-    }
-}
-
-/**
- * 被相続人と配偶者から子へのライン
- * @param {*} contentRect 
- * @param {*} svgContainer 
- * @param {*} fromRect 
- * @param {*} toEls 
- */
-function temp(contentRect, svgContainer, fromRect, toEls){
-    for(let i = 0, len = toEls.length; i < len; i++){
-        const toRect = toEls[i].getBoundingClientRect();
-        // 親要素を基準にした子要素の相対位置を算出
-        const fromX = fromRect.left - contentRect.left - 20;
-        const fromY = fromRect.top - contentRect.top + fromRect.height -15;
-        const addHeight = 85; 
-        const toY = addHeight + fromY;
-        //二重線の中央から下線を70px伸ばす
-        drawLine(svgContainer, fromX, fromY, fromX, toY);
-        //二重線の中央から70px上を起点として対象の要素の真ん中まで横線を伸ばす（1番左端の子のときのみ）
-        const toRectCenter = (toRect.left - contentRect.left) + (toRect.width / 2);
-        if(i === 0)
-            drawLine(svgContainer, fromX, toY, toRectCenter, toY);
-        //対象の要素の真ん中へ下線を書く
-        drawLine(svgContainer, toRectCenter, toY, toRectCenter, toY + 15)
     }
 }
 
@@ -534,7 +519,7 @@ function sameGenLine(contentRect, svgContainer, fromRect, toEls, fromTopRight, s
         drawLine(svgContainer, fromX, fromY, fromX, toY);
         //ulの右上または左上から10px上を起点として対象の要素の真ん中まで横線を伸ばす
         const toRectCenter = (toRect.left - contentRect.left) + (toRect.width / 2);
-        drawLine(svgContainer, fromX, toY, toRectCenter, toY, `horizontal_line-${relation}-${i}`);
+        drawLine(svgContainer, fromX, toY, toRectCenter, toY, `horizontal_line-${relation}`);
         //対象の要素の真ん中
         drawLine(svgContainer, toRectCenter, toY, toRectCenter, fromY + (-1 * addHeight))
     }
@@ -548,7 +533,7 @@ function sameGenLine(contentRect, svgContainer, fromRect, toEls, fromTopRight, s
  * @param {*} x2 
  * @param {*} y2 
  */
-function drawLine(svgContainer, x1, y1, x2, y2, id=null) {
+function drawLine(svgContainer, x1, y1, x2, y2, className=null) {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', x1);
     line.setAttribute('y1', y1);
@@ -556,8 +541,8 @@ function drawLine(svgContainer, x1, y1, x2, y2, id=null) {
     line.setAttribute('y2', y2);
     line.setAttribute('stroke', 'black');
 
-    if (id !== null) {
-        line.setAttribute('id', id);
+    if (className !== null) {
+        line.setAttribute('class', className);
     }
 
     svgContainer.appendChild(line);

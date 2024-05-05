@@ -3,7 +3,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'accounts/email_confirm.css' %}">
-    <link rel="stylesheet" href="{% static 'condition_diagram.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/condition_diagram.css' %}">
 {% endblock %}
 {% block header %}
     {% include "header.html" %}
@@ -104,6 +104,6 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'condition_diagram.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/condition_diagram.js' %}"></script>
     <script src="{% static 'accounts/email_confirm.js' %}"></script>
 {% endblock %}

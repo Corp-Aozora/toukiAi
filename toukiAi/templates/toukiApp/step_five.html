@@ -24,6 +24,262 @@
 {% include "toukiApp/parts/acquirer_resident_certification_three.html" %}
 {% include "toukiApp/parts/heir_family_certification.html" %}
 
+<div class="modal fade" id="reacquire_price_certification" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    以下の作業が必要です
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <ul class="modal-body ms-3">
+                <li class="d-flex">
+                    <div>
+                        １
+                    </div>
+                    <div class="fw-bold ms-3">
+                        ４月１日以降に
+                    </div>
+                    固定資産評価証明書を再度取得する。
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ２
+                    </div>
+                    <div class="ms-3">
+                        前年度の固定資産評価額（評価額）から変動がある不動産がある場合は、「３．詳細データ入力」を修正する
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ３
+                    </div>
+                    <div class="ms-3">
+                        「３．詳細データ入力」を修正した場合は、登記申請書を印刷しなおす
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ※
+                    </div>
+                    <div class="ms-3">
+                        前年度の評価額から変動がない場合でも、新たに取得した評価証明書を法務局に提出します。
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="land_info" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    不動産の登記情報（全部事項証明書も同じ内容が記載されてます）
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="土地登記情報の説明画像">
+            </div>
+        </div>
+    </div>
+</div>      
+
+<div class="modal fade" id="acquirer_resident_certification_two" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    戸籍の附票
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="d-flex justify-content-center">
+                    <img class="modal-image" src="{% static 'toukiApp/img/現在戸籍の附票.png' %}" alt="現在戸籍の附票の説明画像">
+                </p>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="about_price_certification_copy" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">
+                    評価証明書のコピーについて
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="ms-3">
+                    <p>
+                        <span class="fw-bold border-bottom border-secondary">
+                            各申請書には、その申請書の不動産の表示に対応する評価証明書のコピーが必要です。
+                        </span>
+                        <br>
+                        <span class="ms-3">
+                            １通の評価証明書に２以上の不動産が記載されていて、その一部は申請書の不動産の表示に記載されてないものが含まれていても全ページをコピーしてください。
+                        </span>                                    
+                    </p>
+                    <p>
+                        <span class="fw-bold border-bottom border-secondary">
+                            同じ法務局に提出する申請書が２通以上あり、同じ評価証明書を使用できるとき
+                        </span><br>
+                        <span class="ms-3">
+                            同じ法務局でもそれぞれの申請書に評価証明書のコピーが必要なため、その法務局に提出する申請書の通数分コピーしてください。
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="sort_application_form" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">登記申請書のまとめかたと押印について</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-headword="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-image" src="{% static 'toukiApp/img/登記申請書のまとめかたと押印.png' %}" alt="契印の説明画像">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="return_request" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">原本還付処理</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <div>
+                        <div>
+                            <span class="fw-bold">
+                                「申請人」または「代理人」の表記は登記申請書に押印した欄に合わせて以下のとおりご記入ください。
+                            </span>
+                            <ul class="mt-3 mb-0">
+                                <li class="d-flex">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        相続人欄に押印した場合は「申請人」
+                                    </div>
+                                </li>
+                                <li class="d-flex">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        代理人欄に押印した場合は「代理人」
+                                    </div>
+                                </li>
+                                <li class="d-flex">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        申請人兼代理人欄に押印した場合は「申請人兼代理人」
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr>
+                        <img class="modal-image" src="{% static 'toukiApp/img/原本還付処理例.png' %}" alt="原本還付処理例の説明画像">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="seal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">契印のしかた（印鑑は登記申請書に使用したもの）
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <img class="modal-image" src="{% static 'toukiApp/img/契印.png' %}" alt="契印の説明画像">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tax_amount_and_paste" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">登録免許税の金額の確認と貼り付け</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <img class="modal-image" src="{% static 'toukiApp/img/登記申請書例.png' %}" alt="登録免許税の金額と貼り付けの説明画像">
+                </div>
+                <div class="px-5 pt-4 mt-3 border-top">
+                    <div class="d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            印紙は郵便局や法務局で購入できます。
+                        </div>
+                    </div>
+                    <div class="d-flex mt-3">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            印紙の組み合わせは自由です。
+                            <div>
+                                例）登録免許税が８，０００円のとき
+                            </div>
+                            <div class="ms-3">
+                                ８，０００円の印紙１枚でも１，０００円の印紙８枚などの組み合わせでも大丈夫です。
+                            </div>
+                            <div class="ms-3">
+                                郵便局や法務局の印紙販売の受付の方に「〇〇円分の印紙」のように伝えると適宜の組み合わせを用意してもらえます。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex mt-3">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            <div>
+                                申請書が２通以上あるとき、申請先が同じ法務局でも申請書ごとに印紙を貼る必要があります。
+                            </div>
+                            <div>
+                                例）申請書が２通あり、それぞれ登録免許税が８，０００円（計１６，０００円）のとき
+                            </div>
+                            <div class="ms-3">
+                                ８，０００円分の印紙を２セット購入してそれぞれの申請書の白紙ページに貼ってください。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
@@ -51,11 +307,11 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="" id="check1">
                                 <label class="form-check-label" for="check1">
-                                    <button type="button" class="cursor-pointer text-start" data-bs-toggle="modal" data-bs-target="#price_certification">
+                                    <button type="button" class="fw-bold cursor-pointer text-start" data-bs-toggle="modal" data-bs-target="#price_certification">
                                         固定資産評価証明書
                                     </button>
                                     は当年度のものですか？
-                                    <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#reacquire_price_certification">
+                                    <button type="button" class="fw-bold text-primary text-start" data-bs-toggle="modal" data-bs-target="#reacquire_price_certification">
                                         ※法務局に申請書類を提出する日（郵送の場合は届く日）が４月１日をまたぐとき
                                     </button>
                                 </label>
@@ -66,33 +322,33 @@
                                 <input class="form-check-input" type="checkbox" value="" id="check2">
                                 <label class="form-check-label" for="check2">
                                     被相続人の
-                                    <button type="button" data-bs-toggle="modal" data-bs-target="#land_info">
+                                    <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#land_info">
                                         不動産の登記情報または全部事項証明書
                                     </button>
                                     に記載の住所から死亡時の住所までの履歴がわかる
-                                    <button type="button" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_one">
+                                    <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_one">
                                         住民票の除票
                                     </button>
                                     または
-                                    <button type="button" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_two">
+                                    <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#decedent_resident_certification_two">
                                         戸籍の附票
                                     </button>
                                     はありますか？
-                                    <button type="button" class="text-primary" data-bs-toggle="modal" data-bs-target="#check_decedent_address">
+                                    <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#check_decedent_address">
                                         （履歴の確認方法）
                                     </button>
                                     <br>
                                     <div>
                                         ※ないときは、
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_one">
+                                        <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_one">
                                             登記済証
                                         </button>
                                         、
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_two">
+                                        <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_two">
                                             登記識別情報通知書
                                         </button>
                                         、
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_three">
+                                        <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_three">
                                             不在住証明書
                                         </button>
                                         のいずれか
@@ -105,7 +361,7 @@
                                 <input class="form-check-input" type="checkbox" value="check3">
                                 <label class="form-check-label" for="check3">
                                     相続人全員の
-                                    <button type="button" data-bs-toggle="modal" data-bs-target="#heir_family_certification">
+                                    <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#heir_family_certification">
                                         戸籍の全部事項証明書
                                     </button>
                                     はありますか？
@@ -121,8 +377,12 @@
                                 <input class="form-check-input" type="checkbox" value="check4">
                                 <label class="form-check-label" for="check4">
                                     <div>
-                                        不動産を取得する方の住民票または
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_two">
+                                        不動産を取得する方の
+                                        <span class="fw-bold">
+                                            住民票
+                                        </span>
+                                        または
+                                        <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_two">
                                             戸籍の附票
                                         </button>
                                         はありますか？
@@ -130,7 +390,7 @@
                                     {% if overseas_acquirers|length > 0 %}
                                         <div>
                                             ※日本に住民票がない方は、
-                                            <button type="button" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_three">
+                                            <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_three">
                                                 在留証明書。
                                             </button>
                                         </div>
@@ -139,65 +399,6 @@
                             </div>
                         </li>
                     </ol>
-                    <div class="modal fade" id="reacquire_price_certification" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        以下の作業が必要です
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <ul class="modal-body ms-3">
-                                    <li>
-                                        <span>
-                                            １
-                                        </span>
-                                        <span class="fw-bold ms-3">
-                                            ４月１日以降に
-                                        </span>
-                                        固定資産評価証明書を再度取得する。
-                                    </li>
-                                    <li>
-                                        <span>
-                                            ２
-                                        </span>
-                                        <span class="ms-3">
-                                            前年度の固定資産評価額（評価額）から変動がある不動産がある場合は、「３．詳細データ入力」を修正する
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span>
-                                            ３
-                                        </span>
-                                        <span class="ms-3">
-                                            「３．詳細データ入力」を修正した場合は、登記申請書を印刷する
-                                        </span>
-                                    </li>
-                                    <li>
-                                        ※前年度の評価額から変動がない場合でも、新たに取得した評価証明書を法務局に提出します。
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="acquirer_resident_certification_two" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">
-                                        戸籍の附票
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/現在戸籍の附票.png' %}" alt="現在戸籍の附票の説明画像">
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div> 
                 </li>
                 <hr>
                 <li class="container mt-3">
@@ -211,7 +412,7 @@
                         <div class="text-danger">
                             ※
                         </div>
-                        <p class="text-danger">
+                        <p class="text-danger fw-bold">
                             コピーは必要なページのみでなく、全ページをコピーしてください。<br>
                             ただし、何も記載がない裏面は不要です。
                         </p>
@@ -225,7 +426,7 @@
                                 <div class="text-primary">
                                     ※
                                 </div>
-                                <button type="button" class="text-primary" data-bs-toggle="modal" data-bs-target="#about_price_certification_copy">
+                                <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#about_price_certification_copy">
                                     申請書が２通以上ある、かつ２か所以上の役所から評価証明書を取得しているとき
                                 </button>
                             </div>
@@ -280,55 +481,7 @@
                             相続人全員分の遺産分割協議証明書と印鑑証明書
                         </li>
                     </ul>
-                </li>
-                <div class="modal fade" id="land_info" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5">
-                                    不動産の登記情報（全部事項証明書も同じ内容が記載されてます）
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="土地登記情報の説明画像">
-                            </div>
-                        </div>
-                    </div>
-                </div>          
-                <div class="modal fade" id="about_price_certification_copy" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5">
-                                    評価証明書のコピーについて
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="ms-3">
-                                    <p>
-                                        <span class="fw-bold border-bottom border-secondary">
-                                            各申請書には、その申請書の不動産の表示に対応する評価証明書のコピーが必要です。
-                                        </span>
-                                        <br>
-                                        <span class="ms-3">
-                                            １通の評価証明書に２以上の不動産が記載されていて、その一部は申請書の不動産の表示に記載されてないものが含まれていても全ページをコピーしてください。
-                                        </span>                                    
-                                    </p>
-                                    <p>
-                                        <span class="fw-bold border-bottom border-secondary">
-                                            同じ法務局に提出する申請書が２通以上あり、同じ評価証明書を使用できるとき
-                                        </span><br>
-                                        <span class="ms-3">
-                                            同じ法務局でもそれぞれの申請書に評価証明書のコピーが必要なため、その法務局に提出する申請書の通数分コピーしてください。
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </li>    
                 <hr>
                 <li class="container mt-3" id="papersOrderColumn">
                     <h5>
@@ -339,7 +492,7 @@
                             登記申請書（申請書）
                             <div>
                                 <button type="button" class="ms-3 text-primary text-start" data-bs-toggle="modal" data-bs-target="#sort_application_form">
-                                    ※申請書のまとめ方
+                                    ※申請書のまとめ方（申請書単体でもホッチキス留めが必要です）
                                 </button>
                             </div>
                         </li>
@@ -357,7 +510,7 @@
                             {% if overseas_acquirers|length > 0 %}
                                 <br>
                                 <span class="ms-3">
-                                    ※日本に住民票がない方は、在留証明書
+                                    ※日本に住民票がない方は、在留証明書のコピー
                                 </span>
                             {% endif %}
                         </li>
@@ -374,23 +527,12 @@
                             </div>
                         </li>
                     </ol>
-                    <div class="modal fade" id="sort_application_form" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">登記申請書のまとめかたと押印について</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-headword="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <img class="modal-image" src="{% static 'toukiApp/img/登記申請書のまとめかたと押印.png' %}" alt="契印の説明画像">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </li>
                 <hr>
                 <li class="container mt-3" id="stampColumn">
-                    <h5>３でホッチキス留めした書類に記入押印等する</h5>
+                    <h5>
+                        ３でホッチキス留めした書類に記入押印等する
+                    </h5>
                     <ol id="stampList" class="list-group list-group-flush border-bottom d-inline-block">
                         <li class="list-group-item">
                             登記申請書に申請日に法務局に書類を提出する日を記入する
@@ -402,49 +544,18 @@
                         <li class="list-group-item">
                             固定資産評価証明書のコピーに参考例のとおり記入押印する
                             <br>
-                            <button type="button" class="ms-3 text-primary text-start" data-bs-toggle="modal" data-bs-target="#return_request">
+                            <button type="button" class="ms-3 fw-bold text-primary text-start" data-bs-toggle="modal" data-bs-target="#return_request">
                                 ※参考例
                             </button>
                         </li>
                         <li class="list-group-item">
                             固定資産評価証明書のコピーの裏側から以降の全ての書類に契印する
                             <br>
-                            <button type="button" class="ms-3 text-primary text-start" data-bs-toggle="modal" data-bs-target="#seal">
+                            <button type="button" class="ms-3 fw-bold text-primary text-start" data-bs-toggle="modal" data-bs-target="#seal">
                                 ※契印のしかた
                             </button>
                         </li>
                     </ol>
-                    <div class="modal fade" id="seal" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">契印のしかた（印鑑は登記申請書に使用したもの）
-                                    </h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/契印.png' %}" alt="契印の説明画像">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal fade" id="return_request" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">原本還付処理</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/原本還付処理例.png' %}" alt="原本還付処理例の説明画像">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </li>
                 <hr>
                 <li class="container">
@@ -511,8 +622,10 @@
                                     ※
                                 </div>
                                 <p class="text-danger">
-                                    申請先の法務局が２か所以上ある、かつ書類の原本が１通のみの場合<br>
-                                    任意の法務局１か所ずつの書類の提出になります。<br>
+                                    申請先の法務局が２か所以上ある、かつ書類の原本が１通のみの場合
+                                    <br>
+                                    任意の法務局１か所ずつの書類の提出になります。
+                                    <br>
                                     提出の都度、以下の作業が必要です。
                                 </p>
                             </div>
@@ -521,7 +634,8 @@
                                     ※
                                 </div>
                                 <p class="text-danger">
-                                    同じ法務局に対する申請書が２通以上ある場合<br>
+                                    同じ法務局に対する申請書が２通以上ある場合
+                                    <br>
                                     書類の原本が１通だけでも、その法務局分の申請書はまとめて提出することができます。
                                 </p>
                             </div>
@@ -576,8 +690,16 @@
                     </ol>
                     <div class="ms-3 mt-3">
                         <ol id="officeList" class="list-group list-group-flush border-bottom d-inline-block">
-                            申請書類の提出先一覧（法務局の住所はリンク先からご確認ください）
-                            {% for office_name, office_url in office_name_and_link.items %}
+                            申請書類の提出先一覧（法務局の住所は各法務局のホームページからご確認ください）
+                            {% for x in offices %}
+                                <li class="list-group-item">
+                                    郵送の場合の宛名：{{ x }}
+                                    <span class="ms-3">
+                                        不動産登記係
+                                    </span>
+                                </li>
+                            {% endfor %}
+                            <!-- {% for office_name, office_url in office_name_and_link.items %}
                                 <li class="list-group-item">
                                     郵送の場合の宛名：{{ office_name }}
                                     <span class="ms-3">
@@ -587,66 +709,8 @@
                                         {{ office_name }}のサイト：<a href="{{ office_url }}" target="_blank" rel="noopener noreferrer">{{ office_url }}</a>
                                     </div>
                                 </li>
-                            {% endfor %}
+                            {% endfor %} -->
                         </ol>
-                    </div>
-                    <div class="modal fade" id="tax_amount_and_paste" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5">登録免許税の金額の確認と貼り付け</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="d-flex justify-content-center">
-                                        <img class="modal-image" src="{% static 'toukiApp/img/登記申請書例.png' %}" alt="登録免許税の金額と貼り付けの説明画像">
-                                    </div>
-                                    <div class="px-5 pt-4 mt-3 border-top">
-                                        <div class="d-flex">
-                                            <div>
-                                                ※
-                                            </div>
-                                            <div>
-                                                印紙は郵便局や法務局で購入できます。
-                                            </div>
-                                        </div>
-                                        <div class="d-flex mt-3">
-                                            <div>
-                                                ※
-                                            </div>
-                                            <div>
-                                                印紙の組み合わせは自由です。
-                                                <div>
-                                                    例）登録免許税が８，０００円のとき
-                                                </div>
-                                                <div class="ms-3">
-                                                    ８，０００円の印紙１枚でも１，０００円の印紙８枚などの組み合わせでも大丈夫です。
-                                                </div>
-                                                <div class="ms-3">
-                                                    郵便局や法務局の印紙販売の受付の方に「〇〇円分の印紙」のように伝えると適宜の組み合わせを用意してもらえます。
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex mt-3">
-                                            <div>
-                                                ※
-                                            </div>
-                                            <div>
-                                                <div>
-                                                    申請書が２通以上あるとき、申請先が同じ法務局でも申請書ごとに印紙を貼る必要があります。
-                                                </div>
-                                                <div>
-                                                    例）申請書が２通あり、それぞれ登録免許税が８，０００円（計１６，０００円）のとき
-                                                </div>
-                                                <div class="ms-3">
-                                                    ８，０００円分の印紙を２セット購入してそれぞれの申請書の白紙ページに貼ってください。
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </li>
             </ol>

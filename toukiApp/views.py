@@ -4489,8 +4489,7 @@ def step_five(request):
         
         heirs = get_legal_heirs(decedent)
         minors = get_filtered_instances(heirs, "is_adult", False)
-        overseas_acquirers = get_filtered_instances(heirs, ["is_japan", "is_acquirer"], [False, True])
-
+        overseas_acquirers = get_filtered_instances(heirs, ["is_japan", "is_acquire"], [False, True])
         #ユーザーが申請する法務局の名称を取得する
         offices = get_where_to_apply(decedent)
         # office_name_and_link = {}
@@ -4502,6 +4501,7 @@ def step_five(request):
             
         context = {
             "title" : title,
+            "company_data": CompanyData,
             "user_email" : user.email,
             "decedent": decedent,
             "progress": progress,
@@ -4558,7 +4558,8 @@ def step_six(request):
 
         context = {
             "title" : title,
-            "user" : user,
+            "company_data": CompanyData,
+            "user_email" : user.email,
             "decedent": decedent,
             "progress": progress,
             "top_page": CompanyData.URL,

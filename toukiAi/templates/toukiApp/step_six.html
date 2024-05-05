@@ -1,14 +1,74 @@
 {% extends "toukiApp/base.html" %}
+
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_six.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
+
 {% block header %}
     {% include "toukiApp/step_header.html" %}
 {% endblock %}
-    {% load custom_filters %}
+
+{% load custom_filters %}
+
 {% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
+
+<div class="modal fade" id="return_request" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">原本還付処理</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <div>
+                        <div>
+                            <span class="fw-bold">
+                                「申請人」または「代理人」の表記は登記申請書に押印した欄に合わせて以下のとおりご記入ください。
+                            </span>
+                            <ul class="mt-3 mb-0">
+                                <li class="d-flex">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        相続人欄に押印した場合は「申請人」
+                                    </div>
+                                </li>
+                                <li class="d-flex">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        代理人欄に押印した場合は「代理人」
+                                    </div>
+                                </li>
+                                <li class="d-flex">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        申請人兼代理人欄に押印した場合は「申請人兼代理人」
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <hr>
+                        <img class="modal-image" src="{% static 'toukiApp/img/原本還付処理例.png' %}" alt="原本還付処理例の説明画像">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
@@ -41,11 +101,11 @@
                     </div>
                     <div>
                         <div>
-                            <span class="fw-bold border-bottom border-secondary">
+                            <span class="px-3 fw-bold border-bottom border-secondary">
                                 補正指示のとき
                             </span>
                         </div>
-                        <div class="ms-3">
+                        <div class="ps-5 mt-3">
                             <div>
                                 <span class="fw-bold">
                                     補正書を使用
@@ -125,25 +185,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="modal fade" id="return_request" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5">原本還付処理</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="d-flex justify-content-center">
-                                                    <img class="modal-image" src="{% static 'toukiApp/img/原本還付処理例.png' %}" alt="原本還付処理例の説明画像">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
-                    <ol class="ms-3 mt-3 ps-0 list-group d-inline-block">
+                    <ol class="ps-5 mt-3 ps-0 list-group d-inline-block">
                         <li class="list-group-item fw-bold text-center bg-warning-subtle">
                             （よくある補正理由と対応方法）
                         </li>
@@ -199,18 +244,18 @@
                     </ol>
                     <div class="mt-5">
                         <div>
-                            <span class="fw-bold border-bottom border-secondary">
+                            <span class="px-3 fw-bold border-bottom border-secondary">
                                 取下げ指示のとき
                             </span>
                         </div>
-                        <div class="ms-3">
+                        <div class="ps-5 mt-3">
                             <div>
                                 <span class="fw-bold">
                                     取下書と再使用証明申出書
                                 </span>
                                 に記入押印のうえ指示があった法務局に持参又は郵送してください。
                             </div>
-                            <div class="ms-3">
+                            <div class="ps-3">
                                 <div>
                                     <span>
                                         取下書：
@@ -229,28 +274,28 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mt-3 ms-3">
-                            <div>
-                                <span class="border-bottom border-secondary">
-                                    取下書が受理されたら法務局から書類が返却されます
-                                </span>
-                                ので、指摘された不備を修正して書類を整理しなおして改めて法務局に申請書類を提出してください。
-                            </div>
-                            <div class="d-flex">
+                            <div class="mt-3">
                                 <div>
-                                    ※
-                                </div>
-                                <div>
-                                    <span class="fw-bold">
-                                        登記申請書以外の書類は、
+                                    <span class="border-bottom border-secondary">
+                                        取下書が受理されたら法務局から書類が返却されます
                                     </span>
-                                    法務局職員によるチェックの形跡がありますが再利用することができます。
+                                    ので、指摘された不備を修正して書類を整理しなおして改めて法務局に申請書類を提出してください。
+                                </div>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">
+                                            登記申請書以外の書類は、
+                                        </span>
+                                        法務局職員によるチェックの形跡がありますが再利用することができます。
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <ol class="mt-3 ms-3 ps-0 list-group d-inline-block">
+                    <ol class="mt-3 ps-5 ps-0 list-group d-inline-block">
                         <li class="list-group-item fw-bold text-center bg-danger-subtle">
                             （よくある取下げ理由）
                         </li>
@@ -272,20 +317,25 @@
                                     対応：
                                 </div>
                                 <div>
-                                    いずれの理由でも取下書と再使用証明申出書を郵送する
+                                    いずれの理由でも取下書と再使用証明申出書を提出する
                                 </div>
                             </div>
                         </li>
                     </ol>
                 </div>
-                <div class="mt-5 fw-bold">
+                <div class="mt-5 fw-bold ">
                     ※補正や取下げの方法に不明な点がありましたら、お問い合わせをお願いします。
+                    <p class="ps-3">
+                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=補正・取下げについて&body=アカウント：{{ user_email|urlencode }}%0D%0A※補正または取下げのどちらでしょうか？%0D%0A%0D%0A※法務局からの連絡内容をご入力ください">
+                            {{ company_data.MAIL_ADDRESS }}
+                        </a>
+                    </p>
                 </div>
             </li>
             <hr>
             <li class="container">
                 <h5>手続が完了したら</h5>
-                <div>
+                <div class="mt-3 ms-3">
                     <div>
                         申請先の法務局から
                         <span class="fw-bold">
@@ -393,7 +443,7 @@
                             <br>
                             ※１通５００円、法務局や法務局証明サービスセンターでの窓口で請求は１通６００円
                             <p class="mt-3 ms-3">
-                                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" target="_blank" rel="noopener noreferrer" href="https://www.touki-kyoutaku-online.moj.go.jp/web/top/SC01WL01-ViewLogin.do">
+                                <a class="fw-bold link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" target="_blank" rel="noopener noreferrer" href="https://www.touki-kyoutaku-online.moj.go.jp/web/top/SC01WL01-ViewLogin.do">
                                     かんたん証明書請求
                                 </a>
                                 <br>
@@ -451,6 +501,9 @@
                                 後にオンラインで請求してPDFで確認できます。
                             </div>
                             <div>
+                                ※「２．必要書類一覧」で一時利用の登録済みの場合は、個人利用（３００円）の申込みが必要です。
+                            </div>
+                            <div>
                                 ※１通３３１円
                             </div>
                             <div>
@@ -461,7 +514,7 @@
                                 ため、役所や金融機関の手続では使用できないこともあります。
                             </div>
                             <p class="mt-3 ms-3">
-                                <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" target="_blank" rel="noopener noreferrer" href="https://www1.touki.or.jp/">
+                                <a class="fw-bold link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5" target="_blank" rel="noopener noreferrer" href="https://www1.touki.or.jp/">
                                     登記情報提供サービス
                                 </a>
                                 <br>
@@ -508,7 +561,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-5 text-center">
+                <hr class="border-success border-3">
+                <div class="mt-3 mb-5 text-center">
                     <p class="fw-bold fs-5">
                         以上で本システムのサービスは終了です。
                         <br>
@@ -517,10 +571,15 @@
                     <p>
                         アカウントの有効期間中（ご利用開始日から１年間）は何度でもご利用できます。
                         <br>
-                        <span>
-
-                            ※但し、システムが使用頻度に異常を検知した場合は制限することもあります。
+                        ※但し、システムが使用頻度に異常を検知した場合は制限することもあります。
+                    </p>
+                    <p>
+                        <span class="fw-bold border-bottom border-dark">
+                            もしよければ、今後の改良につなげるためにご利用いただいた感想をお送りいただけますと大変うれしいです。
                         </span>
+                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=補正・取下げについて&body=アカウント：{{ user_email|urlencode }}%0D%0A※補正または取下げのどちらでしょうか？%0D%0A%0D%0A※法務局からの連絡内容をご入力ください">
+                            {{ company_data.MAIL_ADDRESS }}
+                        </a>
                     </p>
                     <a class="link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5 fw-bold" href="{{top_page}}">
                         トップページ
@@ -539,5 +598,6 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_six.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
 {% endblock %}

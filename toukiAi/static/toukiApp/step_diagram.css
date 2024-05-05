@@ -1,40 +1,54 @@
 @media print {
+
     body * {
         visibility: hidden;
     }
+
     #print_page, #print_page * {
         visibility: visible;
     }
+
     #print_page {
         position: absolute;
         left: 0;
         top: 0;
-        width: 297mm;
-        height: 198mm;
     }
+
     .print_per_section{
         break-after: page;
     }
+
     @page {
-        size: landscape;
-        margin-top: 15mm;
+        size: A4 landscape;
+        margin-top: 20mm;
     }
 }
 
+.top {
+    margin-top: 3rem!important;
+}
+
+.top > div > div{
+    max-width: 700px!important;
+}
+
+/* 注意事項の内容 */
+.top > div > div > p:not(:first-child){
+    margin-left: 1rem!important;
+}
+
+#print_page {
+    font-family: "Zen Old Mincho", serif;
+}
+
 ul{
-    padding-left:0;
-    margin-bottom:0;
-    max-width: 70mm;
-    margin-left: 0.5rem!important;
-    margin-right: 0.5rem!important;
+    margin-bottom:0!important;
+    padding-left: 0.5rem!important;
+    padding-right: 0.5rem!important;
 }
 
 ul > li > span:first-child{
     font-weight: 700!important;
-}
-
-ul > li > span:nth-child(2){
-    margin-left: 1rem!important;
 }
 
 .line-container {
@@ -64,27 +78,6 @@ ul > li > span:nth-child(2){
     justify-content: center!important;
     padding-left: 2rem!important;
     padding-right: 2rem!important;
-}
-
-.top {
-    margin-top: 3rem!important;
-}
-
-.top > div > div{
-    max-width: 700px!important;
-}
-
-/* 注意事項の内容 */
-.top > div > div > p:not(:first-child){
-    margin-left: 1rem!important;
-}
-
-#print_page {
-    /* height: 210mm; */
-    width: 297mm;
-    /* padding-left: 5mm; */
-    /* padding-right: 5mm; */
-    font-family: "Zen Old Mincho", serif;
 }
 
 .content{

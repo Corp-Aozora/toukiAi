@@ -147,12 +147,16 @@ def get_full_address(instance, is_instance_dict=False, is_domicile=False, is_for
         if is_domicile:
             full_address = get_prefecture_name(instance["domicile_prefecture"]) + instance["domicile_city"] + instance["domicile_address"]
         else:
-            full_address = get_prefecture_name(instance["prefecture"]) + instance["city"] + instance["address"] + (instance["bldg"] if instance["bldg"] else "")
+            full_address = get_prefecture_name(instance["prefecture"]) + instance["city"] + instance["address"]
+            if instance["bldg"]:
+                full_address += "\n" + instance["bldg"]
     else:
         if is_domicile:
             full_address = get_prefecture_name(instance.domicile_prefecture) + instance.domicile_city + instance.domicile_address
         else:
-            full_address = get_prefecture_name(instance.prefecture) + instance.city + instance.address + (instance.bldg if instance.bldg else "")
+            full_address = get_prefecture_name(instance.prefecture) + instance.city + instance.address
+            if instance.bldg:
+                full_address += "\n" + instance.bldg
             
     return format_address(full_address) if is_format else full_address
         
@@ -166,4 +170,4 @@ def get_prefecture_name(prefecture_code):
         str: prefecture 都道府県
     """
     
-    return next((name for code, name in PREFECTURES if code == prefecture_code), "該当なし")    
+    return next((name for code, name in PREFECTURES if code == prefecture_code), "")    

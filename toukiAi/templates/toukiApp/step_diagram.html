@@ -1,51 +1,80 @@
 {% extends "toukiApp/base.html" %}
+
 {% block title %}{{ title }} | {{ block.super }}{% endblock title %}
+
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_diagram.css' %}">
 {% endblock %}
+
 {% block header %}
 {% endblock %}
+
 {% load custom_filters %}
+
 {% block content %}
-<div class="d-flex container-xxl">
-    <div class="container">
-        <section class="top">
-            <h5 class="fw-bold text-center">
-                こちらのページをA4の縦方向でご印刷ください。<br>
-                PDFが必要でお使いのPCにPDFで印刷する機能がない場合は、お問い合わせください。
-            </h5>
-            <div class="mt-4 d-flex justify-content-center">
-                <div class="d-inline-block border rounded-3 p-3">
-                    <p class="text-danger fw-bold">
-                        ※注意事項
-                    </p>
-                    <p>
-                        <span class="fw-bold border-bottom border-secondary">
-                            登記申請書の相続人と一致する相続関係図があるかご確認ください。
-                        </span>
-                        <span><br>
-                            申請書ごとに相続関係図を作成していて不動産を取得する方の氏名の左には相続、取得しない方の氏名の横には分割（又は相続放棄）と表示してます。
-                        </span>
-                    </p>
-                    <p>
-                        <span class="fw-bold border-bottom border-secondary">
-                            署名や押印は不要です。
-                        </span>
-                    </p>
-                    <p>
-                        <span class="fw-bold border-bottom border-secondary">
-                            各人の続柄（線のつながり）や氏名など表示されている事項に誤りがないかご確認をお願いします。
-                        </span>
+<div class="container">
+    <section class="top">
+        <h5 class="text-center">
+            こちらのページをA4の縦方向でご印刷ください。
+        </h5>
+        <p class="fw-bold text-center mt-3">
+            PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせをお願いします。
+            <br>
+            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続関係説明図のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A相続関係説明図のPDFを送ってください。">
+                {{ company_data.MAIL_ADDRESS }}
+            </a>
+        </p>
+        <div class="mt-4 d-flex justify-content-center">
+            <div class="d-inline-block border rounded-3 p-3">
+                <p class="text-danger fw-bold">
+                    ※注意事項
+                </p>
+                <div class="ms-3">
+                    <span class="fw-bold border-bottom border-secondary">
+                        登記申請書の対になるものを一緒にしておいてください。
+                    </span>
+                    <p class="ps-3">
+                        各登記申請書ごとに相続関係図を作成しています。
+                        <br>
+                        不動産を取得する方の氏名の左に「相続」と表示していますので、登記申請書に記載の相続人と一致するものをご確認ください。
                     </p>
                 </div>
+                <p>
+                    <span class="fw-bold border-bottom border-secondary">
+                        相続関係説明図には署名や押印は不要です。
+                    </span>
+                </p>
+                <p>
+                    <span class="fw-bold border-bottom border-secondary">
+                        各人の続柄（線のつながり）や氏名など表示されている事項に誤りがないかご確認をお願いします。
+                    </span>
+                </p>
+                <div class="ms-3">
+                    <span class="fw-bold border-bottom border-secondary text-danger border-danger">
+                        各世代５人以上になるとき、適切に表示されない現象が確認されてます（現在改修中）。
+                    </span>
+                    <div>
+                        <div class="ps-3">
+                            恐れ入りますが、修正したPDFをお送りしますので弊社までお問い合わせをお願いします。
+                        </div>
+                        <p class="text-center">
+                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続関係説明図が適切に表示されていないことについて&body=アカウント：{{ user_email|urlencode }}%0D%0A相続関係説明図が適切に表示されていないため修正したPDFを送ってください。">
+                                {{ company_data.MAIL_ADDRESS }}
+                            </a>
+                        </p>
+                    </div>
+                </div>
             </div>
-        </section>
-        <section class="d-flex justify-content-center mt-5">
-            <div id="print_page">
-                {% for data in diagram_data %}
-                    <div class="print_per_section">
-                        <header class="mt-3 d-flex">
+        </div>
+    </section>
+    <hr>
+    <section class="d-flex justify-content-center mt-5">
+        <div id="print_page">
+            {% for data in diagram_data %}
+                <div class="print_per_section">
+                    <header class="d-flex justify-content-center">
+                        <div class="d-flex">
                             <div class="d-flex align-items-center">
                                 <h5 class="mb-0">
                                     被相続人
@@ -61,7 +90,7 @@
                                         死亡時の住所
                                     </span>
                                     <span class="ms-3">
-                                        {{decedent_info.address}}
+                                        {{decedent_info.address|to_half_width_digits}}
                                     </span>
                                 </div>
                                 <div class="d-flex">
@@ -69,284 +98,51 @@
                                         死亡時の本籍
                                     </span>
                                     <span class="ms-3">
-                                        {{decedent_info.permanent_address}}
+                                        {{decedent_info.permanent_address|to_half_width_digits}}
                                     </span>
                                 </div>
                             </div>
-                        </header>
-                        <div class="content">
-                            <div class="empty_p">
-                            </div>
-                            {% if data.grand_parents %}
-                                <div class="level grand_parents_gen">
-                                    {% for p in data.grand_parents %}
-                                        <ul class="grand_parents">
-                                            {% if p.address %}
-                                                <li>
-                                                    <span>
-                                                        住所
-                                                    </span>
-                                                    <span>
-                                                        {{p.address}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            {% if p.death_date %}
-                                                <li>
-                                                    <span>
-                                                        死亡
-                                                    </span>
-                                                    <span>
-                                                        {{p.death_date}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            <li>
-                                                <span>
-                                                    出生
-                                                </span>
-                                                <span>
-                                                    {{p.birth_date}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <span>
-                                                    {{p.position}}
-                                                </span>
-                                                <span>
-                                                    {{p.name}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <input type="hidden" value="{{p.type}}">
-                                                <input type="hidden" value="{{p.id}}">
-                                                <input type="hidden" value="{{p.relation_type1}}">
-                                                <input type="hidden" value="{{p.relation_id1}}">
-                                                <input type="hidden" value="{{p.relation_type2}}">
-                                                <input type="hidden" value="{{p.relation_id2}}">
-                                            </li>
-                                        </ul>
-                                        {% if forloop.counter == 1 or forloop.counter == 3 %}
-                                            <div class="double_line">
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <div class="empty_p">
-                                </div>
-                            {% endif %}
-                            {% if data.parents %}
-                                <div class="level parents_gen">
-                                    {% if data.half_parents %}
-                                        {% for p in data.half_parents %}
-                                            <ul class="half_parents">
-                                                <li>
-                                                    {{p.name}}
-                                                </li>
-                                                <li>
-                                                    <input type="hidden" value="{{p.type}}">
-                                                    <input type="hidden" value="{{p.id}}">
-                                                    <input type="hidden" value="{{p.relation_type1}}">
-                                                    <input type="hidden" value="{{p.relation_id1}}">
-                                                    <input type="hidden" value="{{p.relation_type2}}">
-                                                    <input type="hidden" value="{{p.relation_id2}}">
-                                                </li>
-                                            </ul>
-                                        {% endfor %}
-                                    {% endif %}
-                                    {% for p in data.parents %}
-                                        <ul class="parents">
-                                            {% if p.address %}
-                                                <li>
-                                                    <span>
-                                                        住所
-                                                    </span>
-                                                    <span>
-                                                        {{p.address}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            {% if p.death_date %}
-                                                <li>
-                                                    <span>
-                                                        死亡
-                                                    </span>
-                                                    <span>
-                                                        {{p.death_date}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            <li>
-                                                <span>
-                                                    出生
-                                                </span>
-                                                <span>
-                                                    {{p.birth_date}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <span>
-                                                    {{p.position}}
-                                                </span>
-                                                <span>
-                                                    {{p.name}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <input type="hidden" value="{{p.type}}">
-                                                <input type="hidden" value="{{p.id}}">
-                                                <input type="hidden" value="{{p.relation_type1}}">
-                                                <input type="hidden" value="{{p.relation_id1}}">
-                                                <input type="hidden" value="{{p.relation_type2}}">
-                                                <input type="hidden" value="{{p.relation_id2}}">
-                                            </li>
-                                        </ul>
-                                        {% if forloop.counter == 1 %}
-                                            <div class="double_line">
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <div class="empty_p">
-                                </div>
-                            {% endif %}
-                            <div class="level decedent_gen">
-                                {% if data.half_collateral%}
-                                    {% for p in data.half_collateral %}
-                                        <ul class="half_collateral">
-                                            {% if p.address %}
-                                                <li>
-                                                    <span>
-                                                        住所
-                                                    </span>
-                                                    <span>
-                                                        {{p.address}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            {% if p.death_date %}
-                                                <li>
-                                                    <span>
-                                                        死亡
-                                                    </span>
-                                                    <span>
-                                                        {{p.death_date}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            <li>
-                                                <span>
-                                                    出生
-                                                </span>
-                                                <span>
-                                                    {{p.birth_date}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <span>
-                                                    {{p.position}}
-                                                </span>
-                                                <span>
-                                                    {{p.name}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <input type="hidden" value="{{p.type}}">
-                                                <input type="hidden" value="{{p.id}}">
-                                                <input type="hidden" value="{{p.relation_type1}}">
-                                                <input type="hidden" value="{{p.relation_id1}}">
-                                                <input type="hidden" value="{{p.relation_type2}}">
-                                                <input type="hidden" value="{{p.relation_id2}}">
-                                            </li>
-                                        </ul>
-                                    {% endfor %}
-                                {% endif %}
-                                {% if data.collateral %}
-                                    {% for p in data.full_collateral%}
-                                        <ul class="full_collateral">
-                                            {% if p.address %}
-                                                <li>
-                                                    <span>
-                                                        住所
-                                                    </span>
-                                                    <span>
-                                                        {{p.address}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            {% if p.death_date %}
-                                                <li>
-                                                    <span>
-                                                        死亡
-                                                    </span>
-                                                    <span>
-                                                        {{p.death_date}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            <li>
-                                                <span>
-                                                    出生
-                                                </span>
-                                                <span>
-                                                    {{p.birth_date}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <span>
-                                                    {{p.position}}
-                                                </span>
-                                                <span>
-                                                    {{p.name}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <input type="hidden" value="{{p.type}}">
-                                                <input type="hidden" value="{{p.id}}">
-                                                <input type="hidden" value="{{p.relation_type1}}">
-                                                <input type="hidden" value="{{p.relation_id1}}">
-                                                <input type="hidden" value="{{p.relation_type2}}">
-                                                <input type="hidden" value="{{p.relation_id2}}">
-                                            </li>
-                                        </ul>
-                                    {% endfor %}
-                                {% endif %}
-                                {% if data.spouse.name %}
-                                    <ul class="decedent_spouse">
-                                        {% if data.spouse.address %}
+                        </div>
+                    </header>
+                    <div class="content">
+                        {% if data.grand_parents %}
+                            <div class="level grand_parents_gen">
+                                {% for p in data.grand_parents %}
+                                    <ul class="grand_parents">
+                                        {% if p.address %}
                                             <li>
                                                 <span>
                                                     住所
                                                 </span>
                                                 <span>
-                                                    {{data.spouse.address}}
+                                                    {{p.address|to_half_width_digits}}
                                                 </span>
                                             </li>
                                         {% endif %}
-                                        {% if data.spouse.death_date %}
-                                            <li>
+                                        {% if p.death_date %}
+                                            <li class="text-nowrap">
                                                 <span>
                                                     死亡
                                                 </span>
                                                 <span>
-                                                    {{data.spouse.death_date}}
+                                                    {{p.death_date|to_half_width_digits}}
                                                 </span>
                                             </li>
                                         {% endif %}
-                                        <li>
+                                        <li class="text-nowrap">
                                             <span>
                                                 出生
                                             </span>
                                             <span>
-                                                {{data.spouse.birth_date}}
+                                                {{p.birth_date|to_half_width_digits}}
                                             </span>
                                         </li>
-                                        <li>
+                                        <li class="text-nowrap">
                                             <span>
-                                                {{data.spouse.position}}
+                                                {{p.position}}
                                             </span>
-                                            <span>
-                                                {{data.spouse.name}}
+                                            <span class="ms-3">
+                                                {{p.name}}
                                             </span>
                                         </li>
                                         <li>
@@ -358,39 +154,95 @@
                                             <input type="hidden" value="{{p.relation_id2}}">
                                         </li>
                                     </ul>
-                                    <div class="decedent_spouse_line double_line">
-                                    </div>
-                                {% endif %}
-                                <ul class="decedent">
-                                    <li>
-                                        <span>
-                                            死亡
-                                        </span>
-                                        <span>
-                                            {{decedent_info.death_date}}
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span>
-                                            出生
-                                        </span>
-                                        <span>
-                                            {{decedent_info.birth_date}}
-                                        </span>
-                                    </li>
-                                    <li>
-                                        {{decedent_info.name}}
-                                    </li>
-                                </ul>
-                                {% if data.ex_spouses %}
-                                    {% for p in data.ex_spouses %}
-                                        <div class="{% if forloop.counter0 == 0 %}decedent_ex_spouse_single_line single_line{% else %}px-3{% endif %}">
+                                    {% if forloop.counter == 1 or forloop.counter == 3 %}
+                                        <div class="double_line">
                                         </div>
-                                        <ul class="ex_spouse">
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="empty_p">
+                            </div>
+                        {% endif %}
+                        {% if data.parents %}
+                            <div class="level parents_gen">
+                                {% if data.other_mothers %}
+                                    {% for p in data.other_mothers %}
+                                        <ul class="half_parent other_mother">
+                                            <li class="text-nowrap">
+                                                {{p.name}}
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                        <div class="{% if forloop.last %}other_mother_single_line single_line{% endif %}">
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                {% for p in data.parents %}
+                                    <ul class="parents">
+                                        {% if p.address %}
                                             <li>
                                                 <span>
-                                                    {{ p.name }}
+                                                    住所
                                                 </span>
+                                                <span>
+                                                    {{p.address|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        {% if p.death_date %}
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    死亡
+                                                </span>
+                                                <span>
+                                                    {{p.death_date|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        <li class="text-nowrap">
+                                            <span>
+                                                出生
+                                            </span>
+                                            <span>
+                                                {{p.birth_date|to_half_width_digits}}
+                                            </span>
+                                        </li>
+                                        <li class="text-nowrap">
+                                            <span>
+                                                {{p.position}}
+                                            </span>
+                                            <span class="ms-3">
+                                                {{p.name}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                    {% if forloop.counter == 1 %}
+                                        <div class="double_line">
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if data.other_fathers %}
+                                    {% for p in data.other_fathers %}
+                                        <div class="{% if forloop.counter0 == 0 %}other_father_single_line single_line{% endif %}">
+                                        </div>
+                                        <ul class="half_parent other_father">
+                                            <li class="text-nowrap">
+                                                {{p.name}}
                                             </li>
                                             <li>
                                                 <input type="hidden" value="{{p.type}}">
@@ -406,168 +258,44 @@
                             </div>
                             <div class="empty_p">
                             </div>
-                            {% if data.child_gen %}
-                                <div class="level child_gen">
-                                    {% for p in data.child_gen %}
-                                        {% if p.type == "child" or p.type == "step_child" or p.type == "child_spouse"%}
-                                            {% if p.type == "child_spouse"%}
-                                                <div class="double_line">
-                                                </div>
-                                            {% endif%}
-                                            <ul class="{% if p.type == "child" %}child{% elif p.type == "step_child" %}step_child{% else %}child_spouse{% endif %}">
-                                                {% if p.address %}
-                                                    <li>
-                                                        <span>
-                                                            住所
-                                                        </span>
-                                                        <span>
-                                                            {{p.address}}
-                                                        </span>
-                                                    </li>
-                                                {% endif %}
-                                                {% if p.death_date %}
-                                                    <li>
-                                                        <span>
-                                                            死亡
-                                                        </span>
-                                                        <span>
-                                                            {{p.death_date}}                                                        
-                                                        </span>
-                                                    </li>
-                                                {% endif %}
-                                                <li>
-                                                    <span>
-                                                        出生
-                                                    </span>
-                                                    <span>
-                                                        {{p.birth_date}}                                                        
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <span>
-                                                        {{p.position}}
-                                                    </span>
-                                                    <span>
-                                                        {{p.name}}
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <input type="hidden" value="{{p.type}}">
-                                                    <input type="hidden" value="{{p.id}}">
-                                                    <input type="hidden" value="{{p.relation_type1}}">
-                                                    <input type="hidden" value="{{p.relation_id1}}">
-                                                    <input type="hidden" value="{{p.relation_type2}}">
-                                                    <input type="hidden" value="{{p.relation_id2}}">
-                                                </li>
-                                            </ul>
-                                        {% endif %}
-                                        {% if p.type == "child_ex_spouse"%}
-                                            <ul class="child_ex_spouse">
-                                                <li>
-                                                    <span>
-                                                        {{p.name}}
-                                                    </span>
-                                                </li>
-                                                <li>
-                                                    <input type="hidden" value="{{p.type}}">
-                                                    <input type="hidden" value="{{p.id}}">
-                                                    <input type="hidden" value="{{p.relation_type1}}">
-                                                    <input type="hidden" value="{{p.relation_id1}}">
-                                                    <input type="hidden" value="{{p.relation_type2}}">
-                                                    <input type="hidden" value="{{p.relation_id2}}">
-                                                </li>
-                                            </ul>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <div class="empty_p">
-                                </div>
-                            {% endif %}
-                            {% if data.grand_child or data.step_grand_child %}
-                                <div class="level">
-                                    {% for p in data.grand_child %}
-                                        <ul class="grand_child">
-                                            {% if p.address %}
-                                                <li>
-                                                    <span>
-                                                        住所
-                                                    </span>
-                                                    <span>
-                                                        {{p.address}}
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            {% if p.death_date %}
-                                                <li>
-                                                    <span>
-                                                        死亡
-                                                    </span>
-                                                    <span>
-                                                        {{p.death_date}}                                                        
-                                                    </span>
-                                                </li>
-                                            {% endif %}
-                                            <li>
-                                                <span>
-                                                    出生
-                                                </span>
-                                                <span>
-                                                    {{p.birth_date}}                                                        
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <span>
-                                                    {{p.position}}
-                                                </span>
-                                                <span>
-                                                    {{p.name}}
-                                                </span>
-                                            </li>
-                                            <li>
-                                                <input type="hidden" value="{{p.type}}">
-                                                <input type="hidden" value="{{p.id}}">
-                                                <input type="hidden" value="{{p.relation_type1}}">
-                                                <input type="hidden" value="{{p.relation_id1}}">
-                                                <input type="hidden" value="{{p.relation_type2}}">
-                                                <input type="hidden" value="{{p.relation_id2}}">
-                                            </li>
-                                        </ul>
-                                    {% endfor %}
-                                    {% for p in data.step_grand_child %}
-                                    <ul class="step_grand_child">
+                        {% endif %}
+                        <div class="level decedent_gen">
+                            {% if data.other_mother_collaterals%}
+                                {% for p in data.other_mother_collaterals %}
+                                    <ul class="half_collateral other_mother_collateral">
                                         {% if p.address %}
                                             <li>
                                                 <span>
                                                     住所
                                                 </span>
                                                 <span>
-                                                    {{p.address}}
+                                                    {{p.address|to_half_width_digits}}
                                                 </span>
                                             </li>
                                         {% endif %}
                                         {% if p.death_date %}
-                                            <li>
+                                            <li class="text-nowrap">
                                                 <span>
                                                     死亡
                                                 </span>
                                                 <span>
-                                                    {{p.death_date}}                                                        
+                                                    {{p.death_date|to_half_width_digits}}
                                                 </span>
                                             </li>
                                         {% endif %}
-                                        <li>
+                                        <li class="text-nowrap">
                                             <span>
                                                 出生
                                             </span>
                                             <span>
-                                                {{p.birth_date}}                                                        
+                                                {{p.birth_date|to_half_width_digits}}
                                             </span>
                                         </li>
-                                        <li>
+                                        <li class="text-nowrap">
                                             <span>
                                                 {{p.position}}
                                             </span>
-                                            <span>
+                                            <span class="ms-3">
                                                 {{p.name}}
                                             </span>
                                         </li>
@@ -581,28 +309,399 @@
                                         </li>
                                     </ul>
                                 {% endfor %}
-                                </div>
-                                <div class="empty_p">
+                            {% endif %}
+                            {% if data.full_collaterals %}
+                                {% for p in data.full_collaterals %}
+                                    <ul class="full_collateral">
+                                        {% if p.address %}
+                                            <li>
+                                                <span>
+                                                    住所
+                                                </span>
+                                                <span>
+                                                    {{p.address|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        {% if p.death_date %}
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    死亡
+                                                </span>
+                                                <span>
+                                                    {{p.death_date|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        <li class="text-nowrap">
+                                            <span>
+                                                出生
+                                            </span>
+                                            <span>
+                                                {{p.birth_date|to_half_width_digits}}
+                                            </span>
+                                        </li>
+                                        <li class="text-nowrap">
+                                            <span>
+                                                {{p.position}}
+                                            </span>
+                                            <span class="ms-3">
+                                                {{p.name}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                            {% endif %}
+                            {% if data.spouse.name %}
+                                <ul class="decedent_spouse">
+                                    {% if data.spouse.address %}
+                                        <li>
+                                            <span>
+                                                住所
+                                            </span>
+                                            <span>
+                                                {{data.spouse.address|to_half_width_digits}}
+                                            </span>
+                                        </li>
+                                    {% endif %}
+                                    {% if data.spouse.death_date %}
+                                        <li class="text-nowrap">
+                                            <span>
+                                                死亡
+                                            </span>
+                                            <span>
+                                                {{data.spouse.death_date|to_half_width_digits}}
+                                            </span>
+                                        </li>
+                                    {% endif %}
+                                    <li class="text-nowrap">
+                                        <span>
+                                            出生
+                                        </span>
+                                        <span>
+                                            {{data.spouse.birth_date|to_half_width_digits}}
+                                        </span>
+                                    </li>
+                                    <li class="text-nowrap">
+                                        <span>
+                                            {{data.spouse.position}}
+                                        </span>
+                                        <span>
+                                            {{data.spouse.name}}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <input type="hidden" value="{{p.type}}">
+                                        <input type="hidden" value="{{p.id}}">
+                                        <input type="hidden" value="{{p.relation_type1}}">
+                                        <input type="hidden" value="{{p.relation_id1}}">
+                                        <input type="hidden" value="{{p.relation_type2}}">
+                                        <input type="hidden" value="{{p.relation_id2}}">
+                                    </li>
+                                </ul>
+                                <div class="decedent_spouse_line double_line">
                                 </div>
                             {% endif %}
-                            <svg class="svgContainer">
-                            </svg>
+                            <ul class="decedent">
+                                <li class="text-nowrap">
+                                    <span>
+                                        死亡
+                                    </span>
+                                    <span>
+                                        {{decedent_info.death_date|to_half_width_digits}}
+                                    </span>
+                                </li>
+                                <li class="text-nowrap">
+                                    <span>
+                                        出生
+                                    </span>
+                                    <span>
+                                        {{decedent_info.birth_date|to_half_width_digits}}
+                                    </span>
+                                </li>
+                                <li class="text-nowrap">
+                                    {{decedent_info.name}}
+                                </li>
+                            </ul>
+                            {% if data.ex_spouses %}
+                                {% for p in data.ex_spouses %}
+                                    <div class="{% if forloop.counter0 == 0 %}decedent_ex_spouse_single_line single_line{% endif %}">
+                                    </div>
+                                    <ul class="ex_spouse">
+                                        <li class="text-nowrap">
+                                            <span>
+                                                {{ p.name }}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                            {% endif %}
+                            {% if data.other_father_collaterals%}
+                                {% for p in data.other_father_collaterals %}
+                                    <ul class="half_collateral other_father_collateral">
+                                        {% if p.address %}
+                                            <li>
+                                                <span>
+                                                    住所
+                                                </span>
+                                                <span>
+                                                    {{p.address|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        {% if p.death_date %}
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    死亡
+                                                </span>
+                                                <span>
+                                                    {{p.death_date|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        <li class="text-nowrap">
+                                            <span>
+                                                出生
+                                            </span>
+                                            <span>
+                                                {{p.birth_date|to_half_width_digits}}
+                                            </span>
+                                        </li>
+                                        <li class="text-nowrap">
+                                            <span>
+                                                {{p.position}}
+                                            </span>
+                                            <span class="ms-3">
+                                                {{p.name}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                            {% endif %}
                         </div>
-                        <footer class="d-flex justify-content-end">
-                            <div class="border border-secondary text-center d-flex align-items-center">
-                                <div class="p-2 border-end border-secondary">
-                                    相続を証する書面は還付した
-                                </div>
-                                <div class="px-4">
-                                </div>
+                        <div class="empty_p">
+                        </div>
+                        {% if data.child_gen %}
+                            <div class="level child_gen">
+                                {% for p in data.child_gen %}
+                                    {% if p.type == "child" or p.type == "step_child" or p.type == "child_spouse"%}
+                                        {% if p.type == "child_spouse"%}
+                                            <div class="double_line">
+                                            </div>
+                                        {% endif%}
+                                        <ul class="{% if p.type == "child" %}child{% elif p.type == "step_child" %}step_child{% else %}child_spouse{% endif %}">
+                                            {% if p.address %}
+                                                <li>
+                                                    <span>
+                                                        住所
+                                                    </span>
+                                                    <span>
+                                                        {{p.address|to_half_width_digits}}
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            {% if p.death_date %}
+                                                <li class="text-nowrap">
+                                                    <span>
+                                                        死亡
+                                                    </span>
+                                                    <span>
+                                                        {{p.death_date|to_half_width_digits}}                                                        
+                                                    </span>
+                                                </li>
+                                            {% endif %}
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    出生
+                                                </span>
+                                                <span>
+                                                    {{p.birth_date|to_half_width_digits}}                                                        
+                                                </span>
+                                            </li>
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    {{p.position}}
+                                                </span>
+                                                <span class="ms-3">
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                    {% endif %}
+                                    {% if p.type == "child_ex_spouse"%}
+                                        <ul class="child_ex_spouse">
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    {{p.name}}
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <input type="hidden" value="{{p.type}}">
+                                                <input type="hidden" value="{{p.id}}">
+                                                <input type="hidden" value="{{p.relation_type1}}">
+                                                <input type="hidden" value="{{p.relation_id1}}">
+                                                <input type="hidden" value="{{p.relation_type2}}">
+                                                <input type="hidden" value="{{p.relation_id2}}">
+                                            </li>
+                                        </ul>
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-                        </footer>
+                            <div class="empty_p">
+                            </div>
+                        {% endif %}
+                        {% if data.grand_childs or data.step_grand_childs %}
+                            <div class="level">
+                                {% for p in data.grand_childs %}
+                                    <ul class="grand_child">
+                                        {% if p.address %}
+                                            <li>
+                                                <span>
+                                                    住所
+                                                </span>
+                                                <span>
+                                                    {{p.address|to_half_width_digits}}
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        {% if p.death_date %}
+                                            <li class="text-nowrap">
+                                                <span>
+                                                    死亡
+                                                </span>
+                                                <span>
+                                                    {{p.death_date|to_half_width_digits}}                                                        
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                        <li class="text-nowrap">
+                                            <span>
+                                                出生
+                                            </span>
+                                            <span>
+                                                {{p.birth_date|to_half_width_digits}}                                                        
+                                            </span>
+                                        </li>
+                                        <li class="text-nowrap">
+                                            <span>
+                                                {{p.position}}
+                                            </span>
+                                            <span class="ms-3">
+                                                {{p.name}}
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" value="{{p.type}}">
+                                            <input type="hidden" value="{{p.id}}">
+                                            <input type="hidden" value="{{p.relation_type1}}">
+                                            <input type="hidden" value="{{p.relation_id1}}">
+                                            <input type="hidden" value="{{p.relation_type2}}">
+                                            <input type="hidden" value="{{p.relation_id2}}">
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                                {% for p in data.step_grand_childs %}
+                                <ul class="step_grand_child">
+                                    {% if p.address %}
+                                        <li>
+                                            <span>
+                                                住所
+                                            </span>
+                                            <span>
+                                                {{p.address|to_half_width_digits}}
+                                            </span>
+                                        </li>
+                                    {% endif %}
+                                    {% if p.death_date %}
+                                        <li class="text-nowrap">
+                                            <span>
+                                                死亡
+                                            </span>
+                                            <span>
+                                                {{p.death_date|to_half_width_digits}}                                                        
+                                            </span>
+                                        </li>
+                                    {% endif %}
+                                    <li class="text-nowrap">
+                                        <span>
+                                            出生
+                                        </span>
+                                        <span>
+                                            {{p.birth_date|to_half_width_digits}}                                                        
+                                        </span>
+                                    </li>
+                                    <li class="text-nowrap">
+                                        <span>
+                                            {{p.position}}
+                                        </span>
+                                        <span class="ms-3">
+                                            {{p.name}}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <input type="hidden" value="{{p.type}}">
+                                        <input type="hidden" value="{{p.id}}">
+                                        <input type="hidden" value="{{p.relation_type1}}">
+                                        <input type="hidden" value="{{p.relation_id1}}">
+                                        <input type="hidden" value="{{p.relation_type2}}">
+                                        <input type="hidden" value="{{p.relation_id2}}">
+                                    </li>
+                                </ul>
+                            {% endfor %}
+                            </div>
+                            <div class="empty_p">
+                            </div>
+                        {% endif %}
+                        <svg class="svgContainer">
+                        </svg>
                     </div>
-                {% endfor %}
-            </div>
-        </section>
-    </div>
+                    <footer class="d-flex justify-content-end">
+                        <div class="border border-secondary text-center d-flex align-items-center">
+                            <div class="p-2 border-end border-secondary">
+                                相続を証する書面は還付した
+                            </div>
+                            <div class="px-4">
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 </div>
+
 {% endblock %}
 
 {% block footer %}

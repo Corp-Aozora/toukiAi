@@ -23,6 +23,15 @@ from .sections import *
 
 logger = logging.getLogger(__name__)
 
+def raise_exception(function_name, e, **kwargs):
+    """親関数にraiseするときの汎用エラー"""
+    # kwargsに含まれるキーワード引数の名前と値を文字列として整形
+    kwargs_str = "\n".join(f"{key}={value}" for key, value in kwargs.items())
+    # 整形した文字列を含む例外メッセージを作成
+    message = f"{function_name}でエラー発生：{e}\n{kwargs_str}"
+    # 例外を発生させる
+    raise Exception(message)
+
 def basic_log(function_name, e, user, message = None):
     """基本的なログ情報
 
@@ -299,13 +308,20 @@ def get_wareki(instance, is_birth):
     Returns:
         _type_: _description_
     """
-    end_idx = len(instance.birth_year) - 1 if is_birth else len(instance.death_year) - 1
-    if is_birth:
-        birth_date = instance.birth_year[5:end_idx] + instance.birth_month + "月" + instance.birth_date + "日"
-        return mojimoji.han_to_zen(birth_date)
-    else:
-        death_date = instance.death_year[5:end_idx] + instance.death_month + "月" + instance.death_date + "日"
-        return mojimoji.han_to_zen(death_date)
+    
+    function_name = get_current_function_name()
+    
+    try:
+        end_idx = len(instance.birth_year) - 1 if is_birth else len(instance.death_year) - 1
+        
+        date = instance.birth_year[5:end_idx] + instance.birth_month + "月" + instance.birth_date + "日" if is_birth else \
+            instance.death_year[5:end_idx] + instance.death_month + "月" + instance.death_date + "日"
+        
+        return mojimoji.han_to_zen(date)
+        
+    except Exception as e:
+        basic_log(function_name, e, None, "和暦の取得時にエラー発生")
+        raise e
     
 def is_data(data):
     """データが存在するかどうかを判定する。

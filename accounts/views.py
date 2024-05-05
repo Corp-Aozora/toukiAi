@@ -264,6 +264,7 @@ def bank_transfer(request):
             "title": tab_title,
             "company_data": CompanyData,
             "service": Service,
+            "user_email": user.email,
             "unique_payer": unique_payer,
             "not_paid_data": not_paid_data
         }

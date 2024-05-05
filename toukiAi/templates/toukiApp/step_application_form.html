@@ -1,19 +1,48 @@
 {% extends "toukiApp/base.html" %}
+
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_application_form.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
+
 {% block header %}
 {% endblock %}
+
 {% load custom_filters %}
+
 {% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
+<div class="modal fade" id="howto" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">登記申請書のまとめかたと押印について</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-headword="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-image" src="{% static 'toukiApp/img/登記申請書のまとめかたと押印.png' %}" alt="契印の説明画像">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex container-xxl">
     <div class="container">
         <section class="top">
-            <p class="fw-bold text-center">
-                こちらのページをA4の縦方向でご印刷ください。<br>
-                PDFが必要でお使いのPCにPDFで印刷する機能がない場合は、お問い合わせからお知らせお願いします。
+            <h5 class="text-center">
+                こちらのページをA4の縦方向でご印刷ください。
+            </h5>
+            <p class="fw-bold text-center mt-3">
+                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせをお願いします。
+                <br>
+                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記申請書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A登記申請書のPDFを送ってください。">
+                    {{ company_data.MAIL_ADDRESS }}
+                </a>
             </p>
             <div class="mt-4 d-flex justify-content-center">
                 <div class="d-inline-block border rounded-3 p-3">
@@ -22,19 +51,10 @@
                     </p>
                     <div class="ms-3">
                         <span class="fw-bold border-bottom border-secondary">
-                            特に確認が必要な記載事項について
+                            住所の表記について
                         </span>
                         <p class="ms-3">
-                            手続きされる方のお電話番号<br>
-                            登記したい不動産の不動産番号が全て記載されているか
-                        </p>
-                    </div>
-                    <div class="ms-3">
-                        <span class="fw-bold border-bottom border-secondary">
-                            ご住所の表記について
-                        </span>
-                        <p class="ms-3">
-                            ご住所が政令指定都市または都道府県と同じ名称の市のとき、都道府県の表示を削除してます（法務局指定の表記）。<br>
+                            法務局指定の表記に合わせるため、ご住所が政令指定都市または都道府県と同じ名称の市のとき、都道府県の表示を削除してます。
                         </p>
                     </div>
                     <div class="ms-3">
@@ -42,7 +62,7 @@
                             使用する印鑑について
                         </span>
                         <p class="ms-3">
-                            認印でも大丈夫ですが、同じ印鑑で全て押印してください。
+                            認印でも大丈夫ですが法務局提出後にも使用する可能性がありますので、どれを使用したか忘れないようにお願いします。
                         </p>
                     </div>
                     <div class="ms-3">
@@ -61,26 +81,23 @@
                             「登記申請書」の右側にある㊞（捨印）について
                         </span>
                         <p class="ms-3">
-                            捨印があると軽微な修正を法務局側でしてもらえることがあります。<br>
-                            ※法務局の任意なので絶対ではありません。
+                            法務局に書類を提出後に誤記などを修正するために必要になることがあります。
+                            <br>
+                            登記申請書１通につき２枚以上になる場合、２枚目以降はページの右上の余白部分にも捨印をお願いします。
+                        </p>
+                    </div>
+                    <div class="ms-3">
+                        <span class="fw-bold border-bottom border-secondary">
+                            「登記申請書」の上の部分の余白について
+                        </span>
+                        <p class="ms-3">
+                            印刷画面では、「登記申請書」の上に大きめの余白ができますが、法務局側で使用する部分のためそのままご印刷ください。
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="howto" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5">登記申請書のまとめかたと押印について</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-headword="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <img class="modal-image" src="{% static 'toukiApp/img/登記申請書のまとめかたと押印.png' %}" alt="契印の説明画像">
-                        </div>
-                    </div>
-                </div>
-            </div>
         </section>
+        <hr>
         <fieldset id="print_page">
             {% for data in application_data %}
                 <div class="d-flex justify-content-center mt-5">
@@ -270,10 +287,10 @@
                             {% for property in data.properties %}
                                 <div class="property">
                                     <div>
-                                        <div class="headword">
+                                        <div>
                                             不動産番号
                                         </div>
-                                        <div>
+                                        <div class="ms-3">
                                             {{property.number}}
                                         </div>
                                     </div>
@@ -315,11 +332,11 @@
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
-                                    {% if data.purpose_of_registration != "所有権移転" %}
+                                    {% if data.purpose_of_registration != "所有権移転" or property.acquirers|length > 1 %}
                                         {% for acquirer in property.acquirers %}
-                                            <div class="ms-4">
+                                            <div class="ms-5">
                                                 <div>
-                                                    {{acquirer.percentage}}
+                                                    持分{{acquirer.percentage}}
                                                 </div>
                                                 <div class="ms-3">
                                                     {{acquirer.name}}
@@ -344,4 +361,5 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/step_application_form.js' %}"></script>
+    <script type="module" src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

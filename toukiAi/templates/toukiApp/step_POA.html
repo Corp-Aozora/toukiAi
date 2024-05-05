@@ -1,19 +1,48 @@
 {% extends "toukiApp/base.html" %}
+
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_POA.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
+
 {% block header %}
 {% endblock %}
+
 {% load custom_filters %}
+
 {% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
+<div class="modal fade" id="seal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h1 class="modal-title fs-5">契印のしかた</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-image" src="{% static 'toukiApp/img/委任状の契印.png' %}" alt="契印の説明画像">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex container-xxl">
     <div class="container">
         <section class="top">
-            <p class="fw-bold text-center">
-                こちらのページをA4の縦方向でご印刷ください。<br>
-                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせからお知らせお願いします。
+            <h5 class="text-center">
+                こちらのページをA4の縦方向でご印刷ください。
+            </h5>
+            <p class="fw-bold text-center mt-3">
+                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせをお願いします。
+                <br>
+                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=委任状のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A委任状のPDFを送ってください。">
+                    {{ company_data.MAIL_ADDRESS }}
+                </a>
             </p>
             <div class="mt-4 d-flex justify-content-center">
                 <div class="d-inline-block border rounded-3 p-3">
@@ -45,29 +74,15 @@
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="seal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5">契印のしかた</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <img class="modal-image" src="{% static 'toukiApp/img/委任状の契印.png' %}" alt="契印の説明画像">
-                        </div>
-                    </div>
-                </div>
-            </div>
         </section>
+        <hr>
         <section class="d-flex justify-content-center mt-5">
             <div id="print_page">
                 {% for data in POA_data %}
                     <div class="print_per_section">
-                        <div class="mt-5">
-                            <h5 class="text-center">
-                                委任状
-                            </h5>
-                        </div>
+                        <h5 class="text-center">
+                            委任状
+                        </h5>
                         <div class="mt-4">
                             <div class="text-center">
                                 <div>
@@ -145,13 +160,16 @@
                                             {% for property in data.properties %}
                                                 <div>
                                                     <div>
-                                                        {{ property.address }}
                                                         {% if property.property_type == "Land" %}
-                                                            {{ property.address_number }}の土地
+                                                            {{ property.address }}{{ property.address_number }}の土地
                                                         {% elif property.property_type == "House" %}
-                                                            {{ property.address_number }}の建物
+                                                            {{ property.address }}
+                                                            <br>
+                                                            家屋番号{{ property.address_number }}の建物
                                                         {% elif property.property_type == "Bldg" %}
-                                                            {{ property.address_number }}の区分建物
+                                                            {{ property.address }}
+                                                            <br>
+                                                            家屋番号{{ property.address_number }}の区分建物
                                                         {% endif %}
                                                     </div>
                                                     {% if property.sites %}
@@ -188,15 +206,13 @@
                                                             </div>
                                                         {% endfor %}
                                                     {% endif %}
-                                                    {% if data.purpose_of_registration != "所有権移転" %}
+                                                    {% if data.purpose_of_registration != "所有権移転" or property.acquirers|length > 1 %}
                                                         {% for acquirer in property.acquirers %}
-                                                            <div class="ms-5 d-flex">
-                                                                <div>
-                                                                    {{acquirer.percentage}}
-                                                                </div>
-                                                                <div class="ms-3">
+                                                            <div class="ms-5">
+                                                                持分{{acquirer.percentage}}
+                                                                <span class="ms-3">
                                                                     {{acquirer.name}}
-                                                                </div>
+                                                                </span>
                                                             </div>
                                                         {% endfor %}
                                                     {% endif %}
@@ -277,4 +293,5 @@
 {% block js %}
     {% load static %}
     <script type="module" src="{% static 'toukiApp/step_POA.js' %}"></script>
+    <script type="module" src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

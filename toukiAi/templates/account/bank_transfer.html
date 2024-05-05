@@ -173,7 +173,7 @@
                     </div>
                     <p class="text-center">
                         {% with "オプションの利用料の振込連絡" as subject %}
-                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ subject|urlencode }}&body=※振込内容を確認できる画像を添付してください%0D%0A%0D%0A名義人：{{unique_payer|urlencode}}%0D%0A金額：{{not_paid_data.charge|urlencode}}円">
+                        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ subject|urlencode }}&body=※振込内容を確認できる画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A名義人：{{ unique_payer|urlencode }}%0D%0A金額：{{ not_paid_data.charge|urlencode }}円">
                             {{ company_data.MAIL_ADDRESS }}
                         </a>
                         {% endwith %}

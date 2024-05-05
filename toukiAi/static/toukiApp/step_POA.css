@@ -2,20 +2,25 @@
     body * {
         visibility: hidden;
     }
+    
     #print_page, #print_page * {
         visibility: visible;
     }
+
     #print_page {
         position: absolute;
         left: 0;
         top: 0;
-        width: 210mm;
-        height: 297mm;
+        /* width: 210mm;
+        height: 297mm; */
     }
+
     .print_per_section{
         break-after: page;
     }
+
     @page {
+        size: A4;
         margin-top: 20mm;
         margin-bottom: 20mm;
     }

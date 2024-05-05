@@ -44,7 +44,7 @@
                             評価額がない不動産がある場合は、法務局への照会が必要になりますのでお問い合わせをお願いします（可能であれば画像の添付もお願いします）。
                         <p>
                         <p class=text-center>
-                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0A法務局への照会する方法を教えてください。">
+                            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A法務局への照会する方法を教えてください。">
                                 {{ company_data.MAIL_ADDRESS }}
                             </a>
                         </p>

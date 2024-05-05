@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 })
 
 //隠しインプットのインデックス
-const idx = {
+const idxs = {
     "type": 0,
     "id": 1,
     "relation_type1": 2,
@@ -43,60 +43,80 @@ function drawAllLine(){
         const contentRect = contents[i].getBoundingClientRect();
         const svgContainer = svgContainers[i];
 
-        //被相続人と前配偶者を結ぶ線
-        relateDecedentAndExSpouses(content, contentRect, svgContainer, decedents[i]);
         //祖父母と父母を結ぶ線
         drawGrandParentsGen(content, contentRect, svgContainer);
+
+        //被相続人と前配偶者を結ぶ線
+        relateDecedentAndExSpouses(content, contentRect, svgContainer, decedents[i]);
+
+        //被相続人と前配偶者から連れ子へのライン
+        drawStepChildLines(content, contentRect, svgContainer);
+
         //父母世代の線を描画する
         drawParentsGen(content, contentRect, svgContainer);
 
         //被相続人と配偶者から子へのライン
-        const decedentSpouseLines = content.getElementsByClassName("decedent_spouse_line");
-        const childs = content.getElementsByClassName("child");
-        if(decedentSpouseLines.length > 0 && childs.length > 0){
-            const decedentSpouseLineRect = content.getElementsByClassName("decedent_spouse_line")[0].getBoundingClientRect();
-            twoGenLine(contentRect, svgContainer, decedentSpouseLineRect, childs);
-        }
+        drawDecedentSpouseChildLines(content, contentRect, svgContainer);
 
-        //被相続人と前配偶者から連れ子へのライン
-        //対象の前配偶者と一致する連れ子を判別する
-        const stepChilds = content.getElementsByClassName("step_child");
-        if(stepChilds.length > 0){
-            const decedentExSpouseLines = content.getElementsByClassName("decedent_ex_spouse_single_line");
-            const exSpouses = content.getElementsByClassName("ex_spouse");
-            for(let i = 0, len1 = exSpouses.length; i < len1; i++){
-                const exSpouseInputs = exSpouses[i].querySelectorAll("input");
-                const targetStepChilds = [];
-                for(let j = 0, len2 = stepChilds.length; j < len2; j++){
-                    const stepChild = stepChilds[j];
-                    const stepChildInputs = stepChild.querySelectorAll("input");
-                    if(exSpouseInputs[idx["relation_id1"]].value === stepChildInputs[idx["id"]].value){
-                        targetStepChilds.push(stepChild);
+        //子と子の配偶者から孫へのライン
+        const childGen = content.getElementsByClassName("child_gen")[0];
+        const grandChilds = content.getElementsByClassName("grand_child");
+        // 孫がいるとき
+        if(grandChilds.length > 0){
+
+            const childSpouses = content.getElementsByClassName("child_spouse");
+            // 子の配偶者がいるとき
+            if(childSpouses.length > 0){
+
+                const marriageLines = childGen.getElementsByClassName("double_line");
+
+                // 各子の配偶者に対する処理
+                for(let i = 0, len1 = childSpouses.length; i < len1; i++){
+                    const cs = childSpouses[i];
+                    const csInputs = cs.querySelectorAll("input");
+                    const targetGrandChilds = [];
+
+                    for(let j = 0, len2 = grandChilds.length; j < len2; j++){
+                        const gc = grandChilds[j];
+                        const gcInputs = gc.querySelectorAll("input");
+
+                        if(csInputs[idxs["id"]].value === gcInputs[idxs["relation_id2"]].value){
+                            targetGrandChilds.push(gc);
+                        }
+                    }
+
+                    if(targetGrandChilds.length > 0){
+                        const lineRect = marriageLines[i].getBoundingClientRect();
+                        twoGenLine(contentRect, svgContainer, lineRect, targetGrandChilds);
                     }
                 }
-                const decedentExSpouseLineRect = decedentExSpouseLines[i].getBoundingClientRect();
-                twoGenLine(contentRect, svgContainer, decedentExSpouseLineRect, targetStepChilds);
             }
-
-            //２人以上いるときはラインを変更する必要がある！
         }
 
         //子から子の前配偶者へのライン
         const childExSpouses = content.getElementsByClassName('child_ex_spouse');
         if(childExSpouses.length > 0){
+
+            const childs = content.querySelectorAll(".child, .step_child");
             for(let i = 0, len = childs.length; i < len; i++){
                 const child = childs[i];
                 const childInputs = child.querySelectorAll("input");
-                const targetChildExSpouses = [];
+                const targetExs = [];
+
                 for(let j = 0, len2 = childExSpouses.length; j < len2; j++){
-                    const childExSpouse = childExSpouses[j];
-                    const exInputs = childExSpouse.inputs;
-                    if(childInputs[idx["id"]].value === exInputs[idx["relation_id1"]].value){
-                        targetChildExSpouses.push(childExSpouse);
+                    const ex = childExSpouses[j];
+                    const exInputs = ex.querySelectorAll("input");
+                    console.log(childInputs[idxs["id"]].value);
+                    console.log(exInputs[idxs["relation_id2"]].value);
+                    if(childInputs[idxs["id"]].value === exInputs[idxs["relation_id2"]].value){
+                        targetExs.push(ex);
                     }
                 }
-                const childRect = child.getBoundingClientRect();
-                sameGenLine(contentRect, svgContainer, childRect, targetChildExSpouses);
+
+                if(targetExs.length > 0){
+                    const childRect = child.getBoundingClientRect();
+                    sameGenLine(contentRect, svgContainer, childRect, targetExs, true, false, false, "child_ex_spouse");
+                }
             }
 
             //子と子の前配偶者から子の連れ子へのライン
@@ -109,7 +129,7 @@ function drawAllLine(){
                     for(let j = 0, len2 = stepGrandChilds.length; j < len2; j++){
                         const stepGrandChild = stepGrandChilds[j];
                         const stepGrandChildInputs = stepGrandChild.querySelectorAll("input");
-                        if(childExSpouseInputs[idx["relation_id1"]].value === stepGrandChildInputs[idx["id"]].value){
+                        if(childExSpouseInputs[idxs["relation_id1"]].value === stepGrandChildInputs[idxs["id"]].value){
                             targetStepGrandChilds.push(stepGrandChild);
                         }
                     }
@@ -118,27 +138,77 @@ function drawAllLine(){
                 }
             }
         }
-    
-        //子と子の配偶者から孫へのライン
-        const childGen = content.getElementsByClassName("child_gen")[0];
-        const childSpouses = content.getElementsByClassName("child_spouse");
-        const grandChilds = content.getElementsByClassName("grand_child");
-        if(childSpouses.length > 0 && grandChilds.length > 0){
-            const childSpouseLines = childGen.getElementsByClassName("double_line");
-            for(let i = 0, len1 = childSpouses.length; i < len1; i++){
-                const childSpouseInputs = childSpouses[i].querySelectorAll("input");
-                const targetGrandChilds = [];
-                for(let j = 0, len2 = grandChilds.length; j < len2; j++){
-                    const grandChild = grandChilds[j];
-                    const grandChildInputs = grandChild.querySelectorAll("input");
-                    if(childSpouseInputs[idx["id"]].value === grandChildInputs[idx["relation_id2"]].value){
-                        targetGrandChilds.push(grandChild);
+
+    }
+}
+
+/**
+ * 連れ子へのライン
+ * @param {*} content 
+ * @param {*} contentRect 
+ * @param {*} svgContainer 
+ */
+function drawStepChildLines(content, contentRect, svgContainer){
+
+    const exSpouses = content.getElementsByClassName("ex_spouse");
+    // 前配偶者がいるとき
+    if(exSpouses.length > 0){
+        
+        const stepChilds = content.getElementsByClassName("step_child");
+        // 連れ子がいるとき
+        if(stepChilds.length > 0){
+
+            // 各前配偶者に対する処理
+            for(let i = 0, len1 = exSpouses.length; i < len1; i++){
+                const exSpouse = exSpouses[i];
+                const exSpouseInputs = exSpouse.querySelectorAll("input");
+                const targetStepChilds = [];
+
+                // 各連れ子に対する処理
+                for(let j = 0, len2 = stepChilds.length; j < len2; j++){
+                    const stepChild = stepChilds[j];
+                    const stepChildInputs = stepChild.querySelectorAll("input");
+
+                    const exSpouseRelationIds = JSON.parse(exSpouseInputs[idxs["relation_id1"]].value);
+                    const stepChildId = parseInt(stepChildInputs[idxs["id"]].value);
+                    // 対象の前配偶者と紐づく連れ子を取得する
+                    if(exSpouseRelationIds.includes(stepChildId)){
+                        targetStepChilds.push(stepChild);
                     }
                 }
-                const childSpouseLineRect = childSpouseLines[i].getBoundingClientRect();
-                twoGenLine(contentRect, svgContainer, childSpouseLineRect, targetGrandChilds);
+
+                // 対象の前配偶者に紐づく連れ子がいるとき
+                if(targetStepChilds.length > 0){
+
+                    // 最初の前配偶者のとき
+                    if(i === 0){
+                        const singleLine = content.getElementsByClassName("decedent_ex_spouse_single_line")[0];
+                        const lineRect = singleLine.getBoundingClientRect();
+                        twoGenLine(contentRect, svgContainer, lineRect, targetStepChilds);
+                    }else{
+                        const lineRect = document.getElementById(`horizontal_line-ex_spouse-${i}`).getBoundingClientRect();
+                        const exSpouseRect = exSpouses[i - 1].getBoundingClientRect();
+                        twoGenLine2(contentRect, svgContainer, lineRect, exSpouseRect, targetStepChilds);
+                    }
+                }
             }
         }
+    }
+}
+
+/**
+ * 現配偶者の子へのライン
+ * @param {*} content 
+ * @param {*} contentRect 
+ * @param {*} svgContainer 
+ */
+function drawDecedentSpouseChildLines(content, contentRect, svgContainer){
+    const decedentSpouseLine = content.getElementsByClassName("decedent_spouse_line")[0];
+    const childs = content.getElementsByClassName("child");
+    // 現配偶者がいる、かつ子供がいる
+    if(decedentSpouseLine && childs.length > 0){
+        const decedentSpouseLineRect = decedentSpouseLine.getBoundingClientRect();
+        twoGenLine(contentRect, svgContainer, decedentSpouseLineRect, childs);
     }
 }
 
@@ -150,7 +220,7 @@ function relateDecedentAndExSpouses(content, contentRect, svgContainer, decedent
     const exSpouses = content.getElementsByClassName('ex_spouse');
     if(exSpouses.length > 1){
         const decedentRect = decedent.getBoundingClientRect();
-        sameGenLine(contentRect, svgContainer, decedentRect, exSpouses, true);
+        sameGenLine(contentRect, svgContainer, decedentRect, exSpouses, true, true, false, "ex_spouse");
     }
 }
 
@@ -161,17 +231,20 @@ function relateDecedentAndExSpouses(content, contentRect, svgContainer, decedent
  * @param {*} svgContainer 
  */
 function drawGrandParentsGen(content, contentRect, svgContainer){
+
     const gen = content.getElementsByClassName("grand_parents_gen")[0];
+
     if(gen){
         const fromEls = gen.getElementsByClassName("grand_parents");
         const doubleLines = gen.getElementsByClassName("double_line");
         const toEls = content.getElementsByClassName("parents");
+
         for(let i = 0, len = fromEls.length; i < len; i += 2){
             const fromInputs = fromEls[i].querySelectorAll("input");
             for(let j = 0, len2 = toEls.length; j < len2; j++){
                 const toEl = toEls[j];
                 const toElInputs = toEl.querySelectorAll("input");
-                if(fromInputs[idx["relation_id1"]].value === toElInputs[idx["id"]].value){
+                if(fromInputs[idxs["relation_id1"]].value === toElInputs[idxs["id"]].value){
                     const doubleLineRect = doubleLines[j].getBoundingClientRect();
                     twoGenLine(contentRect, svgContainer, doubleLineRect, [toEl]);
                 }
@@ -187,49 +260,110 @@ function drawGrandParentsGen(content, contentRect, svgContainer){
  * @param {*} svgContainer 
  */
 function drawParentsGen(content, contentRect, svgContainer){
+
     const gen = content.getElementsByClassName("parents_gen")[0];
+
+    //父母から被相続人（と兄弟姉妹）を結ぶ線
     if(gen){
-        //父母から被相続人（と兄弟姉妹）を結ぶ線
         const doubleLine = gen.getElementsByClassName("double_line")[0];
         const doubleLineRect = doubleLine.getBoundingClientRect();
-        const isFullCollateral = content.getElementsByClassName("full_collateral").length > 0;
-        const targets = content.querySelectorAll(isFullCollateral? '.full_collateral, .decedent': ".decedent");
+        const targets = content.querySelectorAll('.full_collateral, .decedent');
         twoGenLine(contentRect, svgContainer, doubleLineRect, targets);
 
-        //異父母から父又は母へのライン
-        const halfParents = gen.getElementsByClassName('half_parents');
-        if(halfParents.length > 0){
-            const parents = gen.getElementsByClassName("parents");
-            for(let i = 0, len = parents.length; i < len; i++){
-                const parent = parents[i];
-                const parentInputs = parent.querySelectorAll("input");
-                const targetHalfParents = [];
-                for(let j = 0, len2 = halfParents.length; j < len2; j++){
-                    const halfParent = halfParents[j];
-                    const halfParentInputs = halfParent.inputs;
-                    if(parentInputs[idx["id"]].value === halfParentInputs[idx["relation_id1"]].value){
-                        targetHalfParents.push(halfParent);
-                    }
-                }
-                const parentRect = parent.getBoundingClientRect();
-                sameGenLine(contentRect, svgContainer, parentRect, targetHalfParents);
-            }
-            //異父母から半血兄弟へのライン
-            //対象の前配偶者と一致する連れ子を判別する
-            const halfCollaterals = content.getElementsByClassName("half_collateral");
-            if(halfCollaterals.length > 0){
-                for(let i = 0, len1 = halfParents.length; i < len1; i++){
-                    const halfParentInputs = halfParents[i].querySelectorAll("input");
-                    const targetHalfCollaterals = [];
-                    for(let j = 0, len2 = halfCollaterals.length; j < len2; j++){
-                        const halfCollateral = halfCollaterals[j];
-                        const halfCollateralInputs = halfCollateral.querySelectorAll("input");
-                        if(halfParentInputs[idx["relation_id1"]].value === halfCollateralInputs[idx["id"]].value){
-                            targetHalfCollaterals.push(halfCollateral);
+
+        const otherMothers = gen.getElementsByClassName('other_mother');
+        // 異母がいるとき
+        if(otherMothers.length > 0){
+            const father = gen.getElementsByClassName("parents")[0];
+            const parentRect = father.getBoundingClientRect();
+            //異母から父へのライン
+            sameGenLine(contentRect, svgContainer, parentRect, otherMothers, false, false, true, "other_mother");
+
+            const otherMotherCollaterals = content.getElementsByClassName("other_mother_collateral");
+            // 異母兄弟姉妹がいるとき
+            if(otherMotherCollaterals.length > 0){
+                // 各異母に対する処理
+                for(let i = otherMothers.length - 1; i >= 0; i--){
+                    const otherMother = otherMothers[i];
+                    const otherMotherInputs = otherMother.querySelectorAll("input");
+                    const targetCollaterals = [];
+
+                    // 各異母兄弟姉妹に対する処理
+                    for(let j = 0, len2 = otherMotherCollaterals.length; j < len2; j++){
+                        const targetCollateral = otherMotherCollaterals[j];
+                        const targetCollateralInputs = targetCollateral.querySelectorAll("input");
+
+                        // 対象の異母と紐づく異母兄弟姉妹のとき
+                        const otherMotherRelationIds = JSON.parse(otherMotherInputs[idxs["relation_id1"]].value);
+                        const targetCollateralId = parseInt(targetCollateralInputs[idxs["id"]].value);
+                        if(otherMotherRelationIds.includes(targetCollateralId)){
+                            targetCollaterals.push(targetCollateral);
                         }
                     }
-                    const halfParentLineRect = halfParentInputs[i].getBoundingClientRect();
-                    temp2(contentRect, svgContainer, halfParentLineRect, targetHalfCollaterals);
+
+                    // 対象の異母の兄弟姉妹がいるとき
+                    if(targetCollaterals.length > 0){
+                        // 最後の異母のとき
+                        if(i === otherMothers.length - 1){
+                            const singleLine = gen.getElementsByClassName("other_mother_single_line")[0];
+                            const lineRect = singleLine.getBoundingClientRect();
+                            twoGenLine(contentRect, svgContainer, lineRect, targetCollaterals);
+                        }else{
+                            const lineRect = document.getElementById(`horizontal_line-other_mother-${i}`).getBoundingClientRect();
+                            const otherMotherRect = otherMother.getBoundingClientRect();
+                            twoGenLine2(contentRect, svgContainer, lineRect, otherMotherRect, targetCollaterals);
+                        }
+                    }
+                }
+            }
+        }
+
+        const otherFathers = gen.getElementsByClassName('other_father');
+        // 異父がいるとき
+        if(otherFathers.length > 0){
+            const mother = gen.getElementsByClassName("parents")[1];
+            const parentRect = mother.getBoundingClientRect();
+
+            //異父から母へのライン
+            sameGenLine(contentRect, svgContainer, parentRect, otherFathers, true, true, false, "other_father");
+
+            const otherFatherCollaterals = content.getElementsByClassName("other_father_collateral");
+            // 異父兄弟姉妹がいるとき
+            if(otherFatherCollaterals.length > 0){
+
+                // 各異父に対する処理
+                for(let i = 0, len1 = otherFathers.length; i < len1; i++){
+                    const otherFather = otherFathers[i];
+                    const otherFatherInputs = otherFather.querySelectorAll("input");
+                    const targetCollaterals = [];
+
+                    // 各異父兄弟姉妹に対する処理
+                    for(let j = 0, len2 = otherFatherCollaterals.length; j < len2; j++){
+                        const targetCollateral = otherFatherCollaterals[j];
+                        const targetCollateralInputs = targetCollateral.querySelectorAll("input");
+
+                        // 対象の異父と紐づく異父兄弟姉妹を取得する
+                        const otherFatherRelationIds = JSON.parse(otherFatherInputs[idxs["relation_id1"]].value);
+                        const targetCollateralId = parseInt(targetCollateralInputs[idxs["id"]].value);
+                        if(otherFatherRelationIds.includes(targetCollateralId)){
+                            targetCollaterals.push(targetCollateral);
+                        }
+                    }
+
+                    // 対象の異父の兄弟姉妹がいるとき
+                    if(targetCollaterals.length > 0){
+
+                        // 最初の異父のとき
+                        if(i === 0){
+                            const singleLine = gen.getElementsByClassName("other_father_single_line")[0];
+                            const lineRect = singleLine.getBoundingClientRect();
+                            twoGenLine(contentRect, svgContainer, lineRect, targetCollaterals);
+                        }else{
+                            const lineRect = document.getElementById(`horizontal_line-other_father-${i}`).getBoundingClientRect();
+                            const otherFatherRect = otherFathers[i - 1].getBoundingClientRect();
+                            twoGenLine2(contentRect, svgContainer, lineRect, otherFatherRect, targetCollaterals);
+                        }
+                    }
                 }
             }
         }
@@ -237,28 +371,58 @@ function drawParentsGen(content, contentRect, svgContainer){
 }
 
 /**
- * 被相続人と配偶者から子へのライン
+ * 前配偶者との子へのライン
  * @param {*} contentRect 
  * @param {*} svgContainer 
- * @param {*} fromRect 
+ * @param {*} lineRect 
  * @param {*} toEls 
  */
-function temp2(contentRect, svgContainer, fromRect, toEls){
+function twoGenLine2(contentRect, svgContainer, lineRect, elRect, toEls){
+    let lineHeight = 110;
+    // 親要素を基準にした子要素の相対位置を算出
+    const fromX = elRect.right - contentRect.left; // 起点のx座標（横座標）
+    const fromY = lineRect.top - contentRect.top + lineRect.height; // 起点のy座標（縦座標）
+    let toY = lineHeight + fromY; // 伸ばす線の終点座標
+
+    // 線が近すぎるときは回避するように引く
+    if(checkHorizontalLineAtPoint(svgContainer, fromX, toY)){
+        toY -= 7;
+        if(checkHorizontalLineAtPoint(svgContainer, fromX, toY)){
+            toY -=7;
+            if(checkHorizontalLineAtPoint(svgContainer, fromX, toY)){
+                toY -=7;
+                alert("システム対応外です。\n別途作成したPDFをメールいたしますので、恐れ入りますが「※注意事項」に記載の弊社メールアドレスまでお問い合わせをお願いします。")
+            }
+        }
+    }
+
     for(let i = 0, len = toEls.length; i < len; i++){
         const toRect = toEls[i].getBoundingClientRect();
-        // 親要素を基準にした子要素の相対位置を算出
-        const fromX = fromRect.right - contentRect.left + 20;
-        const fromY = fromRect.top - contentRect.top + fromRect.height -15;
-        const addHeight = 85; 
-        const toY = addHeight + fromY;
-        //二重線の中央から下線を70px伸ばす
+
+        // 二重線の中央から下線を60px伸ばす
         drawLine(svgContainer, fromX, fromY, fromX, toY);
-        //二重線の中央から70px上を起点として対象の要素の真ん中まで横線を伸ばす（1番左端の子のときのみ）
+
+        // 二重線の中央から60px下を起点として要素の真ん中までのx座標を取得する
         const toRectCenter = (toRect.left - contentRect.left) + (toRect.width / 2);
-        if(i === 0)
+        const toRectTop = (toRect.top - contentRect.top);
+
+        // 最初処理
+        if(i === 0){
+            // 最初の要素の上まで横線を引く
             drawLine(svgContainer, fromX, toY, toRectCenter, toY);
+
+            const lastEl = getLastElFromArray(toEls);
+            const toLastElRect = lastEl.getBoundingClientRect();
+            const lastElRectCenter = (toLastElRect.left - contentRect.left) + (toLastElRect.width / 2);
+            // 最後の要素が起点より右にあるときは、最後の要素の上までにも横線を引く
+            if(lastElRectCenter > fromX){
+                drawLine(svgContainer, fromX, toY, lastElRectCenter, toY);
+            }
+        }
+
         //対象の要素の真ん中へ下線を書く
-        drawLine(svgContainer, toRectCenter, toY, toRectCenter, toY + 15)
+        const diff = toY - toRectTop;
+        drawLine(svgContainer, toRectCenter, toY, toRectCenter, toY - diff)
     }
 }
 
@@ -296,21 +460,51 @@ function temp(contentRect, svgContainer, fromRect, toEls){
  * @param {*} toEls 
  */
 function twoGenLine(contentRect, svgContainer, fromRect, toEls){
+    let line1Height = 65;
+    // 親要素を基準にした子要素の相対位置を算出
+    const fromX = fromRect.left - contentRect.left + fromRect.width / 2; // 起点のx座標（横座標）
+    const fromY = fromRect.top - contentRect.top + fromRect.height; // 起点のy座標（縦座標）
+    let toY = line1Height + fromY; // 伸ばす線の終点座標
+
+    // 線が近すぎるときは回避するように引く
+    if(checkHorizontalLineAtPoint(svgContainer, fromX, toY)){
+        toY -= 7;
+        if(checkHorizontalLineAtPoint(svgContainer, fromX, toY)){
+            toY -=7;
+            if(checkHorizontalLineAtPoint(svgContainer, fromX, toY)){
+                toY -=7;
+                alert("システム対応外です。\n別途作成したPDFをメールいたしますので、恐れ入りますが「※注意事項」に記載の弊社メールアドレスまでお問い合わせをお願いします。")
+            }
+        }
+    }
+
     for(let i = 0, len = toEls.length; i < len; i++){
         const toRect = toEls[i].getBoundingClientRect();
-        // 親要素を基準にした子要素の相対位置を算出
-        const fromX = fromRect.left - contentRect.left + fromRect.width / 2;
-        const fromY = fromRect.top - contentRect.top + fromRect.height;
-        const addHeight = 70; 
-        const toY = addHeight + fromY;
-        //二重線の中央から下線を70px伸ばす
+
+        // 二重線の中央から下線を60px伸ばす
         drawLine(svgContainer, fromX, fromY, fromX, toY);
-        //二重線の中央から70px上を起点として対象の要素の真ん中まで横線を伸ばす（1番左端の子のときのみ）
+
+        // 二重線の中央から60px下を起点として要素の真ん中までのx座標を取得する
         const toRectCenter = (toRect.left - contentRect.left) + (toRect.width / 2);
-        if(i === 0)
+        const toRectTop = (toRect.top - contentRect.top);
+
+        // 最初処理
+        if(i === 0){
+            // 最初の要素の上まで横線を引く
             drawLine(svgContainer, fromX, toY, toRectCenter, toY);
+
+            const lastEl = getLastElFromArray(toEls);
+            const toLastElRect = lastEl.getBoundingClientRect();
+            const lastElRectCenter = (toLastElRect.left - contentRect.left) + (toLastElRect.width / 2);
+            // 最後の要素が起点より右にあるときは、最後の要素の上までにも横線を引く
+            if(lastElRectCenter > fromX){
+                drawLine(svgContainer, fromX, toY, lastElRectCenter, toY);
+            }
+        }
+
         //対象の要素の真ん中へ下線を書く
-        drawLine(svgContainer, toRectCenter, toY, toRectCenter, toY + 15)
+        const diff = toY - toRectTop;
+        drawLine(svgContainer, toRectCenter, toY, toRectCenter, toY - diff)
     }
 }
 
@@ -321,20 +515,26 @@ function twoGenLine(contentRect, svgContainer, fromRect, toEls){
  * @param {*} fromRect 
  * @param {HTMLCollection} toEls 
  */
-function sameGenLine(contentRect, svgContainer, fromRect, toEls, isDecedent = false){
-    //被相続人と前配偶者の場合は、1人目の前配偶者との間にデフォルトの横線があるため2人目からループ処理
-    for(let i = isDecedent? 1: 0, len = toEls.length; i < len; i++){
+function sameGenLine(contentRect, svgContainer, fromRect, toEls, fromTopRight, skipFirst, skipLast, relation){
+
+    //子と子の配偶者以外の場合は、1人目の前配偶者との間にデフォルトの横線があるため2人目からループ処理
+    for(let i = skipFirst? 1: 0, len = toEls.length; i < len; i++){
+
+        // 異母は最後の要素がデフォルトで線があるため不要
+        if(skipLast && i === len - 1)
+            break;
+
         const toRect = toEls[i].getBoundingClientRect();
         // 親要素を基準にした子要素の相対位置を算出
         const fromY = fromRect.top - contentRect.top;
-        const fromX = fromRect.right - contentRect.left;
-        const addHeight = -15 * i;
+        const fromX = fromTopRight? fromRect.right - contentRect.left - fromRect.width / 4: fromRect.left - contentRect.left + fromRect.width / 4;
+        const addHeight = skipLast || !skipFirst && !skipLast? -10 * i - 10: -10 * i;
         const toY = fromY + addHeight;
-        //ulに右上から上線を15px伸ばす
+        //ulに右上または左上から上線を10px伸ばす
         drawLine(svgContainer, fromX, fromY, fromX, toY);
-        //ulの右上から15px上を起点として対象の要素の真ん中まで横線を伸ばす
+        //ulの右上または左上から10px上を起点として対象の要素の真ん中まで横線を伸ばす
         const toRectCenter = (toRect.left - contentRect.left) + (toRect.width / 2);
-        drawLine(svgContainer, fromX, toY, toRectCenter, toY);
+        drawLine(svgContainer, fromX, toY, toRectCenter, toY, `horizontal_line-${relation}-${i}`);
         //対象の要素の真ん中
         drawLine(svgContainer, toRectCenter, toY, toRectCenter, fromY + (-1 * addHeight))
     }
@@ -348,12 +548,46 @@ function sameGenLine(contentRect, svgContainer, fromRect, toEls, isDecedent = fa
  * @param {*} x2 
  * @param {*} y2 
  */
-function drawLine(svgContainer, x1, y1, x2, y2) {
+function drawLine(svgContainer, x1, y1, x2, y2, id=null) {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', x1);
     line.setAttribute('y1', y1);
     line.setAttribute('x2', x2);
     line.setAttribute('y2', y2);
     line.setAttribute('stroke', 'black');
+
+    if (id !== null) {
+        line.setAttribute('id', id);
+    }
+
     svgContainer.appendChild(line);
+}
+
+/**
+ * 点がライン上にあるか判定
+ * @param {*} svg 
+ * @param {*} x 
+ * @param {*} y 
+ * @returns 
+ */
+function checkHorizontalLineAtPoint(svg, x, y) {
+    const lines = svg.querySelectorAll('line');
+    return Array.from(lines).some(line => {
+        const y1 = parseFloat(line.getAttribute('y1'));
+        const y2 = parseFloat(line.getAttribute('y2'));
+        const x1 = parseFloat(line.getAttribute('x1'));
+        const x2 = parseFloat(line.getAttribute('x2'));
+
+        // 水平線ではないときは次へ
+        if(y1 !== y2)
+            return false;
+
+        // 水平線をチェック
+        if (Math.abs(y - y1) <= 6) {
+            // x座標が線の範囲内にあるか
+            return x >= Math.min(x1, x2) && x <= Math.max(x1, x2);
+        }
+
+        return false;
+    });
 }

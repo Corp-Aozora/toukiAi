@@ -220,8 +220,9 @@ def add_applicant_data(data, decedent):
         decedent (_type_): _description_
 
     Returns:
-        _type_: _description_
+        (不動産データ, 不動産取得者データ, 申請人データ, 敷地権データ)
     """
+    
     application = Application.objects.filter(decedent=decedent).first()
     if not application:
         raise ValueError("申請情報データがありません")
@@ -308,6 +309,7 @@ def assign_applicant_data(pattern, data):
         pattern (num): 上記patternのとおり
         data (Application): Applicationから取得したクエリセット
     """
+    
     form = get_applicant_form()
     form.update({
         "content_object": data.content_object,
@@ -321,7 +323,7 @@ def assign_applicant_data(pattern, data):
             "phone_number": data.phone_number,
             "is_agent": data.is_agent,
             "agent_name": data.agent_name,
-            "agent_address": data.agent_address,
+            "agent_address": format_address(data.agent_address),
             "agent_phone_number": data.agent_phone_number,
         })
     else:
@@ -335,7 +337,7 @@ def assign_applicant_data(pattern, data):
             "position": "申請人兼代理人" if pattern == 1 else "代理人",
             "is_agent": "true",
             "agent_name": data.content_object.name,
-            "agent_address": address,
+            "agent_address": format_address(address),
             "agent_phone_number": data.phone_number,
         })
         

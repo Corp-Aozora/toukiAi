@@ -29,7 +29,7 @@ from pydrive2.drive import GoogleDrive
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from smtplib import SMTPException
 from time import sleep
-from typing import List, Dict, Set, Tuple
+from typing import List, Dict, Set, Tuple, Any
 from urllib.parse import urlparse, parse_qs
 # from weasyprint import HTML
 
@@ -1067,7 +1067,7 @@ def step_two(request):
         
         context = {
             "title" : Sections.STEP2,
-            "user" : user,
+            "user_email" : user.email,
             "progress": progress,
             "prefectures": PREFECTURES,
             "decedent": decedent,
@@ -1308,15 +1308,25 @@ def get_descendant_or_collateral_initial_data(data, content_type_model):
     for d in data:
         
         other_parent_name = None
-        if d.content_type2 == related_individual_content_type:
-            
+        
+        if d.content_type1 == related_individual_content_type and d.content_type2 == related_individual_content_type:
+            raise ValidationError(f"{d.name}さんの父母のデータが適切に登録されていません。\ncontent_type={content_type}\nid={d.id}")
+        
+        related_individual = None
+        if d.content_type1 == related_individual_content_type:
+            related_individual = RelatedIndividual.objects.filter(
+                id=d.object_id1,
+                object_id=d.id,
+                content_type=content_type
+            ).first()
+        elif d.content_type2 == related_individual_content_type:
             related_individual = RelatedIndividual.objects.filter(
                 id=d.object_id2,
                 object_id=d.id,
                 content_type=content_type
             ).first()
             
-            other_parent_name = related_individual.name if related_individual else None
+        other_parent_name = related_individual.name if related_individual else None
 
         # 辞書データを生成
         data_dict = {
@@ -1526,9 +1536,7 @@ def update_form_set(data, form_set, user, decedent, content_type = None, relatio
             save_step_three_child_spouse_or_ascendant(user, form_set, data)
             
         else:
-            
             basic_log(get_current_function_name(), None, user, form_class_name)
-            
             raise ValidationError("想定しない形式のフォームが使用されてます")
         
     except Exception as e:
@@ -1571,15 +1579,19 @@ def save_step_three_child_spouse_or_ascendant(user, form_set, data):
         form_set (_type_): _description_
         data (_type_): _description_
     """
+    
+    function_name = get_current_function_name()
+    
     try:
-        function_name = get_current_function_name()
         form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
         data_dict = {d.id: d for d in data}
         update_fields = get_update_fields_for_form_set(data)
+        
         for form in form_set:
             form_data = form.cleaned_data
             update_target_data = data_dict.get(int(form_data.get("id")))
             form_data['updated_by'] = user
+            
             for key, value in form_data.items():
                 if key in update_fields:
                     setattr(update_target_data, key, value)
@@ -1637,7 +1649,9 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
         form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
         data_dict = {d.id: d for d in data}
         related_indivisual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
+        Ascendant_content_type = ContentType.objects.get_for_model(Ascendant)
         update_fields = get_update_fields_for_form_set(data)
+        
         for form in form_set:
             form_data = form.cleaned_data
             
@@ -1654,8 +1668,13 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
                     updated_by=user
                 )
                 
-                form_data["content_type2"] = related_indivisual_content_type
-                form_data["object_id2"] = related_indivisual.id
+                # 父母の設定がない方に異父母の設定をする
+                if form_data["content_type1"] == Ascendant_content_type:
+                    form_data["content_type2"] = related_indivisual_content_type
+                    form_data["object_id2"] = related_indivisual.id
+                elif form_data["content_type2"] == Ascendant_content_type:
+                    form_data["content_type1"] = related_indivisual_content_type
+                    form_data["object_id1"] = related_indivisual.id
                 
             update_target_data = data_dict.get(int(form_data.get("id")))
             form_data['updated_by'] = user
@@ -2678,7 +2697,7 @@ def step_three(request):
         context = {
             "title" : "３．データ入力",
             "progress": progress,
-            "user" : user,
+            "user_email" : user.email,
             "user_data_scope": json.dumps(user_data_scope),
             "decedent": decedent,
             "decedent_form": decedent_form,
@@ -2927,6 +2946,8 @@ def step_division_agreement(request):
         
         context = {
             "title" : "遺産分割協議証明書",
+            "company_data": CompanyData,
+            "user_email": user.email,
             "decedent_info": decedent_info,
             "normal_division_properties": normal_division_properties,
             "exchange_division_properties": exchange_division_properties,
@@ -3057,6 +3078,9 @@ def get_normal_division_properties(property_acquirer_data, cash_acquirer_data):
     Args:
         decedent (_type_): _description_
     """
+    
+    function_name = get_current_function_name()
+    
     try:
         #通常分割の不動産データを取得する
         first_data = get_unique_property_acquirer_data(property_acquirer_data, cash_acquirer_data)
@@ -3072,10 +3096,9 @@ def get_normal_division_properties(property_acquirer_data, cash_acquirer_data):
 
         # ステップ2: 最終的なデータ構造を生成
         return [(content_objects, [dict([item]) for item in key]) for key, content_objects in fourth_data.items()]
-     
-    except (HTTPError, ConnectionError, Timeout, DatabaseError) as e:
-        raise e
+
     except Exception as e:
+        basic_log(function_name, e, None, "換価しない不動産情報の取得に失敗しました")
         raise e
 
 def get_integrated_acquirers(property_acquirers, cash_acquirers):
@@ -3226,16 +3249,31 @@ def get_decedent_info_for_document(decedent):
 
     氏名、生年月日、死亡年月日、住所、本籍
     """
-    info = defaultdict(dict)
-    info["name"] = decedent.name
-    end_idx = len(decedent.birth_year) - 1
-    info["birth_date"] = decedent.birth_year[5:end_idx] + decedent.birth_month + "月" + decedent.birth_date + "日"
-    end_idx = len(decedent.death_year) - 1
-    info["death_date"] = decedent.death_year[5:end_idx] + decedent.death_month + "月" + decedent.death_date + "日"
-    info["permanent_address"] = get_full_address(decedent, is_domicile=True)
-    info["address"] = get_full_address(decedent)
     
-    return info
+    function_name = get_current_function_name()
+    
+    info = defaultdict(dict)
+    
+    try:
+        info["name"] = decedent.name
+        
+        end_idx = len(decedent.birth_year) - 1
+        info["birth_date"] = decedent.birth_year[5:end_idx] + decedent.birth_month + "月" + decedent.birth_date + "日"
+        
+        end_idx = len(decedent.death_year) - 1
+        info["death_date"] = decedent.death_year[5:end_idx] + decedent.death_month + "月" + decedent.death_date + "日"
+        
+        permanent_full_address = get_full_address(decedent, is_domicile=True)
+        info["permanent_address"] = format_address(permanent_full_address)
+        
+        full_address = get_full_address(decedent)
+        info["address"] = format_address(full_address)
+        
+        return info
+    
+    except Exception as e:
+        basic_log(function_name, e, None, "書類作成に必要な被相続人情報の取得に失敗しました")
+        raise e
 
 def step_diagram(request):
     """相続関係説明図の表示"""
@@ -3247,22 +3285,30 @@ def step_diagram(request):
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
+        
+        #被相続人データを取得する
+        decedent_info = get_decedent_info_for_document(decedent)
 
         #申請データを取得する
         application_data = get_data_for_application_form(decedent, False)
+        
         #相続人、関係者全員のデータを取得する
         related_persons_data = get_decedent_related_persons_data(decedent)
+        
         #相続関係説明図用のデータに加工する
         diagram_data = get_diagram_data(application_data, related_persons_data)
-        #被相続人データを取得する
-        decedent_info = get_decedent_info_for_document(decedent)
+        
         context = {
             "title": "相続関係説明図",
+            "company_data": CompanyData,
+            "user_email": user.email,
             "decedent_info": decedent_info,
             "diagram_data": diagram_data,
             "related_persons_data": related_persons_data,
         }
+        
         return render(request, this_html, context)
+    
     except Exception as e:
         return handle_error(
             e, 
@@ -3273,349 +3319,425 @@ def step_diagram(request):
         )
 
 def get_spouse_data_for_diagram(data, acquirers_list):
-    """相続関係図用の配偶者データを取得します。
+    """相続関係図用の被相続人の配偶者データを取得します。
 
     :param data: データオブジェクト
     :param acquirers_list: 取得者のリスト
     :return: 図表用の配偶者データを含む辞書
     """
-    form = get_diagram_person_form()
-    form.update({
-        "type": "spouse",
-        "id": data.id,
-        "name": data.name,
-        "birth_date": get_wareki(data, True),
-        "relation_type1": "decedent",
-        "relation_id1": data.object_id,
-    })
-    #生存確認
-    if data.is_live == False:
-        form["death_date"] = get_wareki(data, False)
-        return { "spouse": form }
-    #相続放棄
-    if data.is_refuse:
-        form["position"] = "相続放棄"
-        return { "spouse": form }
-    #取得者確認
-    matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (data.__class__.__name__, data.id)), None)
-    if matched_acquirer:
-        form["address"] = format_address(matched_acquirer["address"])
-        form["position"] = "相続"
-    else:
-        form["position"] = "分割"
+    
+    function_name = get_current_function_name()
+    
+    try:
+        form = get_diagram_person_form()
+        form.update({
+            "type": "spouse",
+            "id": data.id,
+            "name": data.name,
+            "birth_date": get_wareki(data, True),
+            "relation_type1": "decedent",
+            "relation_id1": data.object_id,
+        })
         
-    return { "spouse": form }
+        #生存確認
+        if data.is_live == False:
+            form["death_date"] = get_wareki(data, False)
+            return { "spouse": form }
+        
+        #相続放棄
+        if data.is_refuse:
+            form["position"] = "相続放棄"
+            return { "spouse": form }
+        
+        #取得者確認
+        matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (data.__class__.__name__, data.id)), None)
+        if matched_acquirer:
+            form["address"] = format_address(matched_acquirer["address"])
+            form["position"] = "相続"
+        else:
+            form["position"] = "分割"
+            
+        return { "spouse": form }
+    
+    except Exception as e:
+        basic_log(function_name, e, None, "相続関係図用の被相続人の配偶者データの取得に失敗しました。")
+        raise e
 
 def get_grand_child_data_for_diagram(data, acquirers_list):
-    """相続関係説明図用の孫データを取得します。
-
-    :param data: データオブジェクト
-    :param acquirers_list: 取得者のリスト
-    :return: 相続関係説明図用の孫データを含む辞書
-    """
+    """相続関係説明図用の孫データを取得します。"""
+    
+    function_name = get_current_function_name()
+    
     grand_child = []
     step_grand_child = []
-    for d in data:
-        form = get_diagram_person_form()
     
-        is_step_grand_child = d.content_type2.model_class() == RelatedIndividual
-        form.update({
-            "type": "step_grand_child" if is_step_grand_child else "grand_child",
-            "id": d.id,
-            "name": d.name,
-            "birth_date": get_wareki(d, True),
-            "relation_type1": "child",
-            "relation_id": d.object_id1,
-            "relation_type2": "child_ex_spouse" if is_step_grand_child else "child_spouse",
-            "relation_id2": d.object_id2,
-        })
-        #生存確認
-        if d.is_live == False:
-            form["death_date"] = get_wareki(d, False)
-            step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
-            continue
-        #相続放棄
-        if d.is_refuse:
-            form["position"] = "相続放棄"
-            step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
-            continue
-        #取得者確認
-        matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
-        if matched_acquirer:
-            form["address"] = format_address(matched_acquirer["address"])
-            form["position"] = "相続"
-        else:
-            form["position"] = "分割"
+    try:
+        for d in data:
+            form = get_diagram_person_form()
         
-        step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
-        
-    return {
-        "grand_child": grand_child,
-        "step_grand_child": step_grand_child,
-    }
+            is_step_grand_child = d.content_type2.model_class() == RelatedIndividual
+            form.update({
+                "type": "step_grand_child" if is_step_grand_child else "grand_child",
+                "id": d.id,
+                "name": d.name,
+                "birth_date": get_wareki(d, True),
+                "relation_type1": "child",
+                "relation_id": d.object_id1,
+                "relation_type2": "child_ex_spouse" if is_step_grand_child else "child_spouse",
+                "relation_id2": d.object_id2,
+            })
+            #生存確認
+            if d.is_live == False:
+                form["death_date"] = get_wareki(d, False)
+                step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
+                continue
+            #相続放棄
+            if d.is_refuse:
+                form["position"] = "相続放棄"
+                step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
+                continue
+            #取得者確認
+            matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
+            if matched_acquirer:
+                form["address"] = format_address(matched_acquirer["address"])
+                form["position"] = "相続"
+            else:
+                form["position"] = "分割"
+            
+            step_grand_child.append(form) if is_step_grand_child else grand_child.append(form)
+            
+        return {
+            "grand_childs": grand_child,
+            "step_grand_childs": step_grand_child,
+        }
+    
+    except Exception as e:
+        raise Exception(f"{function_name}でエラー発生：{e}\ndata={data}\nacquirers_list={acquirers_list}")
 
 def get_ascendant_data_for_diagram(data, acquirers_list):
-    """相続関係図用の尊属データを取得します。
-
-    :param data: データオブジェクト
-    :param acquirers_list: 取得者のリスト
-    :return: 図表用の配偶者データを含む辞書
-    """
+    """相続関係図用の尊属データを取得します。"""
+    
+    function_name = get_current_function_name()
+    
     parents = []
     grand_parents = []
-    for d in data:
-        form = get_diagram_person_form()
-
-        is_content_type_decedent = d.content_type.model_class() == Decedent
-        form.update({
-            "type": "parents" if is_content_type_decedent else "grand_parents",
-            "id": d.id,
-            "name": d.name,
-            "birth_date": get_wareki(d, True),
-            "relation_type1": "decedent" if is_content_type_decedent else "parents",
-            "relation_id1": d.object_id,
-        })
-        #生存確認
-        if d.is_live == False:
-            form["death_date"] = get_wareki(d, False)
-            parents.append(form) if is_content_type_decedent else grand_parents.append(form)
-            continue
-        #相続放棄
-        if d.is_refuse:
-            form["position"] = "相続放棄"
-            parents.append(form) if is_content_type_decedent else grand_parents.append(form)
-            continue
-        #取得者確認
-        matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
-        if matched_acquirer:
-            form["address"] = format_address(matched_acquirer["address"])
-            form["position"] = "相続"
-        else:
-            form["position"] = "分割"
-            
-        parents.append(form) if is_content_type_decedent else grand_parents.append(form)
-        
-    return { 
-        "parents" : parents,
-        "grand_parents": grand_parents
-    }
-
-def get_related_indivisual_data_for_diagram(data):
-    """相続関係図用の関係者データを取得します。
-
-    :param data: データオブジェクト
-    :param acquirers_list: 取得者のリスト
-    :return: 図表用の配偶者データを含む辞書
-    """
-    ex_spouse_data = []
-    child_ex_spouse_data = []
-    half_parent_data = []
-    for d in data:
-        form = get_diagram_person_form()
-        form.update({
-            "id": d.id,
-            "name": d.name,
-            "relation_id1": d.object_id,
-        })
-        if d.relationship == "前配偶者":
-            form["type"] = "ex_spouse"
-            form["relation_type1"] = "step_child"
-            ex_spouse_data.append(form)
-        elif d.relationship == "子の前配偶者":
-            form["type"] = "child_ex_spouse"
-            form["relation_type1"] = "grand_child"
-            child_ex_spouse_data.append(form)
-        else:
-            form["type"] = "other_parent"
-            form["relation_type1"] = "collateral"
-            half_parent_data.append(form)
-        
-    return {
-        "ex_spouses": ex_spouse_data, 
-        "child_ex_spouses": child_ex_spouse_data, 
-        "half_parents": half_parent_data,
-    }
     
+    try:
+        for d in data:
+            form = get_diagram_person_form()
+
+            is_content_type_decedent = d.content_type.model_class() == Decedent
+            form.update({
+                "type": "parents" if is_content_type_decedent else "grand_parents",
+                "id": d.id,
+                "name": d.name,
+                "birth_date": get_wareki(d, True),
+                "relation_type1": "decedent" if is_content_type_decedent else "parents",
+                "relation_id1": d.object_id,
+            })
+            
+            #生存確認
+            if d.is_live == False:
+                form["death_date"] = get_wareki(d, False)
+                parents.append(form) if is_content_type_decedent else grand_parents.append(form)
+                continue
+            
+            #相続放棄
+            if d.is_refuse:
+                form["position"] = "相続放棄"
+                parents.append(form) if is_content_type_decedent else grand_parents.append(form)
+                continue
+            
+            #取得者確認
+            matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
+            if matched_acquirer:
+                form["address"] = format_address(matched_acquirer["address"])
+                form["position"] = "相続"
+            else:
+                form["position"] = "分割"
+                
+            parents.append(form) if is_content_type_decedent else grand_parents.append(form)
+            
+        return { 
+            "parents" : parents,
+            "grand_parents": grand_parents
+        }
+        
+    except Exception as e:
+        basic_log(function_name, e, None, "相続関係図用の尊属データの取得に失敗しました")
+        raise e
+
+def get_related_indivisual_data_for_diagram(data, key):
+    """相続関係図用の関係者データを取得します。"""
+    
+    
+    def get_relation_type(key: str) -> tuple[str, str]:
+        """続柄に基づいて関連タイプを返します。"""
+        
+        relationship_map = {
+            "ex_spouses": ("ex_spouse", "step_child"),
+            "child_ex_spouses": ("child_ex_spouse", "grand_child"),
+            "other_fathers": ("other_father", "collateral"),
+            "other_mothers": ("other_mother", "collateral")
+        }
+        
+        if key not in relationship_map:
+            raise ValueError(f"想定しない続柄が設定されています。")
+        
+        return relationship_map[key]
+    
+    function_name = get_current_function_name()
+    
+    try:
+       # 初期化
+        grouped_data = {}
+        type, relation_type1 = get_relation_type(key)
+        
+        # データ処理
+        for d in data:
+            identifier = (type, d.name, relation_type1)
+            if identifier not in grouped_data:
+                grouped_data[identifier] = {
+                    "type": type,
+                    "id": [],
+                    "name": d.name,
+                    "relation_type1": relation_type1,
+                    "relation_id1": []
+                }
+                
+                # 子の前配偶者のとき、子のデータを取得する
+                if type == "child_ex_spouse":
+                    grouped_data[identifier].update({
+                        "relation_type2": "child",
+                        "relation_id2": d.content_object.object_id1
+                    })
+                
+            grouped_data[identifier]["id"].append(d.id)
+            grouped_data[identifier]["relation_id1"].append(d.object_id)
+        
+        # フォーマットされたデータをリストに変換
+        formatted_data = list(grouped_data.values())
+        
+        return { key: formatted_data }
+        
+    except Exception as e:
+        raise Exception(f"{function_name}でエラー発生：{str(e)}\ndata={data}\key={key}")
 
 def get_child_spouse_data_for_diagram(data, acquirers_list):
-    """相続関係説明図用の子の配偶者データを取得します。
-
-    :param data: データオブジェクト
-    :param acquirers_list: 取得者のリスト
-    :return: 相続関係説明図用の子の配偶者データを含む辞書
-    """
-    new_data = []
-    for d in data:
-        form = get_diagram_person_form()
+    """相続関係説明図用の子の配偶者データを取得します。"""
     
-        form.update({
-            "type": "child_spouse",
-            "id": d.id,
-            "name": d.name,
-            "birth_date": get_wareki(d, True),
-            "relation_type1": "child",
-            "relation_id1": d.object_id,
-        })
-        #生存確認
-        if d.is_live == False:
-            form["death_date"] = get_wareki(d, False)
-            new_data.append(form)
-            continue
-        #相続放棄
-        if d.is_refuse:
-            form["position"] = "相続放棄"
-            new_data.append(form)
-            continue
-        #取得者確認
-        matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
-        if matched_acquirer:
-            form["address"] = format_address(matched_acquirer["address"])
-            form["position"] = "相続"
-        else:
-            form["position"] = "分割"
+    function_name = get_current_function_name()
+    new_data = []
+    
+    try:
+        for d in data:
+            form = get_diagram_person_form()
         
-        new_data.append(form)
-        
-    return new_data
+            form.update({
+                "type": "child_spouse",
+                "id": d.id,
+                "name": d.name,
+                "birth_date": get_wareki(d, True),
+                "relation_type1": "child",
+                "relation_id1": d.object_id,
+            })
+            
+            #生存確認
+            if d.is_live == False:
+                form["death_date"] = get_wareki(d, False)
+                new_data.append(form)
+                continue
+            
+            #相続放棄
+            if d.is_refuse:
+                form["position"] = "相続放棄"
+                new_data.append(form)
+                continue
+            
+            #取得者確認
+            matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
+            if matched_acquirer:
+                form["address"] = format_address(matched_acquirer["address"])
+                form["position"] = "相続"
+            else:
+                form["position"] = "分割"
+            
+            new_data.append(form)
+            
+        return new_data
+    
+    except Exception as e:
+        raise Exception(f"{function_name}でエラー発生\n{e}\ndata={data}, acquirers_list={acquirers_list}")
  
 def get_child_data_for_diagram(data, acquirers_list):
-    """相続関係説明図用の子データを取得します。
-
-    :param data: データオブジェクト
-    :param acquirers_list: 取得者のリスト
-    :return: 相続関係説明図用の子データを含む辞書
-    """
+    """相続関係説明図用の子データを取得します。"""
+    
+    function_name = get_current_function_name()
+    
     child_data = []
     step_child_data = []
-    for d in data:
-        form = get_diagram_person_form()
     
-        is_step_child = d.content_type2.model_class() == RelatedIndividual
-        form.update({
-            "type": "step_child" if is_step_child else "child",
-            "id": d.id,
-            "name": d.name,
-            "birth_date": get_wareki(d, True),
-            "relation_type1": "decedent",
-            "relation_id1": d.object_id1,
-            "relation_type2": "ex_spouse" if is_step_child else "spouse",
-            "relation_id2": d.object_id2,
-        })
-        #生存確認
-        if d.is_live == False:
-            form["death_date"] = get_wareki(d, False)
-            step_child_data.append(form) if is_step_child else child_data.append(form)
-            continue
-        #相続放棄
-        if d.is_refuse:
-            form["position"] = "相続放棄"
-            step_child_data.append(form) if is_step_child else child_data.append(form)
-            continue
-        #取得者確認
-        matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
-        if matched_acquirer:
-            form["address"] = format_address(matched_acquirer["address"])
-            form["position"] = "相続"
-        else:
-            form["position"] = "分割"
+    try:
+        for d in data:
+            form = get_diagram_person_form()
         
-        step_child_data.append(form) if is_step_child else child_data.append(form)
-
-    return [child_data, step_child_data]
-
-def get_collateral_data_for_diagram(data, acquirers_list):
-    """相続関係図用の傍系データを取得します。
-
-    :param data: データオブジェクト
-    :param acquirers_list: 取得者のリスト
-    :return: 図表用の配偶者データを含む辞書
-    """
-    full_collaterals = []
-    half_collaterals = []
-    for d in data:
-        form = get_diagram_person_form()
-    
-        is_content_type2_related_indivisual = d.content_type2.model_class() == RelatedIndividual
-        form.update({
-            "type": "half_collateral" if is_content_type2_related_indivisual else "full_collaterals",
-            "id": d.id,
-            "name": d.name,
-            "birth_date": get_wareki(d, True),
-            "relation_type1": d.content_type1.model_class().__name__.lower(),
-            "relation_id1": d.object_id1,
-            "relation_type2": d.content_type2.model_class().__name__.lower(),
-            "relation_id2": d.object_id2,
-        })
-        #生存確認
-        if d.is_live == False:
-            form["death_date"] = get_wareki(d, False)
-            half_collaterals.append(form) if is_content_type2_related_indivisual else full_collaterals.append(form)
-            continue
-        #相続放棄
-        if d.is_refuse:
-            form["position"] = "相続放棄"
-            half_collaterals.append(form) if is_content_type2_related_indivisual else full_collaterals.append(form)
-            continue
-        #取得者確認
-        matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
-        if matched_acquirer:
-            form["address"] = format_address(matched_acquirer["address"])
-            form["position"] = "相続"
-        else:
-            form["position"] = "分割"
+            is_step_child = d.content_type2.model_class() == RelatedIndividual
+            form.update({
+                "type": "step_child" if is_step_child else "child",
+                "id": d.id,
+                "name": d.name,
+                "birth_date": get_wareki(d, True),
+                "relation_type1": "decedent",
+                "relation_id1": d.object_id1,
+                "relation_type2": "ex_spouse" if is_step_child else "spouse",
+                "relation_id2": d.object_id2,
+            })
+            #生存確認
+            if d.is_live == False:
+                form["death_date"] = get_wareki(d, False)
+                step_child_data.append(form) if is_step_child else child_data.append(form)
+                continue
+            #相続放棄
+            if d.is_refuse:
+                form["position"] = "相続放棄"
+                step_child_data.append(form) if is_step_child else child_data.append(form)
+                continue
+            #取得者確認
+            matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
+            if matched_acquirer:
+                form["address"] = format_address(matched_acquirer["address"])
+                form["position"] = "相続"
+            else:
+                form["position"] = "分割"
             
-        half_collaterals.append(form) if is_content_type2_related_indivisual else full_collaterals.append(form)
-        
-    return {
-        "full_collaterals" : full_collaterals,
-        "half_collaterals": half_collaterals
+            step_child_data.append(form) if is_step_child else child_data.append(form)
+
+        return [child_data, step_child_data]
+
+    except Exception as e:
+        raise Exception(f"{function_name}でエラー発生：{e}\ndata={data}\nacquirers_list={acquirers_list}")
+
+def get_collateral_data_for_diagram(data, acquirers_list, key):
+    """相続関係図用の傍系データを取得します。"""
+    
+    function_name = get_current_function_name()
+    
+    formatted_data = []
+    collateral_types = {
+        "full_collaterals": "full_collateral",
+        "other_father_collaterals": "other_father_collateral",
+        "other_mother_collaterals": "other_mother_collateral"
     }
+
+    type = collateral_types.get(key, None)
+    if not type:
+        raise ValueError(f"引数keyが不適切です\nkey={key}")
+    
+    try:
+            
+        for d in data:
+            form = get_diagram_person_form()
+        
+            form.update({
+                "type": type,
+                "id": d.id,
+                "name": d.name,
+                "birth_date": get_wareki(d, True),
+                "relation_type1": d.content_type1.model_class().__name__.lower(),
+                "relation_id1": d.object_id1,
+                "relation_type2": d.content_type2.model_class().__name__.lower(),
+                "relation_id2": d.object_id2,
+            })
+            
+            #生存確認
+            if d.is_live == False:
+                form["death_date"] = get_wareki(d, False)
+                formatted_data.append(form)
+                continue
+            
+            #相続放棄
+            if d.is_refuse:
+                form["position"] = "相続放棄"
+                formatted_data.append(form)
+                continue
+            
+            #取得者確認
+            matched_acquirer = next((x for x in acquirers_list if (x["acquirer_type"], x["acquirer_id"]) == (d.__class__.__name__, d.id)), None)
+            if matched_acquirer:
+                form["address"] = format_address(matched_acquirer["address"])
+                form["position"] = "相続"
+            else:
+                form["position"] = "分割"
+                
+            formatted_data.append(form)
+            
+        return {
+            key : formatted_data
+        }
+
+    except Exception as e:
+        raise_exception(function_name, e, data=data, acquirers_list=acquirers_list, key=key)
 
 def get_diagram_data(app_data, persons_data):
     """相続関係説明図用のデータを取得する
 
     Args:
-        app_data (_type_): 申請データ
-        persons_data (_type_): 被相続人の関係者全員のデータ
+        app_data (_type_): （不動産データ、不動産取得者データ、申請人データ、敷地権データ）
+        persons_data (dict): {relation: querysetまたはquerysets}
 
     Returns:
         list[dict[]]: 相続関係説明図用のデータ
     """
+    
+    function_name = get_current_function_name()
+    
     new_data_list = []
-    for app in app_data:
-        acquirers_list = app[1] #取得者の辞書リストデータ
-        
-        new_data = get_diagram_data_form()
-        child_spouses = []
-        childs = []
-        for key in persons_data:
-            data = persons_data[key]
-            if key == "spouse" and data.is_exist:
-                new_data.update(get_spouse_data_for_diagram(data, acquirers_list))
-                continue
+    
+    try:
+        # 各申請データに対する処理
+        for app in app_data:
+            acquirers_list = app[1] #取得者の辞書リストデータ
             
-            if not is_data(data):
-                continue
+            new_data = get_diagram_data_form()
+            child_spouses = []
+            childs = []
             
-            if key == "related_indivisual":
-                result = get_related_indivisual_data_for_diagram(data)
-                child_spouses.extend(result["child_ex_spouses"])
-                new_data.update(result)
-            if key == "ascendant":
-                new_data.update(get_ascendant_data_for_diagram(data, acquirers_list))
-            if key == "collateral":
-                new_data.update(get_collateral_data_for_diagram(data, acquirers_list))
-            if key == "child_spouse":
-                child_spouses.extend(get_child_spouse_data_for_diagram(data, acquirers_list)) #子の配偶者データ
-            if key == "child":
-                childs.extend(get_child_data_for_diagram(data, acquirers_list)) #子、孫のデータ
-            if key == "grand_child":
-                new_data.update(get_grand_child_data_for_diagram(data, acquirers_list))
-        #子の配偶者と子、孫のデータは順番を整理する
-        new_data.update(get_rearranged_child_gen_data(childs, child_spouses))
-        new_data_list.append(new_data)
+            # 相関図に記載する全員に対する処理
+            for key, data in persons_data.items():
+                
+                # 配偶者がいるとき
+                if key == "spouse" and data.is_exist:
+                    new_data.update(get_spouse_data_for_diagram(data, acquirers_list))
+                    continue
+                
+                if not is_data(data):
+                    continue
+                
+                if key == "ex_spouses" or key == "other_fathers" or key == "other_mothers":
+                    new_data.update(get_related_indivisual_data_for_diagram(data, key))
+                elif key == "child_ex_spouses":
+                    result = get_related_indivisual_data_for_diagram(data, key)
+                    child_spouses.extend(result["child_ex_spouses"])
+                elif key == "ascendants":
+                    new_data.update(get_ascendant_data_for_diagram(data, acquirers_list))
+                elif key == "full_collaterals" or key == "other_father_collaterals" or key == "other_mother_collaterals":
+                    new_data.update(get_collateral_data_for_diagram(data, acquirers_list, key))
+                elif key == "child_spouses":
+                    child_spouses.extend(get_child_spouse_data_for_diagram(data, acquirers_list)) #子の配偶者データ
+                elif key == "childs":
+                    childs.extend(get_child_data_for_diagram(data, acquirers_list)) # 子（連れ子を含む）
+                elif key == "grand_childs":
+                    new_data.update(get_grand_child_data_for_diagram(data, acquirers_list))
+                    
+            #子の配偶者と子、孫のデータは順番を整理する
+            new_data.update(get_rearranged_child_gen_data(childs, child_spouses))
 
-    return new_data_list
+            new_data_list.append(new_data)
+            
+        return new_data_list
+    
+    except Exception as e:
+        raise e
 
 def get_rearranged_child_gen_data(childs, child_spouses):
     """子の世代を並び替える
@@ -3633,21 +3755,22 @@ def get_rearranged_child_gen_data(childs, child_spouses):
     for c in childs:
         child_data.extend(c)
         
-    #子＞連れ子の順かつidの昇順で並び替え
+    # 子＞連れ子の順かつidの昇順で並び替え
     type_order = {'child': 1, 'step_child': 2}
     # カスタムソート関数
     sorted_child_data = sorted(child_data, key=lambda x: (type_order[x['type']], x['id']))
     
-    #配偶者＞前配偶者かつidの昇順で並び替え
+    # 配偶者＞前配偶者かつidの昇順で並び替え
     type_order = {'child_spouse': 1, 'child_ex_spouse': 2}
     # カスタムソート関数
-    sorted_child_spouse_data = sorted(child_spouses, key=lambda x: (type_order[x['type']], x['id']))
+    sorted_child_spouse_data = sorted(child_spouses, key=lambda x: (type_order[x['type']], min(x['id']) if isinstance(x['id'], list) else x['id']))
     
     rearranged_data = []
     for c in sorted_child_data:
         rearranged_data.append(c)
         for cs in sorted_child_spouse_data:
-            if cs["relation_id1"] == c["id"]:
+            if cs["type"] == "child_spouse" and cs["relation_id1"] == c["id"] or\
+                cs["type"] == "child_ex_spouse" and cs["relation_id2"] == c["id"]:
                 rearranged_data.append(cs)
                 
     return { "child_gen": rearranged_data }
@@ -3656,16 +3779,18 @@ def get_diagram_data_form():
     return {
         "spouse": None,
         "ex_spouses": None,
-        "child_ex_spouses": None,
-        "half_parents": None,
+        "other_fathers": None,
+        "other_mothers": None,
         "parents": None,
         "grand_parents": None,
-        "full_collateral": None,
-        "half_collateral": None,
+        "full_collaterals": None,
+        "other_father_collaterals": None,
+        "other_mother_collaterals": None,
         "child_gen": None,
-        "grand_child": None,
-        "step_grand_child": None,
+        "grand_childs": None,
+        "step_grand_childs": None,
     }
+    
 def get_diagram_person_form():
     return {
         "type": "",
@@ -3695,17 +3820,50 @@ def get_decedent_related_persons_data(decedent):
     ascendant_data = Ascendant.objects.filter(decedent=decedent).order_by('id')
     
     collateral_data = Collateral.objects.filter(decedent=decedent).order_by('id')
+
+    full_collateral_data = []
+    other_father_collateral_data = []
+    other_mother_collateral_data = []
+    related_indivisual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
+    for d in collateral_data:
+        if d.content_type1 == related_indivisual_content_type:
+            other_father_collateral_data.append(d)
+        elif d.content_type2 == related_indivisual_content_type:
+            other_mother_collateral_data.append(d)
+        else:
+            full_collateral_data.append(d)
     
-    related_indivisual_data = RelatedIndividual.objects.filter(decedent=decedent).order_by("id")
+    
+    # 関係者のデータは前配偶者、子の前配偶者、異父母に分けて返す
+    related_individual_data = RelatedIndividual.objects.filter(decedent=decedent).order_by("id")
+    ex_spouse_data = related_individual_data.filter(relationship="前配偶者")
+    
+    child_ex_spouse_data = related_individual_data.filter(relationship="子の前配偶者")
+    
+    half_parent_data = related_individual_data.filter(relationship="異父又は異母")
+    other_father_data = []
+    other_mother_data = []
+    
+    for d in half_parent_data:
+        content_object = d.content_object
+        if content_object.content_type1 == related_indivisual_content_type:
+            other_father_data.append(d)
+        else:
+            other_mother_data.append(d)
     
     return {
         "spouse": spouse_data,
-        "child": child_data,
-        "child_spouse": child_spouse_data,
-        "grand_child": grand_child_data,
-        "ascendant": ascendant_data,
-        "collateral": collateral_data,
-        "related_indivisual": related_indivisual_data,
+        "childs": child_data,
+        "child_spouses": child_spouse_data,
+        "ascendants": ascendant_data,
+        "grand_childs": grand_child_data,
+        "full_collaterals": full_collateral_data,
+        "other_father_collaterals": other_father_collateral_data,
+        "other_mother_collaterals": other_mother_collateral_data,
+        "ex_spouses": ex_spouse_data,
+        "child_ex_spouses": child_ex_spouse_data,
+        "other_fathers": other_father_data,
+        "other_mothers": other_mother_data,
     }
 
 def step_application_form(request):
@@ -3717,23 +3875,28 @@ def step_application_form(request):
     Returns:
         _type_: _description_
     """
+    
+    function_name = get_current_function_name()
+    redirect_to = "toukiApp:step_four"
+    this_html = "toukiApp/step_application_form.html"
+    tab_title = "登記申請書"
+    
     try:
-        function_name = get_current_function_name()
-        redirect_to = "toukiApp:step_four"
-        this_html = "toukiApp/step_application_form.html"
-        tab_title = "登記申請書"
         
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
 
+        # 全申請データを取得する
         data = get_data_for_application_form(decedent, True)
 
-        #まとまった不動産別に申請データを作成する
+        # まとまった不動産別に申請データを作成する
         application_data = get_application_form_data(data, decedent)
         
         context = {
             "title" : tab_title,
+            "user_email": user.email,
+            "company_data": CompanyData,
             "application_data": application_data,
             "decedent_name": decedent.name,
         }
@@ -3866,6 +4029,7 @@ def assign_price_and_property(form, properties, sites, acquirers):
         if p["property_type"] == "Land" and actual_price <= tax_free_limit:
             tax_free_land_numbers.append(p["number"])
             property_form["is_tax_free"] = "true"
+            form["properties"].append(property_form)
             continue
         
         #区分建物のとき、敷地権の評価額も算出する
@@ -3976,7 +4140,7 @@ def fraction_to_fullwidth_fraction(frac):
         return "所有権"
     numerator = unicodedata.normalize('NFKC', str(frac.numerator))
     denominator = unicodedata.normalize('NFKC', str(frac.denominator))
-    return f"{mojimoji.han_to_zen(numerator)}分の{mojimoji.han_to_zen(denominator)}"
+    return f"{mojimoji.han_to_zen(denominator)}分の{mojimoji.han_to_zen(numerator)}"
 
 def get_property_form():
     """登記申請書の不動産の表示のデータ形式
@@ -4028,7 +4192,7 @@ def fullwidth_fraction_to_fraction(s):
     s_half_width = unicodedata.normalize('NFKC', s)
     
     # 「分の」で分割して分子と分母を取得
-    numerator, denominator = s_half_width.split('分の')
+    denominator, numerator = s_half_width.split('分の')
     
     # 分子と分母を整数に変換
     numerator = int(numerator)
@@ -4051,7 +4215,7 @@ def fullwidth_num_and_comma_to_int(s):
     # コンマを削除
     no_commas = half_width.replace(',', '')
     # 整数に変換
-    return int(no_commas)    
+    return int(no_commas)
 
 def assign_agent_data(form, application):
     """代理人情報を登録する
@@ -4160,22 +4324,28 @@ def step_POA(request):
     Returns:
         _type_: _description_
     """
+    
+    function_name = get_current_function_name()
+    this_html = "toukiApp/step_POA.html"
+    redirect_to = "toukiApp:step_four"
+    tab_title = "委任状"
+    
     try:
-        function_name = get_current_function_name()
-        this_html = "toukiApp/step_POA.html"
-        redirect_to = "toukiApp:step_four"
-        tab_title = "委任状"
         
         response, user, decedent = check_user_and_decedent(request)
         if response:
             return response
 
+        # 登記申請書データを取得する
         data = get_data_for_application_form(decedent, True)
 
-        #まとまった不動産別に委任状データを作成する
+        # まとまった不動産別に委任状データを作成する
         POA_data = get_POA_data(data, decedent)
+        
         context = {
             "title" : tab_title,
+            "user_email": user.email,
+            "company_data": CompanyData,
             "POA_data": POA_data,
             "decedent_name": decedent.name,
         }
@@ -4199,25 +4369,42 @@ def get_POA_data(data, decedent):
     Returns:
         _type_: _description_
     """
-    formatted_data = []
-    cause = get_wareki(decedent, False)
-    for properties, acquirers, applications, sites in data:
-        form = get_application_form()
-        application = applications[0]
-        #登記の目的
-        form["purpose_of_registration"] = get_purpose_of_registration(properties, decedent.name)
-        #登記の原因
-        form["cause"] = cause
-        #相続人
-        form["acquirers"] = get_acquirers_info(form["purpose_of_registration"], acquirers, applications)
-        #代理人情報
-        assign_agent_data(form, application)
-        #不動産情報
-        assign_properties_info(form, properties, sites, acquirers)
-        if form["agent"]["name"] != "":
-            formatted_data.append(form)
+    
+    function_name = get_current_function_name()
+    
+    try:
+        
+        formatted_data = []
+        cause = get_wareki(decedent, False)
+        
+        for properties, acquirers, applications, sites in data:
             
-    return formatted_data    
+            form = get_application_form()
+            application = applications[0]
+            
+            #登記の目的
+            form["purpose_of_registration"] = get_purpose_of_registration(properties, decedent.name)
+            
+            #登記の原因
+            form["cause"] = cause
+            
+            #相続人
+            form["acquirers"] = get_acquirers_info(form["purpose_of_registration"], acquirers, applications)
+            
+            #代理人情報
+            assign_agent_data(form, application)
+            
+            #不動産情報
+            assign_properties_info(form, properties, sites, acquirers)
+            
+            if form["agent"]["name"] != "":
+                formatted_data.append(form)
+                
+        return formatted_data    
+    
+    except Exception as e:
+        basic_log(function_name, e, None, "委任状データの取得に失敗しました")
+        raise e
 
 def finalize_for_POA(form):
     """取得者が１人かつ申請人の要素を申請データから削除する"""
@@ -4316,7 +4503,7 @@ def step_five(request):
             
         context = {
             "title" : title,
-            "user" : user,
+            "user_email" : user.email,
             "decedent": decedent,
             "progress": progress,
             "minors": minors,

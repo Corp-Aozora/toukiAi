@@ -1,20 +1,34 @@
 {% extends "toukiApp/base.html" %}
+
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
+
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_division_agreement.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
+
 {% block header %}
 {% endblock %}
+
 {% load custom_filters %}
+
 {% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
 <div class="d-flex container-xxl">
     <fieldset class="container">
         <div class="top">
-            <p class="fw-bold text-center">
+            <h5 class="text-center">
                 こちらのページをA4の縦方向でご印刷ください。
+            </h5>
+            <p class="fw-bold text-center mt-3">
+                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせをお願いします。
                 <br>
-                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせからお知らせお願いします。
+                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=遺産分割協議証明書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A遺産分割協議証明書のPDFを送ってください。">
+                    {{ company_data.MAIL_ADDRESS }}
+                </a>
             </p>
             <div class="mt-4 d-flex justify-content-center">
                 <div class="d-inline-block border rounded-3 p-3">
@@ -49,7 +63,7 @@
             <div class="modal fade" id="seal" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
+                        <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
                             <h1 class="modal-title fs-5">契印のしかた</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -60,20 +74,19 @@
                 </div>
             </div>
         </div>
+        <hr>
         <div class="d-flex justify-content-center mt-5">
             <div id="print_page">
-                <div class="mt-5">
-                    <h5 class="text-center">
-                        遺産分割協議証明書
-                    </h5>
-                </div>
+                <h5 class="text-center">
+                    遺産分割協議証明書
+                </h5>
                 <div class="decedent_info">
                     <div>
                         <div>
                             被相続人
                         </div>
                         <div>
-                            {{decedent_info.name}}
+                            {{ decedent_info.name }}
                         </div>
                     </div>
                     <div>
@@ -81,7 +94,7 @@
                             生年月日
                         </div>
                         <div>
-                            {{decedent_info.birth_date}}
+                            {{ decedent_info.birth_date|to_full_width }}
                         </div>
                     </div>
                     <div>
@@ -89,7 +102,7 @@
                             死亡年月日
                         </div>
                         <div>
-                            {{decedent_info.death_date}}
+                            {{ decedent_info.death_date|to_full_width }}
                         </div>
                     </div>
                     <div>
@@ -97,7 +110,7 @@
                             死亡時の本籍
                         </div>
                         <div>
-                            {{decedent_info.permanent_address}}
+                            {{ decedent_info.permanent_address }}
                         </div>
                     </div>
                     <div>
@@ -105,7 +118,7 @@
                             死亡時の住所
                         </div>
                         <div>
-                            {{decedent_info.address}}
+                            {{ decedent_info.address|linebreaks }}
                         </div>
                     </div>
                 </div>
@@ -113,45 +126,48 @@
                     上記被相続人が死亡したことにより開始した相続について、共同相続人全員は、下記の通り遺産を分割することに合意した。
                 </div>
                 <div class="text-center mt-3">
-                    <span>
-                        記
-                    </span>
+                    記
                 </div>
                 {% if normal_division_properties %}
                     {% for d in normal_division_properties %}
                         <div class="content mt-3">
-                            <p>
-                                <span class="border-bottom border-secondary">
-                                    下記不動産は、
-                                    {% for acquirer in d.1 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    取得する。
-                                </span>
+                            <p class="text-indent">
+                                下記不動産は、
+                                {% for acquirer in d.1 %}
+                                    {% if forloop.last %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {% if percentage == "１分の１" %}
+                                                {{ name }}が
+                                            {% else %}
+                                                {{ name }}が{{ percentage }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {{ name }}が{{ percentage }}、
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                取得する。
                             </p>
                             <div class="property">
                                 {% for property in d.0 %}
                                     <div>
                                         <div>
-                                            {{ property.address }}
                                             {% if property|classname == "Land" %}
-                                                {{ property.land_number }}の土地
+                                                {{ property.address }}{{ property.land_number }}の土地
                                             {% elif property|classname == "House" %}
-                                                {{ property.house_number }}の建物
+                                                {{ property.address }}
+                                                <br>
+                                                <span class="text-indent">
+                                                    家屋番号{{ property.house_number }}の建物
+                                                </span>
                                             {% elif property|classname == "Bldg" %}
-                                                {{ property.bldg_number }}の区分建物
+                                                {{ property.address }}
+                                                <br>
+                                                <span class="text-indent">
+                                                    家屋番号{{ property.bldg_number }}の区分建物
+                                                </span>
                                             {% endif %}
                                         </div>
                                         {% if property.purparty != "１分の１" %}
@@ -247,13 +263,20 @@
                                 {% for property in d.0 %}
                                     <div>
                                         <div>
-                                            {{ property.address }}
                                             {% if property|classname == "Land" %}
-                                                {{ property.land_number }}の土地
+                                                {{ property.address }}{{ property.land_number }}の土地
                                             {% elif property|classname == "House" %}
-                                                {{ property.house_number }}の建物
+                                                {{ property.address }}
+                                                <br>
+                                                <span class="text-indent">
+                                                    家屋番号{{ property.house_number }}の建物
+                                                </span>
                                             {% elif property|classname == "Bldg" %}
-                                                {{ property.bldg_number }}の区分建物
+                                                {{ property.address }}
+                                                <br>
+                                                <span class="text-indent">
+                                                    家屋番号{{ property.bldg_number }}の区分建物
+                                                </span>
                                             {% endif %}
                                         </div>
                                         {% if property.purparty != "１分の１" %}
@@ -351,4 +374,5 @@
 {% block js %}
     {% load static %}
     <script type="module" src="{% static 'toukiApp/step_division_agreement.js' %}"></script>
+    <script type="module" src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

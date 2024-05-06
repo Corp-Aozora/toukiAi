@@ -581,8 +581,24 @@ def error_403(request, exception):
     """カスタム403エラーページ"""
     function_name = get_current_function_name()
     
+    basic_log(function_name, None, request.user, f"request.path={request.path}\nexception={str(exception)}")
     
-    basic_log(function_name, None, request.user, str(exception))
+    context = {
+        "company_data": CompanyData,
+        "reason": str(exception),
+    }
     
-    context = {"company_data": CompanyData}
+    return render(request, "403.html", context, status=403)
+
+def csrf_failure(request, reason=""):
+    """CSRF専用の403エラーページ"""
+    function_name = get_current_function_name()
+    
+    basic_log(function_name, None, request.user, f"request.path={request.path}\nexception={str(reason)}")
+
+    context = {
+        "company_data": CompanyData,
+        "reason": str(reason),
+    }
+
     return render(request, "403.html", context, status=403)

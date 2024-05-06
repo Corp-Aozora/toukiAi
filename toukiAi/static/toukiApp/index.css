@@ -147,11 +147,6 @@
     }
 }
 
-/* 料金表 */
-#decedentCertificationListModal li:not(:first-child){
-    margin-top: 1rem!important;
-}
-
 /* 他社比較 */
 #compare li{
     display: flex!important;

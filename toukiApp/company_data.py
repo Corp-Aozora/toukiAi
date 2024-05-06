@@ -29,7 +29,7 @@ class CompanyData:
     START_TIME = "お支払いを確認後直ちに"
     ABOUT_CANCEL = "サービス提供後システム対応外であることが判明した場合のみ可"
     BANK_NAME = "GMOあおぞらネット銀行"
-    BANK_BRANCH_NAME = "法人第二営業部(102)"
+    BANK_BRANCH_NAME = "法人第二営業部"
     BANK_ACCOUNT_TYPE = "普通"
     BANK_ACCOUNT_NUMBER = "１８２２５２２"
     BANK_ACCOUNT_NAME = "カ）アオゾラ"
@@ -41,17 +41,17 @@ class Service:
     CAMPAIGN_BASIC_PRICE_STR = "３９，０００円"
     CAMPAIGN_BASIC_PRICE_INT = 39000
     
-    OPTION1_NAME = "戸籍謄本の取得代行"
-    OPTION1_PRICE_STR = "２７，５００円"
-    OPTION1_PRICE_INT = 27500
-    CAMPAIGN_OPTION1_PRICE_STR = "２５，０００円"
-    CAMPAIGN_OPTION1_PRICE_INT = 25000
+    OPTION1_NAME = "書類取得代行"
+    OPTION1_PRICE_STR = "３５，０００円"
+    OPTION1_PRICE_INT = 35000
+    CAMPAIGN_OPTION1_PRICE_STR = "３０，０００円"
+    CAMPAIGN_OPTION1_PRICE_INT = 30000
     
     OPTION2_NAME = "弊社提携の司法書士に依頼"
-    OPTION2_PRICE_STR = "９９，０００円"
-    OPTION2_PRICE_INT = 99000
-    CAMPAIGN_OPTION2_PRICE_STR = "８９，０００円"
-    CAMPAIGN_OPTION2_PRICE_INT = 89000
+    OPTION2_PRICE_STR = "１０９，０００円"
+    OPTION2_PRICE_INT = 109000
+    CAMPAIGN_OPTION2_PRICE_STR = "９９，０００円"
+    CAMPAIGN_OPTION2_PRICE_INT = 99000
     
     OPTIONS = [
         {"name" : OPTION1_NAME, "price" : OPTION1_PRICE_STR},

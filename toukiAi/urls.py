@@ -20,7 +20,6 @@ urlpatterns = [
     path("", RedirectView.as_view(url="/toukiApp/")),
     path('account/', include('accounts.urls')),
     path("account/", include("allauth.urls")),
-    path('403/', accounts_view.error_403, name="error_403")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
@@ -29,3 +28,6 @@ if settings.DEBUG:
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+
+# カスタム403エラービューを設定
+handler403 = accounts_view.error_403

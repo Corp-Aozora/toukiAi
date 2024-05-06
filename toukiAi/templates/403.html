@@ -39,10 +39,13 @@
                 ・不正なデータが送信された
             </li>
             <li>
-                ・ユーザーにアクセスが許可されていないURLを入力した
+                ・アクセスが許可されていないURLを入力した
             </li>
         </ul>
     {% endif %}
+    <p class="text-center">
+        問題が発生した場合は、{{ company_data.MAIL_ADDRESS }}までご連絡をお願いします。
+    </p>
     <p class="mt-5 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover text-center">
         <a href="{% url 'toukiApp:index' %}">
             トップページに戻る

@@ -4562,7 +4562,6 @@ def step_six(request):
             "user_email" : user.email,
             "decedent": decedent,
             "progress": progress,
-            "top_page": CompanyData.URL,
             "sections" : Sections.SECTIONS[Sections.STEP6],
             "service_content" : Sections.SERVICE_CONTENT,
         }

@@ -417,13 +417,6 @@ def is_oldpassword(request):
     }
     return JsonResponse(data)
 
-#不正な投稿があったとき
-def csrf_failure(request, reason=""):
-
-    # 何かしらの処理
-
-    return HttpResponseForbidden('<h1>403 アクセスが制限されています。</h1>', content_type='text/html')
-
 @ratelimit(key='ip', rate='5/h', block=True)
 def resend_confirmation(request):
     """メールアドレス認証リンクの再発行"""
@@ -584,6 +577,12 @@ def confirm_email(request, token):
             login_url_name
         )    
 
-#403が発生したとき
-def error_403(request):
-    return render(request, "403.html", status=403)
+def error_403(request, exception):
+    """カスタム403エラーページ"""
+    function_name = get_current_function_name()
+    
+    
+    basic_log(function_name, None, request.user, str(exception))
+    
+    context = {"company_data": CompanyData}
+    return render(request, "403.html", context, status=403)

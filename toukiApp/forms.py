@@ -146,8 +146,6 @@ class Labels:
     # ステップ１
     YEAR = "年"
     MONTH = "月"
-    PREFECTURE = "都道府県"
-    CITY = "市区町村"
     
     CHILD_COUNT = "何人ですか？（亡くなった子や養子を含む）"
     COLLATERAL_COUNT = "何人ですか？（亡くなった方を含む）"
@@ -169,10 +167,6 @@ class Labels:
     step_one_decedent_labels = {
         "death_year": YEAR,
         "death_month": MONTH,
-        "prefecture": PREFECTURE,
-        "city": CITY,
-        "domicile_prefecture": PREFECTURE,
-        "domicile_city": CITY,
     }
     @staticmethod
     def get_step_one_relations_labels(is_descendant_or_collateral):
@@ -199,11 +193,7 @@ class WidgetGroup:
     """カスタム使用するヴィジェット群"""
     @staticmethod
     def step_one(model_name):
-        if model_name == "Decedent":
-            return {
-                "city": forms.Select(),
-                "domicile_city": forms.Select(),        
-            }
+
         if model_name == "DescendantCommon":
             return {
                 "is_exist": forms.RadioSelect(choices=[("true", "はい"), ("false", "いいえ")]),
@@ -292,9 +282,6 @@ def set_step_one_decedent_form(form):
                 field.widget.attrs.update(WidgetAttributes.name)
             else:
                 field.widget.attrs.update(WidgetAttributes.select)
-                
-                if name in ["city", "domicile_city"]:
-                    field.widget.attrs['disabled'] = 'true'    
 
 def set_step_one_relations_form(form, is_descendant_or_collateral):
     """関係者のフォームの属性を設定する"""

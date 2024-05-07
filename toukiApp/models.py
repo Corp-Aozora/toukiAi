@@ -166,10 +166,6 @@ class Decedent(CommonModel):
         "name", 
         "death_year", 
         "death_month", 
-        "prefecture", 
-        "city", 
-        "domicile_prefecture", 
-        "domicile_city"
     ]
     
     step_three_fields =[

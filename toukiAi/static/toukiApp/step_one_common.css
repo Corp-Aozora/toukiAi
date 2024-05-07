@@ -1,0 +1,61 @@
+form fieldset:first-of-type label{
+    width: 90px!important;
+}
+
+form fieldset:first-of-type > div{
+    width: 335px!important;
+}
+
+.single-word-label{
+    width: 90px;
+    display: block!important;
+    font-weight: 700!important;
+}
+
+.rbEmPosition{
+    top: -93px;
+    left: 30px;
+}
+
+::placeholder{
+    text-align: center;
+}
+
+section.container{
+    width: 500px;
+}
+
+section.card{
+    width: 400px!important;
+    height: 500px!important;
+    position: sticky!important;
+    /* top: var(--top)!important; */
+    top: calc(50% - 250px);
+}
+
+section.card .card-body{
+    overflow-y: auto;
+}
+
+section.card li{
+    padding-left: 0.75rem!important;
+    border-left: 0.125rem solid transparent;
+}
+
+.active{
+    border-left-color: var(--bs-primary)!important;
+}
+
+.active button{
+    color: var(--bs-primary)!important;
+    font-weight: bold;
+}
+
+.Q span, .Q .form-control{
+    border-radius: initial;
+}
+
+.Q:last-child .form-control{
+    border-bottom-right-radius: var(--bs-border-radius)!important;
+    border-bottom-left-radius: var(--bs-border-radius)!important;
+}

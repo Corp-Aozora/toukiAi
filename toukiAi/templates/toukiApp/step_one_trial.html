@@ -2,6 +2,7 @@
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_one_common.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/step_one_trial.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
@@ -142,43 +143,6 @@
                             {% if field.name == "death_month" %}
                                 </div>
                             {% endif %}
-                        {% elif field.name == "prefecture" or field.name == "domicile_prefecture" %}
-                            <div class="mt-4">
-                                <span class="form-label fs-5">
-                                    死亡時に
-                                    <span class="fw-bold">
-                                        {% if field.name == "prefecture" %}
-                                            住民票
-                                        {% else %}
-                                            本籍
-                                        {% endif %}
-                                    </span>
-                                    があった市区町村
-                                </span>
-                                <div class="form-text no-wrap">
-                                    ※名称の変更があった場合、現在の市区町村名を選択してください
-                                </div>
-                                <div class="input-group mt-2 Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text label">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field }}
-                                    <span class="errorMessage emPosition" style="display: none;">
-                                    </span>
-                                </div>
-                        {% elif field.name == "city" or field.name == "domicile_city" %}
-                                <div class="input-group position-relative Q">
-                                    <label for="{{field.auto_id}}" class="input-group-text label">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field }}
-                                    <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                        市区町村データの取得に失敗しました。<br>
-                                        ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
-                                        恐れ入りますが、弊社までお問い合わせをお願いします。
-                                    </span>
-                                </div>
-                            </div>
                         {% else %}
                             {{ field }}
                         {% endif %}
@@ -1366,6 +1330,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+    <script src="{% static 'toukiApp/step_one_common.js' %}"></script>
     <script src="{% static 'toukiApp/step_one_trial.js' %}"></script>
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>

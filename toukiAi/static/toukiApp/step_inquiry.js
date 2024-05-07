@@ -3,38 +3,45 @@
 class InquiryForm{
     constructor(){
         this.form = document.getElementsByTagName("form")[0];
-        this.inputs = form.querySelectorAll("select, textarea");
+        this.inputs = this.form.querySelectorAll("select, textarea");
+        this.showModalBtn = document.getElementById("showModalBtn");
         this.submitBtn = document.getElementById("submitBtn");
+
         for(let i = 0, len = this.inputs.length; i < len; i++){
 
             const input = this.inputs[i];
+
+            // changeイベント設定
             input.addEventListener("change", (e)=>{
 
                 const val = e.target.value;
                 const nextEl = this.inputs[i + 1];
 
                 if(i === 0)
-                    InquiryForm.categoryChangeEvent(val, nextEl);
+                    InquiryForm.handleCategoryChangeEvent(val, nextEl);
                 else if(i === 1)
-                    InquiryForm.subjectChangeEvent(val, nextEl);
+                    InquiryForm.handleSubjectChangeEvent(val, nextEl);
             })
 
+            // inputイベント設定
             if(i === 2){
                 input.addEventListener("input", (e)=>{
                     showModalBtn.disabled = e.target.value.length > 0? false: true;
                 })
             }
         }
-
         
+        this.showModalBtn.addEventListener("click", this.handleShowModalBtnClickEvent.bind(this));
     }
 
+    // 入力欄のインデックス
     static inputIdxs = {
         "category": 0,
         "subject": 1,
         "content": 2,
     }
 
+    // 進捗がkey、各進捗に対する項目の数がvalue
     static subjectIdxs = {
         0: 14,
         1: 8,
@@ -50,7 +57,15 @@ class InquiryForm{
         return lastKey;
     }
 
-    static categoryChangeEvent(val, nextEl){
+    /**
+     * 進捗状況のchangeイベント
+     * @param {string} val 
+     * @param {HTMLElement} nextEl 
+     * @returns 
+     */
+    static handleCategoryChangeEvent(val, nextEl){
+        
+        // 進捗が変わったとき、項目の選択肢を変更する
         if(!val || parseInt(this.getLastKey(this.subjectIdxs)) < parseInt(val)){
             iniAndDispatchChangeEvent(nextEl);
             return;
@@ -68,13 +83,30 @@ class InquiryForm{
         nextEl.disabled = false;
     }
 
-    static subjectChangeEvent(val, nextEl){
+    /**
+     * 項目のchangeイベント
+     * @param {string} val 
+     * @param {HTMLElement} nextEl 
+     * @returns 
+     */
+    static handleSubjectChangeEvent(val, nextEl){
+
+        // 初期値（----）が選択されたとき、次の要素を初期化してchangeイベントを発生させる
         if(!val){
             iniAndDispatchChangeEvent(nextEl);
             return;
         }
 
         nextEl.disabled = false;
+    }
+
+    
+
+    // （送信前の）送信ボタンのクリックイベント
+    handleShowModalBtnClickEvent(){
+        const modal = document.getElementById("confirmModal");
+        const modalBody = modal.querySelector(".modal-body");
+        modalBody.innerHTML = this.inputs[InquiryForm.inputIdxs.content].value.replace(/\n/g, '<br>');
     }
 }
 
@@ -122,7 +154,6 @@ function setSubmitEvent(instance){
 window.addEventListener("load", ()=>{
     initialize();
 
-    const showModalBtn = document.getElementById("showModalBtn");
     const formInstance = new InquiryForm();
 
     // 進捗状況に応じて選択肢を変更する
@@ -140,12 +171,6 @@ window.addEventListener("load", ()=>{
             break; // ループを抜ける
         }
     }
-
-    showModalBtn.addEventListener("click", ()=>{
-        const modal = document.getElementById("confirmModal");
-        const modalBody = modal.querySelector(".modal-body");
-        modalBody.innerHTML = formInstance.inputs[InquiryForm.inputIdxs.content].value.replace(/\n/g, '<br>');
-    })
 
     setSubmitEvent(formInstance);
 })

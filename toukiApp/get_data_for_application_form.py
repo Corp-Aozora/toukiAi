@@ -202,30 +202,33 @@ def sort_by_acquirers(data):
     
     return formatted_data
 
-# def
-
 def add_applicant_data(data, decedent):
     """申請人情報を追加する
 
-    pattern 0:データをそのまま反映する
-        代理人を使用するとき
-        代理人を使用しない、かつ取得者が１人のとき
-    pattern 1:申請人兼代理人扱い
-        申請人、かつ取得者が２人以上のとき
-    pattern 2:申請人を代理人扱い
-        申請人、かつ取得者ではないとき
+    pattern 0:代理人
+    pattern 1:申請人
+    pattern 2:申請人兼代理人
+    pattern 3:相続人を代理人扱い
     
     Args:
-        data (_type_): _description_
-        decedent (_type_): _description_
+        data (_type_): 申請人情報がない申請データ
+        decedent (_type_): 被相続人情報
 
     Returns:
         (不動産データ, 不動産取得者データ, 申請人データ, 敷地権データ)
     """
     
+    def is_applicant(acquirers, content_type, object_id):
+        """取得者の中に申請人がいるか判定"""
+        return  any(acquirer["acquirer_type"] == content_type and
+                acquirer["acquirer_id"] == object_id
+                for acquirer in acquirers)
+    
+    function_name = get_current_function_name()
+    
     application = Application.objects.filter(decedent=decedent).first()
     if not application:
-        raise ValueError("申請情報データがありません")
+        raise ValueError(f"{function_name}でエラー\napplicationがNoneです")
     
     applicant_content_type = type(application.content_object).__name__
     applicant_object_id = application.object_id
@@ -235,15 +238,18 @@ def add_applicant_data(data, decedent):
         properties, acquirers = d[:2]
         sites_list = d[2] if len(d) > 2 else []
 
-        pattern = 2
+        pattern = None
+        # 申請人が代理人
         if application.is_agent:
             pattern = 0
-        elif any(
-                acquirer["acquirer_type"] == applicant_content_type and
-                acquirer["acquirer_id"] == applicant_object_id
-                for acquirer in acquirers
-            ):
-            pattern = 0 if len(acquirers) == 1 else 1
+        elif is_applicant(acquirers, applicant_content_type, applicant_object_id):
+            # 申請人が申請人兼代理人または１人が取得する相続人
+            # 取得者の重複をなくす
+            unique_acquirers = list({(x["acquirer_type"], x["acquirer_id"]) for x in acquirers})
+            pattern = 1 if len(unique_acquirers) == 1 else 2
+        else:
+            # 相続人を代理人扱い（この申請では取得者ではないとき）
+            pattern = 3
             
         #取得者になっていないとき代理人に変更する
         applicant_form = assign_applicant_data(pattern, application)
@@ -301,9 +307,10 @@ def is_all_site_related(data, sites):
 def assign_applicant_data(pattern, data):
     """申請人データを登録する
     
-    pattern 0:データをそのまま反映する
-    pattern 1:申請人兼代理人扱い
-    pattern 2:申請人を代理人扱い
+    pattern 0:代理人
+    pattern 1:申請人
+    pattern 2:申請人兼代理人
+    pattern 3:代理人扱い
 
     Args:
         pattern (num): 上記patternのとおり
@@ -319,12 +326,21 @@ def assign_applicant_data(pattern, data):
     
     if pattern == 0:
         form.update({
-            "position": "代理人" if data.is_agent else "",
-            "phone_number": data.phone_number,
+            "position": "代理人",
+            "phone_number": "",
             "is_agent": data.is_agent,
             "agent_name": data.agent_name,
             "agent_address": format_address(data.agent_address),
             "agent_phone_number": data.agent_phone_number,
+        })
+    elif pattern == 1:
+        form.update({
+            "position": "",
+            "phone_number": data.phone_number,
+            "is_agent": data.is_agent,
+            "agent_name": "",
+            "agent_address": "",
+            "agent_phone_number": "",
         })
     else:
         address = "".join([

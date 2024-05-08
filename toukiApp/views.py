@@ -1604,28 +1604,22 @@ def get_update_fields_for_form_set(data):
     """フォームセットの更新処理をする際の更新対象のフィールドを取得する
     
     モデルのクラス名に応じて更新から除外するフィールドを判別して更新対象のフィールドを確定する
-
-    Args:
-        data (_type_): _description_
-
-    Raises:
-        ValidationError: _description_
-
-    Returns:
-        _type_: _description_
     """
+    
+    function_name = get_current_function_name()
+    
     d = data[0]
     model_name = d._meta.model_name
     model_fields = model_to_dict(d).keys()
     exclude_fields = []
     
-    if model_name in "descendant" or "collateral":
+    if model_name in ["descendant", "collateral"]:
         exclude_fields = ['is_heir', "is_exist", "is_live", 'created_at', 'created_by']
-    elif model_name in "spouse" or "ascendant":
+    elif model_name in ["spouse", "ascendant"]:
         exclude_fields = ['is_heir', "is_exist", "is_live", 'created_at', 'created_by']
     else:
-        basic_log(get_current_function_name(), None, None, "想定しないデータが渡されました")
-        raise ValidationError("想定しない形式のデータが参照されました")
+        basic_log(function_name, None, None, f"想定しないmodel_nameです\nmodel_name={model_name}", None)
+        raise ValidationError(f"{function_name}でエラー\n想定しないmodel_nameです\nmodel_name={model_name}")
     
     return [field for field in model_fields if field not in exclude_fields]
 
@@ -1643,39 +1637,45 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
     Raises:
         ValueError: _description_
     """
+    
+    def assign_relation(data_dict, relation_number, val1, val2):
+        """関係者を代入する"""
+        if relation_number not in (1, 2):
+            raise ValueError(f"{get_current_function_name()}でエラー。\nrelation_numberには 1 または 2 を渡してください。\nrelation_number={relation_number}")
+        
+        data_dict[f"content_type{relation_number}"] = val1
+        data_dict[f"object_id{relation_number}"] = val2
+        
     function_name = get_current_function_name()
     
-    try:
-        form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
-        data_dict = {d.id: d for d in data}
-        related_indivisual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
-        Ascendant_content_type = ContentType.objects.get_for_model(Ascendant)
-        update_fields = get_update_fields_for_form_set(data)
-        
-        for form in form_set:
+    form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
+    related_indivisual_content_type, Ascendant_content_type = get_content_types_for_models(RelatedIndividual, Ascendant)
+    
+    data_dict = {d.id: d for d in data}
+    update_fields = get_update_fields_for_form_set(data)
+    
+    for form in form_set:
+        try:
             form_data = form.cleaned_data
             
             other_parent_name = form_data.get("other_parent_name")
             #関係者の登録（関係者は削除と新規のため、子のcontent_type2object_id2は常に更新する必要あり）
             if other_parent_name != "":
-                related_indivisual = RelatedIndividual.objects.create(
-                    decedent=decedent,
-                    name=other_parent_name,
-                    content_type=content_type,  # ContentTypeインスタンスを事前に設定する必要がある
-                    object_id=form_data.get("id"),  # 適切なIDをフォームデータから取得する
-                    relationship=relationship,
-                    created_by=user,
-                    updated_by=user
+                related_indivisual = create_related_indivisual(
+                    decedent, 
+                    other_parent_name, 
+                    content_type,
+                    form_data.get("id"),
+                    relationship, 
+                    user
                 )
                 
-                # 父母の設定がない方に異父母の設定をする
-                if form_data["content_type1"] == Ascendant_content_type:
-                    form_data["content_type2"] = related_indivisual_content_type
-                    form_data["object_id2"] = related_indivisual.id
-                elif form_data["content_type2"] == Ascendant_content_type:
-                    form_data["content_type1"] = related_indivisual_content_type
-                    form_data["object_id1"] = related_indivisual.id
-                
+                relation_number = 1 # 異父のとき、content_type1とobject_id1に関係者を代入する
+                # 卑属または異母の兄弟姉妹のとき、content_type2とobject_id2に関係者を代入する
+                if content_type.model == "descendant" or form_data["content_type1"] == Ascendant_content_type:
+                    relation_number = 2
+                assign_relation(form_data, relation_number, related_indivisual_content_type, related_indivisual.id)
+
             update_target_data = data_dict.get(int(form_data.get("id")))
             form_data['updated_by'] = user
             
@@ -1684,10 +1684,16 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
                     setattr(update_target_data, key, value)
                 update_target_data.save()
                 
-    except Exception as e:
-        basic_log(function_name, e, user, form_class_name)
-        raise e
-
+        except Exception as e:
+            basic_log(
+                function_name, 
+                e, 
+                user, 
+                f"decedent={decedent}\nuser={user}\ndata={data}\form_class_name={form_class_name}\ncontent_type={content_type}\nrelationship={relation_ship}", 
+                None
+            )
+            raise e
+                
 def save_step_three_step_property(decedent, user, form_set):
     """土地、建物、区分建物のデータ新規登録処理
 
@@ -1815,7 +1821,7 @@ def get_form_set_class_name(form_set):
     if (len(form_set.forms) > 0):
         return form_set.forms[0].__class__.__name__
     else:
-        raise ValidationError("フォームセットにフォームがありません")
+        raise ValidationError(f"{get_form_set_class_name}でエラー\nform_set={form_set}")
 
 def is_form_set(form_set):
     return form_set.management_form.cleaned_data["TOTAL_FORMS"] > 0
@@ -2767,7 +2773,7 @@ def check_user_and_decedent(request):
 def step_four(request):
     """ステップ４のメイン処理
 
-        遺産分割協議証明書、相続関係説明図、登記申請書、委任状の生成する
+        遺産分割協議証明書、相続関係説明図、登記申請書、委任状へのリンクを表示する
     """
     function_name = get_current_function_name()
     this_html = "toukiApp/step_four.html"
@@ -3576,10 +3582,11 @@ def get_child_data_for_diagram(data, acquirers_list):
     child_data = []
     step_child_data = []
     
-    try:
-        for d in data:
-            form = get_diagram_person_form()
+    for d in data:
         
+        form = get_diagram_person_form()
+        
+        try:
             is_step_child = d.content_type2.model_class() == RelatedIndividual
             form.update({
                 "type": "step_child" if is_step_child else "child",
@@ -3611,10 +3618,13 @@ def get_child_data_for_diagram(data, acquirers_list):
             
             step_child_data.append(form) if is_step_child else child_data.append(form)
 
-        return [child_data, step_child_data]
-
-    except Exception as e:
-        raise Exception(f"{function_name}でエラー発生：{e}\ndata={data}\nacquirers_list={acquirers_list}")
+        except Exception as e:
+            raise Exception(f"{function_name}でエラー発生：{e}\ndata={data}\n\
+                len(data)={len(data)}\n\
+                acquirers_list={acquirers_list}\n\
+                len(acquirers_list)={len(acquirers_list)}")
+        
+    return [child_data, step_child_data]
 
 def get_collateral_data_for_diagram(data, acquirers_list, key):
     """相続関係図用の傍系データを取得します。"""
@@ -3692,9 +3702,9 @@ def get_diagram_data(app_data, persons_data):
     
     new_data_list = []
     
-    try:
         # 各申請データに対する処理
-        for app in app_data:
+    for app in app_data:
+        try:
             acquirers_list = app[1] #取得者の辞書リストデータ
             
             new_data = get_diagram_data_form()
@@ -3731,13 +3741,14 @@ def get_diagram_data(app_data, persons_data):
             #子の配偶者と子、孫のデータは順番を整理する
             new_data.update(get_rearranged_child_gen_data(childs, child_spouses))
 
-
             new_data_list.append(new_data)
             
-        return new_data_list
+        except Exception as e:
+            basic_log(function_name, e, None, f"app_data={app_data}\napp={app}\nnew_data_list={new_data_list}")
+            raise e
+        
+    return new_data_list
     
-    except Exception as e:
-        raise e
     
 def get_rearranged_child_gen_data(childs, child_spouses):
     """子の世代を並び替える
@@ -3886,10 +3897,10 @@ def step_application_form(request):
         if response:
             return response
 
-        # 全申請データを取得する
+        # 申請に必要なデータを取得する
         data = get_data_for_application_form(decedent, True)
 
-        # まとまった不動産別に申請データを作成する
+        # データを申請書の形式に修正する
         application_data = get_application_form_data(data, decedent)
         
         context = {
@@ -3960,7 +3971,7 @@ def get_application_form_data(data, decedent):
         #登記の原因
         application_form["cause"] = cause
         #相続人
-        application_form["acquirers"] = get_acquirers_info(application_form["purpose_of_registration"], acquirers, applications)
+        application_form["acquirers"] = get_acquirers_info(application_form["purpose_of_registration"], acquirers, application)
         #添付情報
         application_form["document"] += "代理権限証明情報" if application["is_agent"] else ""
         #法務局
@@ -4232,39 +4243,51 @@ def assign_agent_data(form, application):
     else:
         form["is_agent"] = "false"
 
-def get_acquirers_info(purpose_of_registration, acquirers, applications):
+def get_acquirers_info(purpose_of_registration, acquirers, application):
     """相続人欄の情報を取得する
 
     Args:
-        purpose_of_registration (_type_): _description_
-        acquirers (_type_): _description_
-        applications (_type_): _description_
+        purpose_of_registration (_type_): 登記の目的
+        acquirers (_type_): 取得者リスト（重複あり）
+        application (_type_): 申請人情報
 
     Returns:
-        _type_: _description_
+        _type_: 相続人欄の情報
     """
+    
+    def is_applicant(acquirer, content_type, object_type):
+        # 取得者が申請人か判定
+        return acquirer["acquirer_type"] == content_type and acquirer["acquirer_id"] == object_type
+    
+    function_name = get_current_function_name()
+    
     acquirer_infos = []
     
-    application = applications[0]
     applicant_content_type = type(application["content_object"]).__name__
     applicant_object_id = application["content_object"].pk
+    
     for acquirer in acquirers:
-        acquirer_info = get_acquirer_info_form()
-        
-        acquirer_info["address"] = format_address(acquirer["address"])
-        acquirer_info["name"] = acquirer["name"]
-        
-        if acquirer["acquirer_type"] == applicant_content_type and\
-            acquirer["acquirer_id"] == applicant_object_id:
+        try:
+            acquirer_info = get_acquirer_info_form()
             
-            if not application["is_agent"] and len(acquirers) == 1:
-                acquirer_info["phone_number"] = application["phone_number"]
-        
-        if len(acquirers) > 1 or purpose_of_registration != "所有権移転":
-            acquirer_info["is_share"] = "true"
-        
-        if acquirer_info not in acquirer_infos:
-            acquirer_infos.append(acquirer_info)
+            acquirer_info["address"] = format_address(acquirer["address"])
+            acquirer_info["name"] = acquirer["name"]
+            
+            unique_acquirers = list({(a["acquirer_type"], a["acquirer_id"]) for a in acquirers})
+            
+            if is_applicant(acquirer, applicant_content_type, applicant_object_id):
+                
+                if not application["is_agent"] and len(unique_acquirers) == 1:
+                    acquirer_info["phone_number"] = application["phone_number"]
+            
+            if len(unique_acquirers) > 1 or purpose_of_registration != "所有権移転":
+                acquirer_info["is_share"] = "true"
+            
+            if acquirer_info not in acquirer_infos:
+                acquirer_infos.append(acquirer_info)
+        except Exception as e:
+            basic_log(function_name, e, None, f"acquirer={acquirer}")
+            raise e
     
     return acquirer_infos
 

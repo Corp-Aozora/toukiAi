@@ -473,6 +473,75 @@ async function getCityData(val, el, instance){
 }
 
 /**
+ * ユーザーに紐づく被相続人の市区町村データを取得する
+ */
+async function getDecedentCityData(){
+    const url = 'get_decedent_city_data';
+    const inputs = decedents[0].inputs;
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => {
+        if (!response.ok) {
+            // HTTPエラーを投げ、それをcatchブロックで捕捉
+            throw new Error(`サーバーエラー: ${response.status}`);
+        }
+        return response.json();
+    }).then(response => {
+        if(response.city !== ""){
+            inputs[DCity].value = response.city;
+        }
+        if(response.domicileCity !== ""){
+            inputs[DDomicileCity].value = response.domicileCity;
+        }
+    }).catch(e => {
+        console.error(`getDecedentCityData：${e}`);
+    });
+}
+
+/**
+ * ユーザーに紐づく被相続人の市区町村データを取得する
+ * @returns 登記簿上の住所が格納された配列
+ */
+function getRegistryNameAndAddressCityData(){
+    const url = 'get_registry_name_and_address_city_data';
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        return response.citys;
+    }).catch(error => {
+        console.log(`getRegistryNameAndAddressCityData:エラーが発生\n${error}`);
+    });
+}
+
+/**
+ * 全相続人の住所データを取得する
+ * @returns 相続人の住所が格納された配列
+ */
+function getHeirsCityData(){
+    const url = 'get_heirs_city_data';
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        return response.datas;
+    }).catch(e => {
+        basicLog("getHeirsCityData", e);
+    });
+}
+
+/**
  * クローンした要素の属性を更新する
  * @param {HTMLElement} clone 複製した要素
  * @param {string} att セレクタ 例"[id],[name],[for]"

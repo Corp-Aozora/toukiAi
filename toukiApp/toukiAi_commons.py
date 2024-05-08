@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.mail import BadHeaderError, EmailMessage
 from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
 from django.db.models.query import QuerySet
@@ -16,8 +17,9 @@ import textwrap
 import traceback
 import logging
 
-from .prefectures_and_city import *
 from .company_data import *
+from .models import RelatedIndividual
+from .prefectures_and_city import *
 from .sections import *
 
 
@@ -32,7 +34,7 @@ def raise_exception(function_name, e, **kwargs):
     # 例外を発生させる
     raise Exception(message)
 
-def basic_log(function_name, e, user, message = None):
+def basic_log(function_name, e, user, message = None, is_traceback_info = True):
     """基本的なログ情報
 
     Args:
@@ -40,8 +42,9 @@ def basic_log(function_name, e, user, message = None):
         e (_type_): エラークラスから生成されたオブジェクト
         user (User): 対象のユーザー
         message (str, optional): 特記事項. Defaults to None.
+        is_traceback_info (bool, optional): トレースバックのログの要否
     """
-    traceback_info = traceback.format_exc()
+    traceback_info = traceback.format_exc() if is_traceback_info else None
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     user_id = user.id if user else ""
     logger.error(f"エラー発生箇所:{function_name}\n\
@@ -535,3 +538,26 @@ def send_email_to_inquiry(cleaned_data, is_to_user=True):
         bcc=bcc_list
     )
     message.send()
+
+def create_related_indivisual(decedent, name, content_type, id, relationship, user):
+    instance = RelatedIndividual.objects.create(
+        decedent=decedent,
+        name=name,
+        content_type=content_type,  # descendantまたはcollateralのcontent_type
+        object_id=id,  # 対象のdescendantまたはcollateralのid
+        relationship=relationship,
+        created_by=user,
+        updated_by=user
+    )
+    
+    return instance
+
+def get_content_types_for_models(*models):
+    """引数で指定された複数のモデルからContentTypeを取得する。"""
+    content_types = []
+    for model in models:
+        try:
+            content_types.append(ContentType.objects.get_for_model(model))
+        except ObjectDoesNotExist:
+            raise ObjectDoesNotExist(f"{get_current_function_name}でエラー\nmodelsの中にContentTypeを取得できない要素があります。\nmodel={model.__name__}")
+    return content_types

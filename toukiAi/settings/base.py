@@ -79,7 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.settings',
+                'toukiAi.context_processors.custom_settings_processor',
                 'toukiAi.context_processors.media',
             ],
         },

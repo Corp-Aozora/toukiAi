@@ -21,7 +21,7 @@ sitemaps = {
 }
  
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('saga2497admin/', admin.site.urls),
     path('toukiApp/', include('toukiApp.urls')),
     path("", RedirectView.as_view(url="/toukiApp/")),
     path('account/', include('accounts.urls')),

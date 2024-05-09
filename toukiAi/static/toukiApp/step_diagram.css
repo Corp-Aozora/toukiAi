@@ -11,16 +11,15 @@
     #print_page {
         position: absolute;
         left: 0;
-        top: 0;
+        top: 10mm;
     }
 
-    .print_per_section{
-        break-after: page;
+    .print_per_section {
+        page-break-after: always; /* `break-after: page` を `page-break-after` に変更 */
     }
 
     @page {
         size: A4 landscape;
-        margin-top: 20mm;
     }
 }
 
@@ -45,6 +44,7 @@ ul{
     margin-bottom:0!important;
     padding-left: 0.5rem!important;
     padding-right: 0.5rem!important;
+    max-width: 300px!important;
 }
 
 ul > li > span:first-child{

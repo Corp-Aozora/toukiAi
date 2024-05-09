@@ -12,9 +12,9 @@
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-4 container-xxl">
-        <h4>
+        <h1 class="fs-4">
             お客様情報
-        </h4>
+        </h1>
         <hr>
         <form action="{% url 'toukiApp:user'%}" method="post">
         {% csrf_token %}

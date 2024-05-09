@@ -5,6 +5,8 @@ from django.urls import reverse
 
 import os
 
+from toukiApp.toukiAi_commons import *
+
 class StaticViewSitemap(Sitemap):
 
     # URLごとの優先順位を定義
@@ -69,7 +71,10 @@ class StaticViewSitemap(Sitemap):
         return self.changefreqs.get(item, 'weekly')
     
     def lastmod(self, item):
+        
         path = self.templates.get(item)
         if path and os.path.exists(path):
             return datetime.fromtimestamp(os.path.getmtime(path))
-        return self.lastmods.get(item, None)
+        
+        basic_log(get_current_function_name, None, None, f"サイトマップにテンプレートが存在しないパスがあります\nitem={item}\npath={path}")    
+        raise Exception(f"テンプレートファイルが見つかりません: {path}")

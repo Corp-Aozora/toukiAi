@@ -27,4 +27,13 @@ urlpatterns = [
     path("password/reset/done/is_valid_email_pattern/", views.is_valid_email_pattern, name="is_valid_email_pattern"),
     path("is_new_email/", views.is_new_email, name="is_new_email"), # 汎用の重複メールアドレスチェック
     path('create_reciept_view/', CreateRecieptView.as_view(), name='create_reciept_view'),
+    
+    # 使用しないallauthのurlを404にする
+    path('email/', views.error_404, name='account_email'),
+    path('google/login/', views.error_404, name='google_login'),
+    path('line/login/', views.error_404, name='line_login'),
+    path('yahoo/login/', views.error_404, name='yahoo_login'),
+    path('social/connections/', views.error_404, name='social_connections'),
+    path('social/signup/', views.error_404, name='social_signup'),
+    path('password/set/', views.error_404, name='password_set'),
 ]

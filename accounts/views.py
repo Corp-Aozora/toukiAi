@@ -605,6 +605,31 @@ def error_403(request, exception):
     
     return render(request, "403.html", context, status=403)
 
+def error_404(request, exception=None):
+    """カスタム404エラーページ"""
+    function_name = get_current_function_name()
+    
+    basic_log(function_name, None, request.user, f"存在しないパスにアクセスがありました\nrequest.path={request.path}")
+    
+    context = {
+        "company_data": CompanyData
+    }
+    
+    return render(request, "404.html", context, status=404)
+
+def error_500(request):
+    """カスタム500エラーページ"""
+    function_name = get_current_function_name()
+    
+    basic_log(function_name, None, request.user, f"request.path={request.path}")
+    
+    context = {
+        "company_data": CompanyData,
+        "traceback": traceback.format_exc()
+    }
+    
+    return render(request, "500.html", context, status=500)
+
 def csrf_failure(request, reason=""):
     """CSRF専用の403エラーページ"""
     function_name = get_current_function_name()

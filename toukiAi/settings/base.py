@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.line',
     'allauth.socialaccount.providers.yahoo',
+    "django_extensions"
     # 'axes'
 ]
 
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'toukiAi.middleware.RateLimitMiddleware',
     'toukiAi.middleware.OneSessionPerUserMiddleware',
     'toukiAi.middleware.RemoveWWWRedirectMiddleware',
+    'toukiAi.middleware.RemoveSlashMiddleware',
     # 'axes.middleware.AxesMiddleware',
 ]
 

@@ -38,3 +38,5 @@ urlpatterns = [
 
 # カスタム403エラービューを設定
 handler403 = accounts_view.error_403
+handler404 = accounts_view.error_404
+handler500 = accounts_view.error_500

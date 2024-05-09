@@ -1,9 +1,9 @@
 from django.contrib.sessions.models import Session
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponsePermanentRedirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.timezone import now
-from django.http import HttpResponsePermanentRedirect
 
 from toukiApp.toukiAi_commons import *
 
@@ -70,3 +70,17 @@ class RemoveWWWRedirectMiddleware:
         if host.startswith('www.'):
             return HttpResponsePermanentRedirect(f"https://{host[4:]}{request.get_full_path()}")
         return self.get_response(request)
+    
+class RemoveSlashMiddleware:
+    """toukiAppのパスのとき最後にスラッシュがあるときは削除する"""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        path = request.path
+        # `toukiApp` のパスでスラッシュで終わる場合のみリダイレクト
+        if path.startswith("/toukiApp/") and path != "/toukiApp/" and path.endswith("/"):
+            return redirect(path.rstrip("/"), permanent=True)
+
+        response = self.get_response(request)
+        return response

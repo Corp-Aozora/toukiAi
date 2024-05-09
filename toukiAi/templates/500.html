@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}サーバーエラー | {{ block.super}}{% endblock title %}
+{% block title %}システムエラー | {{ block.super}}{% endblock title %}
 
 {% block header %}
     {% include "header.html" %}
@@ -12,7 +12,7 @@
             システム側でエラーが発生しました
         </h1>
         <h4>
-            現在復旧中のため、恐れ入りますがある程度時間が経過した後に再度アクセスしてください。
+            恐れ入りますが、現在復旧作業中のため、しばらく時間をおいて再度アクセスをお試しください。
         </h4>
         <p class="mt-5 link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover fs-5">
             <a href="{% url `toukiApp:index` %}">
@@ -20,6 +20,18 @@
             </a>
         </p>
     </div>
+    {% if DJANGO_SETTINGS_MODULE != "toukiAi.settings.production" %}
+        <div class="d-flex justify-content-center">
+            <div>
+                <h4 class="text-center">
+                    エラー詳細
+                </h4>
+                <p>
+                    {{ traceback }}
+                </p>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
 

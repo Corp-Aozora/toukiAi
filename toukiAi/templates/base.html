@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="ja">
     <head>
+
         {% load static %}
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
+
         {% if DJANGO_SETTINGS_MODULE != "toukiAi.settings.production" %}
             <meta name="robots" content="noindex" />
         {% endif %}
+
         <title>
             {% block title %}
                 そうぞくとうきくん
             {% endblock %}
         </title>
         <meta name="keywords" content="相続登記, 相続, 自分で相続登記, 司法書士に依頼, 戸籍謄本取得, 本人申請, 株式会社あおぞら, あおぞら">
+        
         {% block description %}
         {% endblock %}
+
         {% if canonical_url %}
             <link rel="canonical" href="{{ canonical_url }}">
         {% endif %}
+
         <meta property="og:site_name" content="そうぞくとうきくん">
         <meta property="og:locale" content="ja_JP">
         <meta property="og:image" content="{% static 'toukiApp/img/会社ロゴ.png' %}">
@@ -26,11 +33,13 @@
         <meta property="og:type" content="website">
         {% block og %}
         {% endblock %}
+
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:site" content="">
         <meta name="twitter:image" content="{% static 'toukiApp/img/会社ロゴ.png' %}">
         {% block twitter %}
         {% endblock %}
+        
         <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">

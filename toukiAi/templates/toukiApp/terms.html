@@ -6,6 +6,17 @@
     <link rel="stylesheet" href="{% static 'toukiApp/terms.css' %}">
 {% endblock %}
 
+{% block og %}
+    <meta property="og:title" content="利用規約">
+    <meta property="og:description" content="そうぞくとうきくんの利用規約です">
+    <meta property="og:url" content="{% url 'toukiApp:terms' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | 利用規約">
+    <meta name="twitter:description" content="そうぞくとうきくんの利用規約です">
+{% endblock %}
+
 {% block header %}
     {% include "header.html" %}
 {% endblock %}

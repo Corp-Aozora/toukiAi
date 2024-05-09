@@ -6,6 +6,17 @@
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 
+{% block og %}
+    <meta property="og:title" content="そうぞくとうきくんの利用条件">
+    <meta property="og:description" content="そうぞくとうきくんが対応できる範囲か判定します。">
+    <meta property="og:url" content="{% url 'toukiApp:condition' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | 利用条件">
+    <meta name="twitter:description" content="株式会社あおぞらの利用条件です">
+{% endblock %}
+
 {% block header %}
     {% include "header.html" %}
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{title}}| {{block.super}}{% endblock title %}
+{% block title %}{{title}} | {{block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/index.css' %}">
@@ -8,6 +8,21 @@
 
 {% block header %}
     {% include "header.html" %}
+{% endblock %}
+
+{% block description %}
+    <meta name="description" content={{meta_description}}>
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content="トップページ">
+    <meta property="og:description" content="相続登記を自分で行いたい方のためのシステムです！システムの案内に従って手続を進めるだけで相続登記が完了します。">
+    <meta property="og:url" content="{% url 'toukiApp:index' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | トップページ">
+    <meta name="twitter:description" content="相続登記を自分で行いたい方のためのシステムです！システムの案内に従って手続を進めるだけで相続登記が完了します。">
 {% endblock %}
 
 {% load custom_filters %}
@@ -24,8 +39,13 @@
             </span>
         </h3>
         <h4 id="introSubtitle" class="py-3 mt-4 ">
-            <div class="text-center fw-bold">
-                相続登記を誰でもできるようにするためのシステムです！
+            <div class="text-center fw-bold lh-lg">
+                <p>
+                    相続登記を自分で行いたい方のためのシステムです！
+                </p>
+                <p>
+                    システムの案内に従って手続を進めるだけで相続登記が完了します。
+                </p>
             </div>
             <!-- <div class="d-flex align-items-center justify-content-center">
                 <span class="fs-6 ms-lg-2 fw-bold text-dark border border-dark p-1 rounded-1">

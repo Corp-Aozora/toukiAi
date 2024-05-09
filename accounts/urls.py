@@ -8,6 +8,7 @@ app_name = 'accounts'
 
 urlpatterns = [
     path("signup/", views.CustomSignupView.as_view(), name="signup"), #新規登録ページ
+    path("login/", views.CustomLoginView.as_view(), name="account_login"), #ログインページ
     path('confirm-email/', views.CustomEmailVerificationSentView.as_view(), name='email_verification_sent'), # 本登録リンク送信完了ページ
     path('confirm-email/resend_confirmation/', views.resend_confirmation, name='resend_confirmation'), # 本登録リンク再発行処理
     path('confirm-email/<key>/', views.CustomConfirmEmailView.as_view(), name='account_confirm_email'), # 本登録確認ページ

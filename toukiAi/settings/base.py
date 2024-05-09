@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',    
+    'django.contrib.sitemaps',  
+    'django.contrib.sites',  
     'allauth',     
     'allauth.account',     
     'allauth.socialaccount',
@@ -59,6 +60,7 @@ MIDDLEWARE = [
     "toukiAi.middleware.SaveLastUserPageMiddleware",
     'toukiAi.middleware.RateLimitMiddleware',
     'toukiAi.middleware.OneSessionPerUserMiddleware',
+    'toukiAi.middleware.RemoveWWWRedirectMiddleware',
     # 'axes.middleware.AxesMiddleware',
 ]
 

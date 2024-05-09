@@ -5,6 +5,17 @@
     <link rel="stylesheet" href="{% static 'toukiApp/administrator.css' %}">
 {% endblock %}
 
+{% block og %}
+    <meta property="og:title" content="会社概要">
+    <meta property="og:description" content="株式会社あおぞらとは">
+    <meta property="og:url" content="{% url 'toukiApp:administrator' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | 会社概要">
+    <meta name="twitter:description" content="株式会社あおぞらの会社概要です">
+{% endblock %}
+
 {% block header %}
     {% include "header.html" %}
 {% endblock %}

@@ -6,6 +6,17 @@
     <link rel="stylesheet" href="{% static 'toukiApp/privacy.css' %}">
 {% endblock %}
 
+{% block og %}
+    <meta property="og:title" content="プライバシーポリシー">
+    <meta property="og:description" content="株式会社あおぞらのプライバシーポリシーです">
+    <meta property="og:url" content="{% url 'toukiApp:privacy' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | プライバシーポリシー">
+    <meta name="twitter:description" content="株式会社あおぞらのプライバシーポリシーです">
+{% endblock %}
+
 {% block header %}
     {% include "header.html" %}
 {% endblock %}

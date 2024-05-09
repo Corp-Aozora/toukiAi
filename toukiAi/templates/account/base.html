@@ -5,7 +5,17 @@
         <meta name="viewport" content="width=device-width,initial-scale=1">
         {% if DJANGO_SETTINGS_MODULE != "toukiAi.settings.production" %}
             <meta name="robots" content="noindex" />
+        {% elif request.path == '/account/signup/' or
+            request.path == '/account/login/' or
+            request.path == '/account/password/reset/' %}
+            <link rel="canonical" href="{{ canonical_url }}">
+        {% elif not request.user.is_authenticated %}
+            <meta name="robots" content="noindex" />
         {% endif %}
+        {% block og %}
+        {% endblock %}
+        {% block twitter %}
+        {% endblock %}
         <title>
             {% block title %}そうぞくとうきくん{% endblock %}
         </title>

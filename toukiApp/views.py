@@ -78,19 +78,16 @@ def get_boolean_session(session, session_name):
     return False
 
 def index(request):
-    """トップページの処理
-
-    Args:
-        request (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
+    """トップページの処理"""
+    
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:index"
+    this_html = "toukiApp/index.html"
+    tab_title = "トップページ"
+    meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って書類を集めて必要な事項を入力すると書類ができあがります。詳細な解説と迅速なお問い合わせ対応もありますので、悩むことなく手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
+    
     try:
-        function_name = get_current_function_name()
-        redirect_to = "toukiApp:index"
-        this_html = "toukiApp/index.html"
-        tab_title = "トップページ"
+        canonical_url = get_canonical_url(request, this_url_name)
         
         # お問い合わせが成功したメッセージを表示するためのセッション（messagesのsuccessはログアウトメッセージと重複するため）
         is_inquiry = get_boolean_session(request.session, "post_success")
@@ -105,7 +102,7 @@ def index(request):
                         send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
                         request.session["post_success"] = True
                         
-                        return redirect(redirect_to)
+                        return redirect(this_url_name)
                     except Exception as e:
                         basic_log(function_name, e, None, "POSTでエラー")
                         raise e
@@ -126,6 +123,8 @@ def index(request):
             "company_service": Service,
             "is_inquiry": is_inquiry,
             "is_account_delete": is_account_delete,
+            "canonical_url": canonical_url,
+            "meta_description": meta_description
         }
         return render(request, this_html, context)
     except Exception as e:
@@ -134,7 +133,7 @@ def index(request):
             request,
             None, 
             function_name, 
-            redirect_to,
+            this_url_name,
         )
 
 """
@@ -500,7 +499,7 @@ def step_one_trial(request):
         request.session['account_created'] = True #登録確認ページに戻れないようにするためのセッション
 
         function_name = get_current_function_name()
-        redirect_to = "toukiApp:step_one_trial"
+        this_url_name = "toukiApp:step_one_trial"
         this_html = "toukiApp/step_one_trial.html"
         
         user = User.objects.get(email = request.user)
@@ -540,7 +539,7 @@ def step_one_trial(request):
                 messages.warning(request, "入力内容を保存できませんでした。 \n恐れ入りますが、再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
 
             
-            return redirect(redirect_to)
+            return redirect(this_url_name)
         
         userDataScope = []
         spouse_data = {}
@@ -655,7 +654,7 @@ def step_one_trial(request):
             request,
             user,
             function_name,
-            redirect_to,
+            this_url_name,
         )
    
 def step_one(request):
@@ -2777,7 +2776,7 @@ def step_four(request):
     """
     function_name = get_current_function_name()
     this_html = "toukiApp/step_four.html"
-    redirect_to = "toukiApp:step_four"
+    this_url_name = "toukiApp:step_four"
     step_progress = 4
     
     try:   
@@ -2832,7 +2831,7 @@ def step_four(request):
             request, 
             user if "user" in locals() else None,
             function_name, 
-            redirect_to
+            this_url_name
         )
 
 def get_principal_names_and_POA_count_and_agent_name(decedent):
@@ -4698,36 +4697,113 @@ def get_q_and_a_data(user):
     return q_and_a_data
 
 def administrator(request):
-    """運営者情報"""
-    context = {
-        "title" : "運営者情報",
-        "company_data" : CompanyData,
-    }
-    return render(request, "toukiApp/administrator.html", context)
+    """会社概要"""
+    
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:administrator"
+    this_html = "toukiApp/administrator.html"
+    redirect_to = "toukiApp:index"
+    tab_title = "会社概要"
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name)
+        
+        context = {
+            "title": tab_title,
+            "company_data": CompanyData,
+            "canonical_url": canonical_url
+        }
+        return render(request, this_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            redirect_to
+        )
 
 def commerceLaw(request):
     """特商法"""
-    context = {
-        "title" : "特定商取引法に基づく表記",
-        "company_data" : CompanyData,
-    }
-    return render(request, "toukiApp/commerce_law.html", context)
+        
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:commerce_law"
+    this_html = "toukiApp/commerce_law.html"
+    redirect_to = "toukiApp:index"
+    tab_title = "特定商取引法に基づく表記"
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name)
+        
+        context = {
+            "title": tab_title,
+            "company_data": CompanyData,
+            "canonical_url": canonical_url
+        }
+        return render(request, this_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            redirect_to
+        )
 
 def privacy(request):
     """プライバシーポリシー"""
-    context = {
-        "title" : "プライバシーポリシー",
-        "company_data" : CompanyData,
-    }
-    return render(request, "toukiApp/privacy.html", context)
+    
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:privacy"
+    this_html = "toukiApp/privacy.html"
+    redirect_to = "toukiApp:index"
+    tab_title = "プライバシーポリシー"
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name)
+        
+        context = {
+            "title" : tab_title,
+            "company_data" : CompanyData,
+            "canonical_url": canonical_url
+        }
+        
+        return render(request, this_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            redirect_to
+        )
 
 def terms(request):
     """利用規約"""
-    context = {
-        "title" : "利用規約",
-        "company_data" : CompanyData,
-    }
-    return render(request, "toukiApp/terms.html", context)
+    
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:terms"
+    this_html = "toukiApp/terms.html"
+    redirect_to = "toukiApp:index"
+    tab_title = "利用規約"
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name)
+        
+        context = {
+            "title": tab_title,
+            "company_data": CompanyData,
+            "canonical_url": canonical_url
+        }
+        return render(request, this_html, context)
+    except Exception as e:
+        handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            redirect_to
+        )
 
 def condition(request):
     """利用条件の確認ページ
@@ -4735,13 +4811,17 @@ def condition(request):
         POSTのとき条件全てにチェックが入っているか確認してアカウント登録ページに遷移させる
         入ってないときはエラーメッセージを表示する
     """
-    try:
-        function_name = get_current_function_name()
-        this_html = "toukiApp/condition.html"
-        error_redirect_to = "toukiApp:condition"
-        next_redirect_to = "accounts:signup"
-        page_title = "利用条件確認"
     
+    function_name = get_current_function_name()
+    this_html = "toukiApp/condition.html"
+    this_url_name = "toukiApp:condition"
+    error_redirect_to = "toukiApp:index"
+    next_redirect_to = "accounts:signup"
+    tab_title = "利用条件確認"
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name)
+        
         if request.method == "POST":
             checkboxes = request.POST.getlist("conditionCb")
             # 条件全てにチェックが入っているとき（formクラスを使用していないため数のみで検証している）
@@ -4750,11 +4830,13 @@ def condition(request):
                 return redirect(next_redirect_to)
             else:
                 basic_log(function_name, None, None, "利用条件全てにチェックを入れずにアカウント登録ボタンが押されました")
-                messages.warning("利用条件を満たしていません 全てにチェックが入らない場合は、恐れ入りますがアカウント登録できません")
+                messages.warning("利用条件を満たしていません 全てにチェックが入らない場合は、本システムで対応できないためアカウント登録できません。")
 
         context = {
-            "title" : page_title,
+            "title" : tab_title,
+            "canonical_url": canonical_url
         }
+        
         return render(request, this_html, context)
     
     except Exception as e:
@@ -4770,7 +4852,6 @@ def condition(request):
 def csrf_failure(request, reason=""):
 
     # 何かしらの処理
-
     return HttpResponseForbidden('<h1>403 アクセスが制限されています。</h1>', content_type='text/html')
 
 # ユーザーに紐づく被相続人の市区町村データを取得する

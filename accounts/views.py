@@ -1,6 +1,6 @@
 from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation, EmailAddress
 from allauth.account.utils import send_email_confirmation
-from allauth.account.views import SignupView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView, PasswordChangeView
+from allauth.account.views import SignupView, LoginView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView, PasswordChangeView
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
+from django.contrib.sites.shortcuts import get_current_site
 from django.db import transaction
 from django.db.models import Max, Sum, Q, Func
 from django.db.models.functions import Coalesce
@@ -50,6 +51,7 @@ class CustomSignupView(SignupView):
         """会社メールアドレスをテンプレートに渡す"""
         context = super(CustomSignupView, self).get_context_data(**kwargs)
         context['company_address'] = CompanyData.MAIL_ADDRESS
+        context["canonical_url"] = get_canonical_url(self.request, "accounts:signup")
         return context
     
     def get(self, request, *args, **kwargs):
@@ -57,6 +59,17 @@ class CustomSignupView(SignupView):
         if not request.session.get('condition_passed', False):
             return redirect('toukiApp:condition')
         return super().get(request, *args, **kwargs)
+
+class CustomLoginView(LoginView):
+    """カスタムログインページ"""
+    template_name = 'account/login.html'
+
+    def get_context_data(self, **kwargs):
+        """正規 URL をテンプレートに渡す"""
+        context = super(CustomLoginView, self).get_context_data(**kwargs)
+
+        context['canonical_url'] = get_canonical_url(self.request, "account_login")
+        return context
 
 class CustomEmailVerificationSentView(EmailVerificationSentView):
     """仮登録メール送信ページ"""
@@ -110,7 +123,9 @@ class CustomPasswordResetView(PasswordResetView):
     """"パスワードの再設定（ログイン前でするページ）"""
     def get_context_data(self, **kwargs):
         context = super(CustomPasswordResetView, self).get_context_data(**kwargs)
+        
         context['company_email_address'] = CompanyData.MAIL_ADDRESS
+        context["canonical_url"] = get_canonical_url(self.request, "accounts:account_reset_password")
         return context
     
 class CustomPasswordChangeView(PasswordChangeView):

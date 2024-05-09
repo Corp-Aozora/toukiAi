@@ -6,6 +6,17 @@
     <link rel="stylesheet" href="{% static 'toukiApp/commerce_law.css' %}">
 {% endblock %}
 
+{% block og %}
+    <meta property="og:title" content="特定商取引法に基づく表記">
+    <meta property="og:description" content="株式会社あおぞらの特定商取引法に基づく表記です">
+    <meta property="og:url" content="{% url 'toukiApp:commerce_law' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | 特定商取引法に基づく表記">
+    <meta name="twitter:description" content="株式会社あおぞらの特定商取引法に基づく表記です">
+{% endblock %}
+
 {% block header %}
     {% include "header.html" %}
 {% endblock %}

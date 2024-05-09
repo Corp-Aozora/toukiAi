@@ -6174,8 +6174,8 @@ function handleSubmitBtnEvent(event){
  * 以下、イベントリスナー
  * 
  */
-window.addEventListener("load", ()=>{
-    initialize();
+window.addEventListener("load", async ()=>{
+    await initialize();
     disablePage(progress); // progressに応じたページの無効化
 })
 

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.timezone import now
+from django.http import HttpResponsePermanentRedirect
 
 from toukiApp.toukiAi_commons import *
 
@@ -58,3 +59,14 @@ class OneSessionPerUserMiddleware:
 
         response = self.get_response(request)
         return response
+    
+class RemoveWWWRedirectMiddleware:
+    """www.がついたurlが入力されたとき削除したurlにリダイレクトする"""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        host = request.get_host()
+        if host.startswith('www.'):
+            return HttpResponsePermanentRedirect(f"https://{host[4:]}{request.get_full_path()}")
+        return self.get_response(request)

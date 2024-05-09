@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /
+Allow: /toukiApp/index
+Allow: /toukiApp/terms
+Allow: /toukiApp/privacy
+Allow: /toukiApp/commerce_law
+Allow: /toukiApp/administrator
+Allow: /toukiApp/condition
+Allow: /account/login/
+Allow: /account/signup/
+Allow: /account/password/reset/
+
+Sitemap: https://aozoratouki.com/sitemap.xml

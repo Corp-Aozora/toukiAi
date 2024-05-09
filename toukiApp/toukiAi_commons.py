@@ -1,13 +1,15 @@
+from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.mail import BadHeaderError, EmailMessage
 from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
 from django.db.models.query import QuerySet
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from datetime import datetime
+from django.urls import reverse
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from smtplib import SMTPException
 
@@ -561,3 +563,11 @@ def get_content_types_for_models(*models):
         except ObjectDoesNotExist:
             raise ObjectDoesNotExist(f"{get_current_function_name}でエラー\nmodelsの中にContentTypeを取得できない要素があります。\nmodel={model.__name__}")
     return content_types
+
+def get_canonical_url(request, url_name):
+    """正規のurlを取得する（www.を削除したurl）"""
+    current_site = get_current_site(request)
+    canonical_domain = f"https://{current_site.domain}".replace("www.", "")
+    canonical_url = f"{canonical_domain}{reverse(url_name)}"
+    
+    return canonical_url

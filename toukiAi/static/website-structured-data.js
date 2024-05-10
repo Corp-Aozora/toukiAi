@@ -5,8 +5,8 @@ const websiteData = {
     "url": "https://www.aozoratouki.com"
   };
   
-  const script = document.createElement("script");
-  script.type = "application/ld+json";
-  script.text = JSON.stringify(websiteData);
-  document.head.appendChild(script);
+  const websiteDataScript = document.createElement("script");
+  websiteDataScript.type = "application/ld+json";
+  websiteDataScript.text = JSON.stringify(websiteData);
+  document.head.appendChild(websiteDataScript);
   

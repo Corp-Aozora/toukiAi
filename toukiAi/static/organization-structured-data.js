@@ -13,8 +13,8 @@ const organizationData = {
     }
   };
   
-  const script = document.createElement("script");
-  script.type = "application/ld+json";
-  script.text = JSON.stringify(organizationData);
-  document.head.appendChild(script);
+  const organizationDataScript = document.createElement("script");
+  organizationDataScript.type = "application/ld+json";
+  organizationDataScript.text = JSON.stringify(organizationData);
+  document.head.appendChild(organizationDataScript);
   

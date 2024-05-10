@@ -1688,7 +1688,7 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
                 function_name, 
                 e, 
                 user, 
-                f"decedent={decedent}\nuser={user}\ndata={data}\form_class_name={form_class_name}\ncontent_type={content_type}\nrelationship={relation_ship}", 
+                f"decedent={decedent}\nuser={user}\ndata={data}\form_class_name={form_class_name}\ncontent_type={content_type}\nrelationship={relationship}", 
                 None
             )
             raise e

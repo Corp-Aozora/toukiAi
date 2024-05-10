@@ -83,7 +83,7 @@ def index(request):
     function_name = get_current_function_name()
     this_url_name = "toukiApp:index"
     this_html = "toukiApp/index.html"
-    tab_title = "トップページ"
+    tab_title = "相続登記を自分でしたい方のためのシステム"
     meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って書類を集めて必要な事項を入力すると書類ができあがります。詳細な解説と迅速なお問い合わせ対応もありますので、悩むことなく手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
     
     try:

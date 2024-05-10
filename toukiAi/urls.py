@@ -7,6 +7,8 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from .sitemaps import StaticViewSitemap
 
+import os
+
 from accounts import views as accounts_view
 
 def has_permission(request):
@@ -29,7 +31,7 @@ urlpatterns = [
     path('account/', include('accounts.urls')),
     path("account/", include("allauth.urls")),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
-    path('robots.txt', serve, {'path': 'robots.txt', 'document_root': settings.BASE_DIR}),
+    path('robots.txt', serve, {'path': 'robots.txt', 'document_root': os.path.dirname(os.path.abspath(__file__))}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:

@@ -24,7 +24,7 @@ class CompanyData:
     TRIAL_URL = "https://aozoratouki.com/toukiApp/step_one_trial"
     CHARGE = "サイト上部の「料金」からご確認いただけます。"
     # PAYMENT = "クレジットカード決済又は銀行振込"
-    PAYMENT = "銀行振込（２０２４年５月末までにクレジット決済導入予定です）"
+    PAYMENT = "銀行振込（２０２４年６月末までにクレジット決済導入予定です）"
     PAYMENT_TERMS = "サービス利用開始時"
     START_TIME = "お支払いを確認後直ちに"
     ABOUT_CANCEL = "サービス提供後システム対応外であることが判明した場合のみ可"

@@ -6,6 +6,7 @@
 
         {% if DJANGO_SETTINGS_MODULE != "toukiAi.settings.production" %}
             <meta name="robots" content="noindex" />
+        {% elif request.path == '/account/signup/' or request.path == '/account/login/' or request.path == '/account/password/reset/' %}
         {% elif not request.user.is_authenticated %}
             <meta name="robots" content="noindex" />
         {% endif %}

@@ -1,11 +1,13 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
+from django.contrib.staticfiles.views import serve
 from django.urls import path, include
 from django.views.generic import RedirectView
-from django.conf import settings
-from accounts import views as accounts_view
-from django.conf.urls.static import static
 from .sitemaps import StaticViewSitemap
-from django.contrib.sitemaps.views import sitemap
+
+from accounts import views as accounts_view
 
 def has_permission(request):
     return request.user.is_staff
@@ -27,6 +29,7 @@ urlpatterns = [
     path('account/', include('accounts.urls')),
     path("account/", include("allauth.urls")),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path('robots.txt', serve, {'path': 'robots.txt', 'document_root': settings.BASE_DIR}),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:

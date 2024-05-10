@@ -4,10 +4,8 @@ from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.contrib.staticfiles.views import serve
 from django.urls import path, include
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from .sitemaps import StaticViewSitemap
-
-import os
 
 from accounts import views as accounts_view
 
@@ -23,7 +21,7 @@ admin.site.has_permission = has_permission
 sitemaps = {
     'static': StaticViewSitemap(),
 }
- 
+
 urlpatterns = [
     path('saga2497admin/', admin.site.urls),
     path('toukiApp/', include('toukiApp.urls')),
@@ -31,7 +29,7 @@ urlpatterns = [
     path('account/', include('accounts.urls')),
     path("account/", include("allauth.urls")),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
-    path('robots.txt', serve, {'path': 'robots.txt', 'document_root': os.path.dirname(os.path.abspath(__file__))}),
+    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type='text/plain')),  # 修正点
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:

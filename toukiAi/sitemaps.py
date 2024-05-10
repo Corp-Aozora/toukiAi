@@ -37,15 +37,15 @@ class StaticViewSitemap(Sitemap):
     
     # URLとテンプレートファイルパスのマッピング
     templates = {
-        'toukiApp:index': os.path.join(settings.BASE_DIR, 'toukiApp', 'templates', 'toukiApp', 'index.html'),
-        'toukiApp:administrator': os.path.join(settings.BASE_DIR, 'toukiApp', 'templates', 'toukiApp', 'administrator.html'),
-        'toukiApp:commerce_law': os.path.join(settings.BASE_DIR, 'toukiApp', 'templates', 'toukiApp', 'commerce_law.html'),
-        'toukiApp:privacy': os.path.join(settings.BASE_DIR, 'toukiApp', 'templates', 'toukiApp', 'privacy.html'),
-        'toukiApp:terms': os.path.join(settings.BASE_DIR, 'toukiApp', 'templates', 'toukiApp', 'terms.html'),
-        'toukiApp:condition': os.path.join(settings.BASE_DIR, 'toukiApp', 'templates', 'toukiApp', 'condition.html'),
-        'accounts:signup': os.path.join(settings.BASE_DIR, 'accounts', 'templates', 'account', 'signup.html'),
-        'accounts:account_reset_password': os.path.join(settings.BASE_DIR, 'accounts', 'templates', 'account', 'password_reset.html'),
-        'account_login': os.path.join(settings.BASE_DIR, 'accounts', 'templates', 'account', 'login.html'),
+        'toukiApp:index': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'index.html'),
+        'toukiApp:administrator': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'administrator.html'),
+        'toukiApp:commerce_law': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'commerce_law.html'),
+        'toukiApp:privacy': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'privacy.html'),
+        'toukiApp:terms': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'terms.html'),
+        'toukiApp:condition': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'condition.html'),
+        'accounts:signup': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'account', 'signup.html'),
+        'accounts:account_reset_password': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'account', 'password_reset.html'),
+        'account_login': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'account', 'login.html'),
     }
     
     def items(self):
@@ -77,4 +77,4 @@ class StaticViewSitemap(Sitemap):
             return datetime.fromtimestamp(os.path.getmtime(path))
         
         basic_log(get_current_function_name, None, None, f"サイトマップにテンプレートが存在しないパスがあります\nitem={item}\npath={path}")    
-        raise Exception(f"テンプレートファイルが見つかりません: {path}")
+        raise Exception(f"テンプレートファイルが見つかりません: path={path}")

@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
     <head>
+        
+        {% load static %}
+
+        <title>
+            {% block title %}
+                そうぞくとうきくん
+            {% endblock %}
+        </title>
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -9,10 +18,6 @@
         {% elif not request.user.is_authenticated %}
             <meta name="robots" content="noindex" />
         {% endif %}
-
-        <title>
-            {% block title %}そうぞくとうきくん{% endblock %}
-        </title>
 
         <meta name="description" content="そうぞくとうきくんの会員専用ページです。">
 

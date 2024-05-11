@@ -707,7 +707,7 @@ class StepThreeCollateralForm(forms.ModelForm):
         
 #遺産分割の方法
 class StepThreeTypeOfDivisionForm(forms.ModelForm):
-    all_cash_acquirer = forms.ChoiceField(choices=[("", "選択してください")], widget=forms.Select())
+    all_cash_acquirer = forms.CharField(widget=forms.Select(choices=[("", "選択してください")]), required=False)
     
     class Meta:
         model = TypeOfDivision
@@ -726,6 +726,9 @@ class StepThreeTypeOfDivisionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        
+        self.legal_heirs = kwargs.pop('legal_heirs', None)
+        
         for field in self.base_fields.values():
             field.required = False
             if field.label in  ["遺産分割協議書の種類", "不動産の分配方法", "換価した金銭の分配方法"]:
@@ -735,6 +738,10 @@ class StepThreeTypeOfDivisionForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         
+    def clean_all_cash_acquirer(self):
+        """単独の金銭取得者の欄はバリデーション不要"""
+        return self.cleaned_data.get("all_cash_acquirer")
+            
 #不動産の数
 class StepThreeNumberOfPropertiesForm(forms.ModelForm):
     class Meta:

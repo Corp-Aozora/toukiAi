@@ -221,45 +221,44 @@
                 {% if exchange_division_properties %}
                     {% for d in exchange_division_properties %}
                         <div class="content mt-3">
-                            <p>
-                                <span class="border-bottom border-secondary">
-                                    下記不動産は、
-                                    {% for acquirer in d.1 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    取得する。<br>
-                                    <span class="ms-3">
-                                        なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
-                                    </span>
-                                    {% for cash_acquirer in d.2 %}
-                                        {% if forloop.last %}
-                                            {% for name, percentage in cash_acquirer.items %}
-                                                {% if percentage == "１分の１" %}
-                                                    {{ name }}が
-                                                {% else %}
-                                                    {{ name }}が{{ percentage }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% else %}
-                                            {% for name, percentage in cash_acquirer.items %}
-                                                {{ name }}が{{ percentage }}、
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    の割合で取得する。
+                            <p class="text-indent">
+                                下記不動産は、
+                                {% for acquirer in d.1 %}
+                                    {% if forloop.last %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {% if percentage == "１分の１" %}
+                                                {{ name }}が
+                                            {% else %}
+                                                {{ name }}が{{ percentage }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for name, percentage in acquirer.items %}
+                                            {{ name }}が{{ percentage }}、
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                取得する。
+                                <br>
+                                <span class="ms-3">
+                                    なお、この不動産は売却し、売買代金から売却にかかった費用を控除した残金を
                                 </span>
+                                {% for cash_acquirer in d.2 %}
+                                    {% if forloop.last %}
+                                        {% for name, percentage in cash_acquirer.items %}
+                                            {% if percentage == "１分の１" %}
+                                                {{ name }}が
+                                            {% else %}
+                                                {{ name }}が{{ percentage }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for name, percentage in cash_acquirer.items %}
+                                            {{ name }}が{{ percentage }}、
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                取得する。
                             </p>
                             <div class="property">
                                 {% for property in d.0 %}

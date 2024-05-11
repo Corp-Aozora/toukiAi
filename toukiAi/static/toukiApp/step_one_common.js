@@ -9,7 +9,7 @@ dayjs.extend(window.dayjs_plugin_timezone);
  * @typedef {ChildCommon|CollateralCommon} EveryCommon
  */
 
-class ErrorMessageTemplate{
+class CustomMessageTemplates extends MessageTemplates{
 
     /**
      * データロード中にエラーを発生した入力欄を摘示

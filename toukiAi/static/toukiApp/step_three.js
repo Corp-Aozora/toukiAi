@@ -7,7 +7,8 @@ class Ids{
     }
 
     static fieldset = {
-        decedentSpouse: "id_decedent_spouse-fieldset"
+        decedentSpouse: "id_decedent_spouse-fieldset",
+        application: "id_application-fieldset"
     }
 }
 
@@ -1342,7 +1343,7 @@ function loadDecedentData(){
                 decedent.noInputs = decedent.noInputs.filter(x => x.id !== input.id)
             }
         }catch(e){
-            throw new Error(`${functionName}でエラー\n詳細：${e}\ninputs=${inputs}\ni=${i}`);
+            basicLog(functionName, e, `inputs=${inputs}\ni=${i}`);
         }    
     }
 }
@@ -1394,6 +1395,7 @@ function loadApplicationData(){
             break;
         dispatchEventIfValue(inputs[i], "change");
     }
+
     isActivateOkBtn(application);
 }
 
@@ -1455,7 +1457,7 @@ async function loadData(){
         //申請情報を反映する
         loadApplicationData();
     }catch(e){
-        basicLog("loadData", e, "")
+        basicLog("loadData", e)
     }
 
     async function handleAfterDataLoaded(section = null){
@@ -2604,22 +2606,32 @@ function addAllLegalHeirsToSelect(select, includePrompt = true){
  * @param {number} i 
  */
 function TODChangeEventHandler(instance, i){
+
     const {inputs, Qs, noInputs} = instance;
+
     const cashAllocationQ = Qs[TODCashAllocation.form];
     const cashAllocationInputIdxs = TODCashAllocation.input;
+
     const allCashAcquirerQ = Qs[TODAllCashAcquirer.form];
     const allCashAcquirerInputIdx = TODAllCashAcquirer.input;
     const allCashAcquirerInput = inputs[allCashAcquirerInputIdx];
+
     const typeOfDivisionInputIdxs = TODTypeOfDivision.input;
     const {input: propertyAllocationInputIdxs, form: propertyAllocationFormIdx} = TODPropertyAllocation;
+
     const isPropertyAcquirerFree = inputs[propertyAllocationInputIdxs[no]].checked;
+
     const propertyAllocationQ = Qs[propertyAllocationFormIdx];
     const propertyAllocationInputYes = inputs[propertyAllocationInputIdxs[yes]];
+
     const cashAllocationInputYes = inputs[cashAllocationInputIdxs[yes]];
     const contentType2Input = inputs[TODContentType2.input];
     const objectId2Input = inputs[TODObjectId2.input];
+
     //遺産分割の方法のとき
     if(typeOfDivisionInputIdxs.includes(i)){
+
+        // 相続人全員が取得確認欄で「はい」が選択されていないとき
         const isPropertyAllocationDecided = (typeOfDivisions[0].isPropertyAcquirerAlone() || isPropertyAcquirerFree);
         //通常のとき
         if(i === typeOfDivisionInputIdxs[yes]){
@@ -2664,11 +2676,9 @@ function TODChangeEventHandler(instance, i){
         }else{
             //法定相続又はその他のとき、全取得欄を非表示にして初期化、エラー要素を削除して次の項目へボタンを有効化する
             if(allCashAcquirerQ.style.display !== "none"){
-                slideUp(allCashAcquirerQ);
-                allCashAcquirerInput.value = "";
-                contentType2Input.value = "";
-                objectId2Input.value = "";
+                iniAllCashAqcuirer();
             }
+
             activateOkBtn();
         }
     }else if(i === allCashAcquirerInputIdx){
@@ -2691,8 +2701,10 @@ function TODChangeEventHandler(instance, i){
             activateOkBtn();
         }else{
             //決まってないとき
+
             //不動産取得者欄を表示する
             slideDownIfHidden(propertyAllocationQ);
+
             //すでに取得方法がチェックされているとき、次へボタンを有効化する
             if(propertyAllocationInputIdxs.some(x => inputs[x].checked))
                 activateOkBtn();
@@ -2700,26 +2712,26 @@ function TODChangeEventHandler(instance, i){
                 //未入力のときは、エラー要素を追加して次の項目へ進むボタンを無効化する
                 pushInvalidEl(instance, propertyAllocationInputYes);
         }   
+
         //金銭取得方法欄が表示されているとき、非表示にして初期化
-        iniCashRelatedQs();
+        iniCashRelated();
     }
 
     //金銭取得者欄と金銭全取得者欄を非表示にして初期化する
-    function iniCashRelatedQs(){
-        //金銭取得方法欄が表示されているとき、非表示にして初期化
-        if(cashAllocationQ.style.display !== "none"){
-            slideUp(cashAllocationQ);
-            uncheckTargetElements(inputs, cashAllocationInputIdxs);
-        }else{
-            //表示されてないときは、処理を終了
-            return;
-        }
-        //金銭全取得者欄が表示されているとき、非表示にして初期化
-        if(allCashAcquirerQ.style.display !== "none"){
-            slideUp(allCashAcquirerQ);
-            allCashAcquirerInput.value = "";
-        }
+    function iniCashRelated(){
+        slideUp(cashAllocationQ);
+        uncheckTargetElements(inputs, cashAllocationInputIdxs);
+        iniAllCashAqcuirer();
     }
+
+    // 金銭の全取得者欄を初期化する
+    function iniAllCashAqcuirer(){
+        slideUp(allCashAcquirerQ);
+        allCashAcquirerInput.value = "";
+        contentType2Input.value = "";
+        objectId2Input.value = "";
+    }
+
     //次の項目へ進むボタンを有効化する処理
     function activateOkBtn(){
         noInputs.length = 0;
@@ -2731,33 +2743,45 @@ function TODChangeEventHandler(instance, i){
  * 遺産分割方法セクションのイベントなど設定
  */
 function setTypeOfDivisionSection(){
+
+    const functionName = "setTypeOfDivisionSection";
+
     //不動産取得者
     const acquirers = heirs.filter(heir => heir.inputs[heir.constructor.idxs.isAcquire[yes]].checked);
     const isAcquireAlone = acquirers.length === 1;
     //不動産を取得しない相続人
     const notAcquirers = heirs.filter(heir => heir.inputs[heir.constructor.idxs.isAcquire[no]].checked);
     const isNotAcquirers = notAcquirers.length > 0;
-    //初回の遺産分割方法セクションを表示するとき
+
+    //初回表示
     if(typeOfDivisions.length === 0){
-        //インスタンス生成
-        const instance = new TypeOfDivision("id_type_of_division-0-fieldset");
-        const inputs = instance.inputs;
-        //不動産取得者が一人のとき、content_type1とobject_id1に値を代入する
-        if(isAcquireAlone)
-            inputAllAcquirer(instance, acquirers[0]);
-        //全員が不動産取得者ではないとき、不動産取得者欄のその他にチェックを入れる
-        else if(isNotAcquirers)
-            inputs[TODPropertyAllocation.input[no]].checked = true;
-        //金銭取得者をselectに追加する
-        addAllLegalHeirsToSelect(instance.inputs[TODAllCashAcquirer.input]);
-        //イベントを設定
-        for(let i = 0, len = inputs.length; i < len; i++){
-            inputs[i].addEventListener("change", ()=>{
-                TODChangeEventHandler(instance, i);
-            })
+        try{
+            //インスタンス生成
+            const instance = new TypeOfDivision("id_type_of_division-0-fieldset");
+            const inputs = instance.inputs;
+            
+            //不動産取得者が一人のとき、content_type1とobject_id1に値を代入する
+            if(isAcquireAlone)
+                inputAllAcquirer(instance, acquirers[0]);
+            //全員が不動産取得者ではないとき、不動産取得者欄のその他にチェックを入れる
+            else if(isNotAcquirers)
+                inputs[TODPropertyAllocation.input[no]].checked = true;
+            
+            //金銭取得者をselectに追加する
+            addAllLegalHeirsToSelect(inputs[TODAllCashAcquirer.input]);
+            
+            //イベントを設定
+            for(let i = 0, len = inputs.length; i < len; i++){
+                inputs[i].addEventListener("change", ()=>{
+                    TODChangeEventHandler(instance, i);
+                })
+            }
+    
+            //次の項目へ進むボタンを無効化する
+            okBtn.disabled = true;
+        }catch(e){
+            basicLog(functionName, e, "初回表示処理でエラー");
         }
-        //次の項目へ進むボタンを無効化する
-        okBtn.disabled = true;
     }else{
         let newPattern = isAcquireAlone ? yes : (isNotAcquirers ? no : other);
         const instance = typeOfDivisions[0];
@@ -2807,6 +2831,7 @@ function setTypeOfDivisionSection(){
         inputs[TODObjectId1.input].value = parts[0];
         inputs[TODContentType1.input].value = parts[1];
     }
+
     scrollToTarget(typeOfDivisions[0].fieldset);
 }
 
@@ -4733,6 +4758,23 @@ function handleCashAllocationChangeProcess(instances, allLegalHeirs){
     }
 }
 
+// 各不動産の換価欄を非表示にする
+function hiddenIsExchangeQs(){
+
+    // 非表示処理
+    function process(instances){
+        for(let i = 0, len = instances.length; i < len; i++){
+            const instance = instances[i];
+            const {Qs, constructor} = instance;
+            Qs[constructor.idxs.isExchange.form].style.display = "none";
+        }
+    }
+
+    [lands, houses, bldgs].forEach(x => {
+        if(x.length > 0)
+            process(x);
+    })
+}
 
 /**
  * 不動産情報欄のチェック
@@ -4752,17 +4794,23 @@ async function checkPropertySection(){
         
         //アラート表示と遺産分割方法を通常に変更する
         async function alertAndChangeToNormal(){
+
             try{
                 await showAlert(
                     "確認",
                     "遺産分割の方法で「換価分割」が選択されてましたが、換価する不動産が選択されていないため遺産分割の方法を「通常」に変更しました",
                     "warning"
-                    );
-                    const fieldset = TOD.fieldset;
+                );
+
+                // 遺産分割方法を修正
+                const fieldset = TOD.fieldset;
                 const input = TODInputs[TODTypeOfDivision.input[yes]];
                 fixInput(fieldset, input);
+
+                // 各不動産の換価確認欄を非表示にする
+                hiddenIsExchangeQs();
             }catch(e){
-                throw {type: "alertAndChangeToNormal", message: e.message};
+                basicLog("alertAndChangeToNormal", e, "遺産分割方法を換価から通常に自動変更する処理でエラー");
             }
         }
         
@@ -4794,7 +4842,7 @@ async function checkPropertySection(){
                     }
                 }
             }catch(e){
-                throw {type: "alertAndChangeIsAcquire", message: e.message};
+                basicLog("alertAndChangeIsAcquire", e, "取得候補者の取得確認欄を「はい」から「いいえ」に自動変更する処理でエラー");
             }
         }
         
@@ -4843,10 +4891,7 @@ async function checkPropertySection(){
             });
         }
     }catch(e){
-        if(e.type)
-            console.error(`${e.type}でエラーが発生しました：`, e.message);
-        else
-            console.error("checkPropertySectionでエラーが発生しました：", e.message);
+        basicLog("checkPropertySection", e);
     }
 }
 
@@ -5892,25 +5937,29 @@ function addApplicantCandidates(instance, isData){
  */
 function applicationValidation(inputs, idx){
 
-    const functionName = "applicationValidation"
+    const functionName = "applicationValidation";
+    
+    let result;
     const input = inputs[idx];
 
     //申請人（空欄）
     if(idx === aApplicant.input){
-        const result = isBlank(input);
+        result = isBlank(input);
         if(typeof result === "string"){
             return result;
         }
     }else if([aApplicantPhoneNumber.input, aPhoneNumber.input].includes(idx)){
         //電話番号（空欄、電話番号チェック）
-        let result = isBlank(input);
+        result = isBlank(input);
         if(typeof result === "string"){
             return result;
         }
+
         result = checkPhoneNumber(input, true);
         if(typeof result === "string"){
             return result;
         }
+
         input.value = hankakuToZenkaku(input.value);
     }else if(idx === aName.input){
         //代理人氏名
@@ -5921,7 +5970,7 @@ function applicationValidation(inputs, idx){
     }else if([aIsReturn.input, aIsMail.input].includes(idx)){
         //原本還付の有無、郵送の有無、チェックなし
     }else{
-        throw new Error(`${functionName}でエラー\ninputs=${inputs}\nidx=${idx}`);
+        throw new Error(MessageTemplates.functionNameAndArgs(functionName, {inputs: inputs, idx: idx}));
     }
 
     return true;
@@ -5932,8 +5981,11 @@ function applicationValidation(inputs, idx){
  * @param {Application} instance
  */
 function setApplicationEvent(instance){
-    const inputs = instance.inputs;
-    const keydownTargetIdxs = [aApplicantPhoneNumber.input, aName.input, aAddress.input, aPhoneNumber.input];
+
+    const {inputs, errMsgEls} = instance;
+    // キーダウンイベントを設定する対象のinputのインデックス
+    const keydownTargetIdxs = [aName.input, aAddress.input];
+
     for(let i = 0, len = inputs.length; i < len; i++){
 
         //内部データのイベント設定を省略
@@ -5945,7 +5997,7 @@ function setApplicationEvent(instance){
         //keydownイベント（氏名、住所、電話番号のみ）/フォーカス移動
         if(keydownTargetIdxs.includes(i)){
             input.addEventListener("keydown", (e) => {
-                setEnterKeyFocusNext(e, i === aPhoneNumber.input? inputs[i + 1]: [i + 4]);
+                setEnterKeyFocusNext(e, inputs[i + 1]);
             })
         }
 
@@ -5974,7 +6026,7 @@ function setApplicationEvent(instance){
             }
             //その共通
             const result = applicationValidation(inputs, i);
-            afterValidation(result, instance.errMsgEls[i], result, input, instance);
+            afterValidation(result, errMsgEls[i], result, input, instance);
         })
     }
 
@@ -6015,24 +6067,40 @@ function setApplicationEvent(instance){
  * 申請情報欄
  */
 async function setApplicationSection(){
+
+    // 初回表示処理
+    function handleFirstDisplay(){
+        try{
+            //インスタンス生成
+            const instance = new Application(Ids.fieldset.application);
+
+            //申請人に選択肢を追加する
+            const isData = instance.inputs[aContentType.input].value !== "";
+            addApplicantCandidates(instance, isData);
+
+            //イベントを設定
+            setApplicationEvent(instance);
+        }catch(e){
+            basicLog("setApplicationSectionのhandleFirstDisplay", e, "初回表示処理でエラー");
+        }
+    }
+
+    // 次の項目へ進むボタンを無効化
+    okBtn.disabled = true;
+
     const applicationLength = applications.length;
     //初回表示
     if(applicationLength === 0){
-        //インスタンス生成
-        const application = new Application("id_application-fieldset")
-        //申請人に選択肢を追加する
-        const isData = application.inputs[aContentType.input].value !== "";
-        addApplicantCandidates(application, isData);
-        //イベントを設定
-        setApplicationEvent(application);
+        handleFirstDisplay();
     }else if(applicationLength === 1){
         //２回目以降
         //申請人に選択肢を追加し直す
         addApplicantCandidates(applications[0], false);
         isActivateOkBtn(applications[0]);
     }else{
-        throw new Error("setApplicationSection：想定しない操作が行われました")
+        basicLog("setApplicationSection", null, `applications=${applications}\napplicationLength=${applicationLength}`)
     }
+
     await scrollToTarget(Application.section);
 }
 

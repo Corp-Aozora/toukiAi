@@ -2226,6 +2226,7 @@ def get_forms_for_step_three_post(request, decedent, data, data_idx):
                 request.POST or None,
                 prefix="type_of_division",
                 instance=data[data_idx["type_of_division"]] if data[data_idx["type_of_division"]] else None,
+                legal_heirs=get_legal_heirs(decedent)
             ),
             StepThreeNumberOfPropertiesForm(
                 request.POST or None,
@@ -2382,8 +2383,6 @@ def step_three(request):
             #フォームセットの属性を更新
             forms = get_forms_for_step_three_post(request, decedent, data, data_idx)
             form_sets = get_form_sets_for_step_three_post(request, form_sets, form_sets_idx, data, data_idx)
-            # StepThreeSpouseForm がリストの中で2番目にあると仮定（0から数える）
-            spouse_form = forms[1]
 
             if all(form.is_valid() for form in forms) and all(form_set.is_valid() for form_set in form_sets):
                 try:
@@ -2510,7 +2509,7 @@ def step_three(request):
                 user_data_scope.append("type_of_division")
         else:
             type_of_division_form = StepThreeTypeOfDivisionForm(prefix="type_of_division")
-            
+        
         #不動産の数
         number_of_properties_data = data[data_idx["number_of_properties"]]
         if number_of_properties_data:
@@ -2730,7 +2729,7 @@ def step_three(request):
             "sections" : Sections.SECTIONS[Sections.STEP3],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, "toukiApp/step_three.html", context)
+        return render(request, this_html, context)
     except Exception as e:
         return handle_error(
             e,

@@ -45,7 +45,7 @@ async function dispatchNextBtnEvent(instance, functionName){
     if(!instance.nextBtn.disabled)
         await oneStepFoward(instance);
     else
-        throw new Error(ErrorMessageTemplate.someInvalidInputWhenLoad(functionName, instance)); 
+        throw new Error(CustomMessageTemplates.someInvalidInputWhenLoad(functionName, instance)); 
 }
 
 /**
@@ -73,7 +73,7 @@ async function loadDecedentData(){
                 decedent.noInputs = decedent.noInputs.filter(x => x.id !== input.id)
             }
         }catch(e){
-            throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, inputs[i], e));
+            throw new Error(CustomMessageTemplates.identInvalidInputWhenLoad(functionName, inputs[i], e));
         }
     }
 
@@ -141,7 +141,7 @@ async function loadDecedantSpouseData(){
 
         await dispatchNextBtnEvent(spouse, functionName);
     }catch(e){
-        throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, spouse, e));
+        throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, spouse, e));
     }
 }
 
@@ -172,7 +172,7 @@ async function loadChildCommonData(){
             }
         
         }catch(e){
-            throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, inputs[i], e));
+            throw new Error(CustomMessageTemplates.identInvalidInputWhenLoad(functionName, inputs[i], e));
         }
     }
 
@@ -244,7 +244,7 @@ async function loadChildsData(){
 
             await dispatchNextBtnEvent(child, functionName);
         }catch(e){
-            throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, child, e));
+            throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, child, e));
         }
     }
 }
@@ -292,7 +292,7 @@ async function loadChildHeirsData(){
                     loadRbData(inputs[CSIsExist.input[no]]);
                 }
             }catch(e){
-                throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+                throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, instance, e));
             }
         }else{
             //孫のとき
@@ -345,7 +345,7 @@ async function loadChildHeirsData(){
                     }
                 }
             }catch(e){
-                throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+                throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, instance, e));
             }
         }
 
@@ -396,7 +396,7 @@ async function loadAscendantsData(){
             toggleInputAndDispatchChangeEvent(data["is_japan"], inputs[AIsJapan.input[yes]], inputs[AIsJapan.input[no]]);
             await dispatchNextBtnEvent(instance, functionName)
         }catch(e){
-            throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+            throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, instance, e));
         }
     }
 }
@@ -420,7 +420,7 @@ async function loadCollateralCommonData(){
                 input.dispatchEvent(new Event("change"));
             }
         }catch(e){
-            throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, input, e))
+            throw new Error(CustomMessageTemplates.identInvalidInputWhenLoad(functionName, input, e))
         }
     }
 
@@ -454,7 +454,7 @@ async function loadCollateralData(){
     
             // 父母両方入力がない場合はエラー
             if(!data["object_id1"] && !data["object_id2"])
-                throw new Error(ErrorMessageTemplate.identInvalidInputWhenLoad(functionName, inputs[ColIsSameParents.input[yes]]));
+                throw new Error(CustomMessageTemplates.identInvalidInputWhenLoad(functionName, inputs[ColIsSameParents.input[yes]]));
 
             let isInputByCommon = inputs[ColIsSameParents.input[yes]].disabled === true
             const isSameParents = data["content_type1"] === data["content_type2"];
@@ -513,7 +513,7 @@ async function loadCollateralData(){
     
             await dispatchNextBtnEvent(instance, functionName);
         }catch(e){
-            throw new Error(ErrorMessageTemplate.errorWhenLoad(functionName, instance, e));
+            throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, instance, e));
         }
     }
 }

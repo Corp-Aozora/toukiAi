@@ -1,5 +1,28 @@
 "use strict";
 
+// エラーメッセージなどのテンプレ
+class MessageTemplates{
+
+    /**
+     * 指定された関数名と引数からエラーメッセージを生成する。
+     * @param {string} functionName - 関数名
+     * @param {object} args - 関数の引数をキーと値のペアで含むオブジェクト
+     * @returns {string} - 生成されたエラーメッセージ
+     */
+    static functionNameAndArgs(functionName, args) {
+
+        let result = `${functionName}でエラー\n`;
+
+        // 引数オブジェクトをイテレートして、各引数の名前と値を文字列に追加
+        for (const [key, value] of Object.entries(args)) {
+            result += `${key}=${value}\n`;
+        }
+
+        // 最後の改行を削除
+        return result.trim();
+    }
+}
+
 /**
  * 全テンプレートで共通の変数
  */
@@ -525,13 +548,17 @@ function isAlphaNumSymbolIncluded(val){
  * @returns {boolean|string} - 両方含まれている場合はエラーメッセージ、そうでない場合はtrue
  */
 function validateAlphabetAndSymbols(val) {
-    const hasAlphabet = /[A-Za-zＡ-Ｚａ-ｚ]/.test(val); 
-    if(hasAlphabet)
-        return "アルファベットがあります。"
+    // アルファベットを検出
+    const alphabetMatches = val.match(/[A-Za-zＡ-Ｚａ-ｚ]/g);
+    if (alphabetMatches) {
+        return "アルファベットがあります: " + alphabetMatches.join(", ");
+    }
 
-    const hasSymbols = /[!-/:-@[-`{-~！-／：-＠［-｀｛-～”’・。、￥「」ー]/.test(val);
-    if(hasSymbols)
-        return "記号があります。"
+    // 記号を検出
+    const symbolMatches = val.match(/[!-/:-@[-`{-~！-／：-＠［-｀｛-～”’・。、￥「」ー]/g);
+    if (symbolMatches) {
+        return "記号があります: " + symbolMatches.join(", ");
+    }
 
     return true;
 }
@@ -810,7 +837,7 @@ function validateCity(input){
      * @returns {boolean} - 文字列が市、区、町、村で終わる場合はtrue、そうでない場合はfalse
      */
     function endsWithCity(val) {
-        
+
         const pattern = /(市|区|町|村)$/;
         if(pattern.test(val))
             return true;

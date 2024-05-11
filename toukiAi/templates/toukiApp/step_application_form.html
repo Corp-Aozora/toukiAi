@@ -178,13 +178,13 @@
                                 添付情報
                             </div>
                             <div>
-                                {{data.document}}
+                                {{data.document|linebreaks}}
                             </div>
                         </div>
                         <div>
                             <div>
                                 <div>
-                                    送付の方法により登記識別情報通知書及び登記完了証の交付を希望します。
+                                    送付の方法による登記識別情報通知書及び登記完了証の交付を希望します。
                                 </div>
                                 <div class="d-flex">
                                     <div class="headword">
@@ -192,7 +192,7 @@
                                     </div>
                                     <div class="ms-3">
                                         {% if data.is_agent == "true" %}
-                                            代理人の住所
+                                            {{ data.agent.position }}の住所
                                         {% else %}
                                             申請人の住所
                                         {% endif %}
@@ -338,11 +338,16 @@
                                         {% for acquirer in property.acquirers %}
                                             <div class="ms-5">
                                                 <div>
-                                                    持分{{acquirer.percentage}}
+                                                    {% if acquirer.percentage != "所有権" %}
+                                                        持分
+                                                    {% endif %}
+                                                    {{acquirer.percentage}}
                                                 </div>
-                                                <div class="ms-3">
-                                                    {{acquirer.name}}
-                                                </div>
+                                                {% if data.acquirers|length > 1 %}
+                                                    <div class="ms-3">
+                                                        {{acquirer.name}}
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                         {% endfor %}
                                     {% endif %}

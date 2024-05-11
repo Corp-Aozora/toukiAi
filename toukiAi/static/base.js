@@ -520,6 +520,23 @@ function isAlphaNumSymbolIncluded(val){
 }
 
 /**
+ * アルファベットと記号が含まれているかチェック
+ * @param {string} val - 検証する文字列
+ * @returns {boolean|string} - 両方含まれている場合はエラーメッセージ、そうでない場合はtrue
+ */
+function validateAlphabetAndSymbols(val) {
+    const hasAlphabet = /[A-Za-zＡ-Ｚａ-ｚ]/.test(val); 
+    if(hasAlphabet)
+        return "アルファベットがあります。"
+
+    const hasSymbols = /[!-/:-@[-`{-~！-／：-＠［-｀｛-～”’・。、￥「」ー]/.test(val);
+    if(hasSymbols)
+        return "記号があります。"
+
+    return true;
+}
+
+/**
  * エラーメッセージ表示のトグル
  * @param {boolean} isValid 
  * @param {HTMLElement} el エラーメッセージを表示する要素
@@ -777,4 +794,84 @@ function enableAllInputsAndSelects(){
  */
 function basicLog(functionName, e = null, message = null){
     console.error(`エラーを補足した関数：${functionName}\n開発者メッセージ：${message}\n${e}`);
+}
+
+/**
+ * 市区町村のバリデーション
+ * 
+ * 空欄/ 英数字/ 最後の文字が市区町村のいずれかで終了する
+ * @param {HTMLInputElement} input 
+ */
+function validateCity(input){
+    
+    /**
+     * 文字列の最後が市、区、町、村で終わるかどうかをチェックする関数
+     * @param {string} val - 検証する住所文字列
+     * @returns {boolean} - 文字列が市、区、町、村で終わる場合はtrue、そうでない場合はfalse
+     */
+    function endsWithCity(val) {
+        
+        const pattern = /(市|区|町|村)$/;
+        if(pattern.test(val))
+            return true;
+        
+        return "最後が「市区町村」のいずれかになっていません。";
+    }
+
+    let result;
+
+    result = isOnlyZenkaku(input);
+    if(typeof result === "string")
+        return result;
+
+    const val = input.value;
+    return endsWithCity(val);
+}
+
+/**
+ * 町域・番地のバリデーション
+ * 
+ * 空欄/ 全角にする/ アルファベット・記号があるときアラート表示
+ * @param {HTMLInputElement} input 
+ */
+function validateAreaAddress(input){
+    
+    const val = input.value;
+    let result;
+
+    result = isBlank(input);
+    if(typeof result === "string")
+        return result;
+
+    result = validateBeforeChomeWord(val);
+    if(typeof result === "string")
+        return result;
+
+    input.value = hankakuToZenkaku(val);
+    const zenkakuVal = input.value;
+
+    result = validateAlphabetAndSymbols(zenkakuVal);
+    if(typeof result === "string")
+        alert(`お間違いないでしょうか？\n\n${result}\n`);
+
+    return true;
+}
+
+/**
+ * 「丁目」という文字の1つ前が漢数字であるかどうかをチェックする関数
+ * @param {string} val - 検証する文字列
+ * @returns {boolean|string} - 条件を満たす場合はtrue、そうでない場合はエラーメッセージ
+ */
+function validateBeforeChomeWord(val) {
+
+    if(!val.includes("丁目"))
+        return true;
+
+    const pattern = /([一二三四五六七八九十])丁目/;
+
+    if (pattern.test(val)) {
+        return true;
+    } else {
+        return "「丁目」の前は漢数字にしてください";
+    }
 }

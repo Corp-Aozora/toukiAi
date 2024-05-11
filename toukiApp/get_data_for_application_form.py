@@ -250,9 +250,10 @@ def add_applicant_data(data, decedent):
         else:
             # 相続人を代理人扱い（この申請では取得者ではないとき）
             pattern = 3
-            
-        #取得者になっていないとき代理人に変更する
+
+        # 代理人情報を登録
         applicant_form = assign_applicant_data(pattern, application)
+        
         formatted_data.append((properties, acquirers, [applicant_form], sites_list))
     
     return formatted_data
@@ -350,7 +351,7 @@ def assign_applicant_data(pattern, data):
             data.content_object.bldg or ""
         ])
         form.update({
-            "position": "申請人兼代理人" if pattern == 1 else "代理人",
+            "position": "申請人兼代理人" if pattern == 2 else "代理人",
             "is_agent": "true",
             "agent_name": data.content_object.name,
             "agent_address": format_address(address),

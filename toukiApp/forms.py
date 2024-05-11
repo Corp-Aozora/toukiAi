@@ -71,7 +71,7 @@ class WidgetAttributes:
     # 住所の町域・番地
     address = {
         "class": "form-control rounded-end",
-        "placeholder": "「－」を使った省略表記は不可",
+        "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",
     }
     # 住所の建物
@@ -89,19 +89,19 @@ class WidgetAttributes:
     # 土地の所在地
     land_address = {
         "class": "form-control rounded-end",
-        "placeholder": "「◯丁目」があるときの◯は漢数字",
+        "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",
     }
     # 建物の所在地
     house_address = {
         "class": "form-control rounded-end",
-        "placeholder": "「◯丁目」があるときの◯は漢数字",
+        "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",
     }
     # 一棟の建物の所在
     bldg_address = {
         "class": "form-control rounded-end",
-        "placeholder": "「◯丁目」があるときの◯は漢数字",
+        "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",        
     }
     # 区分建物の家屋番号

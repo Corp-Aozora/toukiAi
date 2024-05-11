@@ -7,15 +7,19 @@
     #print_page, #print_page * {
         visibility: visible;
     }
+    
+    #print_page hr {
+        visibility: hidden; /* #print_page内の<hr>を非表示に設定 */
+    }
 
     #print_page {
         position: absolute;
         left: 0;
-        top: 10mm;
+        top: 0;
     }
 
     .print_per_section {
-        page-break-after: always; /* `break-after: page` を `page-break-after` に変更 */
+        page-break-after: always;
     }
 
     @page {
@@ -38,6 +42,10 @@
 
 #print_page {
     font-family: "Zen Old Mincho", serif;
+}
+
+.print_per_section{
+    margin-top: 10mm;
 }
 
 ul{

@@ -131,6 +131,10 @@
                                         {% if field.name == "prefecture" %}
                                             ※住民票の除票又は戸籍の附票に記載のとおりに入力。
                                             <br>
+                                            <span class="text-danger">
+                                                ※「◯丁目」の◯は漢数字で入力。
+                                            </span>
+                                            <br>
                                             <div class="d-flex text-nowrap">
                                                 <div>
                                                     ※
@@ -141,6 +145,10 @@
                                             </div>
                                         {% else %}
                                             ※死亡の記載がある戸籍謄本に記載の本籍地。
+                                            <br>
+                                            <span class="text-danger">
+                                                ※「◯丁目」の◯は漢数字で入力。
+                                            </span>
                                         {% endif %}
                                     </div>
                                     <div class="input-group Q">
@@ -180,6 +188,10 @@
                             <div class="d-flex align-items-center">
                                 <span class="form-text">
                                     ※登記情報、全部事項証明書（登記簿謄本）に記載された住所・氏名。
+                                    <br>
+                                    <span class="text-danger">
+                                        ※「◯丁目」の◯は漢数字で入力。
+                                    </span>
                                     <br>
                                     ※同じ住所・氏名の組み合わせは１回のみの入力で大丈夫です。
                                 </span>
@@ -371,7 +383,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        「住所に「◯丁目」がある場合、◯は漢数字で入力。
+                                                        「◯丁目」の◯は漢数字で入力。
                                                     </div>
                                                 </div>
                                             {% elif spouse_form.is_japan.value == "false" %}
@@ -554,7 +566,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住所に「◯丁目」がある場合、◯は漢数字で入力。
+                                                        「◯丁目」の◯は漢数字で入力。
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
@@ -768,7 +780,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        「住所に「◯丁目」がある場合、◯は漢数字で入力。
+                                                        「◯丁目」の◯は漢数字で入力。
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
@@ -962,7 +974,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        「住所に「◯丁目」がある場合、◯は漢数字で入力。
+                                                        「◯丁目」の◯は漢数字で入力。
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
@@ -1195,7 +1207,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住所に「◯丁目」がある場合、◯は漢数字で入力。
+                                                        「◯丁目」の◯は漢数字で入力。
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
@@ -1389,7 +1401,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住所に「◯丁目」がある場合、◯は漢数字で入力。
+                                                        「◯丁目」の◯は漢数字で入力。
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
@@ -2063,10 +2075,10 @@
                         {% endfor %}
                     </div>
                     <div class="d-flex justify-content-evenly houseBtnsDiv mt-5">
-                        <button type="button" id="houseCorrectBtn" class="preBtn btn btn-secondary" disabled="true">
+                        <button type="button" id="houseCorrectBtn" class="preBtn fw-bold btn btn-secondary bg-gradient bg-opacity-50" disabled="true">
                             前の建物を修正する
                         </button>
-                        <button type="button" id="houseOkBtn" class="nextBtn btn btn-primary" disabled="true">
+                        <button type="button" id="houseOkBtn" class="nextBtn fw-bold btn btn-primary bg-gradient bg-opacity-50" disabled="true">
                             次の建物へ進む
                         </button>
                     </div>

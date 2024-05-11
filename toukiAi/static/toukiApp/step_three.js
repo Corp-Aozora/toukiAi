@@ -1699,11 +1699,18 @@ function commonDateValidation(instance, isDeath){
  * @param {number} idx チェック対象の要素
  */
 function decedentValidation(idx){
-    // 建物名・号室はバリデーションなし
-    if(idx === DBldg)
-        return true;
 
     const input = decedent.inputs[idx];
+    const val = input.value;
+    
+    // 建物名・号室は文字があるとき全角にする
+    if(idx === DBldg){
+        if(val)
+            input.value = hankakuToZenkaku(val);
+
+        return true;
+    }
+
     // 空欄チェック
     let result = isBlank(input);
     if(typeof result === "string")
@@ -1714,12 +1721,18 @@ function decedentValidation(idx){
     const isBirthDate = [DBirthYear, DBirthMonth, DBirthDate].includes(idx);
     const isDeath = isDeathDate? true: isBirthDate? false: null;
 
-    //氏名
+    // 氏名
     if(idx === DName){
         result = isOnlyZenkaku(input);
     }else if(isDeathDate || isBirthDate){
-        //死亡または生年月日
+        // 死亡または生年月日
         result = commonDateValidation(decedent, isDeath);
+    }else if([DCity, DDomicileCity].includes(idx)){
+        // 市区町村
+        return validateCity(input);
+    }else if([DAddress, DDomicileAddress].includes(idx)){
+        // 町域・番地
+        return validateAreaAddress(input);
     }
 
     //エラーのとき、エラーメッセージを返す
@@ -1731,20 +1744,33 @@ function decedentValidation(idx){
 /**
  * 被相続人欄のバリデーションリスト
  * @param {number} idx 要素のインデックス
- * @param {elemet} el チェック対象の要素
+ * @param {HTMLInputElement} input チェック対象の要素
  */
-function registryNameAndAddressValidation(idx, el){
+function RNAAValidation(idx, input){
+
+    const val = input.value;
+
     // 建物名・号室はチェック不要
-    if(idx === RBldg)
+    if(idx === RBldg){
+        if(val)
+            input.value = hankakuToZenkaku(val);
+
         return true;
+    }
 
     // 氏名のときは全角チェック
     if(idx === RName){
-        return isOnlyZenkaku(el);
+        return isOnlyZenkaku(input);
+    }else if(idx === RCity){
+        // 市区町村
+        return validateCity(input);
+    }else if(idx === RAddress){
+        // 町域・番地
+        return validateAreaAddress(input);
     }
 
     // 空欄チェック
-    const blankCheck = isBlank(el);
+    const blankCheck = isBlank(input);
     return blankCheck !== false ? blankCheck: true;
 }
 
@@ -1854,8 +1880,8 @@ function setDecedentEvent(){
             break;
 
         const input = inputs[i];
-        const nextInput = inputs[i + 1];
-        //氏名欄のとき
+        const nextInput = i === DDomicileAddress? registryNameAndAddresses[0].inputs[RName]: inputs[i + 1];
+        //氏名欄
         if(i === DName){
             //キーダウンイベント
             input.addEventListener("keydown",(e)=>{
@@ -1864,24 +1890,19 @@ function setDecedentEvent(){
                 //数字を無効化
                 disableNumKey(e);
             })
+
             //inputイベント
             input.addEventListener("input", ()=>{
                 //全角チェック
                 handleFullWidthInput(decedent, input);
             })
-        }else if([DCity, DAddress, DBldg, DDomicileCity].includes(i)){
+        }else if([DCity, DAddress, DBldg, DDomicileCity, DDomicileAddress].includes(i)){
             // 住所の市区町村/ 住所の町域・番地/ 建物名・号室/ 本籍の市区町村
+
             // キーダウンイベント
             input.addEventListener("keydown",(e)=>{
                 //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
                 setEnterKeyFocusNext(e, nextInput);
-            })
-        }else if(i === DDomicileAddress){
-            // 本籍の町域・番地のとき
-            // キーダウンイベント
-            input.addEventListener("keydown",(e)=>{
-                //enterで死亡年欄（次の入力欄）にフォーカス移動するイベントを設定する
-                setEnterKeyFocusNext(e, registryNameAndAddresses[0].inputs[RName]);
             })
         }
 
@@ -1969,7 +1990,7 @@ function setRegistryNameAndAddressEvent(startIdx = 0){
                     input.addEventListener("change", (e)=>{
                         //入力値のチェック結果を取得
                         const el = e.target;
-                        isValid = registryNameAndAddressValidation(j, el);
+                        isValid = RNAAValidation(j, el);
         
                         //チェック結果に応じて処理を分岐
                         afterValidation(isValid, errMsgEls[j], isValid, el, instance);
@@ -2104,6 +2125,7 @@ function heirsValidation(idx, instance){
     
     const {inputs, fieldset} = instance;
     const input = inputs[idx];
+    const val = input.value;
 
     let result;
     // 氏名又は前配偶者・異父母の氏名のとき、全角チェックの結果を返す
@@ -2134,7 +2156,17 @@ function heirsValidation(idx, instance){
         const addressInputs = [inputs[SOAPrefecture], inputs[SOACity], inputs[SOAAddress], inputs[SOABldg]];
         addressInputs.forEach(x => instance.noInputs = instance.noInputs.filter(item => item !== x));
         addressInputs.forEach(x => x.value = "");
-        inputs[SOACity].disabled = true;
+        return true;
+    }else if(idx === SOACity){
+        // 市区町村
+        return validateCity(input);
+    }else if(idx === SOAAddress){
+        // 町域・番地
+        return validateAreaAddress(input);
+    }else if(idx === SOABldg){
+        // 建物名・号室
+        if(val)
+            input.value = hankakuToZenkaku(val);
         return true;
     }
 
@@ -2199,7 +2231,7 @@ function setHeirsEvent(instance){
         }
 
         //全入力欄にchangeイベントを設定する
-        input.addEventListener("change", async (e)=>{
+        input.addEventListener("change", (e)=>{
 
             //入力値のチェック結果を取得して各要素別のイベント設定又はバリデーションを行う
             const el = e.target;
@@ -2948,21 +2980,26 @@ function isDuplicateInput(instances, inputIdx){
  * @param {HTMLElement} input 
  */
 function propertyNumberValidation(instances, input){
+
     let result = isBlank(input);
     if(result !== false)
         return result;
+
     if(!isNumber(input.value, input))
         return "数字で入力してください";
+
     result = isDigit(input, "propertyNumber");
     if(typeof result === "string"){
         input.value = "";
         return result;
     }
+
     result = isDuplicateInput(instances, LNumber.input);
     if(typeof result === "string"){
         input.value = "";
         return result;
     }
+
     return true;
 }
 
@@ -3000,7 +3037,7 @@ function isBelowHundredPercent(bottomVal, topVal){
 
 /**
  * 土地建物情報のバリデーション
- * ※※※インデックスは不動産共通のため仮に土地のものを使用している※※※
+ * ※※※インデックスは土地建物共通のため仮に土地のものを使用している※※※
  * @param {HTMLCollection} inputs 対象のインスタンスの全input要素
  * @param {number} idx チェック対象のinput要素のインデックス
  */
@@ -3009,10 +3046,9 @@ function landHouseValidation(instances, inputs, idx){
     //不動産番号のとき、空欄、整数、１３桁、重複
     if(idx === LNumber.input){
         return propertyNumberValidation(instances, input);
-    }else if([LAddress.input, LOffice.input].includes(idx)){
-        //所在地、法務局のとき、空欄チェック
-        const result = isBlank(input);
-        return (result !== false) ? result: true;
+    }else if([LAddress.input].includes(idx)){
+        //所在地、空欄チェック
+        return validateAreaAddress(input);
     }else if(idx === LLandNumber.input[no]){
         //地番・家屋番号の枝番のとき、（空欄のときは何もしない）整数
         return branchNumberValidation(input);
@@ -3021,14 +3057,18 @@ function landHouseValidation(instances, inputs, idx){
         let result = isBlank(input);
         if(result !== false)
             return result;
+
         //評価額のとき、コンマを削除する
         if(idx === LPrice.input)
             input.value = removeCommas(input.value);
+        
         if(!isNumber(input.value, input))
             return "数字のみで入力してください";
+
         result = validateIntInput(input);
         if(typeof result === "string")
             return result;
+
         //所有権割合の分子が分母を超えてないかチェック
         const isPurpartyInput = [LPurparty.input[no], LPurparty.input[other]].includes(idx);
         if(isPurpartyInput){
@@ -3053,10 +3093,9 @@ function bldgValidation(inputs, idx){
     //不動産番号のとき、空欄、整数、１３桁、重複
     if(idx === BNumber.input){
         return propertyNumberValidation(bldgs, input);
-    }else if([BAddress.input, BOffice.input, BBldgNumber.input].includes(idx)){
+    }else if([BAddress.input, BBldgNumber.input].includes(idx)){
         //所在地、家屋番号、法務局のとき、空欄チェック
-        const result = isBlank(input);
-        return (result !== false) ? result: true;
+        return validateAreaAddress(input);
     }else if([BPurparty.input[no], BPurparty.input[other], BPrice.input].includes(idx)){
         //所有権・持分、評価額のとき、共通：空欄、整数
         let result = isBlank(input);
@@ -5125,17 +5164,30 @@ async function enableAndDisplayTargetPropertyWrapper(instances){
  * 所在及び地番のチェック：空欄、「番地」「番」の表記
  * @param {HTMLInputElement} input
  */
-function addressAndLandNumberValidation(input){
+function validateSiteAddress(input){
+    
     const val = input.value;
+
     let result = isBlank(input);
-    if(result !== false) 
-        result;
+    if(typeof result === "string") 
+        return result;
+
+    result = validateBeforeChomeWord(val);
+    if(typeof result === "string")
+        return result;
+
     //番地がないこと
     if(/番地/.test(val))
         return "地番は「◯番地」ではなく「◯番」という形式です";
+
     //番の前の１字以上の数字、後ろは空欄又は数字
     if(!/([\d\uFF10-\uFF19])番([\d\uFF10-\uFF19]*$)/.test(val))
         return "地番は（数字）番（数字又は空欄）の形式です";
+
+    result = validateAlphabetAndSymbols(val);
+    if(typeof result === "string")
+        alert(`お間違いないでしょうか？\n\n${result}\n`);
+
     return true
 }
 
@@ -5191,7 +5243,7 @@ function siteValidation(inputs, idx){
     let result;
     //所在及び地番：空欄、「番地」「番」
     if(idx === SAddressAndLandNumber.input){
-        result = addressAndLandNumberValidation(input);
+        result = validateSiteAddress(input);
     }else if(idx === SType.input){
         //敷地権の種類：空欄チェック
         result = isBlank(input);
@@ -5209,6 +5261,7 @@ function siteValidation(inputs, idx){
     if(typeof result === "string"){
         input.value = "";
     }
+
     return result;
 }
 
@@ -5838,7 +5891,10 @@ function addApplicantCandidates(instance, isData){
  * @param {number} idx 
  */
 function applicationValidation(inputs, idx){
+
+    const functionName = "applicationValidation"
     const input = inputs[idx];
+
     //申請人（空欄）
     if(idx === aApplicant.input){
         const result = isBlank(input);
@@ -5861,15 +5917,11 @@ function applicationValidation(inputs, idx){
         return isOnlyZenkaku(input);
     }else if(idx === aAddress.input){
         //代理人住所
-        const result = isBlank(input);
-        if(typeof result === "string"){
-            return result;
-        }
-        input.value = hankakuToZenkaku(input.value);
+        return validateAreaAddress(input)
     }else if([aIsReturn.input, aIsMail.input].includes(idx)){
         //原本還付の有無、郵送の有無、チェックなし
     }else{
-        throw new Error("applicationValidation：想定されないidxが渡されました");
+        throw new Error(`${functionName}でエラー\ninputs=${inputs}\nidx=${idx}`);
     }
 
     return true;

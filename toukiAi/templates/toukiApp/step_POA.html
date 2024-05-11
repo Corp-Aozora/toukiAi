@@ -211,10 +211,15 @@
                                                     {% if data.purpose_of_registration != "所有権移転" or property.acquirers|length > 1 %}
                                                         {% for acquirer in property.acquirers %}
                                                             <div class="ms-5">
-                                                                持分{{acquirer.percentage}}
-                                                                <span class="ms-3">
-                                                                    {{acquirer.name}}
-                                                                </span>
+                                                                {% if acquirer.percentage != "所有権" %}
+                                                                    持分
+                                                                {% endif %}
+                                                                {{acquirer.percentage}}
+                                                                {% if data.acquirers|length > 1 %}
+                                                                    <span class="ms-3">
+                                                                        {{acquirer.name}}
+                                                                    </span>
+                                                                {% endif %}
                                                             </div>
                                                         {% endfor %}
                                                     {% endif %}

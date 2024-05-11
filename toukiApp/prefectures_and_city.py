@@ -126,6 +126,11 @@ def format_address(address):
     Returns:
         str: 修正された住所
     """
+    # 政令指定都市
+    for city in DESIGNATED_CITIES:
+        if city in address:
+            return city + address.split(city, 1)[1]
+
     # 都道府県名のリスト
     prefectures = get_prefecture_list()
 
@@ -134,7 +139,7 @@ def format_address(address):
         city_with_suffix = city_name + "市"  # 「市」を追加
 
         # 住所が政令指定都市のとき、または市が都道府県と同じ名前のとき都道府県を削除
-        if city_with_suffix in address or any(city in address for city in DESIGNATED_CITIES):
+        if city_with_suffix in address:
             address = address.replace(prefecture, "", 1)
             break  # 一致する都道府県が見つかったらループを抜ける
 

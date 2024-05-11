@@ -72,6 +72,9 @@
     <section class="d-flex justify-content-center mt-5">
         <div id="print_page">
             {% for data in diagram_data %}
+                {% if forloop.counter > 1 %}
+                    <hr class="border-3">
+                {% endif %}
                 <div class="print_per_section">
                     <header class="d-flex justify-content-center">
                         <div class="d-flex">
@@ -394,7 +397,7 @@
                                         <span>
                                             {{data.spouse.position}}
                                         </span>
-                                        <span>
+                                        <span class="ms-3">
                                             {{data.spouse.name}}
                                         </span>
                                     </li>

@@ -3972,7 +3972,13 @@ def get_application_form_data(data, decedent):
         #相続人
         application_form["acquirers"] = get_acquirers_info(application_form["purpose_of_registration"], acquirers, application)
         #添付情報
-        application_form["document"] += "代理権限証明情報" if application["is_agent"] else ""
+        if len(formatted_data) > 0 and formatted_data[-1]["office"] == properties[0]["office"]:
+            if application["is_agent"]:
+                application_form["document"] = "登記原因証明情報（一部前件添付） 住所証明情報（前件添付）\n代理権限証明情報"
+            else:
+                application_form["document"] = "登記原因証明情報（一部前件添付） 住所証明情報（前件添付）"
+        else:
+            application_form["document"] += "代理権限証明情報" if application["is_agent"] else ""
         #法務局
         application_form["office"] = properties[0]["office"]
         #代理人情報
@@ -4410,7 +4416,7 @@ def get_POA_data(data, decedent):
             form["cause"] = cause
             
             #相続人
-            form["acquirers"] = get_acquirers_info(form["purpose_of_registration"], acquirers, applications)
+            form["acquirers"] = get_acquirers_info(form["purpose_of_registration"], acquirers, application)
             
             #代理人情報
             assign_agent_data(form, application)

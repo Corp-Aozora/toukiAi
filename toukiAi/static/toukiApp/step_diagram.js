@@ -14,6 +14,17 @@ window.addEventListener("resize", ()=>{
     drawAllLine();
 })
 
+window.addEventListener("beforeprint", ()=>{
+    const svgContainers = document.getElementsByClassName("svgContainer");
+    for(let i = 0, len = svgContainers.length; i < len; i++){
+        const svgContainer = svgContainers[i];
+        while(svgContainer.firstChild){
+            svgContainer.removeChild(svgContainer.firstChild);
+        }
+    }
+    drawAllLine();
+})
+
 /**
  * ロード後に相関関係を示す線を描画する
  */

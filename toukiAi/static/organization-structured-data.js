@@ -3,7 +3,7 @@ const organizationData = {
     "@type": "Organization",
     "name": "株式会社あおぞら",
     "url": "https://www.aozoratouki.com",
-    "logo": "https://www.aozoratouki.com/static/toukiApp/img/会社ロゴ.png",
+    "logo": "https://www.aozoratouki.com/static/toukiApp/img/company_logo.png",
     "contactPoint": {
       "@type": "ContactPoint",
       "telephone": "+81-800-805-1528",

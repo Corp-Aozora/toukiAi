@@ -102,6 +102,9 @@
         <hr>
         <fieldset id="print_page">
             {% for data in application_data %}
+                {% if forloop.counter > 1 %}
+                    <hr class="border-3 my-5">
+                {% endif %}
                 <div class="d-flex justify-content-center mt-5">
                     <div class="print_per_section">
                         <div class="position-relative">

@@ -1,19 +1,29 @@
 @media print {
+
     body * {
         visibility: hidden;
     }
+
     #print_page, #print_page * {
         visibility: visible;
     }
+
+    #print_page hr {
+        visibility: hidden; /* #print_page内の<hr>を非表示に設定 */
+        margin: 0px!important;
+    }
+    
     #print_page {
         position: absolute;
         left: 0;
         top: 0;
     }
+
     .print_per_section{
         break-after: page;
         margin-top:50mm;
     }
+
     @page {
         size: A4;
         margin-top: 20mm;

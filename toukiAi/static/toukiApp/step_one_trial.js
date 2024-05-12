@@ -4458,6 +4458,11 @@ function validateFutureDate(year, month){
  * @returns {boolean} 昭和22年5月より前の場合は false、それ以外は true
  */
 function validateOldLawInheritance(year, month){
+
+    // 年月両方入力されていないときは検証不要
+    if(!year || !month)
+        return;
+
     const intYear = parseInt(year.substring(0, 4));
     const intMonth = parseInt(month);
 

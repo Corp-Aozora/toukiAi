@@ -1,0 +1,52 @@
+
+/* 署名欄 */
+.signature{
+    margin-top:5mm;
+    padding-left:30mm;
+}
+
+/* 署名欄の年月日 */
+.signature > div:first-child > span:not(:first-child){
+    padding-left: 7mm;
+}
+
+.signature > div:first-child > span{
+    border-bottom: 1px solid black ;
+}
+
+/* 住所 */
+.signature > :nth-child(2){
+    height: 20mm;
+    width: 130mm;
+    border-bottom: 1px solid black ;
+}
+
+.end{
+    padding-right: 50mm;
+}
+
+/* 署名欄の氏名欄 */
+.signature > :nth-child(3){
+    margin-top: 1mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.signature > :nth-child(3) > :first-child{
+    border-bottom: 1px solid black ;
+    width: 90mm;
+}
+
+/* 署名欄の氏名欄の丸枠 */
+.stamp_box {
+    /* margin-right: 70mm; 氏名との間隔 */
+    width: 20mm; /* 枠の幅 */
+    height: 20mm; /* 枠の高さ */
+    border-radius: 50%; /* 丸枠 */
+    border: 1px dashed #000; /* 点線の枠 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 3mm;
+}

@@ -1,10 +1,16 @@
 @media print {
+    
     body * {
         visibility: hidden;
     }
     
     #print_page, #print_page * {
         visibility: visible;
+    }
+
+    #print_page hr {
+        visibility: hidden; /* #print_page内の<hr>を非表示に設定 */
+        margin: 0px!important;
     }
 
     #print_page {
@@ -18,11 +24,11 @@
     .print_per_section{
         break-after: page;
     }
-
+    
     @page {
         size: A4;
-        margin-top: 20mm;
-        margin-bottom: 20mm;
+        margin-top: 60px;
+        margin-bottom: 40px;
     }
 }
 
@@ -79,58 +85,3 @@
     margin-left: 1rem!important;
 }
 
-.signature{
-    margin-top:5mm;
-    padding-left:40mm;
-}
-
-/* 署名欄の年月日 */
-.signature > div:first-child > span:not(:first-child){
-    padding-left: 7mm;
-}
-
-.signature > div:first-child > span{
-    border-bottom: 1px solid black ;
-}
-
-/* 住所 */
-.signature > :nth-child(2){
-    margin-top: 10mm;
-    width: 130mm;
-    border-bottom: 1px solid black ;
-}
-
-.end{
-    padding-right: 50mm;
-}
-
-/* 署名欄の氏名欄 */
-.signature > :nth-child(3){
-    margin-top: 5mm;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.signature > :nth-child(3) > :first-child{
-    border-bottom: 1px solid black ;
-    width: 80mm;
-}
-
-/* 署名欄の氏名欄の丸枠 */
-.stamp_box {
-    margin-right: 60mm; /* 氏名との間隔 */
-    width: 20mm; /* 枠の幅 */
-    height: 20mm; /* 枠の高さ */
-    border-radius: 50%; /* 丸枠 */
-    border: 1px dashed #000; /* 点線の枠 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.signature > :last-child{
-    display: flex!important;
-    justify-content: end!important;
-    margin-right: 15mm;
-}

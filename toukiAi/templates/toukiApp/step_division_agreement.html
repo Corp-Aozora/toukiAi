@@ -5,6 +5,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_division_agreement.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_documents.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 
@@ -78,7 +79,7 @@
         </div>
         <hr>
         <div class="d-flex justify-content-center mt-5">
-            <div id="print_page">
+            <div id="print_page" class="print_per_section">
                 <h5 class="text-center">
                     遺産分割協議証明書
                 </h5>
@@ -331,38 +332,7 @@
                         以上
                     </span>
                 </div>
-                <div class="signature">
-                    <div>
-                        <span>
-                            令和
-                        </span>
-                        <span>
-                            年
-                        </span>
-                        <span>
-                            月
-                        </span>
-                        <span>
-                            日（記入日）
-                        </span>
-                    </div>
-                    <div>
-                        住所
-                    </div>
-                    <div>
-                        <div>
-                            氏名
-                        </div>
-                        <div class="stamp_box">
-                        </div>
-                    </div>
-                    <div>
-                        <div class="form-text">
-                            ※実印（印鑑登録証明書と同じ印鑑）<br>
-                            ※不鮮明なときは、丸枠の近くに押しなおしてください
-                        </div>
-                    </div>
-                </div>
+                {% include "toukiApp/parts/signature.html" %}
             </div>
         </div>
     </fieldset>
@@ -374,6 +344,7 @@
 
 {% block js %}
     {% load static %}
+    <script src="{% static 'toukiApp/step_documents.js' %}"></script>
     <script type="module" src="{% static 'toukiApp/step_division_agreement.js' %}"></script>
     <script type="module" src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

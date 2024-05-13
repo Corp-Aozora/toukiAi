@@ -4482,13 +4482,15 @@ def assign_properties_info(form, properties, sites, acquirers):
 
 def step_five(request):
     """ステップ５のメイン処理"""
+    
+    function_name = get_current_function_name()
+    this_html = "toukiApp/step_five.html"
+    this_url_name = "toukiApp:step_five"
+    next_url_name = "toukiApp:step_six"
+    step_progress = 5
+    title = Service.STEP_TITLES["five"]
+    
     try:
-        function_name = get_current_function_name()
-        this_html = "toukiApp/step_five.html"
-        this_url_name = "toukiApp:step_five"
-        next_url_name = "toukiApp:step_six"
-        step_progress = 5
-        title = Service.STEP_TITLES["five"]
                 
         response, user, decedent = check_user_and_decedent(request)
         if response:
@@ -4511,12 +4513,11 @@ def step_five(request):
             except Exception as e:
                 basic_log(function_name, e, user, "POSTでエラー")
                 raise e
-            
-
         
         heirs = get_legal_heirs(decedent)
         minors = get_filtered_instances(heirs, "is_adult", False)
         overseas_acquirers = get_filtered_instances(heirs, ["is_japan", "is_acquire"], [False, True])
+        refused_heirs = get_querysets_by_condition([Spouse, Descendant, Ascendant, Collateral], decedent, {"is_refuse": True})
         #ユーザーが申請する法務局の名称を取得する
         offices = get_where_to_apply(decedent)
         # office_name_and_link = {}
@@ -4535,6 +4536,7 @@ def step_five(request):
             "minors": minors,
             "offices": offices,
             "overseas_acquirers": overseas_acquirers,
+            "refused_heirs": refused_heirs,
             # "office_name_and_link": office_name_and_link,
             "sections" : Sections.SECTIONS[Sections.STEP5],
             "service_content" : Sections.SERVICE_CONTENT,

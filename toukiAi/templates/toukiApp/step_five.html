@@ -318,6 +318,7 @@
                                         固定資産評価証明書
                                     </button>
                                     は当年度のものですか？
+                                    <br>
                                     <button type="button" class="fw-bold text-primary text-start" data-bs-toggle="modal" data-bs-target="#reacquire_price_certification">
                                         ※法務局に申請書類を提出する日（郵送の場合は届く日）が４月１日をまたぐとき
                                     </button>
@@ -371,7 +372,19 @@
                                     <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#heir_family_certification">
                                         戸籍の全部事項証明書
                                     </button>
+                                    と
+                                    <span class="fw-bold">
+                                        印鑑証明書
+                                    </span>
                                     はありますか？
+                                    {% if overseas_acquirers|length > 0 %}
+                                        <div>
+                                            ※日本に住民票がない方は、
+                                            <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#alt_stamp_certificate_modal">
+                                                署名証明書。
+                                            </button>
+                                        </div>
+                                    {% endif %}
                                     {% if minors|length > 0%}
                                         <br>
                                         ※未成年の方は、法定代理人のもの（発行から３ヶ月以内）が必要です。
@@ -405,6 +418,21 @@
                                 </label>
                             </div>
                         </li>
+                        {% if refused_heirs|length > 0 %}
+                            <li class="list-group-item">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="check4">
+                                    <label class="form-check-label" for="check4">
+                                        <div>
+                                            <button class="fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
+                                                相続放棄受理通知書または相続放棄受理証明書
+                                            </button>
+                                            はありますか？
+                                        </div>
+                                    </label>
+                                </div>
+                            </li>
+                        {% endif %}
                     </ol>
                 </li>
                 <hr>
@@ -469,6 +497,9 @@
                             <br>
                         </li>
                         <li class="list-group-item">
+                            相続人全員分の遺産分割協議証明書と印鑑証明書
+                        </li>
+                        <li class="list-group-item">
                             <div>
                                 不動産を取得する方の住民票または
                                 <button type="button" class="text-start" data-bs-toggle="modal" data-bs-target="#acquirer_resident_certification_two">
@@ -484,9 +515,13 @@
                                 </div>
                             {% endif %}
                         </li>
-                        <li class="list-group-item">
-                            相続人全員分の遺産分割協議証明書と印鑑証明書
-                        </li>
+                        {% if refused_heirs|length > 0 %}
+                            <li class="list-group-item">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
+                                    相続放棄受理通知書または相続放棄受理証明書
+                                </button>
+                            </li>
+                        {% endif %}
                     </ul>
                 </li>    
                 <hr>
@@ -527,6 +562,11 @@
                                 ※登記済証、登記識別情報通知書、不在住証明書を用意しているときは、そのコピー
                             </div>
                         </li>
+                        {% if refused_heirs|length > 0 %}
+                            <li class="list-group-item">
+                                相続放棄受理通知書または相続放棄受理証明書
+                            </li>
+                        {% endif %}
                         <li class="list-group-item">
                             遺産分割協議証明書のコピーと印鑑証明書のコピー
                             <div class="ms-3">
@@ -609,6 +649,11 @@
                                 ※登記済証、登記識別情報通知書、不在住証明書を用意しているときは、その用意しているもの
                             </div>
                         </li>
+                        {% if refused_heirs|length > 0 %}
+                            <li class="list-group-item">
+                                相続放棄受理通知書または相続放棄受理証明書
+                            </li>
+                        {% endif %}
                         <li class="list-group-item">
                             遺産分割協議証明書と印鑑証明書
                             <div class="ms-3">

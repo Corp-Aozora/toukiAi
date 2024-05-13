@@ -370,6 +370,8 @@ def get_querysets_by_condition(models, decedent, filter_conditions=None, is_firs
 
     if filter_conditions is None:
         filter_conditions = {"decedent": decedent}
+    else:
+        filter_conditions.update({"decedent": decedent})
         
     results = []
     for model in models:

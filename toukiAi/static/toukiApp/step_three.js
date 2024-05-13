@@ -8,6 +8,7 @@ class Ids{
 
     static fieldset = {
         decedentSpouse: "id_decedent_spouse-fieldset",
+        numberOfProperties: "id_number_of_properties-0-fieldset",
         application: "id_application-fieldset"
     }
 }
@@ -921,6 +922,8 @@ function isActivateOkBtn(instance){
             //他の相続人でエラー要素がないとき、次の人へボタンを有効化する
             SpouseOrAscendant.okBtn.disabled = !isInstanceVerified;
         }
+    }else if(instance instanceof NumberOfProperties){
+        handleNOP();
     }else if(isClassMatched(instance, [Land, House, Bldg, Site, TempAcquirer])){
         //不動産情報のとき
         //インスタンス自身と仮フォームのデータもチェックする、区分建物の場合は敷地権も
@@ -932,6 +935,32 @@ function isActivateOkBtn(instance){
     }else{
         //その他
         okBtn.disabled = isInstanceVerified? false: true;
+    }
+
+    // 不動産の数の欄をチェック
+    function handleNOP(){
+        
+        okBtn.disabled = true;
+
+        const inputs = instance.inputs;
+        for(let i = 0, len = inputs.length; i < len; i++){
+
+            if(i === NOPDecedent)
+                break;
+
+            const input = inputs[i];
+            const val = input.value;
+            const intVal = parseInt(val);
+
+            if(val === ""){
+                okBtn.disabled = true;
+                return;
+            }
+
+            if(intVal > 0){
+                okBtn.disabled = false;
+            }
+        }
     }
 
     /**
@@ -2837,12 +2866,15 @@ function setTypeOfDivisionSection(){
 
 /**
  * 不動産の数の制限チェック（各欄２０個まで）
- * @param {Fieldset} instance  インスタンス
- * @param {number} i インプット要素の番号
+ * @param {NumberOfProperties} instance  インスタンス
+ * @param {number} idx インプット要素の番号
  */
-function countCheck(instance, i){
-    const val = instance.inputs[i].value;
-    const el = instance.inputs[i];
+function countCheck(instance, idx){
+
+    const {inputs, errMsgEls} = instance;
+
+    const val = inputs[idx].value;
+    const el = inputs[idx];
     isValid = isNumber(val, el) ? true: "false"; //整数チェック
     let msg = "";
 
@@ -2857,9 +2889,9 @@ function countCheck(instance, i){
     }else{
         msg = "数字で入力してください";
     }
-    afterValidation(isValid, instance.errMsgEls[i], msg, el, instance);
-    const isAny = numberOfProperties[0].inputs.some(x => parseInt(x.value) > 0);
-    okBtn.disabled = isAny ? false: true;
+
+    afterValidation(isValid, errMsgEls[idx], msg, el, instance);
+    isActivateOkBtn(instance);
 }
 
 /**
@@ -2917,45 +2949,78 @@ function handleIncreaseOrDecreaseBtnEvent(isIncrease, instance, i, plusBtn, minu
     toggleCountBtn(plusBtn, minusBtn, instance.inputs[i].value, minCount, maxCount);
 }
 
+
 /**
  * 不動産の数のセクションのイベントをセットする
  */
-function setNumberOfPropertiesSection(){
-    if(numberOfProperties.length === 0){
-        const instance = new NumberOfProperties("id_number_of_properties-0-fieldset");
-        const min = 0;
-        const max = 20;
-        for(let i = 0, len = instance.inputs.length; i < len; i++){
-            if(i === NOPDecedent)
-                break;
-            instance.inputs[i].addEventListener("change", ()=>{
-                countCheck(instance, i);
-                toggleCountBtn(instance.increaseBtn[i], instance.decreaseBtn[i], parseInt(instance.inputs[i].value), min, max);
-            })
-            instance.inputs[i].addEventListener("keydown",(e)=>{
-                handleNumInputKeyDown(e);
-                setEnterKeyFocusNext(e, (i < len - 1) ? instance.inputs[i + 1]: okBtn);
-            })
-            instance.inputs[i].addEventListener("input", (e)=>{
-                //３文字以上入力不可
-                e.target.value = e.target.value.slice(0,2);
-            })
-        }
+function setNOPSection(){
 
-        for(let i = 0, len = instance.decreaseBtn.length; i < len; i++){
-            instance.decreaseBtn[i].addEventListener("click",()=>{
-                handleIncreaseOrDecreaseBtnEvent(false, instance, i, instance.increaseBtn[i], instance.decreaseBtn[i], min, max);
-            })
-        }
+    const functionName = "setNOPSection";
+    try{
 
-        for(let i = 0, len = instance.increaseBtn.length; i < len; i++){
-            instance.increaseBtn[i].addEventListener("click",()=>{
-                handleIncreaseOrDecreaseBtnEvent(true, instance, i, instance.increaseBtn[i], instance.decreaseBtn[i], min, max);
-            })
+        if(numberOfProperties.length === 0){
+            
+            const instance = new NumberOfProperties(Ids.fieldset.numberOfProperties);
+            const {inputs, increaseBtn, decreaseBtn} = instance;
+            const min = 0;
+            const max = 20;
+    
+            // ＋と－のボタンにイベント設定
+            function setEventToBtn(){
+            
+                // ＋ボタンの数でループ処理（＋ボタンと－ボタンの数は同じ）
+                for(let i = 0, len = increaseBtn.length; i < len; i++){
+            
+                    const incBtn = increaseBtn[i];
+                    const decBtn = decreaseBtn[i];
+                    const btns = [incBtn, decBtn];
+                    
+                    for(let j = 0, len = btns.length; j < len; j++){
+                        
+                        const btn = btns[j];
+                        const isInc = j === 0? true: false;
+    
+                        btn.addEventListener("click", ()=>{
+                            handleIncreaseOrDecreaseBtnEvent(isInc, instance, i, incBtn, decBtn, min, max);
+                        })
+                    }
+                }
+            }
+    
+            for(let i = 0, len = inputs.length; i < len; i++){
+    
+                const input = inputs[i];
+    
+                // hiddenInput以降は不要
+                if(i === NOPDecedent)
+                    break;
+                
+                input.addEventListener("change", ()=>{
+                    countCheck(instance, i);
+                    toggleCountBtn(increaseBtn[i], decreaseBtn[i], parseInt(input.value), min, max);
+                })
+                
+                input.addEventListener("keydown",(e)=>{
+                    handleNumInputKeyDown(e);
+                    setEnterKeyFocusNext(e, (i < len - 1) ? inputs[i + 1]: okBtn);
+                })
+    
+                input.addEventListener("input", (e)=>{
+                    //３文字以上入力不可
+                    e.target.value = e.target.value.slice(0,2);
+                })
+            }
+    
+            setEventToBtn();
+    
+            okBtn.disabled = true;
         }
-        okBtn.disabled = true;
+    
+        scrollToTarget(numberOfProperties[0].fieldset);
+
+    }catch(e){
+        basicLog(functionName, e, "不動産の数の欄の設定でエラー");
     }
-    scrollToTarget(numberOfProperties[0].fieldset);
 }
 
 /**
@@ -4292,12 +4357,47 @@ function enablePropertyWrapper(instances, idx){
  * @param {number} count 対象の不動産の数
  */
 function removePropertyWrappers(instances, count){
+
+    const functionName = "removePropertyWrappers";
+
     const prefix = getPropertyPrefix(instances[0]);
     const section = getPropertySectionFromPrefix(prefix);
     const wrappers = section.getElementsByClassName(`${prefix}Wrapper`);
+
     for(let i = wrappers.length - 1; count <= i; i--){
-        wrappers[i].remove();
-        instances.pop()
+        try{
+            wrappers[i].remove();
+    
+            if(prefix === "bldg"){
+
+                const bldg = instances.pop();
+                const newSites = sites.filter(x => x.belongsTo !== bldg);
+                sites.length = 0;
+                
+                for(let i = 0, len = newSites.length; i < len; i++){
+                    const newSite = newSites[i];
+                    updateAttribute(newSite.fieldset, "[id],[for],[name]", /(site-)\d+/, i);
+                    sites.push(newSite);
+                }
+
+            }else{
+                instances.pop()
+            }
+        }catch(e){
+            throw new Error(
+                MessageTemplates.functionNameAndArgs(
+                    functionName, 
+                    {
+                        e: e,
+                        instances:instances, 
+                        count:count, 
+                        prefix: prefix,
+                        section: section,
+                        i: i
+                    }
+                )
+            )
+        }
     }
 
 }
@@ -5036,7 +5136,7 @@ function handleHeirsSectionOkBtn(section, preSection){
 function handleTODSectionOkBtn(section, preSection){
     const nextSectionIdx = 4;
     handleOkBtnEventCommon(section, preSection, nextSectionIdx);
-    setNumberOfPropertiesSection();
+    setNOPSection();
 }
 
 /**
@@ -5692,8 +5792,10 @@ function handleTAFieldsetEvent(instances, startIdx = 0){
  * @param {string} prefix "land", "house", "bldg"
  */
 function handlePropertyFormsAndBtnsEvent(prefix){
+
     const instances = getPropertyInstancesFromPrefix(prefix);
     prefix === "bldg"? setBldgEvent(): setLandHouseEvent(instances);
+
     setPropertyOkBtnEvent(instances);
     setPropertyCorrectBtnEvent(instances);
 }
@@ -5833,8 +5935,10 @@ async function setBldgSection(){
             handleSiteFieldsetEvent();
         }else if(bldgs.length > 0){
             //再表示のとき
+
             const oldCount = bldgs.length;
-            //土地の数が減ったとき
+            
+            //数が減ったとき
             if(newCount < oldCount){
                 //減った分のフォームとインスタンスを削除する
                 removePropertyWrappers(bldgs, newCount);
@@ -5886,7 +5990,7 @@ async function setBldgSection(){
         //最後に表示されている土地情報を有効化する
         await enableAndDisplayTargetPropertyWrapper(bldgs);
     }catch(e){
-        basicLog("setBldgSection", e, "");
+        basicLog("setBldgSection", e, "区分建物の欄の設定内でエラー");
     }
 }
 

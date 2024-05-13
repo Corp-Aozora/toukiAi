@@ -1793,9 +1793,9 @@ def save_step_three_site(decedent, user, form_set, index_and_instance):
                     site.save()
                     break
             if not matched:
-                raise ValidationError(f"form_num:{i + 1}\ntarget：{target_val}に一致する不動産のindexがありません")
+                raise ValidationError(f"form_num:{i + 1}, target:{target_val}に一致する不動産のindexがありません")
     except Exception as e:
-        basic_log(function_name, e, user, form_class_name)
+        basic_log(function_name, e, user, form_class_name, False)
         raise e
 
 def save_step_three_form(decedent, user, form):

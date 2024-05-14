@@ -48,6 +48,10 @@
     #offcanvasMenus .proxy-footer-li{
         display: block!important;
     }
+
+    .menu-toggler-btn{
+        display: block!important;
+    }
 }
 
 .logo-img{

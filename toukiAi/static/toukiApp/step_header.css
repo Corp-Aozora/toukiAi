@@ -11,7 +11,7 @@
 
 @media (max-width:767px){
     #offcanvasMenus, #progress_list_offcanvas{
-        width: 240px;
+        width: 260px;
     }
 }
 
@@ -23,6 +23,10 @@
 
     .show-progress-offcanvas-btn{
         display: initial!important;
+    }
+
+    .menu-toggler-btn{
+        display: block!important;
     }
 }
 

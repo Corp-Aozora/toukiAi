@@ -5,13 +5,13 @@
 
 <header id="header" class="navbar navbar-expand-lg navbar-light bg-light p-2 sticky-top shadow-sm">
     <nav class="container-xl">
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="me-lg-4 mx-auto" href="{% url 'toukiApp:index' %}">
+        <a class="me-lg-4" href="{% url 'toukiApp:index' %}">
             <img class="logo-img" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </a>
-        <div id="offcanvasMenus" class="offcanvas offcanvas-start" tabindex="-1" aria-labelledby="offcanvasLabel">
+        <button class="menu-toggler-btn px-3 btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">
+            メニュー
+        </button>
+        <div id="offcanvasMenus" class="offcanvas offcanvas-end" tabindex="-1" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header bg-light border-bottom">
                 <h5 id="offcanvasLabel" class="offcanvas-title">
                     メニュー

@@ -6,8 +6,8 @@
 
 {{ company_data.APP_NAME }}のアカウント登録が完了しました。
 
-{{ company_data.APP_NAME }}のお試しページ（相続人の判定ができます）のリンクです。
-{{ company_data.TRIAL_URL }}
+{{ company_data.APP_NAME }}のログインページです。
+{{ company_data.LOGIN_URL }}
 
 システムに関する不明点などありましたらお気軽にお問い合わせください。
 今後ともよろしくお願いします。

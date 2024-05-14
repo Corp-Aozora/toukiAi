@@ -390,7 +390,13 @@ class FormSectionInputEvent{
             // 住所
             // 空欄チェック
             result = isBlank(input);
-            result = typeof result === "boolean"? true: result;
+            if(typeof result === "string")
+                return result;
+
+            //半角を全角に変換
+            input.value = hankakuToZenkaku(input.value)
+            return result;
+
         }else if(input === phoneNumber){
             // 電話番号
             // 数字のみかつ１１桁以内

@@ -21,54 +21,52 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 
-<div class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3">
+<div class="mx-auto col-md-9 col-lg-7 mt-3 px-3">
     <section class="card shadow" {% if not_paid_data.option2 %}style="display: none;"{% else %}style="display: block;"{% endif %}>
         <div class="card-header p-3 bg-danger-subtle bg-gradient bg-opacity-50">
             <h1 class="fs-4 text-center">
                 ご請求額
             </h1>
         </div>
-        <div class="card-body px-5">
-            <ul class="ps-0 mb-0">
-                <li class="d-flex justify-content-center">
-                    <ul class="option-detail-wrapper">
-                        <li {% if not_paid_data.basic %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-                            <div class="d-flex">
-                                <div class="price">
-                                    {{service.CAMPAIGN_BASIC_PRICE_STR}}
-                                </div>
-                                <div class="ms-3">
-                                    {{service.BASIC_NAME}}
-                                </div>
+        <div class="card-body px-sm-5 pb-0">
+            <div class="d-flex justify-content-center">
+                <ul class="ps-0 mb-0">
+                    <li {% if not_paid_data.basic %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                        <div class="d-sm-flex">
+                            <div class="fw-bold">
+                                {{service.BASIC_NAME}}
                             </div>
-                        </li>
-                        <li {% if not_paid_data.option1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-                            <div class="d-flex">
-                                <div class="price">
-                                    {{service.CAMPAIGN_OPTION1_PRICE_STR}}
-                                </div>
-                                <div class="ms-3">
-                                    {{service.OPTION1_NAME}}
-                                </div>
+                            <div class="ms-3 price">
+                                {{service.CAMPAIGN_BASIC_PRICE_STR}}
                             </div>
-                        </li>
-                        <li {% if not_paid_data.option2 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-                            <div class="d-flex">
-                                <div class="price">
-                                    {{service.CAMPAIGN_OPTION2_PRICE_STR}}
-                                </div>
-                                <div class="ms-3">
-                                    {{service.OPTION2_NAME}}
-                                </div>
+                        </div>
+                    </li>
+                    <li {% if not_paid_data.option1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                        <div class="d-sm-flex">
+                            <div class="fw-bold">
+                                {{service.OPTION1_NAME}}
                             </div>
-                        </li>
-                    </ul>
-                </li>
-                <hr>
-                <li class="fw-bold text-center fs-5">
-                    {{not_paid_data.charge}}円（税込）
-                </li>
-            </ul>
+                            <div class="ms-3 price">
+                                {{service.CAMPAIGN_OPTION1_PRICE_STR}}
+                            </div>
+                        </div>
+                    </li>
+                    <li {% if not_paid_data.option2 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                        <div class="d-sm-flex">
+                            <div class="fw-bold">
+                                {{service.OPTION2_NAME}}
+                            </div>
+                            <div class="ms-3 price">
+                                {{service.CAMPAIGN_OPTION2_PRICE_STR}}
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <hr>
+            <h5 class="text-center">
+                {{not_paid_data.charge}}円（税込）
+            </h5>
         </div>
         <hr>
         <ul class="px-3">
@@ -78,7 +76,7 @@
                         ※
                     </div>
                     <div>
-                        こちらが表示されてから１週間以内にお支払いが完了しない場合はキャンセルされたものとします。
+                        こちらが表示されてから１週間以内にお支払いを確認できない場合は、キャンセルされたものとします。
                     </div>
                 </div>
             </li>
@@ -88,7 +86,7 @@
                         ※
                     </div>
                     <div>
-                        弊社で着金確認後は原則としてキャンセルできません。
+                        弊社でお支払いを確認した後は、原則キャンセルできません。
                     </div>
                 </div>
             </li>
@@ -102,13 +100,13 @@
                 </h4>
             </div>
         </div>
-        <div class="card-body px-5">
+        <div class="card-body px-sm-5">
             <p class="text-center">
-                下記口座に上記金額の振込をお願いします。
+                下記口座にお振込をお願いします。
             </p>
             <div class="d-flex justify-content-center">
                 <p class="fw-bold text-center border border-danger rounded-3 p-2">
-                    ※振込名義人は以下の表記で入力をお願いします。
+                    ※振込名義人は以下の表記でお願いします。
                     <br>
                     <span class="text-danger fw-bold">
                         {{ unique_payer }}
@@ -161,17 +159,17 @@
             </ul>
             <div {% if not_paid_data.basic %}style="display: block;"{% else %}style="display: none;"{% endif %}>
                 <hr>
-                <p class="fw-bold fst-italic text-center">
+                <h5 class="fst-italic text-center">
                     システムの有料版をお申し込みいただいた方
-                </p>
-                <div class="ms-3">
-                    <div class="text-indent">
-                        お振込後、次のメールアドレス宛に
+                </h5>
+                <div class="mt-3">
+                    <p class="text-indent">
+                        以下のメールアドレスに
                         <span class="px-3 border-bottom border-dark">
                             お振込内容を確認できる画像
                         </span>
                         をお送りください。
-                    </div>
+                    </p>
                     <p class="text-center">
                         {% with "オプション利用料の振込連絡" as subject %}
                         <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ subject|urlencode }}&body=※振込内容を確認できる画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A名義人：{{ unique_payer|urlencode }}%0D%0A金額：{{ not_paid_data.charge|urlencode }}円">
@@ -183,7 +181,7 @@
                     </p>
                     <div>
                         <div class="text-indent">
-                            弊社の担当者が画像を確認できましたら、お客様がシステムを利用できる状態に設定してメールでお知らせいたします。
+                            弊社の担当者が画像を確認しましたら、お客様がシステムを利用できる状態に設定してメールでお知らせいたします。
                         </div>
                         <div class="d-flex">
                             <div>
@@ -201,11 +199,11 @@
                             </span>
                         </div>
                         <div>
-                            <span class="border-bottom border-dark">
+                            <span class="border-bottom border-dark fw-bold">
                                 ２４時間以内に弊社からメールが届かない場合
                             </span>
                             <br>
-                            システム障害などの可能性がありますので、お手数ですが、弊社にお電話をお願いします。
+                            システム障害などの可能性がありますので、お手数ですが、弊社にお知らせをお願いします。
                         </div>
                     </div>
                     <hr>
@@ -213,7 +211,7 @@
                         <div class="fw-bold bordre-bottom border-dark">
                             お問い合わせ先
                         </div>
-                        <div class="ms-3">
+                        <div>
                             {{ company_data.MAIL_ADDRESS }}
                             <br>
                             {{ company_data.RECEIVING_PHONE_NUMBER }}
@@ -223,10 +221,10 @@
             </div>
             <div class="mt-3" {% if not_paid_data.option1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
                 <hr>
-                <p class="fw-bold fst-italic text-center">
+                <h5 class="fst-italic text-center">
                     戸籍取得代行をお申し込みいただいた方
-                </p>
-                <div class="ms-3">
+                </h5>
+                <div class="mt-3">
                     <div class="text-indent">
                         弊社に着金したことを確認後、ご登録いただいた以下の住所に委任状などの書類を郵送してメールでその旨をお知らせいたします。
                     </div>
@@ -248,11 +246,11 @@
                             </span>
                         </div>
                         <div>
-                            <span class="border-bottom border-dark">
+                            <span class="border-bottom border-dark fw-bold">
                                 振込日を除いて金融機関の３営業日以内に弊社からメールが届かない場合
                             </span>
                             <br>
-                            誤振込の可能性がありますので、お手数ですが、弊社にメールまたはお電話をお願いします。
+                            誤振込の可能性がありますので、お手数ですが、弊社にお知らせをお願いします。
                         </div>
                     </div>
                     <hr>
@@ -260,7 +258,7 @@
                         <div class="fw-bold bordre-bottom border-dark">
                             お問い合わせ先
                         </div>
-                        <div class="ms-3">
+                        <div>
                             {{ company_data.MAIL_ADDRESS }}
                             <br>
                             {{ company_data.RECEIVING_PHONE_NUMBER }}
@@ -278,7 +276,7 @@
                 </h5>
             </div>
         </div>
-        <div class="card-body px-5">
+        <div class="card-body px-sm-5">
             <p class="text-indent">
                 <span class="fw-bold">
                     受任する司法書士が決まりましたら弊社からお客様に司法書士の連絡先をメールします。
@@ -299,11 +297,15 @@
             </div>
             <div class="mt-3">
                 <div class="d-flex">
-                    <div class="border-bottom border-dark">
-                        ※
+                    <div>
+                        <span class="border-bottom border-dark">
+                            ※
+                        </span>
                     </div>
-                    <div class="border-bottom border-dark">
-                        以下の場合は、弊社までお問い合わせをお願いします。
+                    <div>
+                        <span class="border-bottom border-dark fw-bold">
+                            以下の場合は、弊社までお問い合わせをお願いします。
+                        </span>
                     </div>
                 </div>
                 <ul class="ps-3 mb-0 mt-1">
@@ -340,7 +342,6 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'accounts/bank_transfer.js' %}"></script>
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script src="{% static 'toukiApp/step_header.js' %}"></script>
 {% endblock %}

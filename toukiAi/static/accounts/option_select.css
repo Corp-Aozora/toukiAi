@@ -1,3 +1,4 @@
+/* 各項目内のul */
 section ul{
     padding-left: 0!important;
     margin-bottom: 0!important;
@@ -9,7 +10,7 @@ section ul li{
 }
 
 #basic-section ul li .d-flex > div:first-child{
-    min-width: 85px;
+    min-width: 50px;
     margin-left: 2rem!important;
 }
 

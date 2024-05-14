@@ -1,0 +1,36 @@
+<div id="result-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
+                <h4 class="modal-title fw-bold">
+                    相続人は以下の方々です。
+                </h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <ul class="p-0">
+                        {% for heir_name in result %}
+                            <li class="d-flex fs-4 border-bottom border-success px-3">
+                                <div>
+                                    <span class="fw-bold">
+                                        {{heir_name}}
+                                    </span>
+                                </div>
+                                <div class="ms-3">
+                                    <span class="fw-bold">
+                                        さん
+                                    </span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="form-text">
+                    ※この結果はページ上部にも表示されてます。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

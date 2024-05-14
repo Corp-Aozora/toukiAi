@@ -1,7 +1,6 @@
 section ul{
     padding-left: 0!important;
     margin-bottom: 0!important;
-    padding-left: 1rem!important;
     margin-top: 1rem!important;
 }
 
@@ -12,7 +11,7 @@ section ul li{
 #basic-section ul li .d-flex > div:first-child{
     min-width: 85px;
     margin-left: 2rem!important;
-} 
+}
 
 section:nth-of-type(n+2){
     margin-top: 1rem;
@@ -44,4 +43,34 @@ label{
 
 ::placeholder{
     text-align: center;
+}
+
+@media (max-width:575px){
+    form .input-group .label{
+        width: 100%!important;
+        text-align-last: initial!important;
+        text-align: center!important;
+        border-radius: 0!important;
+        border-top-left-radius:var(--bs-border-radius)!important;
+        border-top-right-radius:var(--bs-border-radius)!important;
+    }
+
+    form .input-group input, form .input-group select{
+        margin-left: 0px!important;
+        border-radius: 0!important;
+        border-bottom-left-radius:var(--bs-border-radius)!important;
+        border-bottom-right-radius:var(--bs-border-radius)!important;
+        text-align: center!important;
+    }
+    
+    .emPosition{
+        left: 0px!important;
+    }
+}
+
+@media (max-width:470px){
+
+    #basic-section label > span, #option1-section label > span, #option2-section label > span{
+        display: block;
+    }
 }

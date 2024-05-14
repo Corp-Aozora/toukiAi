@@ -1,7 +1,7 @@
 {% extends "account/base.html" %}
 
 {% block title %}
-    {{ title }} | {{ block.super}}
+    {{ title }} | {{ block.super }}
 {% endblock title %}
 
 {% block stylesheet %}
@@ -19,12 +19,13 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 
-<div class="mx-auto col-8 col-sm-9 col-md-7 col-lg-6 mt-3">
+<div class="mx-auto col-md-9 col-lg-7 mt-3 px-3">
     <h1 class="fs-4 text-center mb-0">
         オプション選択
-        <br>
-        （令和６年６月末までの限定価格です）
     </h1>
+    <h5 class="mt-3 text-center fw-bold">
+        （令和６年６月末までの限定価格です）
+    </h5>
     <hr>
     <div>
         <h5 class="text-center fw-bold">
@@ -36,18 +37,18 @@
             </span>
         </p>
         <div class="fw-bold">
-            <div class="d-flex">
+            <div class="text-indent">
+                <span class="border-bottom border-dark">
+                    振込内容を確認できる画像を弊社にメール
+                </span>
+                いただくと弊社に着金する前（土日祝日を含む）でもお申し込みされたオプションを利用できるようになります。
+            </div>
+            <div class="d-flex mt-3">
                 <div>
                     ※
                 </div>
                 <div>
-                    <span class="border-bottom border-dark">
-                    振込内容を確認できる画像を弊社にメール
-                    </span>
-                    いただくと弊社に着金する前（土日祝日を含む）でもお申し込みされたオプションを利用できるようになります。
-                    <div>
-                        ＞振込日の翌銀行営業日中に入金を確認できない場合、アカウントを一時凍結させていただきます。
-                    </div>
+                    振込日の翌銀行営業日中に入金を確認できない場合、アカウントを一時凍結させていただきます。
                 </div>
             </div>
         </div>
@@ -71,7 +72,7 @@
                     ※
                 </div>
                 <div>
-                    お申し込みから１週間以内にお支払いが完了しない場合はキャンセルされたものとします。       
+                    お申し込みから１週間以内にお支払いを確認できない場合はキャンセルされたものとします。       
                 </div>
             </li>
         </ul>
@@ -80,14 +81,14 @@
         {% csrf_token %}
         <section id="basic-section" class="card shadow mt-3" {% if paid_option_and_amount.basic or paid_option_and_amount.option2 %}style="display: none"{% endif %}>
             <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
-                <div class="card-title text-center mb-0 d-flex justify-content-center align-items-center">
+                <div class="card-title text-center mb-0 d-sm-flex justify-content-center align-items-center">
                     <div>
                         {{form.basic}}
                     </div>
-                    <div class="ms-3">
+                    <div class="ms-sm-3">
                         <label class="fs-5 fw-bold" for="{{ form.basic.id_for_label }}">
                             {{service.BASIC_NAME}}
-                            <span class="ms-3">
+                            <span class="ms-sm-3">
                                 {{service.CAMPAIGN_BASIC_PRICE_STR}}（税込）
                             </span>
                         </label>
@@ -99,13 +100,11 @@
                     </button>
                 </div>
             </div>
-            <div class="card-body px-5">
+            <div class="card-body px-sm-5">
                 <div>
-                    <div class="fw-bold text-center">
-                        相続人判定（１．基本データ入力）以外の機能も
-                        <br>
-                        使用できるようになります。
-                    </div>
+                    <h5 class="text-center">
+                        全機能を使用できるようになります。
+                    </h5>
                     <ul>
                         <li>
                             <span class="fw-bold">
@@ -206,14 +205,14 @@
         </section>
         <section id="option1-section" class="card shadow" {% if paid_option_and_amount.option1 or paid_option_and_amount.option2 %}style="display: none"{% endif %}>
             <div class="card-header p-3 bg-success-subtle bg-gradient bg-opacity-50">
-                <div class="card-title text-center mb-0 d-flex justify-content-center align-items-center">
+                <div class="card-title text-center mb-0 d-sm-flex justify-content-center align-items-center">
                     <div>
                         {{form.option1}}
                     </div>
-                    <div class="ms-3">
+                    <div class="ms-sm-3">
                         <label class="fs-5 fw-bold" for="{{ form.option1.id_for_label }}">
                             {{service.OPTION1_NAME}}
-                            <span class="ms-3">
+                            <span class="ms-sm-3">
                                 {{service.CAMPAIGN_OPTION1_PRICE_STR}}（実費・税込）
                             </span>
                         </label>
@@ -225,74 +224,60 @@
                     </button>
                 </div>
             </div>
-            <div class="card-body px-5">
+            <div class="card-body px-sm-5">
                 <div>
-                    <div>
-                        <div class="mt-3 d-flex justify-content-center">
-                            <div>
-                                <p class="text-center fw-bold">
-                                    お亡くなりになった方に関する必要書類を全て代行して取得します。
-                                </p>
-                                <ul class="ps-5 mt-3">
-                                    <li>
-                                        <span class="">
-                                            ・出生から死亡までの戸籍謄本
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span class="">
-                                            ・死亡時から登記簿上の住所までの履歴を証する書類
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span class="">
-                                            ・固定資産評価証明書
-                                        </span>
-                                    </li>
-                                    <li>
-                                        <span class="">
-                                            ・登記情報
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
+                    <h5 class="text-center">
+                        お亡くなりになった方に関する必要書類を全て代行して取得します。
+                    </h5>
+                    <div class="mt-3 d-flex justify-content-center">
+                        <div>
+                            <ul class="ps-sm-5 ps-3 mt-3">
+                                <li>
+                                    ・出生から死亡までの戸籍謄本
+                                </li>
+                                <li>
+                                    ・死亡時から登記簿上の住所までの履歴を証する書類
+                                </li>
+                                <li>
+                                    ・固定資産評価証明書
+                                </li>
+                                <li>
+                                    ・登記情報
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="ps-0 mb-0">
-                            <li>
-                                <div class="d-flex">
-                                    <div>
-                                        ※
-                                    </div>
-                                    <div>
-                                        取得する書類が15通を超える場合、超過1通ごとに1,500円（実費込）が加算されます。
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
                     </div>
-                    <div>
-                        <div class="d-flex">
-                            <div class="fw-bold">
+                    <ul class="ps-0 mb-0">
+                        <li class="d-flex">
+                            <div>
                                 ※
                             </div>
                             <div>
-                                システムもご利用されている場合に、弊社の方で書類の情報をシステムに入力したり、ご入力された内容をチェックすることはできません。
+                                取得する書類が15通を超える場合、超過1通ごとに1,500円（実費込）が加算されます。
                             </div>
-                        </div>
-                    </div>
+                        </li>
+                        <li class="d-flex mt-0">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                システムもご利用いただいている場合に、弊社の方で書類の情報をシステムに入力したり、ご入力された内容をチェックすることはできません。
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </section>
         <section id="option2-section" class="card shadow" {% if paid_option_and_amount.option2 %}style="display: none"{% endif %}>
             <div class="card-header p-3 bg-warning-subtle bg-gradient bg-opacity-50">
-                <div class="card-title text-center mb-0 d-flex justify-content-center align-items-center">
+                <div class="card-title text-center mb-0 d-sm-flex justify-content-center align-items-center">
                     <div>
                         {{form.option2}}
                     </div>
-                    <div class="ms-3">
+                    <div class="ms-sm-3">
                         <label class="fs-5 fw-bold" for="{{ form.option2.id_for_label }}">
                             {{service.OPTION2_NAME}}
-                            <span class="ms-3">
+                            <span class="ms-sm-3">
                                 {{service.CAMPAIGN_OPTION2_PRICE_STR}}（税込）
                             </span>
                         </label>
@@ -304,52 +289,46 @@
                     </button>
                 </div>
             </div>
-            <div class="card-body px-5">
+            <div class="card-body px-sm-5">
                 <div>
-                    <p class="fw-bold text-center">
+                    <h5 class="text-center">
                         福岡県内の提携の司法書士が代理で登記手続きを行います。
-                    </p>
-                    <p>
+                    </h5>
+                    <p class="mt-3 text-indent">
                         システムや戸籍謄本の取得代行を利用中にこちらに切り替える場合、
                         <span class="border-bottom border-dark">
-                            差額のみのお支払い
+                            すでにお支払いいただいた金額との差額のみのお支払い
                         </span>
                         でご利用できます。
                     </p>
-                    <div class="d-flex">
-                        <div>
-                            ※
-                        </div>
-                        <div>
-                            不動産を取得する方からのご依頼のみ受け付けてます。
-                        </div>
-                    </div>
-                    <div class="d-flex">
-                        <div>
-                            ※
-                        </div>
-                        <div>
-                            遠方の方でも郵送でやり取りできます。
-                        </div>
-                    </div>
-                    <div class="d-flex">
-                        <div>
-                            ※
-                        </div>
-                        <div>
-                            対面での相談をご希望の場合、原則web面談での対応となります（弊社または司法書士から届くメールに記載されたURLをクリックするだけで開始できます）。
-                        </div>
-                    </div>
+                    <ul>
+                        <li class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                福岡から遠方の方でも対応可能です。
+                            </div>
+                        </li>
+                        <li class="d-flex mt-0">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                対面での相談をご希望の場合、原則web面談での対応となります（弊社または司法書士から届くメールに記載されたURLをクリックするだけで開始されます）。
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </section>
         <section id="charge-section" class="card shadow">
             <div class="card-header p-3 bg-danger-subtle bg-gradient bg-opacity-50">
                 <h5 class="card-title text-center mb-0">
-                    {{form.charge.label}}
+                    {{form.charge.label}}（税込）
                 </h5>
             </div>
-            <div class="card-body px-5">
+            <div class="card-body px-sm-5">
                 <ul>
                     <li class="no-option fw-bold text-center">
                         オプションが選択されてません
@@ -357,32 +336,32 @@
                     <li class="d-flex justify-content-center">
                         <ul class="option-detail-wrapper">
                             <li style="display: none;">
-                                <div class="d-flex">
-                                    <div class="price">
-                                        {{service.CAMPAIGN_BASIC_PRICE_STR}}
-                                    </div>
-                                    <div class="ms-3">
+                                <div class="d-sm-flex">
+                                    <div class="fw-bold">
                                         {{service.BASIC_NAME}}
                                     </div>
+                                    <div class="ms-3 price">
+                                        {{service.CAMPAIGN_BASIC_PRICE_STR}}
+                                    </div>
                                 </div>
                             </li>
                             <li style="display: none;">
-                                <div class="d-flex">
-                                    <div class="price">
-                                        {{service.CAMPAIGN_OPTION1_PRICE_STR}}
-                                    </div>
-                                    <div class="ms-3">
+                                <div class="d-sm-flex">
+                                    <div class="fw-bold">
                                         {{service.OPTION1_NAME}}
                                     </div>
+                                    <div class="ms-3 price">
+                                        {{service.CAMPAIGN_OPTION1_PRICE_STR}}
+                                    </div>
                                 </div>
                             </li>
                             <li style="display: none;">
-                                <div class="d-flex">
-                                    <div class="price">
-                                        {{service.CAMPAIGN_OPTION2_PRICE_STR}}
-                                    </div>
-                                    <div class="ms-3">
+                                <div class="d-sm-flex">
+                                    <div class="fw-bold">
                                         {{service.OPTION2_NAME}}
+                                    </div>
+                                    <div class="ms-3 price">
+                                        {{service.CAMPAIGN_OPTION2_PRICE_STR}}
                                     </div>
                                 </div>
                             </li>
@@ -395,7 +374,7 @@
                         </div>
                         <div class="d-flex align-items-center ms-3">
                             <span>
-                                円（税込）
+                                円
                             </span>
                         </div>
                     </li>
@@ -408,7 +387,7 @@
                     入力事項
                 </h5>
             </div>
-            <div class="card-body px-5">
+            <div class="card-body px-sm-5">
                 <div id="form-errors" class="fw-bold bg-danger-subtle border rounded-3 p-3 mt-4" {% if form.errors %}style="display: block"{% else %}style="display: none"{% endif %}>
                     {% for field in form %}
                         {% if forloop.first and form.non_field_errors or field.errors %}
@@ -477,7 +456,7 @@
 {% endblock %}
 
 {% block footer %}
-{% include "footer.html" %}
+    {% include "footer.html" %}
 {% endblock %}
 
 {% block js %}

@@ -361,7 +361,7 @@ class FormSectionInputEvent{
             const val = input.value.trim();
             if(!isOnlyHiraganaOrKatakana(val)){
                 input.value = "";
-                return "ひらがな又はカタカナのみで入力してください"
+                return "ひらがな又はカタカナで入力してください"
             }
 
             input.value = hiraganaToKatakana(val);

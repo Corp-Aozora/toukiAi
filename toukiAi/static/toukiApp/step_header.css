@@ -28,6 +28,21 @@
     .menu-toggler-btn{
         display: block!important;
     }
+    
+    .logout{
+        display: none!important;
+    }
+
+    .li_logout{
+        display: block;
+    }
+}
+
+@media (min-width: 992px){
+
+    .li_logout{
+        display: none;
+    }
 }
 
 .logo-img{

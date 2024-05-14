@@ -16,42 +16,7 @@
 {% include "toukiApp/parts/modals/not_available.html" %}
 
 {% if result|length > 0 %}
-    <div id="result-modal" class="modal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
-                    <h4 class="modal-title fw-bold">
-                        相続人は以下の方々です。
-                    </h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-center">
-                        <ul class="p-0">
-                            {% for heir_name in result %}
-                                <li class="d-flex fs-4 border-bottom border-primary px-3">
-                                    <div>
-                                        <span class="fw-bold">
-                                            {{heir_name}}
-                                        </span>
-                                    </div>
-                                    <div class="ms-3">
-                                        <span class="fw-bold">
-                                            さん
-                                        </span>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="form-text">
-                        ※この結果はページ上部にも表示されてます。
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include "toukiApp/parts/modals/legal_heirs_check_result.html" %}
 {% endif %}
 
 <div class="d-flex container-xxl">
@@ -68,13 +33,13 @@
         </span>
         {% if result|length > 0 %}
             <section id="heirs_list" class="p-3">
-                <h5 class="fw-bold text-primary">
+                <h5 class="fw-bold text-success">
                     相続人は、以下の方々です。
                 </h5>
                 <ul>
                     {% for heir_name in result %}
                         <li>
-                            <span class="border-bottom border-primary fw-bold px-3">
+                            <span class="border-bottom border-success fw-bold px-3">
                                 {{heir_name}}
                                 <span class="ms-3">
                                     さん
@@ -108,12 +73,9 @@
                         {% elif field.name == "death_year" or field.name == "death_month" %}
                             {% if field.name != "death_month" %}
                                 <div class="mt-4">
-                                    <span class="form-label fs-5">
-                                        死亡した
-                                        <span class="fw-bold">
-                                            年月
-                                        </span>
-                                    </span>
+                                    <h5>
+                                        死亡した年月
+                                    </h5>
                             {% endif %}
                                 <div class="input-group {% if field.name == "death_year" %}mt-2{% endif %} Q">
                                     <label for="{{field.auto_id}}" class="input-group-text single-word-label">

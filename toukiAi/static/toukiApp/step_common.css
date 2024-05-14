@@ -10,26 +10,4 @@
     .sidebar{
         display: none!important;
     }
-
-    .logout{
-        display: none!important;
-    }
-
-    .li_logout{
-        display: block;
-    }
-}
-
-@media (min-width: 992px){
-
-    .li_logout{
-        display: none;
-    }
-}
-
-@media (max-width: 1245px){
-
-    section.card{
-        display: none!important;
-    }
 }

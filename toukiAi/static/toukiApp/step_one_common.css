@@ -60,6 +60,12 @@ section.card li{
     border-bottom-left-radius: var(--bs-border-radius)!important;
 }
 
+@media (max-width: 1245px){
+
+    section.card{
+        display: none!important;
+    }
+}
 
 @media (max-width:575px){
     
@@ -108,4 +114,3 @@ section.card li{
         justify-content: space-between!important;
     }
 }
-

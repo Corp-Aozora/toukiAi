@@ -52,8 +52,10 @@
         <a class="btn btn-outline-primary p-2 fw-bold logout" href="{% url 'account_logout' %}">
             ログアウト
         </a>
-        <button type="button" class="btn btn-outline-primary p-2 fw-bold show-progress-offcanvas-btn" style="display: none;" data-bs-toggle="offcanvas" data-bs-target="#progress_list_offcanvas" aria-controls="progress_list_offcanvas">
-            進捗状況
-        </button>
+        {% if progress %}
+            <button type="button" class="btn btn-outline-primary p-2 fw-bold show-progress-offcanvas-btn" style="display: none;" data-bs-toggle="offcanvas" data-bs-target="#progress_list_offcanvas" aria-controls="progress_list_offcanvas">
+                進捗状況
+            </button>
+        {% endif %}
     </nav>
 </header>

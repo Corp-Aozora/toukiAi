@@ -6,6 +6,7 @@
 
 {% block stylesheet %}
     {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
     <link rel="stylesheet" href="{% static 'accounts/option_select.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
@@ -482,6 +483,7 @@
 {% block js %}
     {% load static %}
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+    <script src="{% static 'toukiApp/step_header.js' %}"></script>
     <script src="{% static 'accounts/option_select.js' %}"></script>
     <script> const paid = "{{paid|escapejs}}"; </script>
 {% endblock %}

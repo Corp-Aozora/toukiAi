@@ -1,0 +1,28 @@
+<div id="not-available-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
+                <h5 class="modal-title fw-bold">
+                    システム対応外の選択がされました
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body pb-3">
+                <p class="fw-bold">
+                    {% url 'toukiApp:step_one' as step_one_url %}
+                    {% url 'toukiApp:step_one_trial' as step_one_trial_url %}
+
+                    {% if request.path == step_one_url %}
+                        利用条件をご確認いただいているため原則返金はしておりませんが、戸籍謄本等の事実確認により返金させていただく場合もあります。
+                    {% elif request.path == step_one_trial_url %}
+                        システム対応外のため相続人判定はできません。
+                    {% endif %}
+                </p>
+                <p class="fw-bold">
+                    詳細はお問い合わせをお願いします。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

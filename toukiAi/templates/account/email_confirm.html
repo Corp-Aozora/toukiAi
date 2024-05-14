@@ -16,27 +16,24 @@
         <div class="card shadow">
             <div class="card-header bg-warning-subtle bg-gradient bg-opacity-50">
                 <h1 class="fs-4 card-title text-center mb-0 p-3">
-                    本登録前にご確認をお願いします。
+                    登録前に確認
                 </h1>
             </div>
             <div class="card-body">
                 <div class="mt-3 card-text">
                     <ol  class="list-group list-group-numbered fw-bold">
                         <li class="list-group-item">
-                            本登録によりアカウント登録（無料）が完了し、弊社との間で
-                            <span class="border-bottom border-dark">
-                                <a class="text-decoration-none" href="{% url 'toukiApp:terms' %}" target="_blank" rel="noopener noreferrer">
-                                    利用規約
-                                </a>
-                                が適用されるようになります。
-                            </span>
-                            <br>
+                            登録完了後は
+                            <a class="text-decoration-none" href="{% url 'toukiApp:terms' %}" target="_blank" rel="noopener noreferrer">
+                                利用規約
+                            </a>
+                            が適用されます。
                             <div class="d-flex">
                                 <div>
                                     ※
                                 </div>
                                 <div>
-                                    利用規約の内容は、一般的もので自動で利用料を発生させたり
+                                    利用規約は、一般的な内容で自動で利用料を発生させたり
                                     <span class="text-success">
                                         会員様が特別不利になるような項目はありません。
                                     </span>
@@ -44,14 +41,14 @@
                             </div>
                         </li>
                         <li class="list-group-item">
-                            システムの相続人判定の部分を無料で利用できます。
+                            相続人判定の機能まで無料で利用できます。
                             <div class="d-flex">
                                 <div>
                                     ※
                                 </div>
                                 <div>
-                                    <button type="button" class="ps-1 text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#condition_diagram_modal">
-                                        システムが対応可能な相続関係の範囲でしか判定できません。
+                                    <button type="button" class="ps-1 text-primary fw-bold text-start" data-bs-toggle="modal" data-bs-target="#condition_diagram_modal">
+                                        対応可能な相続関係の範囲。
                                     </button>
                                 </div>
                             </div>
@@ -61,19 +58,17 @@
                             無料のアカウントは、登録から３ヶ月経過後、弊社の都合により削除されることがあります。
                         </li>
                         <li class="list-group-item">
-                            <span class="border-bottom border-secondary">
-                                システムの全機能を利用する、またはオプションを利用する場合は、登録後に表示されるページの上部にある「オプション」をクリックしてください。
-                            </span>
+                            システムの全機能を利用する、またはオプションを利用する場合は、登録後に表示されるページの上部にある「オプション」から選択できます。
                         </li>
                         <li class="list-group-item">
-                            システムについての不明点などは、登録後に表示されるページ左側にある「お問い合わせ」からお問い合わせください。
+                            お問い合わせは、登録後に表示されるページ左側にある「お問い合わせ」からお願いします。
                         </li>
                     </ol>
                     <form method="post" class="mt-3" action="{% url 'accounts:account_confirm_email' confirmation.key %}">
                         {% csrf_token %}
                         <div class="text-center">
                             <button id="submitBtn" type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold">
-                                本登録する
+                                登録完了
                                 <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                                 </span>
                             </button>

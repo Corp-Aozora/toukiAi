@@ -3,7 +3,7 @@ form fieldset:first-of-type label{
 }
 
 form fieldset:first-of-type > div{
-    width: 335px!important;
+    max-width: 335px!important;
 }
 
 .single-word-label{
@@ -22,7 +22,7 @@ form fieldset:first-of-type > div{
 }
 
 section.container{
-    width: 500px;
+    max-width: 500px;
 }
 
 section.card{
@@ -59,3 +59,53 @@ section.card li{
     border-bottom-right-radius: var(--bs-border-radius)!important;
     border-bottom-left-radius: var(--bs-border-radius)!important;
 }
+
+
+@media (max-width:575px){
+    
+    form .input-group .label, form .input-group .single-word-label{
+        width: 100%!important;
+        text-align-last: initial!important;
+        text-align: center!important;
+        border-radius: 0!important;
+        border-top-left-radius:var(--bs-border-radius)!important;
+        border-top-right-radius:var(--bs-border-radius)!important;
+    }
+
+    form .input-group input:not([type="radio"]), form .input-group select{
+        margin-left: 0px!important;
+        border-radius: 0!important;
+        border-bottom-left-radius:var(--bs-border-radius)!important;
+        border-bottom-right-radius:var(--bs-border-radius)!important;
+        text-align: center!important;
+    }
+    
+    .emPosition{
+        left: 0px!important;
+    }
+
+    .input-group-text{
+        white-space: initial;
+        text-align: start;
+    }
+}
+
+@media (max-width:410px){
+    h5{
+        font-size: medium;
+    }
+
+    .form-control label:first-child{
+        margin-left: 1rem!important;
+    }
+
+    #mainContainer > .container-xxl, section.container{
+        padding-left: 0px!important;
+        padding-right: 0px!important;
+    }
+
+    #submitBtnFieldset > div{
+        justify-content: space-between!important;
+    }
+}
+

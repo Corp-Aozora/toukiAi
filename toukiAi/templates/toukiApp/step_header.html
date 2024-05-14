@@ -1,69 +1,59 @@
-{% block stylesheet %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
-{% endblock %}
+{% load static %}
 
-{% for message in messages %}
-{% endfor %}
+{% include "toukiApp/parts/offcanvas/progress_list.html" %}
 
-<header id="header" class="navbar navbar-expand-sm navbar-light bg-light p-3 sticky-top shadow-sm">
-    <nav class="container">
-        <button class="navbar-toggler " type="button" data-bs-toggle="collapse" data-bs-target="#headerMenus" aria-controls="headerMenus" aria-expanded="false" aria-label="Toggle navigation">
+<header id="header" class="navbar navbar-expand-lg navbar-light bg-light p-2 sticky-top shadow-sm">
+    <nav class="container-xl">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="me-4 " href="{% url 'toukiApp:index' %}">
+        <a class="me-lg-4 mx-auto" href="{% url 'toukiApp:index' %}">
             <img class="logo-img" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </a>
-        <div id="headerMenus" class="collapse navbar-collapse">
-            <ul class="navbar-nav py-md-0 justify-content-start">
-                <li class="nav-item mx-3">
-                    <a class="fw-bold text-decoration-none text-dark" href="{% url 'accounts:option_select' %}" onclick="storeCurrentLocation()">
-                        <button class="btn btn-outline-primary p-2 fw-bold">
+        <div id="offcanvasMenus" class="offcanvas offcanvas-start" tabindex="-1" aria-labelledby="offcanvasLabel">
+            <div class="offcanvas-header bg-light border-bottom">
+                <h5 id="offcanvasLabel" class="offcanvas-title">
+                    メニュー
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#offcanvasMenus">
+                </button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav py-md-0 justify-content-start">
+                    <li class="nav-item mx-3">
+                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:option_select' %}" onclick="storeCurrentLocation()">
                             オプションを利用する
-                        </button>
-                    </a>
-                </li>
-                <li class="nav-item mx-3">
-                    <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_change_password' %}" onclick="storeCurrentLocation()">
-                        パスワードを変更
-                    </a>
-                </li>
-                <li class="nav-item mx-3">
-                    <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:change_email' %}" onclick="storeCurrentLocation()">
-                        メールアドレスを変更
-                    </a>
-                </li>
-                <li class="nav-item mx-3">
-                    <a type="button" class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:delete_account' %}" onclick="storeCurrentLocation()">
-                        アカウントを削除
-                    </a>
-                </li>
-                <li id="linkToProgressArea" class="nav-item ms-3" style="display: none;">
-                    <a id="linkToProgress" class="btn btn-outline-primary p-2 fw-bold" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">進捗状況</a>
-                </li>
-            </ul>
-            <div id="logoutArea" class="my-0 ms-auto me-0">
-                <a id="logout" class="btn btn-outline-primary p-2 fw-bold text-decoration-none" href="{% url 'account_logout' %}">ログアウト</a>
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_change_password' %}" onclick="storeCurrentLocation()">
+                            パスワードを変更
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:change_email' %}" onclick="storeCurrentLocation()">
+                            メールアドレスを変更
+                        </a>
+                    </li>
+                    <li class="nav-item mx-3">
+                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:delete_account' %}" onclick="storeCurrentLocation()">
+                            アカウントを削除
+                        </a>
+                    </li>
+                    <hr class="my-4">
+                    <li class="nav-item mx-3 li_logout">
+                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                            ログアウト
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
+        <a class="btn btn-outline-primary p-2 fw-bold logout" href="{% url 'account_logout' %}">
+            ログアウト
+        </a>
+        <button type="button" class="btn btn-outline-primary p-2 fw-bold show-progress-offcanvas-btn" style="display: none;" data-bs-toggle="offcanvas" data-bs-target="#progress_list_offcanvas" aria-controls="progress_list_offcanvas">
+            進捗状況
+        </button>
     </nav>
 </header>
-
-<script>
-    function storeCurrentLocation(){
-        // ヘッダーのメニューのときは取得しない
-        const exclude = [
-            "/account/option_select/", 
-            "/account/password/change/", 
-            "/account/change_email/", 
-            "/account/delete_account/", 
-            "/account/logout/",
-            "/account/bank_transfer/"
-        ];
-
-        const currentUrl = window.location.pathname;
-
-        if(!exclude.includes(currentUrl))
-            sessionStorage.setItem('preUrl', window.location.href);
-    }
-</script>

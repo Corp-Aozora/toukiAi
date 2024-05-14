@@ -13,39 +13,17 @@
 {% block content %}
 
 {% include "toukiApp/parts/step_messages.html" %}
-
-<div id="not-available-modal" class="modal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
-                <h5 class="modal-title fw-bold">
-                    システム対応外の選択がされました
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
-            </div>
-            <div class="modal-body pb-3">
-                <p class="fw-bold">
-                    利用条件をご確認いただいているため原則返金はしておりませんが、戸籍謄本等の事実確認により返金させていただく場合があります。
-                </p>
-                <p class="fw-bold">
-                    詳細を確認されたい場合は、お問い合わせをお願いします。
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "toukiApp/parts/modals/not_available.html" %}
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
-    <div class="pt-4 ps-5 container-xxl">
-        <h1 class="fs-4">
+    <div class="pt-4 ps-sm-5 container-xxl">
+        <h4>
             相続人を判定するために以下の項目を入力してください。
-        </h1>
+        </h4>
         <div class="form-text">
             （入力時間の目安は5~10分です）
         </div>
-        </span>
         <form action="{% url 'toukiApp:step_one' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
             <section class="container ms-0">
@@ -112,7 +90,7 @@
                                     {% if field.name in spouse_or_ascendant_internal_field_name %}
                                     {% elif field.name == "name" %}
                                         <div class="input-group Q">
-                                            <label class="input-group-text fw-bold" for="{{field.auto_id}}">
+                                            <label class="input-group-text fw-bold label" for="{{field.auto_id}}">
                                                 {{ field.label }}
                                             </label>
                                             {{ field }}
@@ -296,7 +274,7 @@
                                         {% if field.name in descendant_or_collateral_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q mb-3">
-                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                <label class="input-group-text fw-bold label" for="id_{{form.prefix}}-name">
                                                     {{ field.label}}
                                                 </label>
                                                 {{ field }}
@@ -457,7 +435,7 @@
                                         {% if field.name in spouse_or_ascendant_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
-                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                <label class="input-group-text fw-bold label" for="id_{{form.prefix}}-name">
                                                     {{ field.label }}
                                                 </label>
                                                 {{ field }}
@@ -580,7 +558,7 @@
                                         {% if field.name in descendant_or_collateral_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q mb-3">
-                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                <label class="input-group-text fw-bold label" for="id_{{form.prefix}}-name">
                                                     {{ field.label }}
                                                 </label>
                                                 {{ field }}
@@ -717,7 +695,7 @@
                                         {% if field.name in spouse_or_ascendant_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
-                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                <label class="input-group-text fw-bold label" for="id_{{form.prefix}}-name">
                                                     {{ field.label }}
                                                 </label>
                                                 {{ field }}
@@ -944,7 +922,7 @@
                                         {% if field.name in descendant_or_collateral_internal_field_name %}
                                         {% elif field.name == "name" %}
                                             <div class="input-group Q">
-                                                <label class="input-group-text fw-bold" for="id_{{form.prefix}}-name">
+                                                <label class="input-group-text fw-bold label" for="id_{{form.prefix}}-name">
                                                     {{ field.label }}
                                                 </label>
                                                 {{ field }}
@@ -1089,9 +1067,7 @@
                 {% endfor %}
                 <fieldset id="submitBtnFieldset" style="display: none;">
                     <p class="fw-bold text-center">
-                        <span>
-                            入力内容にお間違いはないですか？
-                        </span>
+                        入力内容にお間違いはないですか？
                     </p>
                     <div class="d-flex justify-content-evenly px-3 pb-3">
                         <div>
@@ -1101,7 +1077,7 @@
                         </div>
                         <div>
                             <button id="submitBtn" type="submit" class="btn btn-primary nextBtn fw-bold bg-gradient bg-opacity-50">
-                                ２．必要書類一覧に進む
+                                次へ進む
                                 <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                                 </span>
                             </button>

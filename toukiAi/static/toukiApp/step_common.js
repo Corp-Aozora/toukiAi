@@ -51,97 +51,6 @@ function setSideBarTop(){
     document.documentElement.style.setProperty('--top', `${top}px`);
 }
 
-function hiddenSidebar(){
-    let width = document.documentElement.clientWidth;
-    if(!linkToProgressArea)
-         return;
-
-    if(width < 975){
-        linkToProgressArea.style.display = "block";
-        sidebar.classList.remove("d-flex");
-        sidebar.style.display = "none";
-    }else{
-        linkToProgressArea.style.display = "none";
-        sidebar.classList.add("d-flex");
-        sidebar.style.display = "";
-    }
-}
-
-function setNavTogglerStyle(){
-    let width = document.documentElement.clientWidth;
-
-    if(!linkToProgressArea)
-        return;
-
-    //ハンバーガーメニューが表示されたとき
-    if(width < 558){
-
-        //進捗状況の要素を修正
-        linkToProgressArea.classList.add("mt-2", "fs-5");
-        linkToProgressArea.classList.remove("ms-3");
-        linkToProgress.classList.add("text-decoration-none", "text-dark", "cursor-pointer")
-        linkToProgress.classList.remove("btn", "btn-outline-primary", "p-2");
-
-        linkToProgress.addEventListener("mouseover", ()=>{
-            linkToProgress.classList.remove("text-dark");
-            emphasizeText(linkToProgress);
-        })
-        linkToProgress.addEventListener("mouseout", ()=>{
-            linkToProgress.classList.add("text-dark");
-            removeEmphasizeText(linkToProgress);
-        })
-
-        //ログアウトの要素を修正
-        logoutArea.classList.add("mt-2", "fs-5");
-        logoutArea.classList.remove("my-0", "ms-auto", "me-0");
-        logout.classList.add("text-dark")
-        logout.classList.remove("btn", "btn-outline-primary", "p-2");
-
-        logout.addEventListener("mouseover", ()=>{
-            logout.classList.remove("text-dark");
-            emphasizeText(logout);
-        })
-        logout.addEventListener("mouseout", ()=>{
-            logout.classList.add("text-dark");
-            removeEmphasizeText(logout);
-        })
-
-    }else{
-        //進捗状況の要素を修正
-        linkToProgressArea.classList.remove("mt-2", "fs-5");
-        linkToProgressArea.classList.add("ms-3");
-        linkToProgress.classList.remove("text-decoration-none", "text-dark", "cursor-pointer")
-        linkToProgress.classList.add("btn", "btn-outline-primary", "p-2");
-
-        
-        linkToProgress.removeEventListener("mouseover", ()=>{
-            linkToProgress.classList.remove("text-dark");
-            emphasizeText(linkToProgress);
-        })
-        linkToProgress.removeEventListener("mouseout", ()=>{
-            linkToProgress.classList.add("text-dark");
-            removeEmphasizeText(linkToProgress);
-
-        })
-        
-        //ログアウトの要素を修正
-        logoutArea.classList.remove("mt-2", "fs-5");
-        logoutArea.classList.add("my-0", "ms-auto", "me-0");
-        logout.classList.remove("text-dark")
-        logout.classList.add("btn", "btn-outline-primary", "p-2");
-
-        
-        logout.removeEventListener("mouseover", ()=>{
-            logout.classList.remove("text-dark");
-            emphasizeText(logout);
-        })
-        logout.removeEventListener("mouseout", ()=>{
-            logout.classList.add("text-dark");
-            removeEmphasizeText(logout);
-        })
-    }
-}
-
 /**
  * 引数に渡された１つ又は配列に入った要素の子要素として存在するinput要素を全て初期化する
  * @param {HTMLElement[]|HTMLElement} els 初期化したいinput要素が属する親要素（配列形式じゃなくてもOK）
@@ -596,12 +505,4 @@ function disablePage(progress){
 */
 window.addEventListener("load", ()=>{
     updateSideBar();
-    hiddenSidebar();
-    setNavTogglerStyle();
 })
-
-//画面サイズが変更されたとき
-window.addEventListener('resize', () => {
-    hiddenSidebar();
-    setNavTogglerStyle();
-});

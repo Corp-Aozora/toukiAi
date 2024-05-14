@@ -257,7 +257,7 @@ class WidgetGroup:
                 "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなっている人がいる")]),
                 "is_refuse": forms.RadioSelect(choices=[("true", "いる"), ("false", "いない")]),
                 "is_adult": forms.RadioSelect(choices=[("true", "はい"), ("false", "未成年の人がいる")]),
-                "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に移住している人いる")]),
+                "is_japan": forms.RadioSelect(choices=[("true", "はい"), ("false", "海外に居住している人いる")]),
             }
         return {
             "is_live": forms.RadioSelect(choices=[("true", "はい"), ("false", "亡くなった")]),

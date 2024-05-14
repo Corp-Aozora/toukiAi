@@ -1,3 +1,31 @@
+@media (max-width: 575px){  
+
+    #header .navbar-toggler{
+        position: absolute;
+    }
+}
+
+@media (min-width: 576px){
+
+}
+
+@media (max-width:767px){
+    #offcanvasMenus, #progress_list_offcanvas{
+        width: 240px;
+    }
+}
+
+@media (max-width: 991px){
+
+    #offcanvasMenus li:not(:last-child), #progress_list_offcanvas li:not(:last-child){
+        margin-top: 1rem;
+    }
+
+    .show-progress-offcanvas-btn{
+        display: initial!important;
+    }
+}
+
 .logo-img{
     max-width: 75px!important;
 }

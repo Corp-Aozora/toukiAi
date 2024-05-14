@@ -1,14 +1,17 @@
-<div class="flex-column flex-shrink-0 p-3 border-end sidebar">
-    <span class="fs-4 text-center">進捗状況</span>
-    <hr>
-    <ul class="nav flex-column">
-        <li class="nav-item py-2 d-flex">
-            <a class="text-decoration-none" href="{% url 'toukiApp:sort_out_trial' %}">
-                {% url 'toukiApp:step_one' as step_one_url %}
-                {% url 'toukiApp:step_one_trial' as step_one_trial_url %}
-                <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_one_url or request.path == step_one_trial_url %}fw-bold{% endif %}">
+<div id="progress_list_offcanvas" class="offcanvas offcanvas-start" tabindex="-1" aria-labelledby="progress_list_label">
+    <div class="offcanvas-header bg-light border-bottom">
+        <h5 id="progress_list_label" class="offcanvas-title">
+            進捗状況
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#progress_list_offcanvas">
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="navbar-nav py-md-0 justify-content-start">
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold">
                     <div class="d-flex align-items-center">
-                        １．{{service_content.0}}
+                        1 {{service_content.0}}
                         {% if progress == 0 or progress == 0.5 or progress == 1 or progress == 1.5 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -20,14 +23,11 @@
                         {% endif %}
                     </div>
                 </button>
-            </a>
-        </li>
-        <li class="nav-item py-2 d-flex">
-            <a class="text-decoration-none" {% if progress >= 2 %}href="{% url 'toukiApp:step_two' %}"{% endif %}>
-                {% url 'toukiApp:step_two' as step_two_url %}
-                <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_two_url %}fw-bold{% endif %}" {% if progress < 2 %}disabled{% endif %}>
+            </li>
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold" {% if progress < 2 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ２．{{service_content.1}}
+                        2 {{service_content.1}}
                         {% if progress == 2 or progress == 2.5 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -39,14 +39,11 @@
                         {% endif %}
                     </div>
                 </button>
-            </a>
-        </li>
-        <li class="nav-item py-2">
-            <a class="text-decoration-none" {% if progress >= 3 %}href="{% url 'toukiApp:step_three' %}"{% endif %}>
-                {% url 'toukiApp:step_three' as step_three_url %}
-                <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_three_url %}fw-bold{% endif %}" {% if progress < 3 %}disabled{% endif %}>
+            </li>
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold" {% if progress < 3 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ３．{{service_content.2}}
+                        3 {{service_content.2}}
                         {% if progress == 3 or progress == 3.5%}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -58,14 +55,11 @@
                         {% endif %}
                     </div>
                 </button>
-            </a>
-        </li>
-        <li class="nav-item py-2">
-            <a class="text-decoration-none" {% if progress >= 4 %}href="{% url 'toukiApp:step_four' %}"{% endif %}>
-                {% url 'toukiApp:step_four' as step_four_url %}
-                <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_four_url %}fw-bold{% endif %}" {% if progress < 4 %}disabled{% endif %}>
+            </li>
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold" {% if progress < 4 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ４．{{service_content.3}}
+                        4 {{service_content.3}}
                         {% if progress == 4 or progress == 4.5 %}
                             <svg id="stepFourArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -77,14 +71,11 @@
                         {% endif %}
                     </div>
                 </button>
-            </a>
-        </li>
-        <li class="nav-item py-2">
-            <a class="text-decoration-none" {% if progress >= 5 %}href="{% url 'toukiApp:step_five' %}"{% endif %}>
-                {% url 'toukiApp:step_five' as step_five_url %}
-                <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_five_url %}fw-bold{% endif %}" {% if progress < 5 %}disabled{% endif %}>
+            </li>
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold" {% if progress < 5 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ５．{{service_content.4}}
+                        5 {{service_content.4}}
                         {% if progress == 5 or progress == 5.5 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -96,12 +87,9 @@
                         {% endif %}
                     </div>
                 </button>
-            </a>
-        </li>
-        <li class="nav-item py-2">
-            <a class="text-decoration-none" {% if progress >= 6 %}href="{% url 'toukiApp:step_six' %}"{% endif %}>
-                {% url 'toukiApp:step_six' as step_six_url %}
-                <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_six_url %}fw-bold{% endif %}" {% if progress < 6 %}disabled{% endif %}>
+            </li>
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold" {% if progress < 6 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
                         {{service_content.5}}
                         {% if progress == 6 %}
@@ -111,14 +99,14 @@
                         {% endif %}
                     </div>
                 </button>
-            </a>
-        </li>
-        <li class="nav-item py-2">
-            <a class="text-decoration-none" href="{% url 'toukiApp:step_inquiry' %}">
-                <button type="button" class="border-0 bg-white fs-5 fw-bold text-primary">
+            </li>
+            <hr class="my-4">
+            <li class="nav-item mx-3">
+                <button type="button" class="btn btn-outline-primary p-2 fw-bold">
                     お問い合わせ
                 </button>
-            </a>
-        </li>
-    </ul>
-</div>  
+            </li>
+        </ul>
+        </div>
+    </div>
+</div>

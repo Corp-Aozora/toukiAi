@@ -94,7 +94,7 @@ function setEventToConfirmBtn(instance, idxs){
                 return;
             }
 
-            const modalEl = document.getElementById("confirm-modal");
+            const modalEl = document.getElementById("delete_account_confirm-modal");
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
         }catch(e){

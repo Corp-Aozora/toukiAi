@@ -1,0 +1,28 @@
+<div id="delete_account_confirm-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center bg-danger-subtle">
+                <h5 class="modal-title fw-bold">
+                    確認
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <span class="fw-bold">
+                    アカウント削除後は弊社にお客様のデータが一切削除されるため、いかなる理由があっても復活させることができませんがよろしいですか？
+                </span>
+            </div>
+            <div class="modal-footer d-flex justify-content-evenly">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    中止
+                </button>
+                <button id="submitBtn" type="submit" class="btn btn-danger p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" >
+                    アカウントを削除
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                    </span>
+                </button>
+              </div>
+        </div>
+    </div>
+</div>

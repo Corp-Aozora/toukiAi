@@ -5,31 +5,50 @@
         <div class="modal-content">
             <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
                 <h5 class="modal-title">
-                    登記済証（色々な書式がありますが、同じ内容が記載されてます。）
+                    登記済証（色々な名称がありますが、内容は同じです。）
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h5 class="text-center">
-                    表紙に登記済証や登記済み権利証と記載されていることが多いです。
+                <h5 class="text-center lh-lg">
+                    不動産の所有者であることを証明するものです。
+                    <br>
+                    表紙に「登記済証」や「登記済権利証」と記載されていることが多いです。
                 </h5>
-                <div class="d-flex justify-content-center mt-4">
-                    <div class="supplement">
-                        <p>
-                            <span class="px-3 border-bottom border-dark">
-                                以下の記載があることをご確認ください。
-                            </span>
-                        </p>
-                        <ul class="ps-5 mb-0">
-                            <li>
-                                登記の目的に「所有権移転」または「〇〇持分移転」の記載がある
-                            </li>
-                            <li class="mt-3">
+                <div class="mt-4 mx-auto supplement border rounded-3 p-3 border-warning">
+                    <p class="sm-text-center">
+                        <span class="px-3 border-bottom border-dark">
+                            以下をご確認ください。
+                        </span>
+                    </p>
+                    <ul class="ps-0 ps-sm-5 mb-0">
+                        <li class="d-flex">
+                            <div>
+                                ・
+                            </div>
+                            <div>
+                                登記の目的が「所有権移転」または「〇〇持分移転」であること
+                            </div>
+                        </li>
+                        <li class="mt-3 d-flex">
+                            <div>
+                                ・
+                            </div>
+                            <div>
+                                対象の不動産の記載があること
+                            </div>
+                        </li>
+                        <li class="mt-3 d-flex">
+                            <div>
+                                ・
+                            </div>
+                            <div>
                                 ページ末尾に押されたスタンプに記載された年月日と番号が登記簿謄本のものと一致している
-                            </li>
-                        </ul>
-                    </div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
+                <hr class="my-4">
                 <p class="d-flex justify-content-center">
                     <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">
                 </p>

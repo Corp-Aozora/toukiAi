@@ -296,12 +296,12 @@
                             </div>
                             <div class="mt-3 ms-3">
                                 <div class="fw-bold">
-                                    戸籍の郵送請求書：
+                                    郵送請求書：
                                     <a href="{% static 'toukiApp/file/戸籍の郵送請求書.docx' %}">word</a>／
                                     <a href="{% static 'toukiApp/file/戸籍の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">pdf</a>
                                 </div>
                                 <div class="mt-3">
-                                    委任状（他の方に任せる場合）：
+                                    委任状：
                                     <a href="{% static 'toukiApp/file/戸籍の請求に関する委任状.docx' %}">word</a>／
                                     <a href="{% static 'toukiApp/file/戸籍の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">pdf</a>
                                 </div>
@@ -605,7 +605,7 @@
                             </div>
                             <div class="mt-3 ps-3">
                                 <div class="fw-bold">
-                                    住民票の除票の請求書：
+                                    住民票の除票の郵送請求書：
                                     <a href="{% static 'toukiApp/file/住民票の除票の郵送請求書.docx' %}">
                                         word
                                     </a>／
@@ -623,7 +623,7 @@
                                     </a>
                                 </p>
                                 <div class="fw-bold">
-                                    戸籍の附票の請求書：
+                                    戸籍の附票の郵送請求書：
                                     <a href="{% static 'toukiApp/file/戸籍の附票の郵送請求書.docx' %}">
                                         word
                                     </a>／
@@ -990,44 +990,108 @@
                         <button type="button" class="cursor-pointer text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#price_certification">
                             本年度の固定資産評価証明書
                         </button>
-                        <span class="ms-3">
+                        <span class="ms-3 sheet-count">
                             １通
                         </span>
                     </label>
                 </div>
-                <div class="mt-3">
-                    <span class="fw-bold border-bottom fst-italic px-3">
-                        市区町村の窓口で取得するとき
-                    </span>
-                    <p class="mt-3 ms-5">
-                        不動産がある市区町村の税証明書を発行する課で取得できます。
-                        <br>
-                        ※ご取得の際は、共有持分があればそれも含めて全てほしい旨を申請書に記載又は窓口の方にお伝え下さい。
-                    </p>
+                <div class="mt-4 fw-bold">
+                    不動産がある市区町村の税証明書を発行する課で取得できます。
                 </div>
-                <div class="mt-3">
-                    <button type="button" class="fw-bold border-bottom fst-italic displayNextEl arrow-right px-3">
-                        郵送で取得する場合
-                    </button>
-                    <div class="mt-3 ms-5" style="display: none;">
+                <div class="mt-4">
+                    <div class="sm-text-center">
+                        <span class="fw-bold border-bottom fst-italic px-3">
+                            市区町村の窓口で取得するとき
+                        </span>
+                    </div>
+                    <div class="mt-3 ms-3 ms-sm-5">
                         <div>
-                            不動産がある市区町村の税証明書を発行する課で取得できます。
+                            請求の際は、共有持分があればそれも含めて全てほしい旨を申請書に記載又は窓口の方にお伝え下さい。
                         </div>
                         <div class="mt-3">
+                            本人確認書類、印鑑（認印可）、手数料、
                             <span class="fw-bold">
-                                以下の郵送請求書に記入（入力可）押印をして添付書類などと一緒に請求先の市区町村にご郵送ください。
+                                相続人であることを証明する戸籍謄本
                             </span>
-                            <br>
-                            ※宛先は「（請求先の市区町村）
-                            <span class="mx-3">
-                                固定資産評価証明書
-                            </span>
-                            郵送請求」と検索して市区町村のホームページからご確認ください。
+                            をご持参ください。
+                            <div class="d-flex">
+                                <div>
+                                    <span class="border-bottom border-dark">
+                                        ※
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="border-bottom border-dark">
+                                        相続人であることを証明する戸籍謄本
+                                    </span>
+                                    <div>
+                                        <div class="d-flex">
+                                            <div>
+                                                ①
+                                            </div>
+                                            <div>
+                                                被相続人の出生から死亡までの戸籍謄本
+                                            </div>
+                                        </div>
+                                        <div class="d-flex">
+                                            <div>
+                                                ②
+                                            </div>
+                                            <div>
+                                                請求する方の戸籍謄本（戸籍全部（または個人）事項証明書）
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex mt-3">
+                                                <div>
+                                                    <span class="border-bottom border-dark">
+                                                        ※
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span class="border-bottom border-dark">
+                                                        兄弟姉妹の方で子や父母の相続放棄により相続人になった場合
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="ps-3">
+                                                <button type="button" class="text-primary fw-bold text-start" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
+                                                    その方々の相続放棄申述受理通知書または相続放棄申述受理証明書
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mt-3 ms-3">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="button" class="fw-bold border-bottom fst-italic displayNextEl arrow-right px-3 sm-center-button">
+                        郵送で取得する場合
+                    </button>
+                    <div class="mt-3 ms-3 ms-sm-5" style="display: none;">
+                        <div>
+                            <span class="fw-bold">
+                                以下の郵送請求書に記入（入力可）押印をして添付書類などと一緒に対象の市区町村にご郵送ください。
+                            </span>
+                            <div class="d-flex">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    宛先と手数料は「（対象の市区町村）
+                                    <span class="mx-3">
+                                        固定資産評価証明書
+                                    </span>
+                                    郵送請求」と検索して市区町村のホームページからご確認ください。
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 ms-sm-3">
                             <div class="ms-">
                                 <div class="fw-bold">
-                                    固定資産評価証明書の郵送請求書：
+                                    郵送請求書：
                                     <a href="{% static 'toukiApp/file/固定資産評価証明書の郵送請求書.docx' %}">
                                         word
                                     </a>／
@@ -1037,7 +1101,7 @@
                                 </div>
                                 <div class="mt-3">
                                     <span>
-                                        委任状（他の方に請求を任せる場合）：
+                                        委任状：
                                     </span>
                                     <a href="{% static 'toukiApp/file/固定資産評価証明書の請求に関する委任状.docx' %}">
                                         word
@@ -1048,37 +1112,59 @@
                                 </div>
                             </div>
                             <div class="attachment-document">
-                                <span class="fw-bold">
-                                    （添付書類など）
-                                </span>
-                                <ul>
+                                <div class="sm-text-center">
+                                    <span class="fw-bold">
+                                        ＜添付書類など＞
+                                    </span>
+                                </div>
+                                <ul class="ps-0 ps-sm-5">
                                     <li>
                                         <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher-modal">
                                             手数料分の定額小為替
                                         </button>
                                         <div class="mt-3 ms-3">
-                                            市区町村によって手数料が異なるため請求先の市区町村のホームページでご確認ください。                                            
+                                            対象の市区町村のホームページをご確認ください。                                            
                                         </div>
                                     </li>
                                     <li>
-                                        <span>
+                                        <span class="border-bottom border-dark">
                                             相続人であることを証明する戸籍謄本
                                         </span>
-                                        <div class="mt-3 ms-3">
-                                            取得対象者の出生から死亡までの戸籍謄本
-                                            <br>
-                                            請求する方の戸籍謄本（戸籍全部（または個人）事項証明書）
+                                        <div class="ms-3">
+                                            <div class="d-flex">
+                                                <div>
+                                                    ①
+                                                </div>
+                                                <div>
+                                                    被相続人の出生から死亡までの戸籍謄本
+                                                </div>
+                                            </div>
+                                            <div class="d-flex">
+                                                <div>
+                                                    ②
+                                                </div>
+                                                <div>
+                                                    請求する方の戸籍謄本（戸籍全部（または個人）事項証明書）
+                                                </div>
+                                            </div>
                                             <div>
-                                                <span class="border-bottom border-dark">
-                                                    ※兄弟姉妹の方で子や父母の相続放棄により相続人になった場合
-                                                </span>
-                                                <br>
-                                                <span class="ms-3">
-                                                    その方々の
-                                                    <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
-                                                        相続放棄申述受理通知書または相続放棄申述受理証明書
+                                                <div class="d-flex mt-3">
+                                                    <div>
+                                                        <span class="border-bottom border-dark">
+                                                            ※
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="border-bottom border-dark">
+                                                            兄弟姉妹の方で子や父母の相続放棄により相続人になった場合
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="ps-3">
+                                                    <button type="button" class="text-primary fw-bold text-start" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
+                                                        その方々の相続放棄申述受理通知書または相続放棄申述受理証明書
                                                     </button>
-                                                </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </li>
@@ -1136,18 +1222,17 @@
                     </div>
                 </div>
                 <div class="mt-5">
-                    <button type="button" class="fw-bold border-bottom fst-italic displayNextEl arrow-right text-primary">
-                        不動産の中に固定資産評価額が０円（無記載など）のものがある場合
+                    <button type="button" class="fw-bold fst-italic displayNextEl arrow-right text-primary">
+                        固定資産評価額が０円（無記載など）の不動産がある場合
                     </button>
                     <div class="mt-3 ms-3" style="display: none;">
                         <p class="fw-bold">
-                            法務局への照会が必要になりますので、お問い合わせをお願いします（可能であれば画像の添付もお願いします）。
-                        <p>
-                        <p>
+                            法務局への照会が必要になりますので、
                             <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A法務局への照会する方法を教えてください。">
-                                {{ company_data.MAIL_ADDRESS }}
+                                お問い合わせ
                             </a>
-                        </p>
+                            をお願いします。
+                        <p>
                     </div>
                 </div>
             </section>
@@ -1159,13 +1244,15 @@
                     </div>
                     <label class="form-check-label fw-bold fs-5 ps-2" for="CbRealEstateInfo">
                         登記対象の不動産の登記情報又は全部事項証明書
-                        <span class="ms-3">
+                        <span class="ms-3 sheet-count">
                             各不動産１通ずつ
                         </span>
                     </label>
                 </div>
                 <div class="mt-3">
-                    取得した固定資産評価証明書に記載された全ての不動産を対象に以下の方法によりご取得ください。
+                    <span class="fw-bold">
+                        オンライン、窓口、郵送のいずれかの方法により誰でも委任状なしで取得することができます。
+                    </span>
                     <ul class="ps-3 mt-3">
                         <li>
                             <div class="d-flex">
@@ -1210,19 +1297,23 @@
                     </ul>
                 </div>
                 <div class="mt-3">
-                    <span class="px-3 fw-bold border-bottom fst-italic">
-                        オンラインで取得する又は請求する場合、以下の２通りがあります。
-                    </span>
-                    <div class="mt-3 ps-3">
+                    <div class="sm-text-center">
+                        <span class="px-3 fw-bold border-bottom fst-italic">
+                            オンラインの場合、以下の２通りあります。
+                        </span>
+                    </div>
+                    <div class="mt-3 ps-sm-3">
                         <div>
-                            <button type="button" class="px-3 border-bottom fw-bold displayNextEl arrow-right">
-                                オンラインでPDFデータを取得する
-                                <a class="ms-3 fw-bold text-decoration-none" href="https://www1.touki.or.jp/gateway.html" target="_blank" rel="noopener noreferrer">
-                                    登記情報提供サービス
-                                </a>
-                                （登記情報１通３３１円）
+                            <button type="button" class="px-3 fw-bold displayNextEl arrow-right md-start-button">
+                                <span class="border-bottom">
+                                    オンラインでPDFデータを取得する
+                                    <a class="ms-3 fw-bold text-decoration-none" href="https://www1.touki.or.jp/gateway.html" target="_blank" rel="noopener noreferrer">
+                                        登記情報提供サービス
+                                    </a>
+                                    （登記情報１通３３１円）
+                                </span>
                             </button>
-                            <div class="mt-3 ms-5" style="display: none;">
+                            <div class="ms-3 mt-3 ms-sm-5" style="display: none;">
                                 <div>
                                     <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#touki-jouhou-service-page">
                                         手順はこちらをご確認ください（クレジットカードが必要です）。
@@ -1269,15 +1360,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3">
-                            <button type="button" class="px-3 border-bottom fw-bold displayNextEl arrow-right">
-                                オンラインで請求して郵送で受け取る
-                                <a class="ms-3 fw-bold text-decoration-none" href="https://www.touki-kyoutaku-online.moj.go.jp/web/top/SC01WL01-ViewLogin.do" target="_blank" rel="noopener noreferrer">
-                                    かんたん証明書請求
-                                </a>
-                                （全部事項証明書１通５００円）
+                        <div class="mt-4">
+                            <button type="button" class="px-3 fw-bold displayNextEl arrow-right md-start-button">
+                                <span class="border-bottom">
+                                    オンラインで請求して郵送で受け取る
+                                    <a class="ms-3 fw-bold text-decoration-none" href="https://www.touki-kyoutaku-online.moj.go.jp/web/top/SC01WL01-ViewLogin.do" target="_blank" rel="noopener noreferrer">
+                                        かんたん証明書請求
+                                    </a>
+                                    （全部事項証明書１通５００円）
+                                </span>
                             </button>
-                            <div class="ms-5 mt-3" style="display: none;">
+                            <div class="ms-3 ms-sm-5 mt-3" style="display: none;">
                                 <div>
                                     <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#moj-online-request-page">
                                         手順はこちらをご確認ください（ネットバンキングまたはATMでのお支払い）。
@@ -1291,26 +1384,25 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <button type="button" class="px-3 fw-bold border-bottom fst-italic displayNextEl arrow-right">
-                        窓口で取得する場合（全部事項証明書１通６００円）
+                <div class="mt-4">
+                    <button type="button" class="px-sm-3 fw-bold border-bottom fst-italic displayNextEl arrow-right sm-center-button">
+                        窓口で取得する場合
                     </button>
-                    <div class="mt-3 ms-5" style="display: none;">
-                        最寄りの法務局又は法務局証明センターで取得できます。
+                    <div class="mt-3 ms-3 ms-sm-5" style="display: none;">
+                        最寄りの法務局又は法務局証明センターで取得できます（全部事項証明書１通６００円）。
                         <br>
                         備え付けの請求書に不動産の所在地を記載するため固定資産評価証明書をご持参ください。
                     </div>
                 </div>
-                <div class="mt-3">
-                    <button type="button" class="px-3 fw-bold border-bottom fst-italic displayNextEl arrow-right">
-                        郵送で取得する場合（全部事項証明書１通６００円）
+                <div class="mt-4">
+                    <button type="button" class="px-sm-3 fw-bold border-bottom fst-italic displayNextEl arrow-right sm-center-button">
+                        郵送で取得する場合
                     </button>
-                    <div class="mt-3 ms-5" style="display:none;">
-                        <p class="ms-3 mt-3">
-                            以下のサイトから請求書をダウンロードして法務局（いずれの法務局でも可）へ郵送請求できます。
-                            <br>
-                            <a class="text-decoration-none fw-bold" href="https://houmukyoku.moj.go.jp/homu/category_00002.html" target="_blank" rel="noopener noreferrer">各種証明書請求手続</a><br>
-                        </p>
+                    <div class="mt-3 ms-3 ms-sm-5" style="display:none;">
+                        <a class="text-decoration-none fw-bold" href="https://houmukyoku.moj.go.jp/homu/category_00002.html" target="_blank" rel="noopener noreferrer">
+                            各種証明書請求手続
+                        </a>
+                        から請求書をダウンロードして法務局（いずれの法務局でも可）へ郵送請求できます（全部事項証明書１通６００円）。
                     </div>
                 </div>
                 <div class="mt-5">
@@ -1324,22 +1416,24 @@
                                     ※
                                 </div>
                                 <div>
-                                    登記簿謄本に記載された所有者の住所、氏名が住民票の除票又は戸籍の附票に記載された住所、氏名または戸籍謄本に記載された本籍地、氏名に現れること
-                                    <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#check_decedent_address">
+                                    登記簿謄本に記載された被相続人の住所、氏名が住民票の除票又は戸籍の附票に記載された住所、氏名または戸籍謄本に記載された本籍地、氏名と一致すること
+                                    <button type="button" class="fw-bold text-primary text-start" data-bs-toggle="modal" data-bs-target="#check_decedent_address">
                                         （確認方法はこちら）
                                     </button>
                                     。
+                                    <div class="mt-3 d-flex">
+                                        <div>
+                                            ＞
+                                        </div>
+                                        <div>
+                                            一致しないものがあるときは、住民票の除票、戸籍の附票の項目の下の方にある
+                                            <button id="to-alt-resident-card-section-btn" class="text-primary fw-bold text-start" type="button">
+                                                「住民票の除票、戸籍の附票のいずれも取得できなかった場合」
+                                            </button>
+                                            をご確認ください。
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="ms-5 mt-3">
-                                <span class="border-bottom border-dark">
-                                    登記識別情報通知、登記済証、不在住証明書については、
-                                </span>
-                                住民票の除票または戸籍の附票の住民票の除票、戸籍の附票の項目の
-                                <button id="to-alt-resident-card-section-btn" class="text-primary fw-bold" type="button">
-                                    「いずれも取得できかった場合」
-                                </button>
-                                をご確認ください。
                             </div>
                         </li>
                     </ul>
@@ -1353,16 +1447,18 @@
                             <input class="form-check-input fs-5 reqDocCb" type="checkbox" value="" id="CbRefuseDocument">
                         </div>
                         <label class="form-check-label fw-bold fs-5 ps-2" for="CbRefuseDocument">
-                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
+                            <button type="button" class="text-primary fw-bold text-start" data-bs-toggle="modal" data-bs-target="#refuse-inheritance-document-modal">
                                 相続放棄申述受理通知書または相続放棄申述受理証明書
                             </button>
-                            <span class="ms-3">
+                            <span class="ms-3 sheet-count">
                                 いずれか１通
                             </span>
                         </label>
                     </div>
                     <div class="mt-3 ps-3">
-                        家庭裁判所で相続放棄した方のものが必要です。
+                        <div class="fw-bold">
+                            家庭裁判所で相続放棄した方のものが必要です。
+                        </div>
                         <ul>
                             {% for refused_heir in refused_heirs %}
                                 <li class="mt-3 fw-bold text-success">
@@ -1370,15 +1466,13 @@
                                 </li>
                             {% endfor %}
                         </ul>
-                        <div class="ms-5">
-                            <p>
+                        <div class="ms-sm-5">
+                            <div>
                                 <span class="fw-bold border-bottom border-dark px-3">
-                                    相続放棄申述受理通知書の場合は以下の記載があるかご確認ください。
+                                    相続放棄申述受理通知書の場合は、以下の記載があるかご確認ください。
                                 </span>
-                                <br>
-                                ※記載がない場合は、相続放棄申述受理証明書が必要です。
-                            </p>
-                            <ul class="mb-0">
+                            </div>
+                            <ul class="mt-3 ps-3 ps-sm-5">
                                 <li>
                                     ・事件番号
                                 </li>
@@ -1392,35 +1486,46 @@
                                     ・手続が受理された年月日
                                 </li>
                             </ul>
+                            <div class="d-flex">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    記載がない場合は、相続放棄申述受理証明書が必要です。
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-5">
-                        <button type="button" class="fw-bold border-bottom fst-italic displayNextEl arrow-right text-primary">
+                        <button type="button" class="fw-bold fst-italic displayNextEl arrow-right text-primary">
                             相続放棄申述受理通知書または相続放棄申述受理証明書もない場合
                         </button>
                         <div class="mt-3 ms-3" style="display: none;">
                             <p class="fw-bold">
-                                家庭裁判所に再発行を請求する必要がありますので、お問い合わせをお願いします。
-                            <p>
-                            <p>
+                                家庭裁判所に再発行を請求する必要がありますので、
                                 <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続放棄申述受理通知書または相続放棄申述受理証明書の再発行について&body=※対象の方の氏名と事件番号がわかる場合は、事件番号を記載してください。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続放棄申述受理通知書または相続放棄申述受理証明書を請求する方法を教えてください。">
-                                    {{ company_data.MAIL_ADDRESS }}
+                                    お問い合わせ
                                 </a>
-                            </p>
+                                をお願いします。
+                            <p>
                         </div>
                     </div>
                 </section>
             {% endif %}
-            <hr class="my-5">
-            <p class="fw-bold">
-                以下の書類は「５法務局に申請」までにあれば大丈夫ですが、上記の書類と一緒に取得できるものがあれば取得しておくと後が少し楽になります。
-                また他の相続人の方々に必要書類として案内しておくと「４書類の印刷」での受け取りがスムーズになります。
-            </p>
+            <hr class="mt-5">
+            <div>
+                <h5 class="lh-lg text-indent">
+                    以下の書類も後で必要になりますので、上記の書類と一緒に取得できるものがあればご取得ください。
+                </h5>
+                <h5 class="lh-lg text-indent">
+                    他の相続人の方々にも必要書類として案内しておくと後で受け取りがスムーズになります。
+                </h5>
+            </div>
             <hr class="mt-5">
             <section>
                 <span class="mt-3 fw-bold fs-5">
                     不動産を取得する方の住民票又は戸籍の附票
-                    <span class="ms-3">
+                    <span class="ms-3 sheet-count">
                         いずれか１通
                     </span>
                 </span>
@@ -1430,7 +1535,7 @@
                             ※
                         </div>
                         <div>
-                            共有持分を取得する場合も必要です。
+                            共有持分を取得する方も対象です。
                         </div>
                         <br>
                     </li>
@@ -1466,7 +1571,7 @@
                             ※
                         </div>
                         <div>
-                            有効期限はないので住所に変更がなければ過去に取得したものでも使用できます。
+                            現住所を証明するものであれば過去に取得したものでも使用できます。
                         </div>
                         <br>
                     </li>
@@ -1475,9 +1580,9 @@
             <hr class="mt-5">
             <section>
                 <span class="mt-3 fw-bold fs-5">
-                    相続人全員の印鑑証明書
-                    <span class="ms-3">
-                        各自１通
+                    印鑑登録証明書
+                    <span class="ms-3 sheet-count">
+                        相続人各自１通ずつ
                     </span>
                 </span>
                 <ul class="mt-3 ps-3 mb-0">
@@ -1486,7 +1591,7 @@
                             ※
                         </div>
                         <div>
-                            各自法定相続分に従った取得にする場合は不要です。
+                            各自法定相続分による相続の場合は不要です。
                         </div>
                         <br>
                     </li>
@@ -1503,7 +1608,7 @@
                             ※
                         </div>
                         <div>
-                            有効期限はないの登録した印鑑と住所に変更がなければ過去に取得したものでも使用できます。
+                            登録した印鑑と住所に変更がなければ過去に取得したものでも使用できます。
                         </div>
                         <br>
                     </li>
@@ -1525,7 +1630,7 @@
                 {% if overseas|length > 0 %}
                     <div class="mt-3 ms-3">
                         <span class="fw-bold border-bottom border-dark px-3">
-                            日本に住民票がない方は「４書類の印刷」のときに代わりになるものを取得します。
+                            日本に住民票がない方は「4 書類の印刷」のときに代わりになるものを取得します。
                         </span>
                         <ul class="mb-0">
                             {% for oversea in overseas %}
@@ -1540,12 +1645,11 @@
             <hr class="mt-5">
             <section>
                 <span class="mt-3 fw-bold fs-5">
-                    相続人全員の戸籍謄本
-                    <button class="text-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#heir_family_certification">
-                        （戸籍全部（または個人）事項証明書）
+                    <button class="text-primary fw-bold text-start" type="button" data-bs-toggle="modal" data-bs-target="#heir_family_certification">
+                        戸籍謄本（戸籍全部または個人事項証明書）
                     </button>
-                    <span class="ms-3">
-                        各自１通
+                    <span class="ms-3 sheet-count">
+                        相続人各自１通ずつ
                     </span>
                 </span>
                 <ul class="mt-3 ps-3 mb-0">
@@ -1556,7 +1660,7 @@
                         <div>
                             取得対象者の死亡の記載がある戸籍全部事項証明書に記載がある方は別途取得しなくても大丈夫です。
                             <br>
-                            <button class="text-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#deleted_family_card_last_page">
+                            <button class="text-primary fw-bold" type="button" data-bs-toggle="modal" data-bs-target="#deleted_family_card_last_page_modal">
                                 除籍全部事項
                             </button>
                             になっている場合は別途取得が必要です。
@@ -1601,25 +1705,30 @@
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
                         <button id="preBtn" type="button" class="btn btn-secondary preBtn fw-bold">
-                            １．基本データの入力を修正する
+                            前に戻る
                             <span id="preBtnSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                     <div>
                         <button id="submitBtn" type="submit" class="btn btn-primary nextBtn fw-bold" disabled>
-                            ３．詳細データ入力に進む
+                            次に進む
                             <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                 </div>
-                <div class="m-auto text-center">
-                    <span class="fw-bold">
-                        ※修正するボタンを押すと、チェックの状態が初期化されます。
-                        <br>
-                        前の項目を確認するだけの場合は、画面左の進捗状況にある項目をクリックしてください。
-                    </span>
+                <div class="d-flex justify-content-center">
+                    <div class="d-flex fw-bold">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            前に戻るボタンを押すと、ここでのチェックの状態が初期化されます。
+                            <br>
+                            前の項目を確認するだけの場合は、進捗状況からご移動ください。
+                        </div>
+                    </div>
                 </div>
             </section>
         </form>

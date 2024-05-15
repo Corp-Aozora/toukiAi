@@ -49,6 +49,12 @@
     }
 }
 
+@media (max-width:830px){
+    .md-start-button{
+        text-align: start!important;
+    }
+}
+
 @media (max-width:767px){
     #mainContainer > .container-xxl{
         padding-left: 0px!important;

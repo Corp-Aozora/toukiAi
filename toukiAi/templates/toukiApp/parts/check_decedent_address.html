@@ -5,41 +5,62 @@
         <div class="modal-content">
             <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
                 <h5 class="modal-title">
-                    被相続人の登記簿上の住所氏名と証明書類の住所氏名の一致を確認する手順
+                    被相続人の登記簿上の住所、氏名と証明書の住所、氏名の一致を確認する手順
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body mx-auto">
                 <h5 class="text-center">
-                    登記対象の各不動産について以下の作業が必要です
+                    登記簿上の所有者と被相続人が同一人物であることを証明するための作業です。
                 </h5>
-                <div class="mt-4">
+                <div class="d-flex justify-content-center">
+                    <div class="fw-bold mt-3 d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            全ての登記簿謄本についてこの作業が必要です。
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <div>
                     <div>
-                        <div class="text-center">
-                            <span class="fw-bold border-bottom border-secondary">
-                                １
-                            </span>
-                            <span class="ps-3 fw-bold border-bottom border-secondary">
-                                登記簿謄本の所有者の住所氏名を確認
-                            </span>
+                        <div class="d-flex">
+                            <div>
+                                ①
+                            </div>
+                            <div>
+                                <span class="fw-bold border-bottom border-secondary">
+                                    登記簿謄本の所有者の住所氏名を確認
+                                </span>
+                            </div>
                         </div>
                         <p class="d-flex justify-content-center">
                             <img class="modal-image" src="{% static 'toukiApp/img/登記情報（土地）.png' %}" alt="登記情報の参考画像">
                         </p>
                     </div>
+                    <hr class="my-4">
                     <div>
-                        <p class="text-center mt-5">
-                            <span class="fw-bold border-bottom border-secondary">
-                                ２
-                            </span>
-                            <span class="ps-3 fw-bold border-bottom border-secondary">
-                                住民票の除票または戸籍の附票に記載されている所有者の住所氏名に現れることを確認
-                            </span>
-                        </p>
-                        <p class="text-center">
-                            ※先にどちらかを取得して、そこに現れないときは、もう一方も取得する必要があります。
-                        </p>
-                        <p class="d-flex justify-content-center mt-5">
+                        <div class="d-flex">
+                            <div>
+                                ②
+                            </div>
+                            <div>
+                                <span class="fw-bold border-bottom border-secondary">
+                                    住民票の除票または戸籍の附票に記載されている住所（前住所を含む）、氏名に所有者の住所、氏名と一致するものがあるか確認
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex mt-3">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                先に住民票の除票または戸籍の附票のどちらかを取得して、そこに現れないときは、もう一方も取得する必要があります。
+                            </div>
+                        </div>
+                        <p class="d-flex justify-content-center">
                             <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票（住所チェック）.png' %}" alt="住民票の除票の参考画像">
                         </p>
                         <p class="d-flex justify-content-center mt-5">
@@ -49,14 +70,17 @@
                             <img class="modal-image" src="{% static 'toukiApp/img/改製原戸籍の附票.png' %}" alt="改製原戸籍の附票の参考画像">
                         </p>
                     </div>
+                    <hr class="my-4">
                     <div>
-                        <div class="text-center mt-5">
-                            <span class="fw-bold border-bottom border-secondary">
-                                ３
-                            </span>
-                            <span class="ps-3 fw-bold border-bottom border-secondary">
-                                ２で所有者の住所氏名が現れないとき、登記済証、登記識別情報通知書、不在住証明書のいずれかを用意する必要があります。
-                            </span>
+                        <div class="d-flex">
+                            <div>
+                                ③
+                            </div>
+                            <div>
+                                <span class="fw-bold border-bottom border-secondary">
+                                    ②で所有者の住所、氏名が現れないとき、登記済証、登記識別情報通知書、不在住証明書のいずれかを用意する必要があります。
+                                </span>
+                            </div>
                         </div>
                         <p class="d-flex justify-content-center mt-5">
                             <img class="modal-image" src="{% static 'toukiApp/img/登記済証１ページ.png' %}" alt="登記済証１ページの参考画像">

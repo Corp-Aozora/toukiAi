@@ -515,7 +515,7 @@ def change_email(request):
                 
                 return redirect(current_url_name)
             else:
-                messages.warning(request, f"変更に失敗 新しいメールアドレスが既に使用されているか、入力されたメールアドレスとパスワードがアカウント情報と一致しません。")
+                messages.warning(request, f"変更に失敗 入力に不備があるため変更できませんでした。")
         else:
             form = ChangeEmailForm(user)
         

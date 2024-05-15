@@ -134,11 +134,11 @@ class CustomPasswordChangeView(PasswordChangeView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, 'パスワードの変更が完了しました')
+        messages.success(self.request, '受付完了 パスワードの変更が完了しました')
         return response
 
     def form_invalid(self, form):
-        messages.error(self.request, 'パスワードを変更できませんでした 現在のパスワードに誤りがある、または新しいパスワードと再入力が一致しなかったことによりパスワードを変更できませんでした。')
+        messages.error(self.request, '受付に失敗 現在のパスワードに誤りがある、または新しいパスワードと再入力が一致しなかったことによりパスワードを変更できませんでした。')
         return super().form_invalid(form)
 
 def save_option_select(user, form):
@@ -167,7 +167,7 @@ def option_select(request):
     
     try:
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです ログインしてください")
+            messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
             return redirect("account_login")
         
         user = request.user
@@ -203,7 +203,7 @@ def option_select(request):
                         save_option_select(user, form)
                         return redirect(next_url_name)
                 else:
-                    msg = mark_safe("受付できませんでした 入力に不備がありました。<br>エラー内容をご確認ください。")
+                    msg = mark_safe("受付に失敗 入力に不備がありました。<br>エラー内容をご確認ください。")
                     messages.warning(request, msg)
                     
             except Exception as e:
@@ -225,7 +225,7 @@ def option_select(request):
                 form = OptionSelectForm()
                 
             if paid_option_and_amount["option2"]:
-                messages.info(request, "選択できるオプションがありません 司法書士にご依頼いただいた場合、その他のオプションはご利用できなくなります。")
+                messages.info(request, "利用不可 司法書士にご依頼いただいた場合、その他のオプションはご利用できなくなります。")
             
         context = {
             "title": "オプション選択",
@@ -257,7 +257,7 @@ def bank_transfer(request):
     try:
         
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです ログインしてください")
+            messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
             return redirect("account_login")
         
         user = request.user
@@ -270,7 +270,7 @@ def bank_transfer(request):
         not_paid_data = option_request_data.filter(is_recieved=False).first()
         # 未払の利用申込みがないとき、オプション選択ページにリダイレクトする
         if not not_paid_data:
-            messages.warning(request, "オプションを選択してください")
+            messages.warning(request, "アクセス不可 先にオプションを選択してください。")
             return redirect(pre_url_name)
 
         unique_payer = not_paid_data.payer + not_paid_data.phone_number[-4:]
@@ -316,7 +316,7 @@ def delete_account(request):
 
     try:
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです アカウント登録が必要です")
+            messages.warning(request, "アクセス不可 会員専用のページです。アカウント登録が必要です。")
             return redirect("accounts:signup")
         
         user = request.user
@@ -329,7 +329,7 @@ def delete_account(request):
                 request.session["account_delete"] = True
                 return redirect(next_url_name)
             else:
-                messages.error(request, "アカウントを削除できませんでした 入力されたメールアドレスまたはパスワードに誤りがあります")
+                messages.error(request, "削除に失敗 入力されたメールアドレスまたはパスワードに誤りがあるため、アカウントを削除できませんでした。")
         else:            
             form = DeleteAccountForm(user)
         
@@ -475,7 +475,7 @@ def change_email(request):
     
     try:
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです アカウント登録が必要です")
+            messages.warning(request, "アクセス不可 会員専用のページです。アカウント登録が必要です。")
             return redirect("accounts:signup")
         
         user = request.user
@@ -507,7 +507,7 @@ def change_email(request):
                             {"token": data["token"]}
                         )
                         
-                        messages.success(request, "変更を受付ました 新しいメールアドレス宛に変更を完了させるためのURLをお送りしましたので、そのURLにアクセスをお願いします。")
+                        messages.success(request, "受付完了 新しいメールアドレス宛に変更を完了させるためのURLをお送りしましたので、そのURLにアクセスをお願いします。")
                         
                     except Exception as e:
                         basic_log(function_name, e, user, "POSTでのエラー")
@@ -515,7 +515,7 @@ def change_email(request):
                 
                 return redirect(current_url_name)
             else:
-                messages.warning(request, f"メールアドレスを変更できませんでした 新しいメールアドレスが既に使用されているか、入力されたメールアドレスとパスワードがアカウント情報と一致しません。")
+                messages.warning(request, f"変更に失敗 新しいメールアドレスが既に使用されているか、入力されたメールアドレスとパスワードがアカウント情報と一致しません。")
         else:
             form = ChangeEmailForm(user)
         
@@ -548,7 +548,7 @@ def confirm_email(request, token):
         
         #データがない又は申請から1日以上経過しているときは、リンク切れのページを表示する
         if not email_change_data or (timezone.now() - email_change_data.updated_at) > timedelta(days = 1):
-            messages.warning(request, "メールアドレス変更のリンクが無効になっています。")
+            messages.warning(request, "アクセス不可 メールアドレス変更のリンクが無効になっています。")
             return redirect(login_url_name)
         
         with transaction.atomic():
@@ -576,11 +576,11 @@ def confirm_email(request, token):
             )
             new_email_address.save()
             
-            messages.success(request,"メールアドレスの変更が完了しました")
+            messages.success(request,"受付完了 メールアドレスの変更が完了しました")
             return redirect(change_email_url_name)
            
     except User.DoesNotExist:
-        messages.error(request, "ユーザーが存在しません")
+        messages.error(request, "受付に失敗 ユーザーが存在しません")
         basic_log(function_name, e, None, "メールアドレス変更処理でUser.DoesNotExistのエラー発生")
         return redirect(signup_url_name)
     except Exception as e:

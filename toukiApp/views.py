@@ -108,7 +108,7 @@ def index(request):
                         raise e
             else:
                 basic_log(function_name, None, None, f"{form.errors}")
-                messages.warning(request, "受け付けできませんでした")
+                messages.warning(request, "受付に失敗 入力に不備があるため受付できませんでした。")
         else:
             form = OpenInquiryForm()
         
@@ -489,7 +489,7 @@ def step_one_trial(request):
     try:
         # 会員以外はアカウント登録ページに遷移させる
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです アカウント登録が必要です")
+            messages.warning(request, "アクセス不可 会員専用のページです。アカウント登録が必要です。")
             return redirect("accounts:signup")
         
         # 有料会員はstep_oneに遷移させる
@@ -536,7 +536,7 @@ def step_one_trial(request):
                     basic_log(function_name, e, user, "POSTのデータ保存処理でエラー")
                     raise e
             else:
-                messages.warning(request, "入力内容を保存できませんでした。 \n恐れ入りますが、再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
+                messages.warning(request, "受付に失敗。 入力に不備があるためデータを保存できませんでした。\n再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
 
             
             return redirect(this_url_name)
@@ -668,11 +668,11 @@ def step_one(request):
     try:
         # 会員以外はアカウント登録ページに遷移させる
         if not request.user.is_authenticated:
-            messages.warning(request, "会員専用のページです")
+            messages.warning(request, "アクセス不可 会員専用のページです")
             return redirect("accounts:signup")
         
         if not request.user.basic:
-            messages.warning(request, "有料会員専用のページです")
+            messages.warning(request, "アクセス不可 有料会員専用のページです")
             return redirect("toukiApp:step_one_trial")
         
         user = User.objects.get(email = request.user)
@@ -715,7 +715,7 @@ def step_one(request):
                     basic_log(function_name, e, user, "POSTのデータ保存処理でエラー")
                     raise e
             else:
-                messages.warning(request, "入力内容を保存できませんでした。 \n恐れ入りますが、再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
+                messages.warning(request, "受付に失敗 入力内容に不備があるためデータを保存できませんでした。\n再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
             
             redirect(this_url_name)
         
@@ -1049,7 +1049,7 @@ def step_two(request):
         heirs = get_legal_heirs(decedent)
         if not heirs:
             basic_log(function_name, None, user, "相続人が登録されていない状態でstep_twoにアクセスしました")
-            messages.error(request, "相続人が登録されてません 先に基本データ入力を入力してください")
+            messages.error(request, "アスセス不可 相続人データが登録されていません。\n先に基本データ入力を入力してください")
             return redirect(ToukiAppUrlName.step_one)
             
         deceased_persons = get_deceased_persons(decedent)
@@ -2747,7 +2747,7 @@ def check_user_and_decedent(request):
     
     try:
         if not request.user.is_authenticated:
-            messages.error(request, "会員専用のページです 先に会員登録をお願いします。")
+            messages.error(request, "アクセス不可 会員専用のページです。先に会員登録をお願いします。")
             basic_log(function_name, None, None, "非会員が会員専用のページにアクセスを試みました")
             return redirect(login_url_name), None, None
         
@@ -2755,7 +2755,7 @@ def check_user_and_decedent(request):
         decedent = user.decedent.first()
         
         if not decedent:
-            messages.error(request, "被相続人のデータがまだ登録されていません 先に１．基本データ入力の入力をお願いします。")
+            messages.error(request, "アクセス不可 被相続人のデータがまだ登録されていません。\n先に１．基本データ入力の入力をお願いします。")
             basic_log(function_name, None, user, "step_oneが未了の会員がその先のページにアクセスを試みました")
             return redirect(first_step_url_name), None, None
         
@@ -4627,7 +4627,7 @@ def step_inquiry(request):
         this_url_name = "toukiApp:step_inquiry"
         
         if not request.user.is_authenticated:
-            messages.error(request, "会員専用のページです 先にアカウント登録をしてください。")
+            messages.error(request, "アクセス不可 会員専用のページです。先にアカウント登録をしてください。")
             basic_log(function_name, None, None, "非会員が会員登録ページにアクセスを試みました")
             return redirect("account_login")
         
@@ -4647,11 +4647,11 @@ def step_inquiry(request):
                     with transaction.atomic():
                         register_user_inquiry_and_return_instance(user, inquiry_form)
                         send_auto_email_to_inquiry(inquiry_form.cleaned_data, user.email)
-                        messages.success(request, "受け付けました")
+                        messages.success(request, "受付完了 お問い合わせありがとうございます。\n原則24時間以内にご回答いたしますので、少々お待ちください。")
                         return redirect(this_url_name)
                 else:
                     basic_log(function_name, None, user, f"POSTでエラー\n{inquiry_form.errors}")
-                    messages.warning(request, "受け付けできませんでした")
+                    messages.warning(request, "受付に失敗 入力に不備があるため、受け付けできませんでした。")
             except Exception as e:
                 basic_log(function_name, e, user, "POSTでエラー")
                 raise e
@@ -4837,7 +4837,7 @@ def condition(request):
                 return redirect(next_redirect_to)
             else:
                 basic_log(function_name, None, None, "利用条件全てにチェックを入れずにアカウント登録ボタンが押されました")
-                messages.warning("利用条件を満たしていません 全てにチェックが入らない場合は、本システムで対応できないためアカウント登録できません。")
+                messages.warning("アクセス不可 利用条件を満たしていない場合は、本システムで対応できないためアカウント登録できません。")
 
         context = {
             "title" : tab_title,

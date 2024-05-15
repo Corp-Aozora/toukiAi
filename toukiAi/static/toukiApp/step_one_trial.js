@@ -4591,7 +4591,7 @@ function setDecedentEvent(){
  * 判定結果を表示する
  */
 function showResult(){
-    const modalEl = document.getElementById("result-modal");
+    const modalEl = document.getElementById("legal_heirs_check_result_modal");
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
 }

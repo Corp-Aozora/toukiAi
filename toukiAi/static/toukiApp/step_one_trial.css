@@ -12,6 +12,6 @@
     max-width: 500px;
 }
 
-#heirs_list li, #result-modal li{
+#heirs_list li, #legal_heirs_check_result_modal li{
     margin-top: 1rem;
 }

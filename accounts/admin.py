@@ -61,7 +61,7 @@ class EmailChangeAdmin(admin.ModelAdmin):
     form = EmailChangeForm
     list_display = ('updated_at', 'user', "email")
     list_filter = ('updated_at', 'user', "email")
-    search_fields = ('updated_at', 'user', "email")
+    search_fields = ('updated_at', 'user__email', "email")
     ordering = ["-updated_at"]
 
 admin.site.register(EmailChange, EmailChangeAdmin)
@@ -85,7 +85,7 @@ class OptionRequestAdmin(admin.ModelAdmin):
     form = OptionRequestForm
     list_display = ('updated_at', 'user', "name", "payer", "phone_number", "basic", "option1", "option2", "charge", "is_recieved")
     list_filter = ('updated_at', 'user', "name", "payer", "is_recieved")
-    search_fields = ('updated_at', 'user', "name", "payer", "phone_number")
+    search_fields = ('updated_at', 'user__email', "name", "payer", "phone_number")
     ordering = ["-updated_at"]
         
     # def get_urls(self):

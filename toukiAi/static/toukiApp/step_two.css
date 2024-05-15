@@ -3,16 +3,16 @@
 }
 
 #about-family-card-modal ul li:not(:first-child), 
-#duplicate-family-card-modal ul li:not(:first-child){
+#about_duplicate_family_card_modal ul li:not(:first-child){
     margin-top: 1rem;
 }
 
 #about-family-card-modal ul li > div:first-child,
-#duplicate-family-card-modal ul li > div:first-child{
+#about_duplicate_family_card_modal ul li > div:first-child{
     font-weight: 700;
 }
 
-#about-family-card-modal, #duplicate-family-card-modal{
+#about-family-card-modal, #about_duplicate_family_card_modal{
     --bs-modal-width: 600px!important;
 }
 
@@ -40,4 +40,29 @@
 
 #registryUploader{
     height:200px;
+}
+
+@media (max-width:991px){
+    #heirs-list{
+        margin-left: auto!important;
+        margin-right: auto!important;
+    }
+}
+
+@media (max-width:767px){
+    #mainContainer > .container-xxl{
+        padding-left: 0px!important;
+        padding-right: 0px!important;
+    }
+
+    .sheet-count{
+        display: block!important;
+        text-align: end;
+    }
+}
+
+@media (max-width:575px){
+    .sm-text-center{
+        text-align: center!important;
+    }
 }

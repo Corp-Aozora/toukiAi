@@ -27,7 +27,7 @@ class CustomSignupForm(SignupForm):
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control rounded-end',
             'autocomplete': 'off',
-            "placeholder": "半角で英数記号を含む8文字以上",
+            "placeholder": "半角で英数記号3種類を含む8文字以上",
         })
         
         self.fields['password2'].widget.attrs.update({
@@ -105,21 +105,21 @@ class CustomChangePasswordForm(ChangePasswordForm):
         
         self.fields["oldpassword"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "現在のパスワード",
+            "placeholder": "",
             'autocomplete': 'off',
             "maxlength" :"30",
         })
                 
         self.fields["password1"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "半角英数記号を含むで8文字以上",
+            "placeholder": "半角で英数記号3種類を含む8文字以上",
             'autocomplete': 'off',
             "maxlength" :"30",
         })
         
         self.fields["password2"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "もう一度ご入力ください",
+            "placeholder": "",
             'autocomplete': 'off',
             "maxlength": "0",
         })
@@ -144,19 +144,19 @@ class ChangeEmailForm(forms.ModelForm):
         
         self.fields['email'].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "新しいメールアドレス",
+            "placeholder": "",
             'autocomplete': 'off',
         })
         
         self.fields["current_email"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "現在のメールアドレス",
+            "placeholder": "",
             'autocomplete': 'off',
         })
         
         self.fields["password"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "半角で英数記号を含む8文字以上",
+            "placeholder": "半角で英数記号3種類を含む8文字以上",
             'autocomplete': 'off',
         })
     
@@ -200,7 +200,7 @@ class DeleteAccountForm(forms.Form):
         
         self.fields["password"].widget.attrs.update({
             "class": "form-control rounded-end",
-            "placeholder": "半角で英数記号を含む8文字以上",
+            "placeholder": "半角で英数記号3種類を含む8文字以上",
             'autocomplete': 'off',
         })
     

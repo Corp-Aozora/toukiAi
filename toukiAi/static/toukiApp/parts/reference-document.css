@@ -5,3 +5,8 @@
 .reference-document .supplement{
     max-width: 500px;
 }
+
+.d-block-text-end{
+    display: block!important;
+    text-align: end;
+}

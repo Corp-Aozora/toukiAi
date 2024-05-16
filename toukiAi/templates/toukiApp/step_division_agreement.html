@@ -25,26 +25,26 @@
                 こちらのページをA4の縦方向でご印刷ください。
             </h1>
             <p class="fw-bold text-center mt-3">
-                PDFが必要でお使いのPCにこのページをPDFで印刷する機能がない場合はお問い合わせをお願いします。
-                <br>
+                PDFが必要でこのページをPDFで出力する機能がない場合は
                 <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=遺産分割協議証明書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A遺産分割協議証明書のPDFを送ってください。">
-                    {{ company_data.MAIL_ADDRESS }}
+                    お問い合わせ
                 </a>
+                をお願いします。
             </p>
             <div class="mt-4 d-flex justify-content-center">
                 <div class="d-inline-block border rounded-3 p-3">
                     <p class="text-danger fw-bold">
                         ※注意事項
                     </p>
-                    <p class="ms-3">
+                    <div class="ms-sm-3">
                         <span class="fw-bold border-bottom border-secondary">
                             使用する印鑑について
-                        </span><br>
-                        <span class="ms-3">
-                            実印で印鑑登録証明書と照合できるように鮮明に押印ください。
                         </span>
-                    </p>
-                    <div class="ms-3">
+                        <p class="ms-3">
+                            実印で印鑑登録証明書と照合できるように鮮明に押印ください。
+                        </p>
+                    </div>
+                    <div class="ms-sm-3">
                         <span class="fw-bold border-bottom border-secondary">
                             遺産分割協議証明書が２枚以上になっているとき
                         </span><br>

@@ -1,0 +1,6 @@
+@media (max-width:575px){
+    .sheet-count{
+        display: block!important;
+        text-align: end;
+    }
+}

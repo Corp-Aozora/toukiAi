@@ -16,16 +16,21 @@
 {% include "toukiApp/parts/modals/alt_stamp_certificate.html" %}
 {% include "toukiApp/parts/acquirer_resident_certification_three.html" %}
 
-<div class="d-flex container-xxl">
+<div class="d-flex px-0 px-md-3 container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
-    <div class="pt-4 ps-4 container-xxl">
+    <div class="pt-4 ps-sm-4 container-xxl">
         <div>
-            <h1 class="fs-4">
-                各書類を指定の通数印刷してご署名押印ください
-            </h1>
-            <p class="text-danger fw-bold">
-                ※印刷前に内容（特に誤字脱字）の確認をお願いします。
-            </p>
+            <h4>
+                各書類を印刷してご署名押印などをお願いします。
+            </h4>
+            <div class="text-danger fw-bold d-flex">
+                <div>
+                    ※
+                </div>
+                <div>
+                    印刷前に内容（特に誤字脱字）の確認をお願いします。
+                </div>
+            </div>
         </div>
         <hr>
         <form action="{% url 'toukiApp:step_four' %}" method="POST" class="my-4" novalidate>
@@ -38,7 +43,7 @@
                         </div>
                         <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbDivisionAgreement">
                             遺産分割協議証明書
-                            <span class="ms-3">
+                            <span class="ms-3 sheet-count">
                                 各相続人１通ずつ
                             </span>
                         </label>
@@ -49,18 +54,11 @@
                         </a>
                     </div>
                     <div class="mt-4">
-                        <div>
-                            <span class="fw-bold">
-                                相続人各自の署名押印（実印）をお願いします。
-                            </span>
-                            <br>
-                            １通に全員が署名押印する形式のものではないです。
-                        </div>
                         <div class="mt-3">
                             <span class="fw-bold">
                                 ＞相続人に該当する方々
                             </span>
-                            <div class="ps-5">
+                            <div class="ps-3 ps-sm-5">
                                 <ul id="heirsList" class="list-group">
                                     {% for heir in heirs %}
                                         <li class="text-success fw-bold">
@@ -75,7 +73,7 @@
                                         </div>
                                         <div>
                                             <span class="text-danger">
-                                                各自の印鑑証明書と戸籍全部（または個人）事項証明書１通ずつも必要です。
+                                                各自の印鑑証明書と戸籍（全部または個人）事項証明書１通ずつも必要です。
                                             </span>
                                         </div>
                                     </li>
@@ -86,9 +84,17 @@
                                         <div>
                                             不動産を取得する方は
                                             <span class="border-bottom border-secondary">
-                                                住民票（マイナンバー不要）または戸籍の附票１通
+                                                住民票（マイナンバー記載なし）または戸籍の附票１通
                                             </span>
                                             も必要です。
+                                        </div>
+                                    </li>
+                                    <li class="d-flex">
+                                        <div>
+                                            ※
+                                        </div>
+                                        <div>
+                                            １通に全員が署名押印する必要はないです。
                                         </div>
                                     </li>
                                 </ul>
@@ -140,7 +146,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <ul class="ps-5">
+                                        <ul class="ps-3 ps-sm-5">
                                             {% for oversea in overseas %}
                                                 <li class="fw-bold text-success">
                                                     {{oversea.name}} さん
@@ -173,20 +179,23 @@
                     <div class="mt-4 fw-bold">
                         {% if principal_names_and_POA_count|length > 1 %}
                             以下の方々を委任者、申請手続きをする
-                            <span>
+                            <span class="px-3 border-bottom border-dark">
                                 {{agent_name}}さん
                             </span>
                             を受任者とする委任状が必要です。
                         {% else %}
-                            {{principal_names_and_POA_count.0.name}}さんを委任者、申請手続きをする
-                            <span>
-                                {{agent_name}}さん
+                            <span class="px-3 border-bottom border-dark">
+                                {{principal_names_and_POA_count.0.name}}さんを委任者
                             </span>
-                            を受任者とする委任状が
-                            <span class="fw-bold border-bottom border-secondary">
+                            、申請手続きをする
+                            <span class="px-3 border-bottom border-dark">
+                                {{agent_name}}さんを受任者
+                            </span>
+                            とする委任状が
+                            <span class="px-3 border-bottom border-dark">
                                 {{principal_names_and_POA_count.0.count|to_full_width}}通
                             </span>
-                            必要です。
+                            が必要です。
                         {% endif %}
                     </div>
                     {% if principal_names_and_POA_count|length > 1 %}
@@ -218,7 +227,7 @@
                     </div>
                     <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbApplicationForm">
                         登記申請書
-                        <span class="ms-3">
+                        <span class="ms-3 sheet-count">
                             印刷ページで表示されている分全て
                         </span>
                     </label>
@@ -240,7 +249,7 @@
                     </div>
                     <label class="form-check-label fw-bold fs-5 ps-2 fst-italic" for="CbDiagram">
                         相続関係説明図
-                        <span class="ms-3">
+                        <span class="ms-3 sheet-count">
                             印刷ページで表示されている分全て
                         </span>
                     </label>
@@ -250,8 +259,8 @@
                         印刷ページへ
                     </a>
                 </div>
-                <div class="mt-4">
-                    各登記申請書に１通の相続関係図が必要です。
+                <div class="mt-4 fw-bold">
+                    各登記申請書に１通の相続関係説明図が必要です。
                     <br>
                     署名押印は不要です。
                 </div>
@@ -261,25 +270,30 @@
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
                         <button id="preBtn" type="button" class="btn btn-secondary fw-bold bg-gradient bg-opacity-50">
-                            ３．詳細データ入力に戻る
+                            前に戻る
                             <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                     <div>
                         <button id="submitBtn" type="submit" class="btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled>
-                            ５．法務局に申請に進む
+                            次に進む
                             <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                 </div>
-                <div class="m-auto text-center">
-                    <span class="fw-bold">
-                        ※修正するボタンを押すと、ここでのチェック状況が初期化されます。
-                        <br>
-                        前の項目を確認するだけの場合は、画面左の進捗状況にある項目をクリックしてください。
-                    </span>
+                <div class="d-flex justify-content-center">
+                    <div class="d-flex fw-bold">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            前に戻るボタンを押すと、ここでのチェックの状態が初期化されます。
+                            <br>
+                            前の項目を確認するだけの場合は、進捗状況からご移動ください。
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

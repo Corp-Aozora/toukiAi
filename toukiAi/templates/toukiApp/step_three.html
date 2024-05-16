@@ -25,27 +25,30 @@
 {% include "toukiApp/parts/modals/house_input_nav.html" %}
 {% include "toukiApp/parts/modals/bldg_input_nav.html" %}
 
-<div class="d-flex container-xxl">
+<div class="d-flex px-0 px-md-3 container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
-    <div class="pt-4 ps-4 container-xxl">
+    <div class="pt-4 ps-sm-4 container-xxl">
         <div>
             <h1 class="fs-4">
-                取得した書類を確認しながらご入力ください。
+                取得した書類の内容を入力
             </h1>
-            <div class="form-text">
-                ※この章では入力項目が5つあります（一般的な相続の場合、入力時間の目安は約1時間です）
+            <div class="form-text d-flex">
+                <div>
+                    ※
+                </div>
+                <div>
+                    この章では入力項目が5つあります（一般的な相続の場合、入力時間の目安は約1時間です）
+                </div>
             </div>
         </div>
         <hr>
         <form action="{% url 'toukiApp:step_three' %}" method="POST" class="my-4" novalidate>
             {% csrf_token %}
-            <section id="decedent-section" class="container">
+            <section id="decedent-section" class="container px-0 px-sm-3">
                 <fieldset id="id_decedent-0-fieldset">
-                    <div style="width: 500px!important;">
-                        <h5 class="form-label">
-                            １．被相続人情報
-                        </h5>
-                    </div>
+                    <h5 class="form-label">
+                        １．被相続人情報
+                    </h5>
                     <div>
                         {% for field in decedent_form %}
                             {% if field.name == "name" %}
@@ -85,7 +88,11 @@
                                                 ※
                                             </div>
                                             <div>
-                                                死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                死亡日が◯日～◯日の間に死亡など不確定な表記のときは、
+                                                <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A被相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                    お問い合わせ
+                                                </a>
+                                                ください。
                                             </div>
                                         </div>
                                     {% else %}
@@ -129,12 +136,22 @@
                                     </span>
                                     <div class="mt-3 form-text">
                                         {% if field.name == "prefecture" %}
-                                            ※住民票の除票又は戸籍の附票に記載のとおりに入力。
-                                            <br>
-                                            <span class="text-danger">
-                                                ※「◯丁目」の◯は漢数字で入力。
-                                            </span>
-                                            <br>
+                                            <div class="d-flex">
+                                                <div>
+                                                    ※
+                                                </div>
+                                                <div>
+                                                    住民票の除票又は戸籍の附票に記載のとおりに入力。
+                                                </div>
+                                            </div>
+                                            <div class="d-flex text-danger">
+                                                <div>
+                                                    ※
+                                                </div>
+                                                <div>
+                                                    「◯丁目」の◯は漢数字で入力。
+                                                </div>
+                                            </div>
                                             <div class="d-flex text-nowrap">
                                                 <div>
                                                     ※
@@ -144,11 +161,22 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            ※死亡の記載がある戸籍謄本に記載の本籍地。
-                                            <br>
-                                            <span class="text-danger">
-                                                ※「◯丁目」の◯は漢数字で入力。
-                                            </span>
+                                            <div class="d-flex">
+                                                <div>
+                                                    ※
+                                                </div>
+                                                <div>
+                                                    死亡の記載がある戸籍謄本に記載の本籍地。
+                                                </div>
+                                            </div>
+                                            <div class="d-flex text-danger">
+                                                <div>
+                                                    ※
+                                                </div>
+                                                <div>
+                                                    「◯丁目」の◯は漢数字で入力。
+                                                </div>
+                                            </div>
                                         {% endif %}
                                     </div>
                                     <div class="input-group Q">
@@ -204,7 +232,7 @@
                                     <div class="my-auto fw-bold">
                                         （{{ forloop.counter|to_full_width }}）
                                     </div>
-                                    <div class="registry-name-and-address-div ms-3">
+                                    <div class="registry-name-and-address-div ms-sm-3">
                                         {% for field in form %}
                                             {% if field.name == "prefecture" or field.name == "name" or field.name == "city" or field.name == "address" or field.name == "bldg" %}
                                                 {% if field.name == "prefecture" %}
@@ -231,13 +259,13 @@
                                 </fieldset>
                             {% endfor %}
                         </div>
-                        <div class="mt-3">
-                            <div class="d-flex">
+                        <div class="mt-3 buttons-area">
+                            <div class="d-flex justify-content-center">
                                 <button type="button" id="removeRegistryAddressButton" class="btn btn-secondary bg-gradient bg-opacity-50 me-3 fw-bold" disabled>
-                                    登記簿上の氏名と住所を削除
+                                    削除
                                 </button>
                                 <button type="button" id="addRegistryAddressButton" class="btn btn-primary bg-gradient bg-opacity-50 ms-3 fw-bold" disabled>
-                                    登記簿上の氏名と住所を追加
+                                    追加
                                 </button>
                             </div>
                             <div>
@@ -251,7 +279,7 @@
                     </div>
                 </fieldset>
             </section>
-            <section id="heirs-section" class="container" style="display: none;">
+            <section id="heirs-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr class="mt-5 mb-5">
                 <div>
                     <h5>
@@ -260,7 +288,7 @@
                 </div>
                 {% if spouse_form %}
                     <fieldset id="id_decedent_spouse-fieldset" class="heirsFieldset spouseFieldset">
-                        <div class="border rounded-3 p-4 mt-3">
+                        <div class="border rounded-3 p-sm-4 p-3 mt-3">
                             <div>
                                 <div>
                                     {% if spouse_form.is_live.value != "true" %}
@@ -346,7 +374,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
-                                            <div class="d-flex justify-content-center p-2 input-group">
+                                            <div class="d-flex justify-content-center p-sm-2 input-group">
                                                 {% for choice in field %}
                                                     <div class="form-check col">
                                                         {% if forloop.counter == 1 %}
@@ -362,7 +390,7 @@
                                                 {% endfor %}
                                             </div>
                                 {% elif field.name == "prefecture" %}
-                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                    <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
                                         <span class="form-label fs-5 fw-bold">
                                             住所
                                         </span>
@@ -385,7 +413,14 @@
                                                     </div>
                                                 </div>
                                             {% elif spouse_form.is_japan.value == "false" %}
-                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        海外の住所を適宜のカタカナ表記で入力してください。
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="input-group mt-2 Q" {% if spouse_form.is_japan.value == "false" %} style="display: none;"{% endif %}>
@@ -443,7 +478,7 @@
                 {{ child_forms.management_form }}
                 {% for form in child_forms %}
                     <fieldset id="id_child-{{forloop.counter0}}-fieldset" class="heirsFieldset childFieldset">
-                        <div class="border rounded-3 p-4 mt-3">
+                        <div class="border rounded-3 p-sm-4 p-3 mt-3">
                             <div>
                                 <div>
                                     {% if form.is_live.value != "true" %}
@@ -529,7 +564,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
-                                            <div class="d-flex justify-content-center p-2 input-group">
+                                            <div class="d-flex justify-content-center p-sm-2 input-group">
                                                 {% for choice in field %}
                                                     <div class="form-check col">
                                                         {% if forloop.counter == 1 %}
@@ -545,7 +580,7 @@
                                                 {% endfor %}
                                             </div>
                                 {% elif field.name == "prefecture" %}
-                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                    <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
                                         <span class="form-label fs-5 fw-bold">
                                             住所
                                         </span>
@@ -568,7 +603,14 @@
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
-                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        海外の住所を適宜のカタカナ表記で入力してください。
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
@@ -626,9 +668,22 @@
                                         </div>
                                         <div>
                                             <div class="mt-3 form-text">
-                                                ※被相続人を父とする場合は母、母とする場合は父の氏名。
-                                                <br>
-                                                ※お持ちの戸籍謄本から判明する最後の氏名。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        被相続人を父とする場合は母、母とする場合は父の氏名。
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        お持ちの戸籍謄本から判明する最後の氏名。
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="input-group position-relative Q">
                                                 <label for="{{field.auto_id}}" class="input-group-text label">
@@ -650,7 +705,7 @@
                 {{ child_spouse_forms.management_form }}
                 {% for form in child_spouse_forms %}
                     <fieldset id="id_child_spouse-{{forloop.counter0}}-fieldset" class="heirsFieldset childSpouseFieldset">
-                        <div class="border rounded-3 p-4 mt-3">
+                        <div class="border rounded-3 p-sm-4 mt-3">
                             <div>
                                 <div>
                                     {% if form.is_live.value != "true" %}
@@ -743,7 +798,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
-                                            <div class="d-flex justify-content-center p-2 input-group">
+                                            <div class="d-flex justify-content-center p-sm-2 input-group">
                                                 {% for choice in field %}
                                                     <div class="form-check col">
                                                         {% if forloop.counter == 1 %}
@@ -759,7 +814,7 @@
                                                 {% endfor %}
                                             </div>
                                 {% elif field.name == "prefecture" %}
-                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                    <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
                                         <span class="form-label fs-5 fw-bold">
                                             住所
                                         </span>
@@ -782,7 +837,14 @@
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
-                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        海外の住所を適宜のカタカナ表記で入力してください。
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
@@ -844,7 +906,7 @@
                 {{ grand_child_forms.management_form }}
                 {% for form in grand_child_forms %}
                     <fieldset id="id_grand_child-{{forloop.counter0}}-fieldset" class="heirsFieldset grandChildFieldset">
-                        <div class="border rounded-3 p-4 mt-3">
+                        <div class="border rounded-3 p-sm-4 mt-3">
                             <div>
                                 <div>
                                     {% if form.is_live.value != "true" %}
@@ -937,7 +999,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
-                                            <div class="d-flex justify-content-center p-2 input-group">
+                                            <div class="d-flex justify-content-center p-sm-2 input-group">
                                                 {% for choice in field %}
                                                     <div class="form-check col">
                                                         {% if forloop.counter == 1 %}
@@ -953,7 +1015,7 @@
                                                 {% endfor %}
                                             </div>
                                 {% elif field.name == "prefecture" %}
-                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                    <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
                                         <span class="form-label fs-5 fw-bold">
                                             住所
                                         </span>
@@ -976,7 +1038,14 @@
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
-                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        海外の住所を適宜のカタカナ表記で入力してください。
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
@@ -1037,9 +1106,22 @@
                                         </div>
                                         <div>
                                             <div class="mt-3 form-text">
-                                                ※子を父とする場合は母、母とする場合は父の氏名。
-                                                <br>
-                                                ※お持ちの戸籍謄本から判明する最後の氏名。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        子を父とする場合は母、母とする場合は父の氏名。
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        お持ちの戸籍謄本から判明する最後の氏名。
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="input-group position-relative Q">
                                                 <label for="{{field.auto_id}}" class="input-group-text label">
@@ -1061,7 +1143,7 @@
                 {{ ascendant_forms.management_form }}
                 {% for form in ascendant_forms %}
                     <fieldset id="id_ascendant-{{forloop.counter0}}-fieldset" class="heirsFieldset ascendantFieldset">
-                        <div class="border rounded-3 p-4 mt-3">
+                        <div class="border rounded-3 p-sm-4 mt-3">
                             <div>
                                 <div>
                                     {% if form.is_live.value != "true" %}
@@ -1170,7 +1252,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
-                                            <div class="d-flex justify-content-center p-2 input-group">
+                                            <div class="d-flex justify-content-center p-sm-2 input-group">
                                                 {% for choice in field %}
                                                     <div class="form-check col">
                                                         {% if forloop.counter == 1 %}
@@ -1186,7 +1268,7 @@
                                                 {% endfor %}
                                             </div>
                                 {% elif field.name == "prefecture" %}
-                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                    <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
                                         <span class="form-label fs-5 fw-bold">
                                             住所
                                         </span>
@@ -1209,7 +1291,14 @@
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
-                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        海外の住所を適宜のカタカナ表記で入力してください。
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
@@ -1271,7 +1360,7 @@
                 {{ collateral_forms.management_form }}
                 {% for form in collateral_forms %}
                     <fieldset id="id_collateral-{{forloop.counter0}}-fieldset" class="heirsFieldset collateralFieldset">
-                        <div class="border rounded-3 p-4 mt-3">
+                        <div class="border rounded-3 p-sm-4 mt-3">
                             <div>
                                 <div>
                                     {% if form.is_live.value != "true" %}
@@ -1364,7 +1453,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
-                                            <div class="d-flex justify-content-center p-2 input-group">
+                                            <div class="d-flex justify-content-center p-sm-2 input-group">
                                                 {% for choice in field %}
                                                     <div class="form-check col">
                                                         {% if forloop.counter == 1 %}
@@ -1380,7 +1469,7 @@
                                                 {% endfor %}
                                             </div>
                                 {% elif field.name == "prefecture" %}
-                                    <div class="p-3 heirsAddressDiv" style="display: none;">
+                                    <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
                                         <span class="form-label fs-5 fw-bold">
                                             住所
                                         </span>
@@ -1403,7 +1492,14 @@
                                                     </div>
                                                 </div>
                                             {% elif form.is_japan.value == "false" %}
-                                                ※海外の住所を適宜のカタカナ表記で入力してください。
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        海外の住所を適宜のカタカナ表記で入力してください。
+                                                    </div>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
@@ -1465,8 +1561,13 @@
                                             {% endif %}
                                         </span>
                                         <div>
-                                            <div class="mt-3 form-text">
-                                                ※お持ちの戸籍謄本から判明する最後の氏名。
+                                            <div class="mt-3 form-text d-flex">
+                                                <div>
+                                                    ※
+                                                </div>
+                                                <div>
+                                                    お持ちの戸籍謄本から判明する最後の氏名。
+                                                </div>
                                             </div>
                                             <div class="input-group position-relative Q mt-3">
                                                 <label for="{{field.auto_id}}" class="input-group-text label">
@@ -1485,7 +1586,7 @@
                         </div>
                     </fieldset>
                 {% endfor %}
-                <div id="heirsSectionToggleBtn" class="mt-5 d-flex justify-content-evenly">
+                <div id="heirsSectionToggleBtn" class="mt-3 d-flex justify-content-evenly">
                     <button type="button" id="heirsCorrectBtn" class="btn btn-secondary bg-gradient bg-opacity-50 fw-bold" disabled="true">
                         前の人を修正する
                     </button>
@@ -1494,7 +1595,7 @@
                     </button>
                 </div>
             </section>
-            <section id="type-of-division-section" class="container" style="display: none;">
+            <section id="type-of-division-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr>
                 <div>
                     <h5 class="form-label">３．遺産分割の方法</h5>
@@ -1563,7 +1664,7 @@
                     </div>
                 </fieldset>
             </section>
-            <section id="number-of-properties-section" class="container" style="display: none;">
+            <section id="number-of-properties-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr>
                 <h5>
                     ４．不動産情報
@@ -1610,7 +1711,7 @@
                     </div>
                 </fieldset>
             </section>
-            <section id="land-section" class="container" style="display: none;">
+            <section id="land-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr>
                 <div>
                     <div>
@@ -1618,12 +1719,14 @@
                             <h5 class="form-label">
                                 ４－土地情報
                             </h5>
-                            <div class="text-primary">
-                                ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                            <div class="d-flex">
+                                <div class="text-primary">
+                                    ※
+                                </div>
+                                <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#land_input_nav_modal">
+                                    登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                                </button>
                             </div>
-                            <button type="button" class="ps-3 text-primary" data-bs-toggle="modal" data-bs-target="#land_input_nav_modal">
-                                ＞こちらを参考にご入力ください
-                            </button>
                         </div>
                     </div>
                     {{ land_forms.management_form }}
@@ -1632,7 +1735,7 @@
                             <div class="my-auto fw-bold">
                                 （{{ forloop.counter|to_full_width }}）
                             </div>
-                            <div class="me-3 mb-3">
+                            <div class="me-3 mb-3 w-100">
                                 <fieldset id="id_land-{{forloop.counter0}}-fieldset"  class="landFieldset d-flex mt-4">
                                     <div class="w-100">
                                         {% for field in form %}
@@ -1675,16 +1778,20 @@
                                                     <label for="id_land-{{forloop.parentloop.counter0}}-purparty_top" class="input-group-text label">
                                                         所有権・持分
                                                     </label>
-                                                    <div class="form-control rounded-end d-flex">
-                                                        <input type="checkbox" id="id_land-{{forloop.parentloop.counter0}}-purparty_checkbox" name="land-{{forloop.parentloop.counter0}}-purparty_checkbox">
-                                                        <label class="ms-1" for="id_land-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
-                                                            所有者
-                                                        </label>
-                                                        <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_top" name="land-{{forloop.parentloop.counter0}}-purparty_top">
-                                                        <span class="mx-1">
-                                                            分の
-                                                        </span>
-                                                        <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_bottom" name="land-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                    <div class="form-control rounded-end d-flex justify-content-evenly">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" id="id_land-{{forloop.parentloop.counter0}}-purparty_checkbox" class="form-check-input" name="land-{{forloop.parentloop.counter0}}-purparty_checkbox">
+                                                            <label class="ms-1 form-check-label" for="id_land-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
+                                                                所有者
+                                                            </label>
+                                                        </div>
+                                                        <div class="d-flex">
+                                                            <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_top" name="land-{{forloop.parentloop.counter0}}-purparty_top">
+                                                            <span class="mx-1 text-nowrap">
+                                                                分の
+                                                            </span>
+                                                            <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_bottom" name="land-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                        </div>
                                                         {{ field }}
                                                     </div>
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
@@ -1767,10 +1874,10 @@
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeTempLandAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            不動産取得者を削除する
+                                            取得者を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addTempLandAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            不動産取得者を追加する
+                                            取得者を追加
                                         </button>
                                     </div>
                                 </div>
@@ -1805,10 +1912,10 @@
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeTempLandCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            金銭取得者を削除する
+                                            取得者を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addTempLandCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            金銭取得者を追加する
+                                            取得者を追加
                                         </button>
                                     </div>
                                 </div>
@@ -1839,27 +1946,29 @@
                     </div>
                     <div class="d-flex justify-content-evenly landBtnsDiv mt-5">
                         <button type="button" id="landCorrectBtn" class="preBtn btn btn-secondary fw-bold bg-gradient bg-opacity-50" disabled="true">
-                            前の土地を修正する
+                            前の土地へ
                         </button>
                         <button type="button" id="landOkBtn" class="nextBtn btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled="true">
-                            次の土地へ進む
+                            次の土地へ
                         </button>
                     </div>
                 </div>
             </section>
-            <section id="house-section" class="container" style="display: none;">
+            <section id="house-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr>
                 <div>
                     <div>
                         <h5 class="form-label">
                             ４－建物情報
                         </h5>
-                        <div class="text-primary">
-                            ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                        <div class="d-flex">
+                            <div class="text-primary">
+                                ※
+                            </div>
+                            <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#house_input_nav_modal">
+                                登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                            </button>
                         </div>
-                        <button type="button" class="ps-3 text-primary" data-bs-toggle="modal" data-bs-target="#house_input_nav_modal">
-                            ＞こちらを参考にご入力ください
-                        </button>
                     </div>
                     {{ house_forms.management_form }}
                     {% for form in house_forms %}
@@ -1867,7 +1976,7 @@
                             <div class="my-auto fw-bold">
                                 （{{ forloop.counter|to_full_width }}）
                             </div>
-                            <div class="me-3 mb-3">
+                            <div class="me-3 mb-3 w-100">
                                 <fieldset id="id_house-{{forloop.counter0}}-fieldset"  class="houseFieldset d-flex mt-4">
                                     <div class="w-100">
                                         {% for field in form %}
@@ -1910,16 +2019,20 @@
                                                     <label for="id_house-{{forloop.parentloop.counter0}}-purparty_top" class="input-group-text label">
                                                         所有権・持分
                                                     </label>
-                                                    <div class="form-control rounded-end d-flex">
-                                                        <input type="checkbox" id="id_house-{{forloop.parentloop.counter0}}-purparty_checkbox" name="house-{{forloop.parentloop.counter0}}-purparty_checkbox">
-                                                        <label class="ms-1" for="id_house-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
-                                                            所有者
-                                                        </label>
-                                                        <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_top" name="house-{{forloop.parentloop.counter0}}-purparty_top">
-                                                        <span class="mx-1">
-                                                            分の
-                                                        </span>
-                                                        <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_bottom" name="house-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                    <div class="form-control rounded-end d-flex justify-content-evenly">
+                                                        <div class="form-check">                                                         
+                                                            <input type="checkbox" id="id_house-{{forloop.parentloop.counter0}}-purparty_checkbox" class="form-check-input" name="house-{{forloop.parentloop.counter0}}-purparty_checkbox">
+                                                            <label class="ms-1 form-check-label" for="id_house-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
+                                                                所有者
+                                                            </label>
+                                                        </div>
+                                                        <div class="d-flex">
+                                                            <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_top" name="house-{{forloop.parentloop.counter0}}-purparty_top">
+                                                            <span class="mx-1 text-nowrap">
+                                                                分の
+                                                            </span>
+                                                            <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_bottom" name="house-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                        </div>
                                                         {{ field }}
                                                     </div>
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
@@ -2002,10 +2115,10 @@
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeTempHouseAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            不動産取得者を削除する
+                                            取得者を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addTempHouseAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            不動産取得者を追加する
+                                            取得者を追加
                                         </button>
                                     </div>
                                 </div>
@@ -2040,10 +2153,10 @@
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeTempHouseCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            金銭取得者を削除する
+                                            取得者を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addTempHouseCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            金銭取得者を追加する
+                                            取得者を追加
                                         </button>
                                     </div>
                                 </div>
@@ -2074,27 +2187,29 @@
                     </div>
                     <div class="d-flex justify-content-evenly houseBtnsDiv mt-5">
                         <button type="button" id="houseCorrectBtn" class="preBtn fw-bold btn btn-secondary bg-gradient bg-opacity-50" disabled="true">
-                            前の建物を修正する
+                            前の建物へ
                         </button>
                         <button type="button" id="houseOkBtn" class="nextBtn fw-bold btn btn-primary bg-gradient bg-opacity-50" disabled="true">
-                            次の建物へ進む
+                            次の建物へ
                         </button>
                     </div>
                 </div>
             </section>
-            <section id="bldg-section" class="container" style="display: none;">
+            <section id="bldg-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr>
                 <div>
                     <div>
                         <h5 class="form-label">
                             ４－区分建物情報
                         </h5>
-                        <div class="text-primary">
-                            ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                        <div class="d-flex">
+                            <div class="text-primary">
+                                ※
+                            </div>
+                            <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#bldg_input_nav_modal">
+                                ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                            </button>
                         </div>
-                        <button type="button" class="ps-3 text-primary" data-bs-toggle="modal" data-bs-target="#bldg_input_nav_modal">
-                            ＞こちらを参考にご入力ください
-                        </button>
                     </div>
                     {{ bldg_forms.management_form }}
                     {% for form in bldg_forms %}
@@ -2102,7 +2217,7 @@
                             <div class="my-auto fw-bold">
                                 （{{ forloop.counter|to_full_width }}）
                             </div>
-                            <div class="me-3 mb-3">
+                            <div class="me-3 mb-3 w-100">
                                 <fieldset id="id_bldg-{{forloop.counter0}}-fieldset"  class="bldgFieldset d-flex mt-4">
                                     <div class="w-100">
                                         {% for field in form %}
@@ -2138,16 +2253,20 @@
                                                     <label for="id_bldg-{{forloop.parentloop.counter0}}-purparty_top" class="input-group-text label">
                                                         所有権・持分
                                                     </label>
-                                                    <div class="form-control rounded-end d-flex">
-                                                        <input type="checkbox" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_checkbox" name="bldg-{{forloop.parentloop.counter0}}-purparty_checkbox">
-                                                        <label class="ms-1" for="id_bldg-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
-                                                            所有者
-                                                        </label>
-                                                        <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_top" name="bldg-{{forloop.parentloop.counter0}}-purparty_top">
-                                                        <span class="mx-1">
-                                                            分の
-                                                        </span>
-                                                        <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_bottom" name="bldg-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                    <div class="form-control rounded-end d-flex justify-content-evenly">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_checkbox" class="form-check-input" name="bldg-{{forloop.parentloop.counter0}}-purparty_checkbox">
+                                                            <label class="ms-1 form-check-label" for="id_bldg-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 60px!important;">
+                                                                所有者
+                                                            </label>
+                                                        </div>
+                                                        <div class="d-flex">
+                                                            <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_top" name="bldg-{{forloop.parentloop.counter0}}-purparty_top">
+                                                            <span class="mx-1 text-nowrap">
+                                                                分の
+                                                            </span>
+                                                            <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_bottom" name="bldg-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                        </div>
                                                         {{ field }}
                                                     </div>
                                                     <span class="errorMessage emPosition rounded-3" style="display: none;">
@@ -2202,10 +2321,10 @@
                                 <div class="siteWrapper">
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeSiteBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            敷地権を削除する
+                                            敷地権を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addSiteBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            敷地権を追加する
+                                            敷地権を追加
                                         </button>
                                     </div>                                    
                                 </div>
@@ -2240,10 +2359,10 @@
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeTempBldgAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            不動産取得者を削除する
+                                            取得者を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addTempBldgAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            不動産取得者を追加する
+                                            取得者を追加
                                         </button>
                                     </div>
                                 </div>
@@ -2278,10 +2397,10 @@
                                     </fieldset>
                                     <div class="mt-3 d-flex justify-content-evenly">
                                         <button type="button" class="btn btn-secondary removeTempBldgCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            金銭取得者を削除する
+                                            取得者を削除
                                         </button>
                                         <button type="button" class="btn btn-primary addTempBldgCashAcquirerBtn fw-bold bg-gradient bg-opacity-50" disabled="true">
-                                            金銭取得者を追加する
+                                            取得者を追加
                                         </button>
                                     </div>
                                 </div>
@@ -2329,17 +2448,21 @@
                                         <label for="id_site-{{forloop.parentloop.counter0}}-purparty_top" class="input-group-text label">
                                             所有権・持分
                                         </label>
-                                        <div class="form-control rounded-end d-flex">
-                                            <input type="checkbox" id="id_site-{{forloop.parentloop.counter0}}-purparty_checkbox" name="site-{{forloop.parentloop.counter0}}-purparty_checkbox">
-                                            <label class="ms-1" for="id_site-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 55px!important;">
-                                                所有者
-                                            </label>
-                                            {{ field }}
-                                            <span class="mx-1">
-                                                分の
-                                            </span>
+                                        <div class="form-control rounded-end d-flex justify-content-evenly">
+                                            <div class="form-check">
+                                                <input type="checkbox" id="id_site-{{forloop.parentloop.counter0}}-purparty_checkbox" class="form-check-input" name="site-{{forloop.parentloop.counter0}}-purparty_checkbox">
+                                                <label class="ms-1 form-check-label" for="id_site-{{forloop.parentloop.counter0}}-purparty_checkbox" style="width: 55px!important;">
+                                                    所有者
+                                                </label>
+                                            </div>
+                                            <div class="d-flex">
+                                                {{ field }}
+                                                <span class="mx-1 text-nowrap">
+                                                    分の
+                                                </span>
                                 {% elif field.name == "purparty_top" %}
-                                            {{ field }}
+                                                {{ field }}
+                                            </div>
                                         </div>
                                         <span class="errorMessage emPosition rounded-3" style="display: none;">
                                         </span>
@@ -2362,21 +2485,21 @@
                     {% endfor %}
                     <div class="d-flex justify-content-evenly bldgBtnsDiv mt-5">
                         <button type="button" id="bldgCorrectBtn" class="preBtn btn btn-secondary fw-bold bg-gradient bg-opacity-50" disabled="true">
-                            前の区分建物を修正する
+                            前の区分建物へ
                         </button>
                         <button type="button" id="bldgOkBtn" class="nextBtn btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled="true">
-                            次の区分建物へ進む
+                            次の区分建物へ
                         </button>
                     </div>
                 </div>
             </section>
-            <section id="application-section" class="container" style="display: none;">
+            <section id="application-section" class="container px-0 px-sm-3" style="display: none;">
                 <hr>
                 <div>
                     <h5 class="form-label">５．申請情報</h5>
                 </div>
                 <fieldset id="id_application-fieldset">
-                    <div class="border rounded-3 p-4 mt-3">
+                    <div class="border rounded-3 p-sm-4 p-3 mt-3">
                         <div class="input-group position-relative Q">
                             <span class="form-label fs-5 fw-bold">
                                 申請手続きをする方を選択してください
@@ -2402,7 +2525,7 @@
                                         代理人が申請をしますか？
                                     </span>
                                     <div class="border rounded-3 mt-3">
-                                        <div class="d-flex justify-content-center p-2 input-group Q">
+                                        <div class="d-flex justify-content-center p-sm-2 input-group Q">
                                             {% for choice in field %}
                                                 <div class="form-check col">
                                                     {% if forloop.counter == 1 %}
@@ -2418,7 +2541,7 @@
                                             {% endfor %}
                                         </div>
                             {% elif field.name == "phone_number" %}
-                                        <div class="p-3 isAgentNoDiv" style="display: none;">
+                                        <div class="py-3 px-sm-3 isAgentNoDiv" style="display: none;">
                                             <span class="form-label fs-5 fw-bold">
                                                 申請人
                                             </span>
@@ -2432,7 +2555,7 @@
                                             </div>
                                         </div>
                             {% elif field.name == "agent_name" %}
-                                <div class="p-3 isAgentYesDiv" style="display: none;">
+                                <div class="py-3 px-sm-3 isAgentYesDiv" style="display: none;">
                                     <span class="form-label fs-5 fw-bold">
                                         代理人
                                     </span>
@@ -2520,7 +2643,7 @@
             <div id="statusArea" class="my-5">
                 <div class="mt-5 d-flex position-relative justify-content-evenly">
                     <button type="button" id="correctBtn" class="btn btn-secondary fw-bold bg-gradient bg-opacity-50" disabled="true">
-                        前の項目を修正する
+                        前の項目を修正
                     </button>
                     <button type="button" id="okBtn" class="btn btn-success fw-bold bg-gradient bg-opacity-50" disabled="true">
                         次の項目へ進む
@@ -2537,25 +2660,30 @@
                 <div class="d-flex justify-content-evenly px-3 pb-3">
                     <div>
                         <button id="preBtn" type="button" class="btn btn-secondary fw-bold bg-gradient bg-opacity-50">
-                            ２．必要書類一覧を修正する
+                            前に戻る
                             <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                     <div>
                         <button id="submitBtn" type="submit" class="btn btn-primary fw-bold bg-gradient bg-opacity-50" disabled>
-                            ４．書類の作成に進む
+                            次に進む
                             <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>
                 </div>
-                <div class="m-auto text-center">
-                    <span class="fw-bold">
-                        ※修正するボタンを押すと、不動産情報の入力内容が初期化される場合があります。
-                        <br>
-                        前の項目を確認するだけの場合は、画面左の進捗状況にある項目をクリックしてください。
-                    </span>
+                <div class="d-flex justify-content-center">
+                    <div class="d-flex fw-bold">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            前に戻るボタンを押すと、ここでの入力が一部初期化されます。
+                            <br>
+                            前の項目を確認するだけの場合は、進捗状況からご移動ください。
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

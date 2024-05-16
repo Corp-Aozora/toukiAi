@@ -47,12 +47,9 @@
                         {% elif field.name == "death_year" or field.name == "death_month" %}
                             {% if field.name != "death_month" %}
                                 <div class="mt-4">
-                                    <span class="form-label fs-5">
-                                        死亡した
-                                        <span class="fw-bold">
-                                            年月
-                                        </span>
-                                    </span>
+                                    <h5>
+                                        死亡した年月
+                                    </h5>
                             {% endif %}
                                 <div class="input-group {% if field.name == "death_year" %}mt-2{% endif %} Q">
                                     <label for="{{field.auto_id}}" class="input-group-text single-word-label">

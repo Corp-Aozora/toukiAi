@@ -2,13 +2,24 @@
     width: 115px!important;
 }
 
-#id_decedent-0-fieldset > div, #statusArea, #heirsSectionToggleBtn, #type-of-division-section > fieldset > div{
-    width: 425px!important;
+#id_decedent-0-fieldset > div, #statusArea, #heirsSectionToggleBtn, #type-of-division-section > fieldset > div,
+.buttons-area{
+    max-width: 425px!important;
 }
 
 #type-of-division-section div.input-group-text{
     display: block!important;
     text-align: left!important;
+}
+
+#type-of-division-section .input-group-text{
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#type-of-division-section .form-control{
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
 }
 
 #number-of-properties-section > fieldset > div{
@@ -20,11 +31,11 @@
 }
 
 .landWrapper, .landBtnsDiv, .houseWrapper, .houseBtnsDiv, .bldgWrapper, .bldgBtnsDiv{
-    width:515px;
+    max-width:600px;
 }
 
 .fraction{
-    width: 85px;
+    max-width: 125px;
 }
 
 .registry-name-and-address-div, .destination-office-div{
@@ -32,7 +43,7 @@
 }
 
 .heirsFieldset, #id_application-fieldset{
-    width: 500px!important;
+    max-width: 500px!important;
 }
 
 .single-word-label{
@@ -95,4 +106,96 @@
 
 .swal2-html-container{
     text-align: left !important;
+}
+
+label[for*="purparty_top"] + * > .form-check{
+    padding-left: 0px;
+}
+
+label[for*="purparty_top"] + * > .form-check > .form-check-input{
+    margin-left: 0px;
+}
+
+@media (max-width:767px){
+    
+    form .input-group .label, form .input-group .single-word-label{
+        width: 100%!important;
+        text-align-last: initial!important;
+        text-align: center!important;
+        border-radius: 0!important;
+        border-top-left-radius:var(--bs-border-radius)!important;
+        border-top-right-radius:var(--bs-border-radius)!important;
+    }
+
+    form .input-group input:not([type="radio"]), form .input-group select{
+        margin-left: 0px!important;
+        border-radius: 0!important;
+        border-bottom-left-radius:var(--bs-border-radius)!important;
+        border-bottom-right-radius:var(--bs-border-radius)!important;
+        text-align: center!important;
+    }
+    
+    .emPosition{
+        left: 0px!important;
+    }
+
+    .input-group-text{
+        white-space: initial;
+        text-align: start;
+    }
+
+    #decedent-section label, #heirs-section label, #application-section label, #land-section label,
+    #house-section label, #bldg-section label{
+        width: 100%!important;
+    }
+
+    #decedent-section .text-nowrap{
+        white-space: initial!important;
+    }
+
+    #heirs-section > fieldset > .border > div:nth-child(5) .border,
+    #application-section > fieldset > .border .border{
+        border: none!important;
+    }
+}
+
+@media (max-width:505px){
+    
+    .landWrapper, .houseWrapper, .bldgWrapper{
+        display: block!important;
+        border: none!important;
+
+    }
+
+    .landWrapper > div:first-child, .houseWrapper > div:first-child, .bldgWrapper > div:first-child{
+        text-align: center!important;
+        margin-top: 1rem!important;
+    }
+
+    .landFieldset, .houseFieldset, .bldgFieldset{
+        margin-top: 0px!important;
+    }
+
+    #type-of-division-section > fieldset > div{
+        max-width: 100%!important;
+    }
+
+    #number-of-properties-section > fieldset > div{
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    label[for*="purparty_top"] + * {
+        display: block!important; 
+    }
+
+    label[for*="purparty_top"] + * > .form-check {
+        display: flex!important; 
+        justify-content: center!important;
+    }
+
+    label[for*="purparty_top"] + * > div:nth-child(2){
+        margin-top: 0.5rem!important;
+        justify-content: space-evenly!important;
+    }
 }

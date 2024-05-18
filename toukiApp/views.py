@@ -2930,6 +2930,8 @@ def step_division_agreement(request):
         if responese:
             return responese
         
+        progress = decedent.progress
+        
         #被相続人の氏名、生年月日、死亡年月日、死亡時の本籍、死亡時の住所
         decedent_info = get_decedent_info_for_document(decedent)
         
@@ -2951,6 +2953,7 @@ def step_division_agreement(request):
         context = {
             "title" : "遺産分割協議証明書",
             "company_data": CompanyData,
+            "progress": progress,
             "user_email": user.email,
             "decedent_info": decedent_info,
             "normal_division_properties": normal_division_properties,
@@ -3290,6 +3293,8 @@ def step_diagram(request):
         if response:
             return response
         
+        progress = decedent.progress
+        
         #被相続人データを取得する
         decedent_info = get_decedent_info_for_document(decedent)
 
@@ -3304,6 +3309,7 @@ def step_diagram(request):
         
         context = {
             "title": "相続関係説明図",
+            "progress": progress,
             "company_data": CompanyData,
             "user_email": user.email,
             "decedent_info": decedent_info,
@@ -3875,14 +3881,7 @@ def get_decedent_related_persons_data(decedent):
     }
 
 def step_application_form(request):
-    """登記申請書の表示
-
-    Args:
-        request (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
+    """登記申請書の表示"""
     
     function_name = get_current_function_name()
     redirect_to = "toukiApp:step_four"
@@ -3895,6 +3894,8 @@ def step_application_form(request):
         if response:
             return response
 
+        progress = decedent.progress
+        
         # 申請に必要なデータを取得する
         data = get_data_for_application_form(decedent, True)
 
@@ -3904,6 +3905,7 @@ def step_application_form(request):
         context = {
             "title" : tab_title,
             "user_email": user.email,
+            "progress": progress,
             "company_data": CompanyData,
             "application_data": application_data,
             "decedent_name": decedent.name,
@@ -4340,16 +4342,7 @@ def get_purpose_of_registration(properties, decedent_name):
         return f"{decedent_name}持分全部移転"
 
 def step_POA(request):
-    """委任状を表示する
-    
-    被相続人が持分のみの不動産を持っているかどうかで変わる
-
-    Args:
-        decedent (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
+    """委任状を表示する"""
     
     function_name = get_current_function_name()
     this_html = "toukiApp/step_POA.html"
@@ -4362,6 +4355,8 @@ def step_POA(request):
         if response:
             return response
 
+        progress = decedent.progress
+        
         # 登記申請書データを取得する
         data = get_data_for_application_form(decedent, True)
 
@@ -4371,6 +4366,7 @@ def step_POA(request):
         context = {
             "title" : tab_title,
             "user_email": user.email,
+            "progress": progress,
             "company_data": CompanyData,
             "POA_data": POA_data,
             "decedent_name": decedent.name,

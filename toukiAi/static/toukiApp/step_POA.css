@@ -1,72 +1,10 @@
-@media print {
-    
-    body * {
-        visibility: hidden;
-    }
-    
-    #print_page, #print_page * {
-        visibility: visible;
-    }
-
-    #print_page hr {
-        visibility: hidden; /* #print_page内の<hr>を非表示に設定 */
-        margin: 0px!important;
-    }
-
-    #print_page {
-        position: absolute;
-        left: 0;
-        top: 0;
-        /* width: 210mm;
-        height: 297mm; */
-    }
-
-    .print_per_section{
-        break-after: page;
-    }
-    
-    @page {
-        size: A4;
-        margin-top: 60px;
-        margin-bottom: 40px;
-    }
-}
-
-.top {
-    margin-top: 3rem!important;
-}
-
-#print_page {
-    /* height: 297mm; */
-    width: 210mm;
-    font-family: "Zen Old Mincho", serif;
-}
-
-.modal{
-    --bs-modal-width: 800px;
-}
-
-.sentence{
-    text-indent: 1rem;
-    margin-top:5mm;
-    margin-left:25mm;
-    margin-right: 20mm;
-}
-
-.content{
-    margin-left: 25mm;
-}
-
-.site{
-    margin-left:2rem;
-}
-
-.site > div > div:nth-child(2){
-    margin-left:1rem;
-}
-
-.site > div{
+/* 記から委任文言まで */
+.overview li{
     display: flex!important;
+}
+
+.overview  li > div:not(:first-child) {
+    margin-left: 1rem!important;
 }
 
 /* 登記の目的、原因、相続人 */
@@ -76,12 +14,3 @@
     text-align: justify!important;
     text-align-last: justify!important;
 }
-
-.overview li{
-    display: flex!important;
-}
-
-.overview  li > div:not(:first-child) {
-    margin-left: 1rem!important;
-}
-

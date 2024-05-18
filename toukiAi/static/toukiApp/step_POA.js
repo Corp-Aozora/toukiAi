@@ -2,5 +2,5 @@
 
 window.addEventListener('load', function() {
 
-    preventElementSplitOnPageBreak(60, 40);
+    preventElementSplitOnPageBreak(75, 30);
 });

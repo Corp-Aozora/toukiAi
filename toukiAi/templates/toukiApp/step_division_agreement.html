@@ -18,113 +18,130 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 
-<div class="d-flex container-xxl">
-    <fieldset class="container">
-        <div class="top">
-            <h1 class="fs-5 text-center">
-                こちらのページをA4の縦方向でご印刷ください。
-            </h1>
-            <p class="fw-bold text-center mt-3">
-                PDFが必要でこのページをPDFで出力する機能がない場合は
-                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=遺産分割協議証明書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A遺産分割協議証明書のPDFを送ってください。">
-                    お問い合わせ
-                </a>
-                をお願いします。
-            </p>
-            <div class="mt-4 d-flex justify-content-center">
-                <div class="d-inline-block border rounded-3 p-3">
-                    <p class="text-danger fw-bold">
-                        ※注意事項
-                    </p>
-                    <div class="ms-sm-3">
-                        <span class="fw-bold border-bottom border-secondary">
-                            押印について
-                        </span>
-                        <p class="ms-3">
-                            実印で印鑑登録証明書と照合できるように鮮明に押印ください。
-                        </p>
-                    </div>
-                    <div class="ms-sm-3">
-                        <span class="fw-bold border-bottom border-secondary">
-                            ２枚以上になっているとき
-                        </span><br>
-                        <div class="ms-3">
-                            署名欄の押印以外に
-                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#seal">
-                                契印
-                            </button>
-                            も必要です。※
-                            <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#seal">
-                                契印
-                            </button>
-                            とは、複数枚が一連の文書のものであることを証明するための押印です。
-                        </div>
-                    </div>
-                </div>
+<div class="modal fade" id="seal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
+                <h5 class="modal-title">
+                    契印のしかた
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal fade" id="seal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
-                            <h5 class="modal-title">
-                                契印のしかた
-                            </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <img class="modal-image" src="{% static 'toukiApp/img/遺産分割協議証明書の契印.png' %}" alt="契印の説明画像">
+            <div class="modal-body">
+                <img class="modal-image" src="{% static 'toukiApp/img/遺産分割協議証明書の契印.png' %}" alt="契印の説明画像">
+            </div>
+        </div>
+    </div>
+</div>
+
+<fieldset class="container-md">
+    <div class="top">
+        <div class="text-center">
+            <button id="backBtn" type="button" class="fs-5 btn btn-primary fw-bold bg-gradient bg-opacity-50">
+                戻る
+                <span id="backBtnSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                </span>
+            </button>
+        </div>
+        <h5 class="text-center mt-3">
+            こちらのページをA4の縦方向でご印刷ください。
+        </h5>
+        <p class="fw-bold text-center mt-3">
+            スマホやタブレットをご利用の方やPDFで出力する機能がない場合は、
+            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=遺産分割協議証明書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A遺産分割協議証明書のPDFを送ってください。">
+                お問い合わせ
+            </a>
+            をお願いします。
+        </p>
+        <div class="mt-4 d-flex justify-content-center">
+            <div class="d-inline-block border rounded-3 p-3">
+                <p class="text-danger fw-bold">
+                    ※注意事項
+                </p>
+                <div class="ms-sm-3">
+                    <span class="fw-bold border-bottom border-secondary">
+                        押印について
+                    </span>
+                    <p class="ms-3">
+                        実印で印鑑登録証明書と照合できるように鮮明に押印ください。
+                    </p>
+                </div>
+                <div class="ms-sm-3">
+                    <span class="fw-bold border-bottom border-secondary">
+                        ２枚以上になっているとき
+                    </span>
+                    <div class="ms-3">
+                        署名欄の押印以外に
+                        <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#seal">
+                            契印
+                        </button>
+                        も必要です。
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#seal">
+                                    契印
+                                </button>
+                                とは、複数枚が一連の文書のものであることを証明するための押印です。
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <hr>
-        <div class="d-lg-flex justify-content-center mt-5">
-            <div id="print_page" class="print_per_section">
+    </div>
+    <hr>
+    <div class="d-lg-flex justify-content-center mt-5">
+        <div id="print_page_wrapper">
+            <div class="print_per_section">
                 <h5 class="text-center">
                     遺産分割協議証明書
                 </h5>
                 <div class="decedent_info">
-                    <div>
-                        <div>
-                            被相続人
-                        </div>
-                        <div>
-                            {{ decedent_info.name }}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            生年月日
-                        </div>
-                        <div>
-                            {{ decedent_info.birth_date|to_full_width }}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡年月日
-                        </div>
-                        <div>
-                            {{ decedent_info.death_date|to_full_width }}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡時の本籍
-                        </div>
-                        <div>
-                            {{ decedent_info.permanent_address }}
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            死亡時の住所
-                        </div>
-                        <div>
-                            {{ decedent_info.address|linebreaks }}
-                        </div>
-                    </div>
+                    <ul>
+                        <li>
+                            <div>
+                                被相続人
+                            </div>
+                            <div>
+                                {{ decedent_info.name }}
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                生年月日
+                            </div>
+                            <div>
+                                {{ decedent_info.birth_date|to_full_width }}
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                死亡年月日
+                            </div>
+                            <div>
+                                {{ decedent_info.death_date|to_full_width }}
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                死亡時の本籍
+                            </div>
+                            <div>
+                                {{ decedent_info.permanent_address }}
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                死亡時の住所
+                            </div>
+                            <div>
+                                {{ decedent_info.address|linebreaks }}
+                            </div>
+                        </li>
+                    </ul>
                 </div>
                 <div class="sentence">
                     上記被相続人が死亡したことにより開始した相続について、共同相続人全員は、下記の通り遺産を分割することに合意した。
@@ -134,7 +151,7 @@
                 </div>
                 {% if normal_division_properties %}
                     {% for d in normal_division_properties %}
-                        <div class="content mt-3">
+                        <div class="content">
                             <p class="text-indent">
                                 下記不動産は、
                                 {% for acquirer in d.1 %}
@@ -222,7 +239,7 @@
                 {% endif %}
                 {% if exchange_division_properties %}
                     {% for d in exchange_division_properties %}
-                        <div class="content mt-3">
+                        <div class="content">
                             <p class="text-indent">
                                 下記不動産は、
                                 {% for acquirer in d.1 %}
@@ -336,8 +353,8 @@
                 {% include "toukiApp/parts/signature.html" %}
             </div>
         </div>
-    </fieldset>
-</div>
+    </div>
+</fieldset>
 {% endblock %}
 
 {% block footer %}
@@ -345,7 +362,8 @@
 
 {% block js %}
     {% load static %}
+    <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
     <script src="{% static 'toukiApp/step_documents.js' %}"></script>
-    <script type="module" src="{% static 'toukiApp/step_division_agreement.js' %}"></script>
-    <script type="module" src="{% static 'toukiApp/parts/messages.js' %}"></script>
+    <script src="{% static 'toukiApp/step_division_agreement.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

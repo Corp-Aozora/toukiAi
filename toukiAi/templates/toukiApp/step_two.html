@@ -62,7 +62,7 @@
                             <input class="form-check-input fs-5 reqDocCb" type="checkbox" value="" id="decedentFamilyCardCb">
                         </div>
                         <label class="form-check-label fw-bold fs-5 ps-2" for="decedentFamilyCardCb">
-                            {{decedent.name}}さん（取得対象者）の出生から死亡までの戸籍謄本
+                            {{decedent.name}}さん（被相続人）の出生から死亡までの戸籍謄本
                             <span class="ms-md-3 sheet-count">
                                 各１通ずつ
                             </span>
@@ -84,7 +84,7 @@
                                 <span class="mx-3 text-success">
                                     {{decedent.name}}
                                 </span>
-                                さん
+                                さん（被相続人）
                             </label>
                         </div>
                         {% for person in deceased_persons %}
@@ -105,7 +105,7 @@
                 <div class="mt-4 p-3 border rounded-3 border-success overview">
                     <div>
                         <p class="text-indent">
-                            取得対象者の戸籍謄本は法改正により
+                            被相続人の戸籍謄本は法改正により
                             <span class="fw-bold">
                                 大半の方の場合、最寄りの役所窓口で全て収集できるようになりました。
                             </span>

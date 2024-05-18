@@ -1,71 +1,28 @@
 @media print {
-
-    body * {
-        visibility: hidden;
+    .decedent_info{
+        margin-left: 110px;
     }
-
-    #print_page, #print_page * {
-        visibility: visible;
-    }
-
-    #print_page {
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-
-    @page {
-        size: A4;
-        margin-top: 60px;
-        margin-bottom: 45px;
-    }
-}
-
-.top {
-    margin-top: 3rem!important;
-}
-
-#print_page {
-    /* height: 297mm; */
-    width: 210mm;
-    font-family: "Zen Old Mincho", serif;
-}
-
-.modal{
-    --bs-modal-width: 800px;
 }
 
 .decedent_info{
-    margin-top:10mm;
-    margin-left:30mm;
+    margin-top:40px;
 }
 
-.decedent_info > div{
+.decedent_info > ul{
+    padding: 0;
+    margin: 0;
+}
+
+.decedent_info li{
     display: flex!important;
 }
 
-.decedent_info div > div:first-child{
-    margin-right:5mm;
-    width:30mm;
+.decedent_info li > div:first-child{
+    margin-right:1rem;
+    width:115px;
     display: block!important;
     text-align: justify!important;
     text-align-last: justify!important;
-}
-
-.sentence{
-    text-indent: 1rem;
-    margin-top:5mm;
-    margin-left:25mm;
-    margin-right: 20mm;
-}
-
-.content{
-    margin-left: 25mm;
-    margin-right: 20mm;
-}
-
-.content:not(:first-child){
-    margin-top:1rem;
 }
 
 .property{
@@ -76,101 +33,10 @@
     margin-top:1rem
 }
 
-.site{
-    margin-left:2rem;
-}
-
-.site > div > div:nth-child(2){
-    margin-left:1rem;
-}
-
-.site > div{
-    display: flex!important;
-}
-
-@media screen{
-    @media (max-width:991px){
-
-        #print_page > .text-center{
-            margin-right: 25mm;
-        }
-        
-        .decedent_info{
-            margin-left: 5mm;
-        }
-
-        .sentence, .content{
-            margin-left: 0px;
-            margin-right: 45mm;
-        }
-
-        .signature{
-            padding-left: 5mm!important;
-            padding-right: 25mm;
-        }
-
-        .container{
-            margin-left: 0px;
-        }
-    }
-
-    @media (max-width:767px){
-
-        .d-lg-flex{
-            position: absolute;
-            max-width: 90%;
-        }
-
-        .print_per_section{
-            position: relative;
-            transform: scale(0.9);
-            top: -90px;
-            left: -60px;
-        }
-    }
-
-    @media (max-width:700px){
-        
-        .print_per_section{
-            transform: scale(0.8);
-            top: -135px;
-            left: -85px;
-        }
-    }
-
-    @media (max-width:630px) {
-        
-        .print_per_section{
-            transform: scale(0.7);
-            top: -185px;
-            left: -125px;
-        }
-    }
-
-    @media (max-width:550px) {
-        
-        .print_per_section{
-            transform: scale(0.6);
-            top: -245px;
-            left: -155px;
-        }
-    }
+@media screen {
     
-    @media (max-width:480px) {
-        
-        .print_per_section{
-            transform: scale(0.5);
-            top: -300px;
-            left: -190px;
-        }
-    }
-
-    @media (max-width:400px) {
-        
-        .print_per_section{
-            transform: scale(0.4);
-            top: -355px;
-            left: -240px;
-        }
+    .decedent_info{
+        display: flex!important;
+        justify-content: center!important;
     }
 }

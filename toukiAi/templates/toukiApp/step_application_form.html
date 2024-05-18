@@ -5,6 +5,7 @@
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_application_form.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_documents.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 
@@ -36,12 +37,19 @@
 <div class="d-flex container-xxl">
     <div class="container">
         <section class="top">
-            <h1 class="fs-5 text-center">
+            <div class="text-center">
+                <button id="backBtn" type="button" class="fs-5 btn btn-primary fw-bold bg-gradient bg-opacity-50">
+                    戻る
+                    <span id="backBtnSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                    </span>
+                </button>
+            </div>
+            <h5 class="text-center mt-3">
                 こちらのページをA4の縦方向でご印刷ください。
-            </h1>
+            </h5>
             <p class="fw-bold text-center mt-3">
-                PDFが必要でこのページをPDFで出力する機能がない場合は
-                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=登記申請書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A登記申請書のPDFを送ってください。">
+                スマホやタブレットをご利用の方やPDFで出力する機能がない場合は、
+                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=遺産分割協議証明書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A遺産分割協議証明書のPDFを送ってください。">
                     お問い合わせ
                 </a>
                 をお願いします。
@@ -370,6 +378,8 @@
 
 {% block js %}
     {% load static %}
+    <script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
+    <script src="{% static 'toukiApp/step_documents.js' %}"></script>
     <script src="{% static 'toukiApp/step_application_form.js' %}"></script>
-    <script type="module" src="{% static 'toukiApp/parts/messages.js' %}"></script>
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
 {% endblock %}

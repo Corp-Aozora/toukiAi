@@ -1,13 +1,86 @@
+@media print {
+
+    @page {
+        size: A4;
+        margin-top: 75px;
+        margin-bottom: 30px;
+        margin-left: 113.4px;
+        margin-right: 95px;
+    }
+    
+    body * {
+        visibility: hidden;
+    }
+
+    .print_per_section, .print_per_section * {
+        visibility: visible;
+    }
+
+    #print_page_wrapper {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    .print_page_wrapper hr {
+        visibility: hidden;
+        margin: 0px!important;
+    }
+
+    .print_per_section{
+        width: 793.7px; /* 1mmを約3.78pxで換算 */
+        break-after: page;
+    }
+}
+
+.modal{
+    --bs-modal-width:800px;
+}
+
+/* 注意書き */
+.top {
+    margin-top:3rem!important;
+}
+
+/* 印刷部分 */
+.print_per_section {
+    width:681px;
+    font-family: "Zen Old Mincho", serif;
+}
+
+/* 定型句 */
+.sentence{
+    text-indent: 1rem;
+    margin-top: 1rem;
+}
+
+/* 記から以上までの間 */
+.content{
+    margin-top:1rem;
+}
+
+/* 敷地権 */
+.site{
+    margin-left:2rem;
+}
+
+.site > div > div:nth-child(2){
+    margin-left:1rem;
+}
+
+.site > div{
+    display: flex!important;
+}
 
 /* 署名欄 */
 .signature{
-    margin-top:5mm;
-    padding-left:30mm;
+    margin-top:1.5rem;
+    padding-left:1.5rem;
 }
 
 /* 署名欄の年月日 */
 .signature > div:first-child > span:not(:first-child){
-    padding-left: 7mm;
+    padding-left: 2rem;
 }
 
 .signature > div:first-child > span{
@@ -16,18 +89,18 @@
 
 /* 住所 */
 .signature > :nth-child(2){
-    height: 20mm;
-    width: 130mm;
+    height: 80px;
+    width: 550px;
     border-bottom: 1px solid black ;
 }
 
 .end{
-    padding-right: 50mm;
+    padding-right: 120px;
 }
 
-/* 署名欄の氏名欄 */
+/* 氏名 */
 .signature > :nth-child(3){
-    margin-top: 1mm;
+    margin-top: 0.5rem;
     display: flex;
     justify-content: space-between;
     align-items: end;
@@ -35,18 +108,93 @@
 
 .signature > :nth-child(3) > :first-child{
     border-bottom: 1px solid black ;
-    width: 90mm;
+    width: 330px;
 }
 
-/* 署名欄の氏名欄の丸枠 */
+/* 押印欄 */
 .stamp_box {
     /* margin-right: 70mm; 氏名との間隔 */
-    width: 20mm; /* 枠の幅 */
-    height: 20mm; /* 枠の高さ */
+    width: 70px; /* 枠の幅 */
+    height: 70px; /* 枠の高さ */
     border-radius: 50%; /* 丸枠 */
     border: 1px dashed #000; /* 点線の枠 */
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 3mm;
+    margin-right: 0.25rem;
+}
+
+@media screen{
+
+    .print_per_section:not(:first-child){
+        padding-top: 3rem;
+        border-top: 1px black dashed;
+    }
+
+    @media (min-width:768px){
+
+        .print_per_section:not(:first-child){
+            margin-top: 30px;
+        }
+    }
+
+    @media (max-width:767px){
+
+        #print_page_wrapper{
+            position: relative !important;
+            width: 90%;
+        }
+
+        .print_per_section {
+            position: absolute;
+            transform: scale(0.9);
+        }
+    }
+
+    @media (max-width:700px){
+        
+        .print_per_section{
+            transform: scale(0.8);
+            left: -40px;
+        }
+    }
+
+    @media (max-width:635px) {
+        
+        .print_per_section{
+            transform: scale(0.7);
+            left: -65px;
+        }
+    }
+
+    @media (max-width:555px) {
+        
+        .print_per_section{
+            transform: scale(0.6);
+            left: -100px;
+        }
+    }
+    
+    @media (max-width:485px) {
+        
+        .print_per_section{
+            transform: scale(0.5);
+            left: -130px;
+        }
+    }
+
+    @media (max-width:415px) {
+        
+        .print_per_section{
+            transform: scale(0.4);
+            left: -170px;
+        }
+    }
+
+    @media (max-width:355px) {
+        
+        .print_per_section{
+            left: -190px;
+        }
+    }
 }

@@ -1,53 +1,9 @@
 @media print {
 
-    body * {
-        visibility: hidden;
-    }
-
-    #print_page, #print_page * {
-        visibility: visible;
-    }
-
-    #print_page hr {
-        visibility: hidden; /* #print_page内の<hr>を非表示に設定 */
-        margin: 0px!important;
-    }
-    
-    #print_page {
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-
+    /* 受付シール貼る用のスペース */
     .print_per_section{
-        break-after: page;
-        margin-top:50mm;
+        margin-top:180px;
     }
-
-    @page {
-        size: A4;
-        margin-top: 20mm;
-        margin-bottom: 15mm;
-    }
-}
-
-.top {
-    margin-top: 3rem!important;
-}
-
-.top > div > div{
-    max-width: 700px!important;
-}
-
-.print_per_section {
-    /* height: 297mm; */
-    width: 210mm;
-    font-family: "Zen Old Mincho", serif;
-}
-
-/* タイトル以外 */
-.print_per_section > *:not(:first-child) {
-    padding-left: 25mm;
 }
 
 /* タイトルと不動産の表示以外 */
@@ -68,11 +24,6 @@
     margin-top: 1rem!important;
 }
 
-/* モーダルのサイズ */
-.modal{
-    --bs-modal-width: 800px;
-}
-
 /* 登記の目的、原因、相続人、添付情報の幅 */
 .headword{
     width: 115px!important;
@@ -83,4 +34,10 @@
 
 .headword + * {
     margin-left:1rem!important;
+}
+
+@media screen {
+    .print_per_section > *:not(:first-child){
+        margin-left: 50px;
+    }
 }

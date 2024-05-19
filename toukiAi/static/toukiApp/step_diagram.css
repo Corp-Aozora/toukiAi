@@ -1,38 +1,18 @@
 @media print {
 
-    body * {
-        visibility: hidden;
-    }
-
-    #print_page, #print_page * {
-        visibility: visible;
-    }
-    
-    #print_page hr {
-        visibility: hidden; /* #print_page内の<hr>を非表示に設定 */
-    }
-
-    #print_page {
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
-
-    .print_per_section {
-        page-break-after: always;
-    }
-
     @page {
         size: A4 landscape;
+        margin-top: 90px;
+        margin-bottom: 30px;
+        margin-left: 30px;
+        margin-right: 30px;
     }
-}
 
-.top {
-    margin-top: 3rem!important;
-}
-
-.top > div > div{
-    max-width: 700px!important;
+    .print_per_section{
+        width: 1271.5px;
+        break-after: page;
+        transform: scale(1) !important;
+    }
 }
 
 /* 注意事項の内容 */
@@ -40,12 +20,14 @@
     margin-left: 1rem!important;
 }
 
-#print_page {
-    font-family: "Zen Old Mincho", serif;
+/* 印刷部分 */
+#print_page_wrapper{
+    visibility: hidden;
 }
 
-.print_per_section{
-    margin-top: 10mm;
+.print_per_section {
+    width:1211.5px;
+    font-family: "Zen Old Mincho", serif;
 }
 
 ul{
@@ -99,4 +81,158 @@ ul > li > span:first-child{
     left: 0; 
     width: 100%!important; 
     height: 100%!important;
+}
+
+@media screen{
+    
+    @media (min-width:1301px){
+
+        .print_per_section:not(:first-child){
+            margin-top: 30px;
+        }
+    }
+
+    @media (max-width:1300px){
+        .d-lg-flex{
+            display: block!important;
+        }
+
+        #print_page_wrapper{
+            position: relative !important;
+        }
+
+        .print_per_section {
+            position: absolute;
+            left: -70px;
+        }
+    }
+
+    @media (max-width:1200px){
+        .print_per_section {
+            left: -150px;
+        }
+    }
+
+    @media (max-width:1030px){
+        .print_per_section {
+            left: -190px;
+        }
+    }
+
+    @media (max-width:910px){
+        .print_per_section {
+            left: -205px;
+        }
+    }
+
+    @media (max-width:880px){
+        .print_per_section {
+            left: -240px;
+        }
+    }
+
+    @media (max-width:880px){
+        .print_per_section {
+            left: -240px;
+        }
+    }
+
+    @media (max-width:800px){
+        .print_per_section {
+            left: -280px;
+        }
+    }
+
+    @media (min-width:768px){
+    }
+
+    @media (max-width:767px){
+        #print_page_wrapper{
+            width:100%;
+        }
+
+        .print_per_section{
+            transform: none;
+        }
+    }
+
+    @media (max-width:700px){
+        .print_per_section {
+            transform: none;
+            left: -300px;
+        }
+    }
+    
+    @media (max-width:660px){
+        .print_per_section {
+            left: -320px;
+        }
+    }
+
+    @media (max-width:635px) {
+        
+        .print_per_section{
+            transform: none;
+            left: -330px;
+        }
+    }
+
+    @media (max-width:585px) {
+        
+        .print_per_section{
+            left: -350px;
+        }
+    }
+
+    @media (max-width:555px) {
+        
+        .print_per_section{
+            transform: none;
+            left: -375px;
+        }
+    }
+    
+    @media (max-width:485px) {
+        
+        .print_per_section{
+            transform: none;
+            left: -400px;
+        }
+    }
+
+    @media (max-width:430px) {
+        
+        .print_per_section{
+            left: -420px;
+        }
+    }
+
+    @media (max-width:415px) {
+        
+        .print_per_section{
+            transform: none;
+            left: -430px;
+        }
+    }
+
+    @media (max-width:390px) {
+        
+        .print_per_section{
+            left: -440px;
+        }
+    }
+
+    @media (max-width:355px) {
+        
+        .print_per_section{
+            left: -455px;
+        }
+    }
+
+    @media (max-width:340px) {
+        
+        .print_per_section{
+            left: -465px;
+        }
+    }
 }

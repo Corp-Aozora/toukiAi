@@ -98,7 +98,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
     }
 
     // 表示サイズに合わせて2通目以降を再配置する
-    function relocatePrintPage(){
+    function relocatePrintArea(){
         
         // 表示画面のwidth
         const viewportWidth = window.innerWidth;
@@ -129,9 +129,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
     if(backBtn)
         addEventToBtn();
 
-    relocatePrintPage();
+    // 相関図のページは違う再配置方法
+    const url = window.location.href;
+    if(url.includes("step_diagram"))
+        return;
+
+    relocatePrintArea();
     
     window.addEventListener("resize", ()=>{
-        relocatePrintPage();
+        relocatePrintArea();
     })
 })

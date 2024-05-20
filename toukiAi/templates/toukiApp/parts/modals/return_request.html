@@ -1,0 +1,54 @@
+{% load static %}
+
+<div class="modal fade reference-document" id="return_request_modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    原本還付処理
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-center">
+                    書類の原本を返却してもらうための処理です。
+                </h5>
+                <div class="supplement">
+                    <span class="fw-bold">
+                        「申請人」または「代理人」の表記は登記申請書の押印欄に合わせて以下のとおりご記入ください。
+                    </span>
+                    <ul class="mt-3 mb-0">
+                        <li class="d-flex">
+                            <div>
+                                ＞
+                            </div>
+                            <div>
+                                相続人欄に押印した場合は「申請人」
+                            </div>
+                        </li>
+                        <li class="d-flex">
+                            <div>
+                                ＞
+                            </div>
+                            <div>
+                                代理人欄に押印した場合は「代理人」
+                            </div>
+                        </li>
+                        <li class="d-flex">
+                            <div>
+                                ＞
+                            </div>
+                            <div>
+                                申請人兼代理人欄に押印した場合は「申請人兼代理人」
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <img class="modal-image" src="{% static 'toukiApp/img/原本還付処理例.png' %}" alt="原本還付処理例の説明画像">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,19 +12,25 @@
             <div class="modal-body">
                 <h5 class="text-center lh-lg">
                     市区町村が設定した不動産の価格（固定資産評価額）が記載された証明書です。
-                    <br>
-                    被相続人がその市区町村に所有する不動産が全て記載されています。
                 </h5>
                 <p class="text-center">
                     ※画像は公課証明書ですが、固定資産評価証明書も同様の内容が記載されています。
                 </p>
-                <ul class="supplement p-3 mt-3 mx-auto border rounded-3 p-3 border-warning">
+                <ul class="supplement px-2 py-3 px-sm-3 mt-3 mx-auto border rounded-3 border-warning">
                     <li class="d-flex">
                         <div>
                             ※
                         </div>
                         <div>
-                            所在地には住所と異なる表記（地番、家屋番号）がされていることもあります。
+                            被相続人がその市区町村に所有する全ての不動産が記載されてます。
+                        </div>
+                    </li>
+                    <li class="d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            不動産の所在地は住所と異なることもあります。
                             <ul class="ps-0 ps-sm-3 mt-3">
                                 <li class="d-flex">
                                     <div>
@@ -53,33 +59,20 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="mt-3 d-flex">
-                        <div>
-                            ※
-                        </div>
-                        <div>
-                            原則、全ての不動産に固定資産評価額（評価額）が設定されていますが０円や非課税など設定されていないものもあります
-                            <span class="border-bottom border-dark">
-                                （２つ目の画像を参照）
-                            </span>
-                            。
-                        </div>
-                    </li>
                     <li class="d-flex mt-3">
                         <div>
                             ※
                         </div>
                         <div>
                             <div class="fw-bold">
-                                評価額がない不動産がある場合は、
-                                <a class="fw-bold text-primary px-3 border-bottom border-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A法務局への照会する方法を教えてください。">
+                                評価額が非課税や無記載などで不明な不動産がある場合は、
+                                <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=非課税の不動産について&body=※固定資産評価証明書の画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A法務局への照会する方法を教えてください。">
                                     お問い合わせ
                                 </a>
-                                をお願いします。
-                                <br>
+                                をお願いします（2枚目の画像）。
                             <div>
                             <div class="mt-3">
-                                「2 必要書類一覧」ですでにお問い合わせいただいているときは大丈夫です。
+                                「2 必要書類一覧」ですでにお問い合わせいただいている場合は大丈夫です。
                             </div>
                         </div>
                     </li>

@@ -1,3 +1,7 @@
+button{
+    text-align: start;
+}
+
 #stepList, #papersOrderList, #stampList, #originalOrderList, #officeList, #lastStep{
     counter-reset: section 0;
     list-style-type: none;
@@ -25,10 +29,30 @@
     --bs-modal-width: 800px;
 }
 
-#reacquire_price_certification, #about_price_certification_copy{
+#reacquire_price_certification_modal, #about_price_certification_copy{
     --bs-modal-width: 600px;
 }
 
 .modal-body li:not(:first-child){
     margin-top: 1rem!important;
+}
+
+@media (max-width:992px){
+
+    #mainContainer .container-xxl, #mainContainer .container-md{
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    /* タイトル */
+    .heading{
+        text-align: center;
+    }
+}
+
+@media (max-width:767px){
+    form .list-group-item{
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
 }

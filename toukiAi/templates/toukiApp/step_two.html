@@ -29,7 +29,7 @@
 {% include "toukiApp/parts/deleted_family_card_last_page.html" %}
 {% include "toukiApp/parts/heir_family_certification.html" %}
 {% include "toukiApp/parts/touki_jouhou_service_page.html" %}
-{% include "toukiApp/parts/moj_online_request.html" %}
+{% include "toukiApp/parts/modals/about_moj_online_request.html" %}
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
@@ -1380,7 +1380,7 @@
                             </button>
                             <div class="ms-3 ms-sm-5 mt-3" style="display: none;">
                                 <div>
-                                    <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#moj-online-request-page">
+                                    <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#about_moj_online_request_modal">
                                         手順はこちらをご確認ください（ネットバンキングまたはATMでのお支払い）。
                                     </button>
                                     <div style="display: none;">

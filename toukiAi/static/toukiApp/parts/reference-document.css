@@ -4,9 +4,31 @@
 
 .reference-document .supplement{
     max-width: 500px;
+    margin-top: 1rem!important;
+    margin-left: auto!important;
+    margin-right: auto!important;
+    padding-top: 1rem!important;
+    padding-bottom: 1rem!important;
+    padding-left: 1rem!important;
+    padding-right: 1rem!important;
+    border: var(--bs-border-width) var(--bs-border-style) var(--bs-yellow)!important;
+    border-radius: var(--bs-border-radius-lg)!important;
+}
+
+.reference-document .modal-header{
+    --bs-bg-opacity:0.5;
+    background-color: var(--bs-warning-bg-subtle)!important;
+    background-image: var(--bs-gradient)!important;
 }
 
 .d-block-text-end{
     display: block!important;
     text-align: end;
+}
+
+@media (max-width:575px){
+    .reference-document .supplement{
+        padding-left: 0.5rem!important;
+        padding-right: 0.5rem!important;
+    }
 }

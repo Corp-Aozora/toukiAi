@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from collections import defaultdict
+from decimal import Decimal, ROUND_HALF_UP
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -48,6 +49,7 @@ import unicodedata
 from accounts.models import User
 from .company_data import *
 from .customDate import *
+from .external_info import ExternalLinks
 from .forms import *
 from .get_data_for_application_form import *
 from .landCategorys import LANDCATEGORYS
@@ -4589,6 +4591,9 @@ def step_six(request):
             "progress": progress,
             "sections" : Sections.SECTIONS[Sections.STEP6],
             "service_content" : Sections.SERVICE_CONTENT,
+            "moj_online_request_page_link": ExternalLinks.links["moj_online_request"],
+            "touki_info_charge": ExternalLinks.charge["touki_info"],
+            "touki_info_link": ExternalLinks.links["touki_info"]
         }
         return render(request, this_html, context)
     
@@ -5099,7 +5104,7 @@ def step_back(request):
             })
         
         with transaction.atomic():
-            decedent.progress = int(progress)
+            decedent.progress = Decimal(progress)
             decedent.save()
         
         return JsonResponse({

@@ -4,17 +4,28 @@ li{
 }
 
 /* ボタンを初期化 */
-button {
+button{
     background: none;
     border: none;
     outline: none;
     padding: 0;
 }
 
+/* aタグの下線を除外 */
+a{
+    text-decoration: none!important;
+}
+
 /* 手型のカーソルにする */
 .cursor-pointer:hover{
     cursor: pointer;
     cursor: hand;
+}
+
+/* ブートストラップのカスタマイズ */
+.custom-tooltip{
+    --bs-tooltip-max-width: 100%;
+    --bs-tooltip-bg: var(--bs-primary);
 }
 
 /* エラーメッセージ表示用 */

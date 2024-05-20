@@ -116,11 +116,6 @@
     border-top-color: #fff;
 }
 
-.custom-tooltip{
-    --bs-tooltip-max-width: 100%;
-    --bs-tooltip-bg: var(--bs-primary);
-}
-
 .card, .accordion{
     box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
 }

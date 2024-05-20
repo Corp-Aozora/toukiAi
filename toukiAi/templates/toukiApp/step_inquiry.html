@@ -15,28 +15,30 @@
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
-    <div class="pt-4 ps-4 container-xxl">
-        <div>
-            <h1 class="fs-4">
-                お問い合わせ
-            </h1>
-        </div>
-        <hr>
-        <div>
-            <p>
-                <span class="border-bottom border-secondary">
-                    個別具体的な事情に対する回答はできない場合もありますのでご了承ください。
-                </span>
-            </p>
+    <div class="pt-4 px-0 ps-sm-4 container-xxl">
+        <section>
             <div>
+                <h4 class="lg-text-center">
+                    お問い合わせ
+                </h4>
+            </div>
+            <hr>
+            <div>
+                <p>
+                    <span class="border-bottom border-secondary">
+                        個別具体的な事情に対する回答はできない場合もありますのでご了承ください。
+                    </span>
+                </p>
                 <div>
-                    <a class="fw-bold text-primary" href="https://lin.ee/0X7897N" target="_blank" rel="noopener noreferrer">
-                        弊社のＬＩＮＥアカウント（会員様専用窓口）へ
-                    </a>
-                    お問い合わせいただくこともできます。
+                    <div>
+                        <a class="fw-bold text-primary" href="https://lin.ee/0X7897N" target="_blank" rel="noopener noreferrer">
+                            LINE（会員様専用窓口）
+                        </a>
+                        でお問い合わせいただくこともできます。
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
         {% if form.errors %}
             <div class="error_list fw-bold bg-danger-subtle border rounded-3 mx-3 px-3 py-3 my-3">
                 {% for field, errors in form.errors.items %}
@@ -86,45 +88,23 @@
                 <b>
                     {{company_data.MAIL_ADDRESS}}
                 </b>
-                から返信があります。
+                からメールを受信できるように設定をお願いします。
             </p>
+            {% include "toukiApp/parts/modals/confirm.html" %}
             <fieldset class="text-center mt-3">
-                <button disabled type="button" id="showModalBtn" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                <button disabled type="button" id="showModalBtn" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold" data-bs-toggle="modal" data-bs-target="#confirm_modal">
                     送信
                 </button>
-                <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header justify-content-center bg-warning-subtle">
-                                <h5 class="modal-title">
-                                    内容にお間違いはありませんか？
-                                </h5>
-                            </div>
-                            <div class="modal-body text-start">
-                            </div>
-                            <div class="modal-footer justify-content-evenly">
-                                <button type="button" class="btn btn-secondary bg-gradient bg-opacity-50 fw-bold" data-bs-dismiss="modal">
-                                    修正する
-                                </button>
-                                <button id="submitBtn" type="submit" class="btn btn-primary bg-gradient bg-opacity-50 fw-bold">
-                                    ＯＫ
-                                    <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </fieldset>
         </form>
         <hr>
-        <section class="pe-5 pb-5">
-            <h5>
+        <section>
+            <h5 class="md-text-center">
                 過去のお問い合わせ
             </h5>
             {% if q_and_a_data %}
                 {% for q, a in q_and_a_data %}
-                    <ul class="mt-3">
+                    <ul class="mt-3 ps-md-5 ps-3">
                         <li>
                             <div>
                                 <p class="fw-bold">
@@ -141,7 +121,7 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="ms-3">
+                            <div class="ms-3 ms-sm-5">
                                 <p class="fw-bold">
                                     <span class="border-bottom border-primary text-primary">
                                         ＞回答

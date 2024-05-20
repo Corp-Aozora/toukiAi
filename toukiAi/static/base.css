@@ -154,3 +154,22 @@ a{
 .line-qr{
     max-width: 100px!important;
 }
+
+/* レスポンシブ用 */
+@media (max-width:991px){
+    .lg-text-center{
+        text-align: center!important;
+    }
+}
+
+@media (max-width:767px){
+    .md-text-center{
+        text-align: center!important;
+    }
+}
+
+@media (max-width:575px){
+    .sm-text-center{
+        text-align: center!important;
+    }
+}

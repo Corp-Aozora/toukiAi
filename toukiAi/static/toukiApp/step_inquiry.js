@@ -104,7 +104,7 @@ class InquiryForm{
 
     // （送信前の）送信ボタンのクリックイベント
     handleShowModalBtnClickEvent(){
-        const modal = document.getElementById("confirmModal");
+        const modal = document.getElementById("confirm_modal");
         const modalBody = modal.querySelector(".modal-body");
         modalBody.innerHTML = this.inputs[InquiryForm.inputIdxs.content].value.replace(/\n/g, '<br>');
     }

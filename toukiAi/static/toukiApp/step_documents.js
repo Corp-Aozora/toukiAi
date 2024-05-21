@@ -51,20 +51,18 @@ window.addEventListener("DOMContentLoaded", ()=>{
         constructor(){
             this.backBtn = document.getElementById("backBtn");
             this.backBtnSpinner = document.getElementById("backBtnSpinner");
+
+            this.downloadPdfBtn = document.getElementById("downloadPdfBtn");
+            this.downloadPdfBtnSpinner = document.getElementById("downloadPdfBtnSpinner");
+
+            this.printPageWrapper = document.getElementById("print_page_wrapper");
             this.printPerSection = document.getElementsByClassName("print_per_section");
             this.printSectionHr = document.querySelectorAll(".d-lg-flex hr");
         }
     }
 
     const instance = new Form();
-    const {backBtn, backBtnSpinner} = instance;
-
-    // ボタンにイベント設定
-    function addEventToBtn(){
-        backBtn.addEventListener("click", ()=>{
-            backToStepFour(instance);
-        })
-    }
+    const {backBtn, backBtnSpinner, downloadPdfBtn, downloadPdfBtnSpinner, printPageWrapper} = instance;
 
     // ステップ４に戻る
     function backToStepFour(){
@@ -126,8 +124,135 @@ window.addEventListener("DOMContentLoaded", ()=>{
         document.getElementById("print_page_wrapper").style.height = `${top}px`;
     }
 
-    if(backBtn)
-        addEventToBtn();
+    // 印刷範囲をpdfに変換してダウンロードさせる
+    function convertHtmlToPdf(){
+
+        // pdfのファイル名またはcssのurlを取得する
+        function getFileNameOrCss(isCss = false){
+
+            const dict = {
+                "/toukiApp/step_division_agreement": isCss? 
+                    "https://corp-aozora.github.io/css_for_pdf/step_division_agreement.css":
+                    "遺産分割協議証明書.pdf",
+                "/toukiApp/step_POA": isCss? 
+                    "https://corp-aozora.github.io/css_for_pdf/step_POA.css":
+                    "委任状.pdf",
+                "/toukiApp/step_application_form": isCss? 
+                    "https://corp-aozora.github.io/css_for_pdf/step_application_form.css":
+                    "登記申請書.pdf",
+                "/toukiApp/step_diagram": isCss? 
+                    "https://corp-aozora.github.io/css_for_pdf/step_diagram.css":
+                    "相続関係説明図.pdf",
+            }
+
+            const path = window.location.pathname;
+            return dict[path];
+        }
+
+        // pdf用のcssを設定する
+        function addCssForPdf(htmlClone){
+            const cssArr = [
+                "https://corp-aozora.github.io/css_for_pdf/base.css",
+                "https://corp-aozora.github.io/css_for_pdf/header.css",
+                "https://corp-aozora.github.io/css_for_pdf/step_documents.css",
+                "https://corp-aozora.github.io/css_for_pdf/step_common.css",
+            ]
+            cssArr.push(getFileNameOrCss(true))
+
+            const head = htmlClone.querySelector('head');
+
+            cssArr.forEach(css => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = css;
+                head.appendChild(link);
+            });
+        }
+
+        const fileName = getFileNameOrCss();
+        if(!fileName)
+            return;
+
+        downloadPdfBtn.disabled = true;
+        downloadPdfBtnSpinner.style.display = "";
+        
+        const htmlClone = document.documentElement.cloneNode(true);
+        addCssForPdf(htmlClone);
+
+        const hiddenEls = htmlClone.querySelectorAll(".modal, .top, .top + hr");
+        hiddenEls.forEach(el => {
+            el.style.display = "none";
+        });
+        
+        const updatedHtml = htmlClone.outerHTML;
+        
+        const data = { "html_content": updatedHtml };
+        
+        fetch('convert_html_to_pdf', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            mode: "same-origin"
+        }).then(response => response.json())
+        .then(data => {
+
+            downloadPdfBtn.disabled = false;
+            downloadPdfBtnSpinner.style.display = "none";
+            
+            if (data.pdf_url) {
+                // PDFをBlobとして取得
+                fetch(data.pdf_url)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = url;
+                        downloadLink.download = fileName;
+        
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+        
+                        // Object URLを解放
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(e => {
+                        basicLog("convertHtmlToPdf", e, `PDFのダウンロード中にエラーが発生しました。`);
+                        alert("ページを更新した後にクリックしてもエラーになる場合は、恐れ入りますが、お問い合わせをお願いします。");
+                    });
+            } else {
+                basicLog("convertHtmlToPdf", null, `ダウンロードリンクを取得できませんでした。`);
+                alert("ページを更新した後にクリックしてもエラーになる場合は、恐れ入りますが、お問い合わせをお願いします。");
+            }
+        }).catch(e => {
+            
+            downloadPdfBtn.disabled = false;
+            downloadPdfBtnSpinner.style.display = "none";
+            basicLog("convertHtmlToPdf", e, `pdfへの変換処理でエラー。`);
+            alert("ページを更新した後にクリックしてもエラーになる場合は、恐れ入りますが、お問い合わせをお願いします。");
+        })
+    }
+
+    // ボタンにイベント設定
+    function setEvent(){
+
+        window.addEventListener("resize", ()=>{
+            relocatePrintArea();
+        })
+
+        backBtn.addEventListener("click", ()=>{
+            backToStepFour();
+        })
+
+        downloadPdfBtn.addEventListener("click", ()=>{
+            convertHtmlToPdf();
+        })
+    }
+
+    setEvent();
 
     // 相関図のページは違う再配置方法
     const url = window.location.href;
@@ -135,8 +260,4 @@ window.addEventListener("DOMContentLoaded", ()=>{
         return;
 
     relocatePrintArea();
-    
-    window.addEventListener("resize", ()=>{
-        relocatePrintArea();
-    })
 })

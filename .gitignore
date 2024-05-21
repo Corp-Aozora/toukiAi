@@ -6,7 +6,6 @@ __pycache__
 .DS_Store
 .env
 .logfile
-.jsLogfile
-# toukiai-development-7bf1692a5215.json
-# client_secrets.json
-# credentials.json
+toukikun-fdfdd77a7104.json
+localhost.crt
+localhost.key

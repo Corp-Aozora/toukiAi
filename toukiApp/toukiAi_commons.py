@@ -1,29 +1,43 @@
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
+from django.core.cache import cache
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.core.mail import BadHeaderError, EmailMessage
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.core.mail import BadHeaderError, EmailMessage
 from django.db import transaction, DatabaseError, OperationalError, IntegrityError, DataError
 from django.db.models.query import QuerySet
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from io import BytesIO
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from smtplib import SMTPException
+from time import sleep
+from urllib.parse import urljoin
 
-import mojimoji
 import inspect
+import json
+import logging
+import mojimoji
+import os
+import requests
+import tempfile
 import textwrap
 import traceback
-import logging
+import uuid
 
 from .company_data import *
 from .models import RelatedIndividual
 from .prefectures_and_city import *
 from .sections import *
-
+from .external_info import ExternalLinks
 
 logger = logging.getLogger(__name__)
 
@@ -573,3 +587,192 @@ def get_canonical_url(request, url_name):
     canonical_url = f"{canonical_domain}{reverse(url_name)}"
     
     return canonical_url
+
+def get_gdrive_service():
+    """gdriveの認証情報を取得する"""
+    SCOPES = ['https://www.googleapis.com/auth/drive.file']
+    SERVICE_ACCOUNT_FILE = settings.GOOGLE_SERVICE_ACCOUNT
+
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+    # Drive APIのクライアントを作成
+    service = build('drive', 'v3', credentials=credentials)
+
+    return service
+
+def upload_to_gdrive(file_path, file_name):
+    """gdriveにファイルをアップロード"""
+    service = get_gdrive_service()
+
+    file_metadata = {
+        'name': file_name,  # Google Driveにアップロードする際のファイル名]
+        'parents': [""],  # 使用するときディレクトリidの指定が必要
+        'mimeType': 'text/html'
+    }
+    media = MediaFileUpload(file_path, mimetype='text/html')
+
+    # ファイルをアップロード
+    file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    file_id = file.get('id')
+
+    # ファイルの共有設定を更新（誰でもリンクを知っている人がアクセスできるように設定）
+    permission = {
+        'type': 'anyone',
+        'role': 'reader'
+    }
+    service.permissions().create(fileId=file_id, body=permission).execute()
+    shared_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    return shared_url
+
+def convert_html_to_pdf(request):
+    """htmlをpdfファイルに変換してユーザーにダウンロードさせる"""
+    
+    def get_access_token():
+        """アクセストークンを取得する"""
+        
+        def get_response():
+            """api通信"""
+            url = ExternalLinks.api["adobe_get_access_token"]
+            payload = {
+                'client_id': settings.ADOBE_CLIENT_ID,
+                'client_secret': settings.ADOBE_CLIENT_SECRET,
+            }
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            
+            return requests.post(url, data=payload, headers=headers)
+        
+        def handle_success_process(response):
+            """通信が成功したときはアクセストークンを返す"""
+            
+            data = response.json()
+            access_token = data['access_token']
+            expires_in = data.get('expires_in', 3600)  # トークンの有効期限（秒）
+
+            cache.set('adobe_access_token', access_token, expires_in - 60)  # 余裕を持って期限の1分前に無効化
+
+            return access_token
+            
+        # キャッシュからアクセストークンを取得
+        access_token = cache.get('adobe_access_token')
+        if access_token:
+            return access_token
+
+        response = get_response()
+        
+        if response.status_code == 200:
+            return handle_success_process(response)
+        else:
+            raise Exception(f"{get_current_function_name()}でエラー: {response.status_code}, {response.text}")
+    
+    def get_header():
+        """ヘッダー情報を取得する"""
+        access_token = get_access_token()
+        return {
+            'Authorization': f'Bearer {access_token}',
+            "Content_Type": "application/json",
+            'x-api-key': settings.ADOBE_CLIENT_ID,
+        }
+        
+    def create_pdf_download_url(asset_id):
+        """assetIDからpdfを生成する"""
+        function_name = get_current_function_name()
+        
+        API_URL = 'https://pdf-services-ue1.adobe.io/operation/htmltopdf'
+        headers = get_header()
+        payload = {
+            "assetID": asset_id
+        }
+        response = requests.post(API_URL, headers=headers, json=payload)
+        
+        if response.status_code == 201:
+            # ステータスURIを取得
+            job_status_uri = response.headers["location"]
+            # ジョブが完了するまでポーリング
+            while True:
+                status_response = requests.get(job_status_uri, headers=headers)
+                
+                if status_response.status_code != 200:
+                    raise Exception(f"{function_name}のpollingでエラー: status_code={status_response.status_code}")
+                
+                status_data = status_response.json()
+                
+                if status_data["status"] == "done":
+                    pdf_url = status_data.get("asset", {}).get("downloadUri")
+
+                    if pdf_url:
+                        return pdf_url
+                    else:
+                        raise Exception(f"{function_name}のpdfのダウンロードリンクの取得処理でエラー")
+                elif status_data["status"] == "failed":
+                    error_message = status_data.get("error", {}).get("message", "Unknown error")
+                    raise Exception(f"{function_name}のPDF生成中の処理でエラー: {error_message}")
+                
+                sleep(0.25) # 少し待ってから再度ポーリング
+        else:
+            error_detail = response.json()
+            raise Exception(f'{function_name}のPDF生成でエラー: status code={response.status_code}, detail={error_detail}')
+        
+    def get_presigned_uri():
+        """アップロード先のurl情報を生成する"""
+        url = "https://pdf-services-ue1.adobe.io/assets"
+        headers = get_header()
+        data = {
+            'mediaType': "text/html"
+        }
+        response = requests.post(url, headers=headers, json=data)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f'{get_current_function_name()}でエラー: status code={response.status_code}')
+
+    def upload_html_content_to_presigned_uri(presigned_uri, html_content):
+        headers = {
+            'Content-Type': 'text/html'
+        }
+        response = requests.put(presigned_uri, headers=headers, data=html_content.encode('utf-8'))
+            
+        if response.status_code != 200:
+            raise Exception(f'htmlファイルのアップロードでエラー: status code={response.status_code}')
+
+    def create_asset(html_content):
+        """一時HTMLファイルを作成してassetに登録してassetIDを返す"""
+        # プリサインドURIを取得
+        presigned_response = get_presigned_uri()
+        uploadUri_uri = presigned_response['uploadUri']
+        asset_id = presigned_response['assetID']
+        
+        # HTMLファイルをプリサインドURIにアップロード
+        upload_html_content_to_presigned_uri(uploadUri_uri, html_content)
+        
+        return asset_id
+    
+    """
+    
+        メイン処理
+    
+    """
+    if request.method == 'POST':
+
+        try:
+            data = json.loads(request.body)
+            html_content = data.get('html_content', '')
+
+            asset_id = create_asset(html_content)
+            pdf_url  = create_pdf_download_url(asset_id)
+            return JsonResponse({"pdf_url": pdf_url})
+        except Exception as e:
+            return handle_error(
+                e,
+                request,
+                request.user,
+                get_current_function_name(),
+                None,
+                True
+            )
+
+    return JsonResponse({'status': 'error', "message": "POST以外のメソッドでアクセスがありました"}, status=405)

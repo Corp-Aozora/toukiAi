@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/step_documents.css' %}">
     <link rel="stylesheet" href="{% static 'toukiApp/step_division_agreement.css' %}">
+
 {% endblock %}
 
 {% block header %}
@@ -43,16 +44,16 @@
                 </span>
             </button>
         </div>
-        <h5 class="text-center mt-3">
-            こちらのページをA4の縦方向でご印刷ください。
-        </h5>
-        <p class="fw-bold text-center mt-3">
-            スマホやタブレットをご利用の方やPDFで出力する機能がない場合は、
-            <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=遺産分割協議証明書のPDFについて&body=アカウント：{{ user_email|urlencode }}%0D%0A遺産分割協議証明書のPDFを送ってください。">
-                お問い合わせ
-            </a>
-            をお願いします。
+        <p class="fw-bold text-center mt-5">
+            <button id="downloadPdfBtn" type="button" class="btn btn-success bg-gradient bg-opacity-50 fw-bold">
+                PDFをダウンロード
+                <span id="downloadPdfBtnSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                </span>
+            </button>
         </p>
+        <h5 class="text-center mt-3">
+            デスクトップをご利用の場合は、こちらのページをA4の縦方向で印刷も可能です。
+        </h5>
         <div class="mt-4 d-flex justify-content-center">
             <div class="border rounded-3 p-3">
                 <p class="text-danger fw-bold text-center">

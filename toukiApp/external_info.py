@@ -7,3 +7,7 @@ class ExternalLinks:
     charge = {
         "touki_info": "331"
     }
+    
+    api = {
+        "adobe_get_access_token": "https://pdf-services-ue1.adobe.io/token"
+    }

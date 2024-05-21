@@ -965,7 +965,7 @@ def step_two(request):
                     # if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
                         
                     # サービスアカウントの認証情報ファイルのパス
-                    SERVICE_ACCOUNT_FILE = 'toukiai-development-7bf1692a5215.json'
+                    SERVICE_ACCOUNT_FILE = 'toukikun-fdfdd77a7104.json'
                     
                     # サービスアカウント認証情報をロード
                     credentials = service_account.Credentials.from_service_account_file(

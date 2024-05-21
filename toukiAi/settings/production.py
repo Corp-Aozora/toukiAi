@@ -28,7 +28,4 @@ DATABASES = {
     }
 }
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
 CSRF_FAILURE_VIEW = 'accounts.views.csrf_failure'

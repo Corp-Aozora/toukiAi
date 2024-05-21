@@ -36,5 +36,6 @@ urlpatterns = [
     path("redirect_to_progress_page", views.redirect_to_progress_page, name="redirect_to_progress_page"),
     path("nav_to_last_user_page", views.nav_to_last_user_page, name="nav_to_last_user_page"),
     path("sort_out_trial", views.sort_out_trial, name="sort_out_trial"),    
+    path('convert_html_to_pdf', views.convert_html_to_pdf, name='convert_html_to_pdf'),
 ]
 

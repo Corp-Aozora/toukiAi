@@ -8,93 +8,6 @@
     width: 110px!important;
 }
 
-/* 画面がxl以下のとき */
-@media (max-width:1199px){
-
-    /* 料金表の長所と短所 */
-    .plus-and-minus{
-        display: flex;
-    }
-
-    .plus-and-minus > div{
-        width: 50%!important;
-    }
-
-    #compare .card-body > div:nth-child(2) > p{
-        text-align: center;
-    }
-
-    .plus-and-minus > div:first-child{
-        margin-right: 0.5rem;
-    }
-
-    .plus-and-minus > div:nth-child(2){
-        margin-left: 0.5rem;
-    }
-}
-
-/* 画面のサイズがxs以下 */
-@media (max-width:575px){
-
-    /* 料金表の長所と短所 */
-    .plus-and-minus{
-        display: block!important;
-    }
-
-    .plus-and-minus > div{
-        width: 100%!important;
-    }
-
-    .plus-and-minus > div:first-child{
-        margin-right: 0px;
-    }
-
-    .plus-and-minus > div:nth-child(2){
-        margin-left: 0px;
-    }
-
-    #QA button{
-        font-size: 1rem!important;
-    }
-
-    #QA .accordion-body{
-        font-size: 1rem!important;
-        padding-left: 1.5rem!important;
-    }
-
-    form .input-group .label{
-        width: 100%!important;
-        text-align-last: initial!important;
-        text-align: center!important;
-        border-radius: 0!important;
-        border-top-left-radius:var(--bs-border-radius)!important;
-        border-top-right-radius:var(--bs-border-radius)!important;
-    }
-
-    form .input-group input, form .input-group select{
-        margin-left: 0px!important;
-        border-radius: 0!important;
-        border-bottom-left-radius:var(--bs-border-radius)!important;
-        border-bottom-right-radius:var(--bs-border-radius)!important;
-        text-align: center!important;
-    }
-    
-    .emPosition{
-        left: 0px!important;
-    }
-}
-
-@media(min-width: 992px){
-    #introSubtitle{
-        display: flex!important;
-        justify-content: center!important;
-    }
-
-    .option .card-body{
-        min-height: 305px;
-    }
-}
-
 .supportStep::before,
 .supportStep::after {
     content: "";
@@ -130,18 +43,6 @@
     --bs-modal-width: 1000px;
 }
 
-/* 画面がxl以上のとき */
-@media (min-width:1200px){
-    /* 課題 */
-    .task .card-body{
-        min-height: 230px;
-    }
-    /* 料金表 */
-    .option .card-body{
-        min-height: 280px;
-    }
-}
-
 /* 他社比較 */
 #compare li{
     display: flex!important;
@@ -154,16 +55,128 @@
 }
 
 #whoToA li:not(:first-child){
-    margin-top: 1rem!important;
+    margin-top: 1.5rem!important;
 }
 
 #whoToA li > div{
     display: flex!important;
 }
 
-
-
 .emPosition{
     top: -55px;
     left: 110px;
+}
+
+/* 画面のサイズがlg以上 */
+@media(min-width: 992px){
+    .option .card-body{
+        min-height: 425px;
+    }
+}
+
+/* 画面のサイズがxl以上 */
+@media(min-width: 1200px){
+    .option .card-body{
+        min-height: 395px;
+    }
+
+    /* 悩み事 */
+    .task .card-body{
+        min-height: 230px;
+    }
+}
+
+/* 画面のサイズがxxl以上 */
+@media(min-width: 1400px){
+    .option .card-body{
+        min-height: 370px;
+    }
+}
+
+/* 画面がxl以下のとき */
+@media (max-width:1199px){
+
+    /* 料金表の長所と短所 */
+    .plus-and-minus{
+        display: flex;
+    }
+
+    .plus-and-minus > div{
+        width: 50%!important;
+    }
+
+    #compare .card-body > div:nth-child(2) > p{
+        text-align: center;
+    }
+
+    .plus-and-minus > div:first-child{
+        margin-right: 0.5rem;
+    }
+
+    .plus-and-minus > div:nth-child(2){
+        margin-left: 0.5rem;
+    }
+}
+
+@media (max-width:767px){
+    #whoToA ul{
+        padding-right: 0px!important;
+    }
+}
+
+/* 画面のサイズがxs以下 */
+@media (max-width:575px){
+
+    /* 料金表の長所と短所 */
+    .plus-and-minus{
+        display: block!important;
+    }
+
+    .plus-and-minus > div{
+        width: 100%!important;
+    }
+
+    .plus-and-minus > div:first-child{
+        margin-right: 0px;
+    }
+
+    .plus-and-minus > div:nth-child(2){
+        margin-left: 0px;
+    }
+
+    #QA button{
+        font-size: 1rem!important;
+    }
+
+    #QA .accordion-body{
+        font-size: 1rem!important;
+        padding-left: 1rem!important;
+        padding-right: 1rem!important;
+    }
+
+    .accordion-button{
+        padding-left: 0.5rem!important;
+        padding-right: 0.5rem!important;
+    }
+
+    form .input-group .label{
+        width: 100%!important;
+        text-align-last: initial!important;
+        text-align: center!important;
+        border-radius: 0!important;
+        border-top-left-radius:var(--bs-border-radius)!important;
+        border-top-right-radius:var(--bs-border-radius)!important;
+    }
+
+    form .input-group input, form .input-group select{
+        margin-left: 0px!important;
+        border-radius: 0!important;
+        border-bottom-left-radius:var(--bs-border-radius)!important;
+        border-bottom-right-radius:var(--bs-border-radius)!important;
+        text-align: center!important;
+    }
+    
+    .emPosition{
+        left: 0px!important;
+    }
 }

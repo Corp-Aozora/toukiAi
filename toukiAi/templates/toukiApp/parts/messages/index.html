@@ -1,0 +1,122 @@
+{% load custom_filters %}
+
+{% if is_inquiry or is_account_delete %}
+    <div class="modal message_modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center bg-success-subtle">
+                    <h5 class="modal-title fw-bold">
+                        受付完了
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% if is_inquiry %}
+                        <p class="fw-bold">
+                            お問い合わせありがとうございます。
+                        </p>
+                        <p>
+                            24時間以内にご回答いたします。
+                        </p>
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
+                            </div>
+                        </div>
+                        <div class="fw-bold text-danger d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                {{company_data.MAIL_ADDRESS}}から返信があります。
+                            </div>
+                        </div>
+                    {% else %}
+                        <div>
+                            <span class="fw-bold">
+                                アカウントが削除されました
+                            </span>
+                            <br>
+                            ご利用ありがとうございました。
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% for message in messages %}
+    {% if message.tags == "success"%}
+        <div class="modal message_modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
+                        <h5 class="modal-title">
+                            受付完了
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            ログアウトしました。
+                            <br>
+                            ご利用ありがとうございます。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "warning" %}
+        <div class="modal message_modal modal-warning" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
+                        <h5 class="modal-title">
+                            受付に失敗
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    {% include "toukiApp/parts/form_error.html" %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif message.tags == "error" %}
+        <div class="modal message_modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-danger-subtle bg-gradient bg-opacity-50">
+                        <h5 class="modal-title">
+                            エラー
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="fw-bold">
+                            {{message.message|safe|linebreaksbr}}
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

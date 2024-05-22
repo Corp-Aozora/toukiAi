@@ -1,0 +1,30 @@
+{% if form.errors %}
+    <div class="form-error-wrapper">
+        {% for field, errors in form.errors.items %}
+            <div>
+                {% if field == "__all__" or field == "created_by" or field == "subject" or field == "content" %}
+                    <div class="{% if forloop.counter0 > 0 %}mt-3{% endif %}">
+                        <span class="border-bottom border-dark">
+                            {% if field == "__all__" %}
+                                入力エラー
+                            {% elif field == "created_by" %}
+                                メールアドレス
+                            {% elif field == "subject" %}
+                                件名
+                            {% elif field == "content" %}
+                                お問い合わせ内容
+                            {% endif %}
+                        </span>
+                    </div>
+                {% endif %}
+                <ul class="mb-0 ps-md-5 ps-3">
+                    {% for error in errors %}
+                        <li class="text-danger">
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

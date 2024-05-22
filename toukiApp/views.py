@@ -85,8 +85,8 @@ def index(request):
     function_name = get_current_function_name()
     this_url_name = "toukiApp:index"
     this_html = "toukiApp/index.html"
-    tab_title = "相続登記を自分でしたい方のためのシステム"
-    meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って書類を集めて必要な事項を入力すると書類ができあがります。詳細な解説と迅速なお問い合わせ対応もありますので、悩むことなく手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
+    tab_title = "相続登記を自分で行いたい方のためのシステム"
+    meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って手続を進めるだけで相続登記が完了します。詳細な解説と迅速なお問い合わせ対応もありますので、悩みなくスムーズに手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
@@ -95,7 +95,9 @@ def index(request):
         is_inquiry = get_boolean_session(request.session, "post_success")
         is_account_delete = get_boolean_session(request.session, "account_delete")
         
+        # お問い合わせがあったとき
         if request.method == "POST":
+            
             form = OpenInquiryForm(request.POST)
             if form.is_valid():
                 with transaction.atomic():
@@ -106,11 +108,11 @@ def index(request):
                         
                         return redirect(this_url_name)
                     except Exception as e:
-                        basic_log(function_name, e, None, "POSTでエラー")
+                        basic_log(function_name, e, None, "POST(お問い合わせの送信)でエラー")
                         raise e
             else:
                 basic_log(function_name, None, None, f"{form.errors}")
-                messages.warning(request, "受付に失敗 入力に不備があるため受付できませんでした。")
+                messages.warning(request, "入力に不備があるため受付できませんでした。")
         else:
             form = OpenInquiryForm()
         

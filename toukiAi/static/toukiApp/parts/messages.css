@@ -1,4 +1,0 @@
-/* フォームのエラーメッセージ */
-.modal-warning .modal-body span{
-    border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color)!important;
-}

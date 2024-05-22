@@ -98,7 +98,7 @@ def handle_exception_error(e, request, user, function_name, redirect_to, is_asyn
         
     basic_log(function_name, e, user, notices)
     
-    message = 'システムにエラーが発生したため処理を中止しました \
+    message = 'システムにエラーが発生したため処理を中止しました。\n\
         お手数ですが、お問い合わせをお願いします。'
     messages.error(request, message)
     
@@ -114,7 +114,7 @@ def handle_badhead_error(e, request, user, function_name, redirect_to, is_async,
         
     basic_log(function_name, e, user, notices)
     
-    message = '無効なヘッダが検出されたため処理を中止しました \
+    message = '無効なヘッダが検出されたため処理を中止しました。\n\
         お手数ですが、お問い合わせをお願いします。'
     messages.error(request, message)
     
@@ -130,7 +130,7 @@ def handle_os_error(e, request, user, function_name, redirect_to, is_async, cont
         
     basic_log(function_name, e, user, notices)
     
-    message = '通信エラーのため処理を中止しました \
+    message = '通信エラーのため処理を中止しました。\n\
         お手数ですが、お問い合わせをお願いします。'
     messages.error(request, message)
     
@@ -144,9 +144,9 @@ def handle_smtp_error(e, request, user, function_name, redirect_to, is_async, co
     if context is None:
         context = {}
         
-    basic_log(function_name, e, user, notices)
+    basic_log(function_name, e, user, "考えられる原因: メールサーバーの認証情報の誤り")
     
-    message = 'SMTPエラーのため処理を中止しました \
+    message = 'SMTPエラーのため処理を中止しました。\n\
         お手数ですが、お問い合わせをお願いします。'
     messages.error(request, message)
     
@@ -163,7 +163,7 @@ def handle_value_error(e, request, user, function_name, redirect_to, is_async, c
     
     basic_log(function_name, e, user, notices)
     
-    message = '想定しない形式の入力値があるため処理を中止しました \
+    message = '想定しない形式の入力値があるため処理を中止しました。\n\
         入力内容に誤りがないときは、お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
         
@@ -179,7 +179,7 @@ def handle_validation_error(e, request, user, function_name, redirect_to, is_asy
     
     basic_log(function_name, e, user, notices)
     
-    message = '入力値が登録されているデータと一致しないため処理を中止しました \
+    message = 'エラー 入力値が登録されているデータと一致しないため処理を中止しました。\
         入力内容に誤りがないときは、お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
         
@@ -195,7 +195,7 @@ def handle_time_out_error(e, request, user, function_name, redirect_to, is_async
     
     basic_log(function_name, e, user, notices)
     
-    message = 'システムに接続できないため処理を中止しました \
+    message = 'システムに接続できないため処理を中止しました。\n\
         ネットワーク環境をご確認ください。'
     messages.error(request, message)
             
@@ -211,7 +211,7 @@ def handle_connection_error(e, request, user, function_name, redirect_to, is_asy
     
     basic_log(function_name, e, user, notices)
     
-    message = '通信エラーが発生したため処理を中止しました \
+    message = '通信エラーが発生したため処理を中止しました。\n\
         数分空けて更新ボタンを押しても問題が解決しない場合は、\
         お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
@@ -227,7 +227,7 @@ def handle_data_base_error(e, request, user, function_name, redirect_to, is_asyn
         context = {}
     
     basic_log(function_name, e, user, notices)
-    message = 'システムにエラーが発生したため処理を中止しました \
+    message = 'システムにエラーが発生したため処理を中止しました。\n\
         数分空けて更新ボタンを押しても問題が解決しない場合は、\
         お手数ですがお問い合わせをお願いします。'
     messages.error(request, message)
@@ -250,14 +250,14 @@ def handle_http_error(e, request, user, function_name, redirect_to, is_async, co
     # status_codeが取得できた場合、それを基にエラーメッセージを生成
     if status_code and status_code == 500:
         if status_code == 500:
-            message = 'システムにエラーが発生したため処理を中止しました \
+            message = 'システムにエラーが発生したため処理を中止しました。\n\
                 お手数ですが、お問い合わせをお願いします。'
         else:
-            message = f'通信エラー（コード：{status_code}）が発生したため処理を中止しました \
+            message = f'通信エラー（コード：{status_code}）が発生したため処理を中止しました。\n\
                 数分空けて更新ボタンを押しても問題が解決しない場合は、\
                 お手数ですがお問い合わせをお願いします。'
     else:
-        message = '通信エラーが発生したため処理を中止しました \
+        message = '通信エラーが発生したため処理を中止しました。\n\
             数分空けて更新ボタンを押しても問題が解決しない場合は、\
             お手数ですがお問い合わせをお願いします。'
 

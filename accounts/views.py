@@ -307,6 +307,9 @@ class FincodeWebhookView(View):
         function_name = "FincodeWebhookView > post"
         
         try:
+            if settings.FINCODE_WEBHOOK_SIGNATURE != request.headers.get('Fincode-Signature'):
+                return JsonResponse({'error': 'Invalid signature'}, status=400)
+            
             # fincodeから届くデータ
             payload = json.loads(request.body)
             

@@ -9,10 +9,9 @@ ALLOWED_HOSTS = [
     "django-render-6agw.onrender.com",
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-DEFAULT_FROM_EMAIL = CompanyData.MAIL_ADDRESS    #送信元のアドレスを指定
-EMAIL_HOST_USER = CompanyData.MAIL_ADDRESS
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
+EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
+EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
 
 DATABASES = {
     'default':{

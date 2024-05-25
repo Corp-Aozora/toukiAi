@@ -30,7 +30,7 @@ class WidgetAttributes:
     }
     # 評価額
     price = {
-        "placeholder": "数字のみで入力（コンマ不要）",
+        "placeholder": "数字のみ、コンマなし",
         "class": "form-control text-center rounded-end",
         "maxlength": "16",
     }
@@ -56,7 +56,7 @@ class WidgetAttributes:
     # 振込名義人
     payer = {
         "class": "form-control rounded-end",
-        "placeholder": "ひらがな又はカタカナで入力",
+        "placeholder": "ひらがな又はカタカナ",
         "maxlength": "30"
     }
     # カウントする入力欄
@@ -66,37 +66,37 @@ class WidgetAttributes:
     # 本籍の町域・番地
     domicile_address = {
         "class": "form-control rounded-end",
-        "placeholder": "中央区天神１丁目１番",
+        "placeholder": "",
         "maxlength": "100",
     }
     # 住所の町域・番地
     address = {
         "class": "form-control rounded-end",
-        "placeholder": "中央区天神１丁目１番１号",
+        "placeholder": "",
         "maxlength": "100",
     }
     # 住所の建物
     bldg = {
         "class": "form-control rounded-end",
-        "placeholder": "登記マンション１０１号室",
+        "placeholder": "",
         "maxlength": "100",
     }
     # 不動産番号
     rs_number = {
         "class": "form-control rounded-end",
-        "placeholder": "謄本右上にある１３桁の数字",
+        "placeholder": "登記簿謄本右上にある13桁の数字",
         "maxlength": "13",
     }
     # 土地の所在地
     land_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神１丁目",
+        "placeholder": "",
         "maxlength": "100",
     }
     # 建物の所在地
     house_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神１丁目１番地１",
+        "placeholder": "",
         "maxlength": "100",
     }
     # 一棟の建物の所在
@@ -114,7 +114,7 @@ class WidgetAttributes:
     # 敷地権の所在及び地番
     site_address_and_number = {
         "class": "form-control rounded-end",
-        "placeholder": "地番の表記は「番地」ではなく「番」です",
+        "placeholder": "地番は「番地」ではなく「番」",
         "maxlength": "100",
     }
     # 敷地権の土地の符号
@@ -130,19 +130,19 @@ class WidgetAttributes:
     # 法務局
     office = {
         "class": "form-control rounded-end text-center",
-        "placeholder": "不動産番号を入力すると自動で表示されます",
+        "placeholder": "不動産番号を入力すると自動表示",
         "maxlength": "30",
         "disabled": "true",
     }
     # 一括住所
     full_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神１丁目１番１号",
+        "placeholder": "都道府県から",
         "maxlength": "100",        
     }
     full_address_2 = {
         "class": "form-control rounded-end",
-        "placeholder": "書類が届く宛先",
+        "placeholder": "書類の届け先",
         "maxlength": "100"
     }
     # 電話番号（ハイフンあり）
@@ -156,4 +156,28 @@ class WidgetAttributes:
         "class": "form-control rounded-end",
         "placeholder": "ハイフンなし",
         "maxlength": "11",
+    }
+    # クレジットカード番号
+    card_number = {
+        "class": "form-control rounded-end",
+        "placeholder": "スペースなしの15,16桁の数字",
+        "maxlength": "19",
+    }
+    # 日付
+    date = {
+        "class": "form-control rounded-end",
+        "placeholder": "",
+        "maxlength": "2",
+    }
+    # cvv
+    cvv = {
+        "class": "form-control rounded-end",
+        "placeholder": "カード裏面にある3,4桁の数字",
+        "maxlength": "4",
+    }
+    # カード名義人
+    card_holder_name = {
+        "class": "form-control rounded-end",
+        "placeholder": "名と姓の間にスペース、アルファベット",
+        "maxlength": "40",
     }

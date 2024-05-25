@@ -22,3 +22,12 @@ class BoolOr(Aggregate):
     template = '%(function)s(%(expressions)s)'
     allow_distinct = False
     output_field = BooleanField()
+    
+def extract_numbers_and_convert_to_hankaku(s):
+    """数字のみを抽出して半角に変換して返す"""
+    zenkaku_to_hankaku_table = str.maketrans('０１２３４５６７８９', '0123456789')
+    
+    hankaku_string = s.translate(zenkaku_to_hankaku_table)
+    
+    return ''.join(filter(str.isdigit, hankaku_string))
+    

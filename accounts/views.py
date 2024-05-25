@@ -21,7 +21,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
+from django.views import View
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 from smtplib import SMTPException
 
 import json
@@ -209,10 +211,12 @@ def option_select(request):
             except Exception as e:
                 basic_log(function_name, e, user, "POSTでエラー")
                 raise e
- 
         else:
             form = None
-            if option_request_data:
+            session_form_data = request.session.get('form_data')
+            if session_form_data:
+                form = OptionSelectForm(instance=session_form_data)
+            elif option_request_data:
                 form = OptionSelectForm(instance=option_request_data)
             elif latest_paid_option_request_data:
                 form = OptionSelectForm(initial={
@@ -223,15 +227,16 @@ def option_select(request):
                 })
             else:
                 form = OptionSelectForm()
-                
+
             if paid_option_and_amount["option2"]:
                 messages.info(request, "利用不可 司法書士にご依頼いただいた場合、その他のオプションはご利用できなくなります。")
-            
+        
         context = {
             "title": "オプション選択",
             "company_data": CompanyData,
             "service": Service,
             "form": form,
+            "field_names": list(form.fields.keys()), # エラーのラベル用
             "paid_option_and_amount": paid_option_and_amount,
             "paid": paid_option_and_amount["charge"]
         }
@@ -294,6 +299,56 @@ def bank_transfer(request):
             current_url_name
         )
         
+@method_decorator(csrf_exempt, name='dispatch')
+class FincodeWebhookView(View):
+
+    def post(self, request, *args, **kwargs):
+        """fincodeからのwebhookによる通知"""
+        function_name = "FincodeWebhookView > post"
+        
+        try:
+            # fincodeから届くデータ
+            payload = json.loads(request.body)
+            
+            # 必要な情報を抽出
+            event = payload.get("event") # 処理内容(決済登録, 決済実行など)(fincodeのwebhook設定による)
+            pay_type = payload.get("pay_type") # 決済方法
+            error_code = payload.get("error_code") # エラーコード
+            client_field_1 = payload.get("client_field_1") # 申込内容
+            amount = payload.get('amount') # 決済金額
+            currency = payload.get('currency') # 通貨
+            order_id = payload.get('order_id') # オーダーID(fincodeでの管理番号)
+            transaction_id = payload.get('transaction_id') # トランザクションID(fincodeでの管理番号)
+
+            subject = "決済登録" if event == "payments.card.regist" else \
+                "決済実行" if event == "payments.card.exec" else \
+                "売上確定" if event == "payments.card.capture" else \
+                "キャンセル" if event == "payments.card.cancel" else \
+                "不明なイベントパラメータ"
+            # メール送信
+            send_mail(
+                subject=f"カード決済情報 種類:{subject}",
+                message=f'カード決済情報\n\nオーダーID: {order_id}\nトランザクションID: {transaction_id}\n決済方法: {pay_type}\nエラーコード: {error_code}\n申込内容: {client_field_1}\n決済金額: {amount}\n通貨: {currency}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.DEFAULT_FROM_EMAIL],
+            )
+
+            return JsonResponse({'receive': '0'}, status=200)
+        
+        except json.JSONDecodeError as e:
+            # JSONデコードエラー
+            basic_log(function_name, e, None, "jsonのデコードエラー")
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        except BadHeaderError as e:
+            # メール送信時のヘッダーエラー
+            basic_log(function_name, e, None, "メールのヘッダーエラー")
+            return JsonResponse({'error': 'Invalid header found'}, status=400)
+        
+        except Exception as e:
+            basic_log(function_name, e, None, "fincodeからのwebhookによる通知の受取に失敗したため再試行")
+            return JsonResponse({'receive': '1'}, status=200)
+
 def is_valid_email_pattern(request):
     """Djangoのメール形式に合致するか判定する"""
     input_email = request.POST.get("email")

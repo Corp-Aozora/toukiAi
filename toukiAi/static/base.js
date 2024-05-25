@@ -6,7 +6,7 @@ class MessageTemplates{
     /**
      * 指定された関数名と引数からエラーメッセージを生成する。
      * @param {string} functionName - 関数名
-     * @param {object} args - 関数の引数をキーと値のペアで含むオブジェクト
+     * @param {object} args - {argName: arg, ...}
      * @returns {string} - 生成されたエラーメッセージ
      */
     static functionNameAndArgs(functionName, args) {
@@ -75,6 +75,7 @@ function removeEmphasizeText(el){
  */
 function ZenkakuToHankaku(val) {
     val = String(val);
+    val = val.replace(/　/g, " ");
 	return String(val).replace(/[！-～]/g, function(s) {
 		return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
 	});
@@ -298,24 +299,30 @@ function validateIntInput(el){
 /**
  * 桁数チェック
  * @param {HTMLInputElement} input チェック対象の入力
- * @param {string} type チェックする桁数 phoneNumber, postNumber, propertyNumber
+ * @param {string} type チェックする桁数 creditCardNumber, cvv, phoneNumberWithHyphen, phoneNumber, postNumber, propertyNumber
  * @return {boolean} 適切なときはtrue、それ以外はエラーメッセージ
  */
 function isDigit(input, type) {
     const countDigit = input.value.length; // 文字列化の必要はない
     switch (type) {
+        case "creditCardNumber":
+            //クレジットカード（15または16桁）
+            return [15, 16].includes(countDigit) ? true : "15,16桁で入力してください";
+        case "cvv":
+            // cvv（3または4桁）
+            return [3, 4].includes(countDigit) ? true : "3,4桁で入力してください";
         case "phoneNumberWithHyphen":
             //電話番号ハイフン有り（12桁又は13桁）
-            return [12, 13].includes(countDigit) ? true : "ハイフンありで１２桁、１３桁で入力してください";
+            return [12, 13].includes(countDigit) ? true : "ハイフンありで12,13桁で入力してください";
         case "phoneNumber":
             // 電話番号（10桁または11桁）
-            return [10, 11].includes(countDigit) ? true : "ハイフンなしで１０桁または１１桁で入力してください";
+            return [10, 11].includes(countDigit) ? true : "ハイフンなしで10,11桁で入力してください";
         case "postNumber":
             // 郵便番号（7桁）
-            return countDigit === 7 ? true : "ハイフンなしの７桁の数字で入力してください";
+            return countDigit === 7 ? true : "ハイフンなしの7桁で入力してください";
         case "propertyNumber":
             // 不動産番号（13桁）
-            return countDigit === 13 ? true : "１３桁の数字で入力してください";
+            return countDigit === 13 ? true : "13桁で入力してください";
         default:
             return "未知のタイプです";
     }
@@ -430,9 +437,12 @@ function isEmail(email) {
  * @param {string} val 
  * @param {HTMLElement} el
  */
-function trimAllSpace(val, el){
+function trimAllSpace(val, el = null){
     const trimedVal = val.replace(/ |　/g, "");
-    el.value = trimedVal;
+    
+    if(el)
+        el.value = trimedVal;
+
     return trimedVal;
 }
 
@@ -545,7 +555,7 @@ function isAlphaNumSymbolIncluded(val){
 /**
  * アルファベットと記号が含まれているかチェック
  * @param {string} val - 検証する文字列
- * @returns {boolean|string} - 両方含まれている場合はエラーメッセージ、そうでない場合はtrue
+ * @returns {boolean|string} - いずれかが含まれている場合はエラーメッセージ、そうでない場合はtrue
  */
 function validateAlphabetAndSymbols(val) {
     // アルファベットを検出
@@ -633,6 +643,22 @@ function getLastElFromArray(arr){
  */
 function disableNumKey(e){
     if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+    }
+}
+
+/**
+ * 数字のみの入力に制限する
+ * @param {event} e 
+ */
+function allowOnlyNumber(e){
+    const allowedKeys = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 'Delete'
+    ];
+
+    // キーが許可されていない場合は入力を無効化
+    if (!allowedKeys.includes(e.key)) {
         e.preventDefault();
     }
 }
@@ -901,4 +927,39 @@ function validateBeforeChomeWord(val) {
     } else {
         return "「丁目」の前は漢数字にしてください";
     }
+}
+
+/**
+ * 先頭と末尾の半角と全角スペースを削除する
+ * @param {string} val 
+ */
+function trimStartAndEndSpace(val){
+    return val.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+}
+
+/**
+ * 値の中に半角または全角のスペースが1つだけあることを検証
+ * @param {string} val 
+ * @returns 
+ */
+function hasSingleSpace(val) {
+    // 半角スペースまたは全角スペースを正規表現でチェック
+    var spaceCount = (val.match(/[ \u3000]/g) || []).length;
+    if(spaceCount === 1)
+        return true;
+
+    return "スペースを1つ入れてください";
+}
+
+/**
+ * アルファベットのみか検証
+ * @param {string} val 
+ * @returns 
+ */
+function isAlphabetOnly(val){
+    const result = /^[A-Za-zＡ-Ｚａ-ｚ]+$/.test(val);
+    if(result)
+        return true;
+
+    return "アルファベットのみで入力してください";
 }

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import card_payment_test_api
 from django.contrib.auth import views as auth_views
 
 from common.create_reciept import *
@@ -20,6 +21,8 @@ urlpatterns = [
     path("delete_account/", views.delete_account, name="delete_account"), # 汎用の重複メールアドレスチェック
     path("option_select/", views.option_select, name="option_select"), # オプション選択
     path("bank_transfer/", views.bank_transfer, name="bank_transfer"), # 銀行振込のとき
+    path("option_select/card_payment/", card_payment_test_api.main, name="card_payment"), # カード決済のとき
+    path('webhook/fincode/', views.FincodeWebhookView.as_view(), name='fincode_webhook'), # fincodeからwebhook
     
     path("password/reset/is_user_email/", views.is_user_email, name="is_user_email"), 
     path("password/reset/is_valid_email_pattern/", views.is_valid_email_pattern, name="is_valid_email_pattern"),

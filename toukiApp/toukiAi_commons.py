@@ -105,7 +105,7 @@ def handle_exception_error(e, request, user, function_name, redirect_to, is_asyn
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_badhead_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """無効なヘッダーエラーハンドリング"""
@@ -591,9 +591,9 @@ def get_canonical_url(request, url_name):
 def get_gdrive_service():
     """gdriveの認証情報を取得する"""
     SCOPES = ['https://www.googleapis.com/auth/drive.file']
-    SERVICE_ACCOUNT_FILE = settings.GOOGLE_SERVICE_ACCOUNT
+    SERVICE_ACCOUNT_FILE = json.loads(settings.GOOGLE_SERVICE_ACCOUNT)
 
-    credentials = service_account.Credentials.from_service_account_file(
+    credentials = service_account.Credentials.from_service_account_info(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
     # Drive APIのクライアントを作成

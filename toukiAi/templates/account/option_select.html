@@ -19,12 +19,12 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 
-<div class="mx-auto col-md-9 col-lg-7 mt-3 px-3">
+<div class="mx-auto  col-md-11 col-lg-9 col-xl-8 mt-3 px-3">
     <h1 class="fs-4 text-center mb-0">
         オプション選択
     </h1>
     <h5 class="mt-3 text-center">
-        （令和６年６月末までの限定価格です）
+        （令和6年6月末までのキャンペーン価格です）
     </h5>
     <hr>
     <div>
@@ -108,14 +108,14 @@
                     <ul>
                         <li>
                             <span class="fw-bold">
-                                １．基本データ入力
+                                1 基本データ入力
                             </span>
                             <div class="d-flex">
                                 <div>
                                     機能：
                                 </div>
                                 <div>
-                                    相続人の判定に必要な項目を提示
+                                    相続人を判定
                                 </div>
                             </div>
                             <div class="d-flex">
@@ -129,14 +129,14 @@
                         </li>
                         <li>
                             <span class="fw-bold">
-                                ２．必要書類一覧
+                                2 必要書類一覧
                             </span>
                             <div class="d-flex">
                                 <div>
                                     機能：
                                 </div>
                                 <div>
-                                    必要書類一覧を提示
+                                    必要書類一覧の案内
                                 </div>
                             </div>
                             <div class="d-flex">
@@ -144,20 +144,20 @@
                                     作業：
                                 </div>
                                 <div>
-                                    提示された一覧をもとに役所などで書類を収集
+                                    必要書類一覧をもとに役所などで書類を収集
                                 </div>
                             </div>
                         </li>
                         <li>
                             <span class="fw-bold">
-                                ３．詳細データ入力
+                                3 詳細データ入力
                             </span>
                             <div class="d-flex">
                                 <div>
                                     機能：
                                 </div>
                                 <div>
-                                    申請書類の作成に必要な項目を提示
+                                    申請データを作成
                                 </div>
                             </div>
                             <div class="d-flex">
@@ -171,14 +171,14 @@
                         </li>
                         <li>
                             <span class="fw-bold">
-                                ４．書類の印刷
+                                4 書類の印刷
                             </span>
                             <div class="d-flex">
                                 <div>
                                     機能：
                                 </div>
                                 <div>
-                                    申請書類を作成
+                                    書類を生成
                                 </div>
                             </div>
                             <div class="d-flex">
@@ -186,20 +186,20 @@
                                     作業：
                                 </div>
                                 <div>
-                                    作成された書類の印刷、各相続人への配布、署名押印など
+                                    生成された書類を印刷、各相続人へ配布、署名押印など
                                 </div>
                             </div>
                         </li>
                         <li>
                             <span class="fw-bold">
-                                ５．法務局に申請
+                                5 法務局に書類を提出
                             </span>
                             <div class="d-flex">
                                 <div>
                                     機能：
                                 </div>
                                 <div>
-                                    申請方法を提示
+                                    提出方法を案内
                                 </div>
                             </div>
                             <div class="d-flex">
@@ -207,20 +207,20 @@
                                     作業：
                                 </div>
                                 <div>
-                                    提示された申請方法に沿って書類を整理して法務局へ郵送
+                                    案内された提出方法にのとおりに書類を整理して法務局へ提出
                                 </div>
                             </div>
                         </li>
                         <li>
                             <span class="fw-bold">
-                                ６．申請後について
+                                6 申請後について
                             </span>
                             <div class="d-flex">
                                 <div>
                                     機能：
                                 </div>
                                 <div>
-                                    不備があったときの対応方法を提示
+                                    不備があったときの対応方法を案内
                                 </div>
                             </div>
                             <div class="d-flex">
@@ -228,7 +228,7 @@
                                     作業：
                                 </div>
                                 <div>
-                                    書類に不備があった場合は、提示された対応方法に従って訂正
+                                    書類に不備があった場合は、案内にある対応方法に従って訂正
                                 </div>
                             </div>
                         </li>
@@ -431,47 +431,39 @@
                     入力事項
                 </h5>
             </div>
-            <div class="card-body px-sm-5">
-                <div id="form-errors" class="fw-bold bg-danger-subtle border rounded-3 p-3 mt-4" {% if form.errors %}style="display: block"{% else %}style="display: none"{% endif %}>
-                    {% for field in form %}
-                        {% if forloop.first and form.non_field_errors or field.errors %}
-                            <ul>
-                                {% if forloop.first %}
-                                    {% if form.non_field_errors %}
-                                        <li>
-                                            入力欄のエラー
-                                        </li>
-                                        {% for error in form.non_field_errors %}
-                                            <li class="ms-3">
-                                                {{ error }}
-                                            </li>
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endif %}
-                                {% if field.errors %}
-                                    <li>
-                                        {{field.label}}
-                                    </li>
-                                    {% for error in field.errors %}
-                                        <li class="ms-3">
-                                            {{error}}
-                                        </li>
-                                    {% endfor %}
-                                {% endif %}
-                            </ul>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+            <div class="card-body px-2 px-sm-5">
+                {% include "toukiApp/parts/form_error.html" %}
                 <fieldset class="mt-3" style="display: none;">
                     {% for field in form %}
                         {% if field.name == "basic" or field.name == "option1" or field.name == "option2" or field.name == "charge" %}
+                        {% elif field.name == "is_card" %}
+                            <div class="input-group position-relative Q">
+                                <label for="{{field.auto_id}}_0" class="input-group-text label">
+                                    {{ field.label }}
+                                </label>
+                                <div class="form-control input-group justify-content-evenly">
+                                    {% for choice in field %}
+                                        <div class="form-check">
+                                            {% if forloop.counter == 1 %}
+                                                <label class="form-check-label d-inline">
+                                            {% else %}
+                                                <label class="form-check-label d-inline">
+                                            {% endif %}
+                                                {{ choice.tag }}{{ choice.choice_label }}
+                                                </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <span class="errorMessage emPosition rounded-3" style="display: none;">
+                                </span>
+                            </div>
                         {% else %}
-                            <div class="input-group Q">
+                            <div class="input-group Q{% if field.name == "card_number" %} card-info-start{% elif field.name == "payer" %} payer{% endif %}">
                                 <label class="input-group-text label" for="{{ field.auto_id }}">
                                     {{ field.label }}
                                 </label>
                                 {{ field }}
-                                <span id="{{ field.auto_id}}_messageEl" class="errorMessage emPosition" style="display: none;">
+                                <span class="errorMessage emPosition" style="display: none;">
                                 </span>
                             </div>
                         {% endif %}
@@ -493,6 +485,11 @@
                         </button>
                     </p>
                 </div>
+                <p class="stand-by-message">
+                    決済中です。
+                    <br>
+                    そのまま少々お待ちください...
+                </p>
             </div>
         </section>
     </form>
@@ -505,8 +502,10 @@
 
 {% block js %}
     {% load static %}
+    <script src="{% static 'session.js' %}"></script>
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script src="{% static 'toukiApp/step_header.js' %}"></script>
+    <script src="https://js.test.fincode.jp/v1/fincode.js"></script>
     <script src="{% static 'accounts/option_select.js' %}"></script>
     <script> const paid = "{{paid|escapejs}}"; </script>
 {% endblock %}

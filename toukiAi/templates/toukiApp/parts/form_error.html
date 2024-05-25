@@ -2,17 +2,37 @@
     <div class="form-error-wrapper">
         {% for field, errors in form.errors.items %}
             <div>
-                {% if field == "__all__" or field == "created_by" or field == "subject" or field == "content" %}
+                {% if field == "__all__" or field in field_names %}
                     <div class="{% if forloop.counter0 > 0 %}mt-3{% endif %}">
                         <span class="border-bottom border-dark">
                             {% if field == "__all__" %}
-                                入力エラー
+                                フォームエラー
                             {% elif field == "created_by" %}
                                 メールアドレス
                             {% elif field == "subject" %}
                                 件名
                             {% elif field == "content" %}
                                 お問い合わせ内容
+                            {% elif field == "name" %}
+                                氏名
+                            {% elif field == "payer" %}
+                                支払名義人
+                            {% elif field == "address" %}
+                                住所
+                            {% elif field == "phone_number" %}
+                                電話番号
+                            {% elif field == "card_number" %}
+                                カード番号
+                            {% elif field == "expiry_month" %}
+                                有効期限(月)
+                            {% elif field == "expiry_year" %}
+                                有効期限(年)
+                            {% elif field == "cvv" %}
+                                CVV
+                            {% elif field == "card_holder_name" %}
+                                カード名義人
+                            {% else %}
+                                入力エラー
                             {% endif %}
                         </span>
                     </div>

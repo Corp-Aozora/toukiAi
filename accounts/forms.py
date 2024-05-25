@@ -221,12 +221,22 @@ class DeleteAccountForm(forms.Form):
     
 class OptionSelectForm(forms.ModelForm):
     """"オプション選択フォーム"""
+    # カード決済用（データは保存しない）
+    card_number = forms.CharField(max_length=16, required=False)
+    expiry_month = forms.CharField(max_length=2, required=False)
+    expiry_year = forms.CharField(max_length=2, required=False)
+    cvv = forms.CharField(max_length=4, required=False)
+    card_holder_name = forms.CharField(max_length=40, required=False)
     
     class Meta:
         model = OptionRequest
         fields = model.fields
+        widgets = { 
+            "is_card": forms.RadioSelect(choices=[("true", "カード"), ("false", "銀行振込")])
+        }
         labels = {
-            "charge": "ご請求額"
+            "is_card": "支払方法",
+            "charge": "ご請求額",
         }
         
     def __init__(self, *args, **kwargs):
@@ -234,10 +244,29 @@ class OptionSelectForm(forms.ModelForm):
         self.paid_option_and_amount = kwargs.pop("paid_option_and_amount", None)
         super().__init__(*args, **kwargs)
         
+        self.fields["card_number"].widget.attrs.update(WidgetAttributes.card_number)
+        self.fields["card_number"].label = "カード番号"
+        
+        self.fields["expiry_month"].widget.attrs.update(WidgetAttributes.date)
+        self.fields["expiry_month"].label = "期限(月)"
+        
+        self.fields["expiry_year"].widget.attrs.update(WidgetAttributes.date)
+        self.fields["expiry_year"].label = "期限(年)"
+        
+        self.fields["cvv"].widget.attrs.update(WidgetAttributes.cvv)
+        self.fields["cvv"].label = "ＣＶＶ"
+        
+        self.fields["card_holder_name"].widget.attrs.update(WidgetAttributes.card_holder_name)
+        self.fields["card_holder_name"].label = "名義人"
+        
+        self.initial["is_card"] = "true"
+        self.fields["is_card"].widget.attrs.update(WidgetAttributes.radio)
+        
         self.fields["name"].widget.attrs.update(WidgetAttributes.name_normal)
         self.fields["name"].validators.append(JapaneseOnlyValidator()) # 日本語のみ検証
         
         self.fields["payer"].widget.attrs.update(WidgetAttributes.payer)
+        self.fields["payer"].required = False
         self.fields["payer"].validators.append(validate_katakana) # カタカナのみ検証
         
         self.fields["address"].widget.attrs.update(WidgetAttributes.full_address_2)
@@ -289,4 +318,4 @@ class OptionSelectForm(forms.ModelForm):
             raise ValidationError("住所を入力してください")
         
         return cleaned_data
-        
+

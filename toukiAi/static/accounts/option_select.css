@@ -27,45 +27,104 @@ section:nth-of-type(n+2){
     margin-top: 0px!important;
 }
 
+/*
+    フォーム
+ */
 
-/* 入力欄セクション */
-#form-errors .ms-3, #form-errors li:first-child(){
-    margin-top: 0px!important;
+ /* 支払名義人は初期値を非表示にする */
+fieldset > .input-group:nth-child(3){
+    display: none; 
+}
+
+/* カード情報の上に余白 */
+fieldset > .input-group:nth-child(6){
+    margin-top: 1rem!important;
+}
+
+fieldset label, 
+fieldset .form-control{
+    border-top-left-radius: 0!important;
+    border-top-right-radius: 0!important;
+    border-bottom-left-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+}
+    
+.form-check-input[type=radio]{
+    border-radius: 50%!important;
 }
 
 label{
     min-width: 110px;
 }
 
+::placeholder{
+    text-align: center;
+}
+
+/* その他 */
 .emPosition {
     left: 145px;
     top: -55px;
 }
 
-::placeholder{
-    text-align: center;
+.stand-by-message{
+    display: none;
+    color: rgba(var(--bs-danger-rgb),var(--bs-text-opacity))!important;
+    text-align: center!important;
+    font-weight: 700!important;
 }
 
+@media (min-width:576px){
+
+    fieldset > .input-group:first-child label,
+    fieldset > .input-group:nth-child(6) label{
+        border-top-left-radius: var(--bs-border-radius)!important;
+    }
+    
+    fieldset > .input-group:first-child .form-control,
+    fieldset > .input-group:nth-child(6) input{
+        border-top-right-radius: var(--bs-border-radius)!important;
+    }
+    fieldset > .input-group:nth-child(5) label,
+    fieldset > .input-group:last-child label{
+        border-bottom-left-radius: var(--bs-border-radius)!important;
+    }
+    
+    fieldset > .input-group:nth-child(5) input,
+    fieldset > .input-group:last-child input{
+        border-bottom-right-radius: var(--bs-border-radius)!important;
+    }
+}
+
+/* 
+    レスポンシブ
+ */
 @media (max-width:575px){
-    form .input-group .label{
+
+    fieldset .label, input[type=text]{
         width: 100%!important;
         text-align-last: initial!important;
         text-align: center!important;
-        border-radius: 0!important;
-        border-top-left-radius:var(--bs-border-radius)!important;
-        border-top-right-radius:var(--bs-border-radius)!important;
     }
 
-    form .input-group input, form .input-group select{
+    fieldset .form-control{
         margin-left: 0px!important;
-        border-radius: 0!important;
-        border-bottom-left-radius:var(--bs-border-radius)!important;
-        border-bottom-right-radius:var(--bs-border-radius)!important;
-        text-align: center!important;
     }
-    
+
     .emPosition{
         left: 0px!important;
+    }
+    
+    fieldset > .input-group:first-child label,
+    fieldset > .input-group:nth-child(6) label{
+        border-top-left-radius: var(--bs-border-radius)!important;
+        border-top-right-radius: var(--bs-border-radius)!important;
+    }
+
+    fieldset > .input-group:nth-child(5) input,
+    fieldset > .input-group:last-child input{
+        border-bottom-left-radius: var(--bs-border-radius)!important;
+        border-bottom-right-radius: var(--bs-border-radius)!important;
     }
 }
 

@@ -20,10 +20,13 @@ ALLOWED_HOSTS = [
     '127.0.0.1', '0.0.0.0', '.localhost', '[::1]', "192.168.0.10"
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # ローカルでの開発のためメールをコンソールで表示する
-DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
-EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
-EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
+# ローカルでの開発のためメールをコンソールで表示する
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+
+# toukiaidev@gmail.comを使うとき
+# DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
+# EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
+# EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
 
 
 DATABASES = {

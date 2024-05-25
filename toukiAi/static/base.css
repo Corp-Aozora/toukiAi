@@ -11,9 +11,19 @@ button{
     padding: 0;
 }
 
+button:focus {
+    outline: none; /* 既存のフォーカスアウトラインを無効にする */
+    box-shadow: 0 0 0 0.4rem rgba(0, 123, 255, 0.25)!important; /* ブルーのフォーカスリング */
+}
+
 /* aタグの下線を除外 */
 a{
     text-decoration: none!important;
+}
+
+/* hタグは全て太文字にする */
+h1, h2, h3, h4, h5, h6{
+    font-weight: 700!important;
 }
 
 /* 手型のカーソルにする */

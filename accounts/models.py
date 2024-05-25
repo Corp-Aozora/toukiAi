@@ -127,8 +127,9 @@ class OptionRequest(CommonModel):
     
     is_recieved = models.BooleanField(verbose_name="着金確認", default=False)
     is_recieved_date = models.DateTimeField(verbose_name="着金確認日", null=True, blank=True)
+    is_card = models.BooleanField(verbose_name="カード決済", default=False)
     name = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyValidator()], null=False, blank=False)
-    payer = models.CharField(verbose_name="支払名義人", max_length=30, validators=[validate_katakana], null=False, blank=False)
+    payer = models.CharField(verbose_name="支払名義人", max_length=30, validators=[validate_katakana], null=True, blank=True)
     address = models.CharField(verbose_name="住所", max_length=100, default="", null=True, blank=True)
     phone_number = models.CharField(verbose_name="電話番号", validators=[validate_no_hyphen_phone_number], max_length=11, null=False, blank=False)
     
@@ -155,6 +156,7 @@ class OptionRequest(CommonModel):
     )
     
     fields =[
+        "is_card",
         "name",
         "payer",
         "address",

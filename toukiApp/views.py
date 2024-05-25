@@ -123,6 +123,7 @@ def index(request):
             "title" : tab_title,
             "update_articles": update_articles,
             "form": form,
+            "field_names": list(form.fields.keys()),
             "company_data": CompanyData,
             "company_service": Service,
             "is_inquiry": is_inquiry,
@@ -967,10 +968,10 @@ def step_two(request):
                     # if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
                         
                     # サービスアカウントの認証情報ファイルのパス
-                    SERVICE_ACCOUNT_FILE = 'toukikun-fdfdd77a7104.json'
+                    SERVICE_ACCOUNT_FILE = json.loads(settings.GOOGLE_SERVICE_ACCOUNT)
                     
                     # サービスアカウント認証情報をロード
-                    credentials = service_account.Credentials.from_service_account_file(
+                    credentials = service_account.Credentials.from_service_account_info(
                         SERVICE_ACCOUNT_FILE,
                         scopes=['https://www.googleapis.com/auth/drive'])
                     

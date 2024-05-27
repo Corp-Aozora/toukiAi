@@ -76,11 +76,11 @@ class OptionRequestForm(forms.ModelForm):
 
 class OptionRequestAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('user', "order_id", "transaction_id", "access_id", "is_recieved", "is_recieved_date", "name", "payer", "address", "phone_number", "basic", "option1", "option2", "charge")}),
+        (None, {'fields': ('user', "order_id", "transaction_id", "access_id", "is_recieved", "is_recieved_date", "name", "payer", "address", "phone_number", "basic", "option1", "option2", "charge", "created_by", "updated_by")}),
         (_('Important dates'), {'fields': ('updated_at', "created_at")}),
     )
     
-    readonly_fields = ("user", 'updated_at', "created_at")
+    readonly_fields = ('updated_at', "created_at")
     
     form = OptionRequestForm
     list_display = ('updated_at', 'user', "order_id", "name", "payer", "phone_number", "basic", "option1", "option2", "charge", "is_recieved")

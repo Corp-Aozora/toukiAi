@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.mail import send_mail
 from django.http import JsonResponse
 
 from accounts.models import OptionRequest
@@ -56,6 +57,7 @@ def exec_card_regist(amount, client_field_1, client_field_2, client_field_3):
         
 def get_payment_data(data, user_email):
     """決済情報を取得する"""
+    client_field_byte_limit = 100
     
     charge = data.get('charge')
     is_basic = data.get('basic')
@@ -71,11 +73,24 @@ def get_payment_data(data, user_email):
     
     def get_client_field_1():
         """決済情報に付加する自由登録欄1"""
-        return f"氏名={name}, 電話番号={phone_number}, メールアドレス={user_email}"
+        hankaku_phone_number = extract_numbers_and_convert_to_hankaku(phone_number)
+        return f"{name}, {hankaku_phone_number}, {user_email}"
 
     def get_client_field_2():
         """決済情報に付加する自由登録欄2"""
-        return f"住所={address}"
+        address_bytes = address.encode("utf-8")
+        
+        # 100バイトを超えるときは、100バイト分の文字を最後から取得する
+        if len(address_bytes) > client_field_byte_limit:
+            
+            last_bytes = address_bytes[-client_field_byte_limit:]
+            result = last_bytes.decode('utf-8', 'ignore')
+            while len(result.encode('utf-8')) > client_field_byte_limit:
+                result = result[1:]
+                
+            return result
+            
+        return address
     
     def get_client_field_3():
         return f"{Service.BASIC_NAME}={is_basic}, {Service.OPTION1_NAME}={is_option1}, {Service.OPTION2_NAME}={is_option2}"
@@ -112,6 +127,16 @@ def main(request):
             return JsonResponse({"message": str(e)}, status=400)
         
         except Exception as e:
+            error_message = f"user={user if 'user' in locals() else None}\n request.POST={request.POST}"
+            send_mail(
+                "カード登録処理でサーバーエラー",
+                error_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.DEFAULT_FROM_EMAIL],
+                True
+            )
+            
+            notice = f"*****重大*****\n\n{error_message}"
             return handle_error(
                 e, 
                 request, 
@@ -119,7 +144,7 @@ def main(request):
                 None,
                 True,
                 {"status": "500"},
-                f"request.POST={request.POST}"
+                notice
             )
     else:
         basic_log(function_name, None, user if "user" in locals() else None, "無効なリクエストがありました。")

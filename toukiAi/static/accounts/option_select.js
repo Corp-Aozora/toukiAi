@@ -586,7 +586,7 @@ class FormSectionInputEvent{
                 el.style.display = "none";
                 el.textContent = "";
             }else{
-                ErrorLogger.invalidArgs("FormSectionInputEvent.toggleErrMsgEl", {result: result}, {el: el}, {input: input});
+                ErrorLogger.invalidArgs("FormSectionInputEvent.toggleErrMsgEl", {result: result, el: el, input: input});
             }
         }
 
@@ -896,7 +896,7 @@ class FormSectionSubmitEvent{
                         window.location.href = data.next_path
                         return {message: ""}
                     }else{
-                        return ({message: "受付に失敗\n\n決済完了後にエラーが発生したため対応を開始しております。\n対応が完了しましたらメールでご報告しますので、恐れ入りますが少々お待ちください。"});
+                        return ({message: "受付に失敗\n\n決済完了後にエラーが発生したため対応を開始しました。\n対応が完了しましたらメールでご報告いたしますので、大変恐れ入りますがサービス開始まで少々お待ちください。"});
                     }
                 }catch(e){
                     if(attempt < retryCount - 1){

@@ -424,15 +424,16 @@ def after_card_pay(request):
                 
         return JsonResponse({"message": "", "next_path": next_path})
     except Exception as e:
+        error_message = f"e={e}\n\nuser={user if 'user' in locals() else None}\n\nbody={body if 'body' in locals() else None}\n\npaymentData={payment_data if 'paymentData' in locals() else None}"
         send_mail(
             "カード決済後にエラー",
-            f"user={user if 'user' in locals() else None}\n body={body if 'body' in locals() else None}\npaymentData={payment_data if 'paymentData' in locals() else None}",
+            error_message,
             settings.DEFAULT_FROM_EMAIL,
             [settings.DEFAULT_FROM_EMAIL],
             True
         )
             
-        notice = f"*****重大*****\nbody={body if 'body' in locals() else None}\npaymentData={payment_data if 'paymentData' in locals() else None}"
+        notice = f"*****重大*****\n\n{error_message}"
         return handle_error(
             e, 
             request, 

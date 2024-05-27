@@ -142,7 +142,7 @@ class WidgetAttributes:
     }
     full_address_2 = {
         "class": "form-control rounded-end",
-        "placeholder": "書類の届け先",
+        "placeholder": "書類の宛先にします",
         "maxlength": "100"
     }
     # 電話番号（ハイフンあり）

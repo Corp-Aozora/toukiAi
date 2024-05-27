@@ -222,7 +222,7 @@ class DeleteAccountForm(forms.Form):
 class OptionSelectForm(forms.ModelForm):
     """"オプション選択フォーム"""
     # カード決済用（データは保存しない）
-    card_number = forms.CharField(max_length=16, required=False)
+    card_number = forms.CharField(max_length=19, required=False)
     expiry_month = forms.CharField(max_length=2, required=False)
     expiry_year = forms.CharField(max_length=2, required=False)
     cvv = forms.CharField(max_length=4, required=False)
@@ -279,7 +279,17 @@ class OptionSelectForm(forms.ModelForm):
         self.fields["option1"].widget.attrs.update(WidgetAttributes.checkbox)
         self.fields["option2"].widget.attrs.update(WidgetAttributes.checkbox)
         self.fields["charge"].widget.attrs.update(WidgetAttributes.charge)
+    
+    def clean_card_number(self):
+        """カード番号検証"""
+        val = self.cleaned_data.get('card_number')
         
+        trimed_val = trim_all_space(val)
+        if len(trimed_val) > 16:
+            raise ValidationError("カード番号は16桁以内です。")
+        
+        return trimed_val
+    
     def clean(self):
         cleaned_data = super().clean()
         

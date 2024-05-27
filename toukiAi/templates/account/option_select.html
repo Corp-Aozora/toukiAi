@@ -502,10 +502,16 @@
 
 {% block js %}
     {% load static %}
+    <script> const fincodePublicKey = "{{fincode_public_key|escapejs}}"; </script>
+    <script> const paid = "{{paid|escapejs}}"; </script>
+    <script> const companyMailAddress = "{{company_mail_address|escapejs}}"; </script>
     <script src="{% static 'session.js' %}"></script>
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script src="{% static 'toukiApp/step_header.js' %}"></script>
-    <script src="https://js.test.fincode.jp/v1/fincode.js"></script>
+    {% if DJANGO_SETTINGS_MODULE == "toukiAi.settings.production" %}
+        <script src="https://js.fincode.jp/v1/fincode.js"></script>
+    {% else %}
+        <script src="https://js.test.fincode.jp/v1/fincode.js"></script>
+    {% endif %}
     <script src="{% static 'accounts/option_select.js' %}"></script>
-    <script> const paid = "{{paid|escapejs}}"; </script>
 {% endblock %}

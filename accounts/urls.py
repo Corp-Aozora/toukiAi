@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from . import card_payment_test_api
+from . import card_regist
 from django.contrib.auth import views as auth_views
 
 from common.create_reciept import *
@@ -21,7 +21,7 @@ urlpatterns = [
     path("delete_account/", views.delete_account, name="delete_account"), # 汎用の重複メールアドレスチェック
     path("option_select/", views.option_select, name="option_select"), # オプション選択
     path("bank_transfer/", views.bank_transfer, name="bank_transfer"), # 銀行振込のとき
-    path("option_select/card_payment/", card_payment_test_api.main, name="card_payment"), # カード決済のとき
+    path("option_select/card_regist", card_regist.main, name="card_regist"), # 決済情報登録
     path('webhook/fincode', views.FincodeWebhookView.as_view(), name='fincode_webhook'), # fincodeからwebhook
     
     path("password/reset/is_user_email/", views.is_user_email, name="is_user_email"), 
@@ -30,6 +30,7 @@ urlpatterns = [
     path("password/reset/done/is_valid_email_pattern/", views.is_valid_email_pattern, name="is_valid_email_pattern"),
     path("is_new_email/", views.is_new_email, name="is_new_email"), # 汎用の重複メールアドレスチェック
     path('create_reciept_view/', CreateRecieptView.as_view(), name='create_reciept_view'),
+    path('option_select/card_payment/after_card_pay', views.after_card_pay, name='after_card_pay'), # カード決済後の処理
     
     # 使用しないallauthのurlを404にする
     path('email/', views.error_404, name='account_email'),

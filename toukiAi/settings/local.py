@@ -28,6 +28,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
 # EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
 
+FINCODE_PUBLIC_KEY = env('FINCODE_TEST_PUBLIC_KEY')
+FINCODE_SECRET_KEY = env('FINCODE_TEST_SECRET_KEY')
+FINCODE_BASE_URL = 'https://api.test.fincode.jp'
 
 DATABASES = {
     'default':{

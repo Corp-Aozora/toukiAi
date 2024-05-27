@@ -64,10 +64,10 @@ def basic_log(function_name, e, user, message = None, is_traceback_info = True):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     user_id = user.id if user else ""
     logger.error(f"エラー発生箇所:{function_name}\n\
+        発生時刻：{current_time}\n\
+        user_id:{user_id}\n\
         開発者メッセージ:{message}\n\
         詳細：{e}\n\
-        user_id:{user_id}\n\
-        発生時刻：{current_time}\n\
         経路:{traceback_info}"
     )
 
@@ -121,7 +121,7 @@ def handle_badhead_error(e, request, user, function_name, redirect_to, is_async,
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_os_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """接続、送受信、ソケットエラーハンドリング"""
@@ -137,7 +137,7 @@ def handle_os_error(e, request, user, function_name, redirect_to, is_async, cont
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_smtp_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """SMTPエラーハンドリング"""
@@ -153,7 +153,7 @@ def handle_smtp_error(e, request, user, function_name, redirect_to, is_async, co
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 
 def handle_value_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
@@ -170,7 +170,7 @@ def handle_value_error(e, request, user, function_name, redirect_to, is_async, c
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_validation_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """入力内容や登録されているデータが不正なときのエラーハンドリング"""
@@ -186,7 +186,7 @@ def handle_validation_error(e, request, user, function_name, redirect_to, is_asy
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_time_out_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """タイムアウトエラーハンドリング"""
@@ -202,7 +202,7 @@ def handle_time_out_error(e, request, user, function_name, redirect_to, is_async
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_connection_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """接続エラーハンドリング"""
@@ -219,7 +219,7 @@ def handle_connection_error(e, request, user, function_name, redirect_to, is_asy
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_data_base_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """データベース関連のエラーハンドリング"""
@@ -235,7 +235,7 @@ def handle_data_base_error(e, request, user, function_name, redirect_to, is_asyn
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def handle_http_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """httpエラーハンドリング"""
@@ -271,7 +271,7 @@ def handle_http_error(e, request, user, function_name, redirect_to, is_async, co
     #     return HttpResponseServerError()
     
     # 通常のエラーメッセージ表示用に指定されたテンプレートをレンダリング
-    return JsonResponse(context) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
 
 def fullwidth_num(number):
     """半角数字を全角数字に変換する関数
@@ -627,7 +627,13 @@ def upload_to_gdrive(file_path, file_name):
     return shared_url
 
 def convert_html_to_pdf(request):
-    """htmlをpdfファイルに変換してユーザーにダウンロードさせる"""
+    """
+    
+        htmlをpdfファイルに変換してユーザーにダウンロードさせる
+        
+        adobe pdf service apiを使用
+    
+    """
     
     def get_access_token():
         """アクセストークンを取得する"""

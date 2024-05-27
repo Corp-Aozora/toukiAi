@@ -15,6 +15,10 @@ DEFAULT_FROM_EMAIL = CompanyData.MAIL_ADDRESS    #送信元のアドレスを指
 EMAIL_HOST_USER = CompanyData.MAIL_ADDRESS
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
+FINCODE_PUBLIC_KEY = env('FINCODE_PUBLIC_KEY')
+FINCODE_SECRET_KEY = env('FINCODE_SECRET_KEY')
+FINCODE_BASE_URL = 'https://api.fincode.jp'
+
 DATABASES = {
     'default':{
         'ENGINE':'django.db.backends.postgresql',

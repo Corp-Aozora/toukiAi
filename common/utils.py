@@ -2,6 +2,7 @@ from django.db.models import Func, Q, Sum
 from django.db.models.functions import Coalesce
 from django.db.models import Aggregate, BooleanField
 
+import re
 import unicodedata
 
 def zenkaku_currency_to_int(value):
@@ -30,4 +31,7 @@ def extract_numbers_and_convert_to_hankaku(s):
     hankaku_string = s.translate(zenkaku_to_hankaku_table)
     
     return ''.join(filter(str.isdigit, hankaku_string))
-    
+
+def trim_all_space(s):
+    """文字列中の全てのスペース、タブ、改行を削除する"""
+    return re.sub(r"\s+", "", s)

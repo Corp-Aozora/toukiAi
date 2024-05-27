@@ -680,6 +680,12 @@ def step_one(request):
             messages.warning(request, "アクセス不可 有料会員専用のページです")
             return redirect("toukiApp:step_one_trial")
         
+        if get_boolean_session(request.session, "new_basic_user"):
+            message = "サービス開始 ご利用いただき誠にありがとうございます。\nお客様の相続登記が完了するまでしっかりサポートさせていただきます。\nご不明なことなどありましたら、お気軽にお問い合わせください。"
+            if get_boolean_session(request.session, "new_option1_user"):
+                message += f"\n\n{Service.OPTION1_NAME}につきましては、数日以内に弊社から委任状等の書類をご登録いただいた住所に郵送いたしますので到着まで今しばらくお待ちください。"
+            messages.success(request, message)
+        
         user = User.objects.get(email = request.user)
         decedent = user.decedent.first()
         
@@ -4726,7 +4732,7 @@ def administrator(request):
         }
         return render(request, this_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             None,
@@ -4753,7 +4759,7 @@ def commerceLaw(request):
         }
         return render(request, this_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             None,
@@ -4781,7 +4787,7 @@ def privacy(request):
         
         return render(request, this_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             None,
@@ -4808,7 +4814,7 @@ def terms(request):
         }
         return render(request, this_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             None,

@@ -745,9 +745,9 @@ class FormSectionSubmitEvent{
         }
 
         // カード決済実行
-        async function postForm(data){
+        async function handleCardExec(registedData){
             
-            const api_key="p_test_ODk4NWIxZTQtMTg1NC00ZGNmLTgyNTctMmJkNDViMDM1OWU1M2NmM2E1MWUtZmYwZi00ZGU3LWIwMzAtOTY2OGY0NWNhOTAwc18yNDA0MjYzMTA4MA";
+            const api_key = fincodePublicKey;
             // Fincodeインスタンスを生成
             let fincode = Fincode(api_key);
 
@@ -759,11 +759,11 @@ class FormSectionSubmitEvent{
             // 決済実行に必要なデータを宣言
             const transaction = {
               // オーダーID
-              id: data.id,
+              id: registedData.id,
               // 決済種別
-              pay_type: data.pay_type,
+              pay_type: registedData.pay_type,
               // 取引ID
-              access_id: data.access_id,
+              access_id: registedData.access_id,
               // 支払い方法(一括)
               method: "1",
               // カード番号
@@ -782,78 +782,78 @@ class FormSectionSubmitEvent{
 
             for (let attempt = 0; attempt < retries; attempt++) {
                 try {
-                    return await processPayment(fincode, transaction);
+                    return await execPayment(fincode, transaction);
                 } catch (e) {
                     if (attempt < retries - 1) {
                         console.warn(`リトライ${attempt + 1}回目に失敗、${delay}ms後に再試行します。`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                     } else {
-                        toggleProcess(false, "通信エラー\n\nページを更新して再入力しても同じエラーが発生するときは、恐れ入りますがお問い合わせをお願いします。");
-                        basicLog("postForm", e, `data=${data}`);
-                        return { success: false };
+                        return { message: e.message };
                     }
                 }
             }
         }
         
-        async function processPayment(fincode, transaction) {
+        async function execPayment(fincode, transaction) {
             return new Promise((resolve, reject) => {
                 fincode.payments(transaction,
                     async function(status, response) {
+                        const res = await response;
                         if (status === 200) {
-                            const data = await response;
-                            resolve({ success: true, data: data });
-                        } else {
-                            const res = await response;
-                            let messages = res.errors.map(x => x.error_message).join('\n');
-                            toggleProcess(false, `カードエラー\n\n${messages}`);
-                            basicLog("postForm", null, `messages=${messages}`);
+                            resolve({ message: "", paymentData: res });
+                        }else{
+                            // エラーセッションに登録
                             cardInfoError.set();
-                            resolve({ success: false });
+
+                            let messages = res.errors.map(x => x.error_message).join('\n');
+                            resolve({ message: messages });
                         }
                     },
                     function() {
                         // 通信エラー処理
-                        basicLog("postForm", null, "通信エラー");
-                        reject(new Error("postFormで通信エラー"));
+                        reject(new Error("カード決済時に通信エラーが発生しました。\n時間を空けて再試行しても同じエラーが発生する場合は、恐れ入りますがお問い合わせをお願いします。"));
                     }
                 );
             });
         }
 
         // カード決済情報登録
-        async function handleCardPay(){
-            const amount = charge.totalPrice.value;
-            const isBasic = basic.cb.checked;
-            const isOption1 = option1.cb.checked;
-            const isOption2 = option2.cb.checked;
-
-            const url = "card_payment/"
+        async function handleCardPayment(){
+            const formData = new FormData(form.form);
+            const url = "card_regist"
             const retryCount = 3;
             const delay = 1000;
 
             for(let attempt = 0; attempt < retryCount; attempt++){
                 try{
-                    const response = await fetch(url, {
+                    const registRes = await fetch(url, {
                         method: 'POST',
-                        body: JSON.stringify({ amount: amount, isBasic: isBasic, isOption1: isOption1, isOption2: isOption2 }),
+                        body: formData,
                         headers: {
-                            'Content-Type': 'application/json',
                             'X-CSRFToken': csrftoken,
                         },
                         mode: "same-origin"
                     })
     
-                    if(response.ok){
-                        const data = (await response.json()).data;
-                        return await postForm(data);
+                    if(registRes.ok){
+                        const registedData = (await registRes.json()).data;
+                        const execRes = await handleCardExec(registedData);
+                        if(execRes.message === "")
+                            return {message: "", paymentData: execRes, formData: formData};
+                        else
+                            return {message: execRes.message}
+                            
+                    }else if(registRes.status === 401){
+                        // 会員ではないとき
+                        window.location.href("/account/login/")
                     }else{
-                        let message = (await response.json()).message;
-                        message = message.replace(/\|/g, '\n');
-                        toggleProcess(false, `入力エラー\n\n${message}`);
-                        basicLog("handleCardPay", null, `リクエストエラー\nmessage=${message}`);
-                        cardInfoError.set();
-                        return {success: false};
+                        // エラーセッションに登録
+                        cardInfoError.set(); 
+
+                        // エラーメッセージを返す
+                        let message = (await registRes.json()).message;
+                        message = message.replace(/\|/g, '\n ');
+                        return {message: message};
                     }
                 }catch(e){
                     if(attempt < retryCount - 1){
@@ -861,9 +861,50 @@ class FormSectionSubmitEvent{
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }else{
-                        toggleProcess(false, "通信エラー\n\nページを更新して再入力しても同じエラーが発生するときは、恐れ入りますがお問い合わせをお願いします。");
-                        basicLog("handleCardPay", e, `amount=${amount}`);
-                        return {success: false};
+                        return {message: "通信エラーが発生しました。\n時間を空けて再試行しても同じエラーが発生する場合は、恐れ入りますがお問い合わせをお願いします。"};
+                    }
+                }
+            }
+        }
+
+        // カード決済後のデータ登録処理
+        async function afterCardPay(paymentData, formData){
+            formData.forEach((value, key) =>{
+                paymentData[key] = value;
+            });
+
+            const url = "card_payment/after_card_pay";
+            const retryCount = 3;
+            const delay = 1000;
+
+            for(let attempt = 0; attempt < retryCount; attempt++){
+                try{;
+                    paymentData.attempt = attempt
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(paymentData),
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json'
+                        },
+                        mode: "same-origin"
+                    })
+
+                    const data = await response.json();
+                    if(data.message === ""){
+                        window.location.href = data.next_path
+                        return {message: ""}
+                    }else{
+                        return ({message: "受付に失敗\n\n決済完了後にエラーが発生したため対応を開始しております。\n対応が完了しましたらメールでご報告しますので、恐れ入りますが少々お待ちください。"});
+                    }
+                }catch(e){
+                    if(attempt < retryCount - 1){
+                        console.warn(`通信エラー、${delay}ミリ秒後に再試行します。(試行回数=${attempt + 1}/${retryCount})`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }else{
+                        return {message: `通信エラー\n決済完了後にエラーが発生しました。大変恐れ入りますが弊社までお問い合わせをお願いします。\n${companyMailAddress}`};
                     }
                 }
             }
@@ -873,9 +914,6 @@ class FormSectionSubmitEvent{
          * メイン
          */
         try{
-            event.preventDefault();
-
-
             const isCardPaymentStart = paymentCard.checked;
             
             // カード情報の連続リクエストエラーチェック
@@ -906,14 +944,18 @@ class FormSectionSubmitEvent{
 
             // カード決済のとき
             if(isCardPaymentStart){
-
-                const paymentData = await handleCardPay();
-                if(paymentData.success){
-                    cardInfoError.clear();
-                    // データ保存処理
-                }
+                event.preventDefault();
+                
+                const paymentResult = await handleCardPayment();
+                // 決済成功
+                if(paymentResult.message === ""){
+                    const result = await afterCardPay(paymentResult.paymentData, paymentResult.formData);
+                    if(result.message !== "")
+                        throw new Error(result.message);
+                }else{
+                    throw new Error(`受付に失敗\n\n${paymentResult.message}`)
+                }   
             }
-
         }catch(error){
             toggleProcess(false, error.message);
             basicLog("submit", error);

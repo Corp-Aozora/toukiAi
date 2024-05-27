@@ -21,6 +21,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
+from django.utils.timezone import make_aware
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
@@ -38,6 +39,7 @@ from .models import *
 from accounts.models import User
 from common import *
 from toukiApp.company_data import *
+from toukiApp.models import Decedent
 from toukiApp.toukiAi_commons import *
 
 class CustomSignupView(SignupView):
@@ -160,6 +162,27 @@ def save_option_select(user, form):
         basic_log(function_name, e, user)
         raise e
 
+def get_option_select_data(user):
+    """オプション選択データ"""
+    unpaid_data = OptionRequest.objects.filter(user=user, is_recieved=False).first() # 未払い
+    paid_data = OptionRequest.objects.filter(user=user, is_recieved=True) # 支払済み
+    paid_option_and_amount = {
+            'basic': False,
+            'option1': False,
+            'option2': False,
+            'charge': 0,
+        }
+
+    if paid_data:
+        paid_option_and_amount = {
+            'basic': paid_data.aggregate(any_basic_true=BoolOr('basic'))['any_basic_true'],
+            'option1': paid_data.aggregate(any_option1_true=BoolOr('option1'))['any_option1_true'],
+            'option2': paid_data.aggregate(any_option2_true=BoolOr('option2'))['any_option2_true'],
+            'charge': sum([zenkaku_currency_to_int(r.charge) for r in paid_data]),
+        }
+    
+    return unpaid_data, paid_data, paid_option_and_amount
+
 def option_select(request):
     """オプション選択"""
     function_name = get_current_function_name()
@@ -173,26 +196,10 @@ def option_select(request):
             return redirect("account_login")
         
         user = request.user
-        option_request_data = OptionRequest.objects.filter(user=user, is_recieved=False).first() # 未払の申込み
-        
-        original_paid_option_request_data = OptionRequest.objects.filter(user=user, is_recieved=True) # 支払済みの申込み
-        latest_paid_option_request_data = original_paid_option_request_data.order_by('-updated_at').first()
-        paid_option_and_amount = {
-                'basic': False,
-                'option1': False,
-                'option2': False,
-                'charge': 0,
-            }
-        if original_paid_option_request_data:
-            paid_option_and_amount = {
-                'basic': original_paid_option_request_data.aggregate(any_basic_true=BoolOr('basic'))['any_basic_true'],
-                'option1': original_paid_option_request_data.aggregate(any_option1_true=BoolOr('option1'))['any_option1_true'],
-                'option2': original_paid_option_request_data.aggregate(any_option2_true=BoolOr('option2'))['any_option2_true'],
-                'charge': sum([zenkaku_currency_to_int(r.charge) for r in original_paid_option_request_data]),
-            }
+        unpaid_data, paid_data, paid_option_and_amount = get_option_select_data(user)
         
         if request.method == "POST":
-            form = OptionSelectForm(request.POST, paid_option_and_amount=paid_option_and_amount, instance=option_request_data)
+            form = OptionSelectForm(request.POST, paid_option_and_amount=paid_option_and_amount, instance=unpaid_data)
             
             try:
                 if form.is_valid():
@@ -213,17 +220,16 @@ def option_select(request):
                 raise e
         else:
             form = None
-            session_form_data = request.session.get('form_data')
-            if session_form_data:
-                form = OptionSelectForm(instance=session_form_data)
-            elif option_request_data:
-                form = OptionSelectForm(instance=option_request_data)
-            elif latest_paid_option_request_data:
+            latest_paid_data = paid_data.order_by('-updated_at').first()
+            
+            if unpaid_data:
+                form = OptionSelectForm(instance=unpaid_data)
+            elif latest_paid_data:
                 form = OptionSelectForm(initial={
-                    "name": latest_paid_option_request_data.name,
-                    "payer": latest_paid_option_request_data.payer,
-                    "address": latest_paid_option_request_data.address,
-                    "phone_number": latest_paid_option_request_data.phone_number,
+                    "name": latest_paid_data.name,
+                    "payer": latest_paid_data.payer,
+                    "address": latest_paid_data.address,
+                    "phone_number": latest_paid_data.phone_number,
                 })
             else:
                 form = OptionSelectForm()
@@ -234,16 +240,18 @@ def option_select(request):
         context = {
             "title": "オプション選択",
             "company_data": CompanyData,
+            "company_mail_address": CompanyData.MAIL_ADDRESS,
             "service": Service,
             "form": form,
             "field_names": list(form.fields.keys()), # エラーのラベル用
             "paid_option_and_amount": paid_option_and_amount,
-            "paid": paid_option_and_amount["charge"]
+            "paid": paid_option_and_amount["charge"],
+            "fincode_public_key": settings.FINCODE_PUBLIC_KEY
         }
 
         return render(request, current_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             user if "user" in locals() else None,
@@ -291,19 +299,160 @@ def bank_transfer(request):
 
         return render(request, current_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             user if "user" in locals() else None,
             function_name,
             current_url_name
         )
+
+def after_card_pay(request):
+    """
+    
+        カード決済後の処理
         
+    """
+    
+    if request.method != "POST":
+        return JsonResponse("不正なリクエストです。", status=400)
+    
+    user = request.user
+    body = json.loads(request.body)
+    
+    try:
+        payment_data = body.get("paymentData")
+        order_id = payment_data.get("id")
+        access_id =  payment_data.get("access_id")
+        transaction_id = payment_data.get("transaction_id")
+        
+        datetime_format = "%Y/%m/%d %H:%M:%S.%f"
+        process_date_naive = datetime.strptime(payment_data.get("process_date"), datetime_format)
+        process_date = make_aware(process_date_naive)
+        
+        name = body.get("name")
+        address = body.get("address")
+        phone_number = body.get("phone_number")
+        charge = body.get("charge")
+        is_basic = True if body.get("basic") == "on" else False
+        is_option1 = True if body.get("option1") == "on" else False
+        is_option2 = True if body.get("option2") == "on" else False
+        
+        def update_option_request():
+            """オプション利用申請を更新"""
+            instance = OptionRequest.objects.filter(user=user, is_recieved=False).first()
+            if instance is None:
+                instance = OptionRequest(
+                    user = user,
+                    created_by = user,
+                )
+
+            instance.order_id = order_id
+            instance.transaction_id = transaction_id
+            instance.access_id = access_id
+            instance.is_recieved = True
+            instance.is_recieved_date = process_date
+            instance.is_card = True
+            instance.name = name
+            instance.payer = ""
+            instance.address = address
+            instance.phone_number = phone_number
+            instance.basic = is_basic
+            instance.option1 = is_option1
+            instance.option2 = is_option2
+            instance.charge = charge
+            instance.updated_by = user
+        
+            instance.save()
+        
+        def update_user():
+            """ユーザー情報を更新"""
+            user.username = name
+            user.address = address
+            user.phone_number = phone_number
+            user.pay_amount = user.pay_amount + zenkaku_currency_to_int(charge)
+            user.last_update = process_date
+            
+            if is_basic:
+                user.basic = is_basic
+                user.basic_date = process_date
+            if is_option1:
+                user.option1 = is_option1
+                user.option1_date = process_date
+            if is_option2:
+                user.option2 = is_option2
+                user.option2_date = process_date
+            
+            user.save()
+        
+        def update_decedent():
+            """被相続人を更新"""
+            instance = Decedent.objects.filter(user=user).first()
+            if instance:
+                instance.progress = 1
+                instance.save()
+        
+        with transaction.atomic():
+            # オプション利用情報を更新
+            update_option_request()
+            
+            # ユーザー情報を更新
+            update_user()
+            
+            # システム利用の申込みがあるとき
+            if is_basic:
+                # 被相続人を更新
+                update_decedent()
+                request.session["new_basic_user"] = True
+                
+                if is_option1:
+                    request.session["new_option1_user"] = True
+                    
+                next_path = "/toukiApp/step_one"
+                
+            elif is_option1 or is_option2:
+                
+                if is_option1:
+                    request.session["new_option1_user"] = True
+                    
+                if is_option2:
+                    request.session["new_option2_user"] = True
+                    
+                next_path = "/account/option_select/guidance"
+            else:
+                return JsonResponse({"message": "オプションが選択されていません"})
+                
+        return JsonResponse({"message": "", "next_path": next_path})
+    except Exception as e:
+        send_mail(
+            "カード決済後にエラー",
+            f"user={user if 'user' in locals() else None}\n body={body if 'body' in locals() else None}\npaymentData={payment_data if 'paymentData' in locals() else None}",
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.DEFAULT_FROM_EMAIL],
+            True
+        )
+            
+        notice = f"*****重大*****\nbody={body if 'body' in locals() else None}\npaymentData={payment_data if 'paymentData' in locals() else None}"
+        return handle_error(
+            e, 
+            request, 
+            user, 
+            get_current_function_name(), 
+            None, 
+            True, 
+            notices=notice
+        )
+        
+
 @method_decorator(csrf_exempt, name='dispatch')
 class FincodeWebhookView(View):
 
     def post(self, request, *args, **kwargs):
-        """fincodeからのwebhookによる通知"""
+        """
+        
+            fincodeからのwebhookによる通知
+            
+        """
         function_name = "FincodeWebhookView > post"
         
         try:
@@ -315,13 +464,16 @@ class FincodeWebhookView(View):
             
             # 必要な情報を抽出
             event = payload.get("event") # 処理内容(決済登録, 決済実行など)(fincodeのwebhook設定による)
+            order_id = payload.get('order_id') # オーダーID(fincodeでの注文管理番号)
+            transaction_id = payload.get('transaction_id') # トランザクションID(fincodeでの取引管理番号)
+            transaction_date = payload.get('transaction_date') # トランザクションID(fincodeでの取引管理番号)
+            access_id = payload.get('access_id') # トランザクションID(fincodeでの取引管理番号)
             pay_type = payload.get("pay_type") # 決済方法
             error_code = payload.get("error_code") # エラーコード
             client_field_1 = payload.get("client_field_1") # 申込内容
+            client_field_2 = payload.get("client_field_2") # 個人情報
             amount = payload.get('amount') # 決済金額
             currency = payload.get('currency') # 通貨
-            order_id = payload.get('order_id') # オーダーID(fincodeでの管理番号)
-            transaction_id = payload.get('transaction_id') # トランザクションID(fincodeでの管理番号)
 
             subject = "決済登録" if event == "payments.card.regist" else \
                 "決済実行" if event == "payments.card.exec" else \
@@ -331,7 +483,7 @@ class FincodeWebhookView(View):
             # メール送信
             send_mail(
                 subject=f"カード決済情報 種類:{subject}",
-                message=f'カード決済情報\n\nオーダーID: {order_id}\nトランザクションID: {transaction_id}\n決済方法: {pay_type}\nエラーコード: {error_code}\n申込内容: {client_field_1}\n決済金額: {amount}\n通貨: {currency}',
+                message=f'オーダーID: {order_id}\nトランザクションID: {transaction_id}\n処理日時: {transaction_date}\n取引ID: {access_id}\n決済方法: {pay_type}\nエラーコード: {error_code}\n申込者: {client_field_2}\n申込内容: {client_field_1}\n決済金額: {amount}\n通貨: {currency}',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.DEFAULT_FROM_EMAIL],
             )
@@ -585,7 +737,7 @@ def change_email(request):
         
         return render(request, current_html, context)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             user if "user" in locals() else None,
@@ -642,7 +794,7 @@ def confirm_email(request, token):
         basic_log(function_name, e, None, "メールアドレス変更処理でUser.DoesNotExistのエラー発生")
         return redirect(signup_url_name)
     except Exception as e:
-        handle_error(
+        return handle_error(
             e,
             request,
             user if "user" in locals() else None,

@@ -63,8 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyValidator()], unique=False, default="")
     address = models.CharField(verbose_name="住所", max_length=100, default="")
     email = models.EmailField(verbose_name="メールアドレス", unique=True)
-    phone_number_regex = RegexValidator(regex=r'^[0-9]+$', message = ("ハイフンなしの10桁又は11桁で入力してください"))
-    phone_number = models.CharField(verbose_name="電話番号", validators=[phone_number_regex], max_length=11, default="")
+    phone_number = models.CharField(verbose_name="電話番号", validators=[validate_no_hyphen_phone_number], max_length=11, default="")
     
     basic = models.BooleanField(verbose_name="システムの有料版", default=False) # システムの本使用
     basic_date = models.DateTimeField(verbose_name="システムの有料版の利用開始日", null=True, blank=True)
@@ -78,11 +77,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     option4_date = models.DateTimeField(verbose_name="オプション4の利用開始日", null=True, blank=True)
     option5 = models.BooleanField(verbose_name="オプション5の利用状況", default=False)
     option5_date = models.DateTimeField(verbose_name="オプション5の利用開始日", null=True, blank=True)
-    payment_choice = (
-        ("振込", "振込"),
-        ("カード", "カード"),
-    )
-    payment = models.CharField(verbose_name="支払方法", choices=payment_choice, max_length=30, null=True, blank=True)
     pay_amount = models.PositiveIntegerField(verbose_name="支払額", default=0)
     
     last_login_session_key = models.CharField(max_length=40, blank=True, null=True)
@@ -125,6 +119,9 @@ class OptionRequest(CommonModel):
         related_name="option_request",
     )
     
+    order_id = models.CharField(verbose_name="オーダーID", max_length=50, null=True, blank=True)
+    transaction_id = models.CharField(verbose_name="トランザクションID", max_length=50, null=True, blank=True)
+    access_id = models.CharField(verbose_name="取引ID", max_length=50, null=True, blank=True)
     is_recieved = models.BooleanField(verbose_name="着金確認", default=False)
     is_recieved_date = models.DateTimeField(verbose_name="着金確認日", null=True, blank=True)
     is_card = models.BooleanField(verbose_name="カード決済", default=False)

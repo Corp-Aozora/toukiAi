@@ -57,6 +57,7 @@ from .models import *
 from .prefectures_and_city import *
 from .sections import *
 from .toukiAi_commons import *
+from common.utils import *
 
 class ToukiAppUrlName:
     """toukiAppで使用するurlのname"""
@@ -70,15 +71,6 @@ class ToukiAppUrlName:
     step_six = f"{root}step_six"
     step_inquiry = f"{root}step_inquiry"
 
-
-def get_boolean_session(session, session_name):
-    """booleanのセッションを取得する"""
-    if session_name in session and session[session_name]:
-        del session[session_name]
-        return True
-    
-    return False
-
 def index(request):
     """トップページの処理"""
     
@@ -90,7 +82,7 @@ def index(request):
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
-        
+
         # お問い合わせが成功したメッセージを表示するためのセッション（messagesのsuccessはログアウトメッセージと重複するため）
         is_inquiry = get_boolean_session(request.session, "post_success")
         is_account_delete = get_boolean_session(request.session, "account_delete")

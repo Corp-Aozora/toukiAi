@@ -35,3 +35,11 @@ def extract_numbers_and_convert_to_hankaku(s):
 def trim_all_space(s):
     """文字列中の全てのスペース、タブ、改行を削除する"""
     return re.sub(r"\s+", "", s)
+
+def get_boolean_session(session, session_name):
+    """booleanのセッションを取得する"""
+    if session_name in session and session[session_name]:
+        del session[session_name]
+        return True
+    
+    return False

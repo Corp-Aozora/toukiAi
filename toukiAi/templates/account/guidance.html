@@ -1,0 +1,93 @@
+{% extends "account/base.html" %}
+
+{% block title %}
+    {{ title }} | {{ block.super}}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'accounts/bank_transfer.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/step_header.css' %}">
+{% endblock %}
+
+{% block header %}
+    {% include "toukiApp/step_header.html" %}
+{% endblock %}
+
+{% load custom_filters %}
+
+{% block content %}
+
+{% include "toukiApp/parts/step_messages.html" %}
+
+<div class="mx-auto col-md-9 col-lg-7 col-xl-6 p-3">
+    <section class="card shadow">
+        <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
+            <h5 class="text-center">
+                今後の流れについて
+            </h5>
+        </div>
+        <div class="card-body px-sm-5">
+            <h5 class="text-center text-success mt-3">
+                ご利用ありがとうございます
+            </h5>
+            {% if is_option1 %}
+                <p class="mt-3 text-indent">
+                    ご登録いただいた下記住所に数日以内に必要書類の取得を代行するための書類を発送します。
+                </p>
+                <p class="fw-bold text-center">
+                    {{ user.address }}
+                </p>
+                <p class="text-indent">
+                    届きましたら同封の案内状に従って書類に署名押印などをお願いします。
+                </p>
+                <div class="d-flex">
+                    <div>
+                        ※
+                    </div>
+                    <p>
+                        住所に誤りがある場合、お問い合わせ先からお知らせをお願いします。
+                    </p>
+                </div>
+            {% elif is_option2 %}
+                <p class="text-indent mt-3">
+                    こちらが表示された日を含めて平日3日以内に弊社からお客様に担当する司法書士の連絡先をメールいたします。
+                </p>
+                <p class="text-indent">
+                    弊社からのメールの後、平日3日以内に担当の司法書士からお客様に電話またはメールにてご連絡がありますので、ご対応をお願いします。
+                </p>
+            {% endif %}
+            <div class="d-flex">
+                <div>
+                    ※
+                </div>
+                <div>
+                    同様の内容をメールでもお送りしております。
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <div class="fw-bold bordre-bottom border-dark">
+                    お問い合わせ先
+                </div>
+                <div>
+                    {{ company_data.MAIL_ADDRESS }}
+                    <br>
+                    {{ company_data.RECEIVING_PHONE_NUMBER }}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+    <script src="{% static 'toukiApp/step_header.js' %}"></script>
+{% endblock %}

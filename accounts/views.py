@@ -36,8 +36,7 @@ import secrets
 from .account_common import *
 from .forms import *
 from .models import *
-from accounts.models import User
-from common import *
+from common.utils import *
 from toukiApp.company_data import *
 from toukiApp.models import Decedent
 from toukiApp.toukiAi_commons import *
@@ -504,7 +503,62 @@ class FincodeWebhookView(View):
         except Exception as e:
             basic_log(function_name, e, None, "fincodeからのwebhookによる通知の受取に失敗したため再試行")
             return JsonResponse({'receive': '1'}, status=200)
+        
+def guidance(request):
+    """
+    
+        カード決済後の戸籍取得代行または司法書士紹介の流れについてのページを表示する
+        
+    """
+    function_name = get_current_function_name()
+    current_url_name = "accounts:guidance"
+    current_html = 'account/guidance.html'
+    pre_url_name = "accounts:option_select"
 
+    if request.method != "GET":
+        return redirect("toukiApp:index")
+    
+    try:
+        if not request.user.is_authenticated:
+            messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
+            return redirect("account_login")
+        
+        user = request.user
+        
+        tab_title = ""
+        is_option1 = get_boolean_session(request.session, "new_option1_user")
+        is_option2 = get_boolean_session(request.session, "new_option2_user")
+        
+        if is_option1:
+            tab_title = "戸籍取得代行の流れについて"
+        elif is_option2:
+            tab_title = "提携の司法書士紹介の流れについて"
+        request.session["new_option2_user"] = True
+        # else:
+        #     messages.warning("アクセス制限 オプションを選択してください")
+        #     return redirect(pre_url_name)
+        
+        context = {
+            "title": tab_title,
+            "company_data": CompanyData,
+            "service": Service,
+            "user_email": user.email,
+            "user_address": user.address,
+            "is_option1": is_option1,
+            "is_option2": is_option2
+        }
+
+        return render(request, current_html, context)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            user if "user" in locals() else None,
+            function_name,
+            pre_url_name,
+            notice=request,
+        )
+        
 def is_valid_email_pattern(request):
     """Djangoのメール形式に合致するか判定する"""
     input_email = request.POST.get("email")

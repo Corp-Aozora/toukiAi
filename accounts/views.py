@@ -40,6 +40,7 @@ from common.utils import *
 from toukiApp.company_data import *
 from toukiApp.models import Decedent
 from toukiApp.toukiAi_commons import *
+from toukiApp.views import nav_to_last_user_page
 
 class CustomSignupView(SignupView):
     """新規登録ページ"""
@@ -420,10 +421,11 @@ def after_card_pay(request):
             pay_amount = mojimoji.zen_to_han(charge) # 半角数字のコンマ付き
             
             # option2の金額の計算(他のオプションの利用状況によって変動することがあるため)
-            option2_price_tax = amount * 0.1 if is_option2 else ""
+            option2_price_tax = int(amount / 1.1 * 0.1) if is_option2 else ""
             option2_price_exclude_tax = amount - (option2_price_tax) if is_option2 else ""
             option2_price_tax_str = f"{option2_price_tax:,}" if option2_price_tax else ""
-            option2_price_exclude_tax_str = f"{option2_price_exclude_tax}" if option2_price_exclude_tax else ""
+            option2_price_exclude_tax_str = f"{option2_price_exclude_tax:,}" if option2_price_exclude_tax else ""
+
             context = {
                 "company_data": CompanyData,
                 "company_email": company_email,
@@ -435,8 +437,8 @@ def after_card_pay(request):
                 "is_basic": is_basic,
                 "is_option1": is_option1,
                 "is_option2": is_option2,
-                "option2_price_exclude_tax": option2_price_tax_str,
-                "option2_price_tax": option2_price_exclude_tax_str
+                "option2_price_exclude_tax": option2_price_exclude_tax_str,
+                "option2_price_tax": option2_price_tax_str
             }
             html_content = render_to_string("account/receipt.html", context)
             
@@ -461,9 +463,9 @@ def after_card_pay(request):
                 if is_option1:
                     content += textwrap.dedent('''
                         書類取得代行につきましては、本メールが届いた日を含めて平日3日以内に
-                        ご登録いただいた住所に必要書類の取得を代行するための書類を発送します。
+                        下記のご住所に書類の取得を代行するための書類を発送します。
                         
-                        ご登録いただいた住所 {user_address}
+                            {user_address}
                         ※誤りがある場合は、ご登録いただいたメールアドレスと訂正後のご住所をお知らせください。
                         
                         届きましたら同封の案内状に従って書類に署名押印などをお願いします。
@@ -472,20 +474,17 @@ def after_card_pay(request):
                     
             elif is_option1:
                 content = textwrap.dedent('''\
-                    本メールが届いた日を含めて平日3日以内にご登録いただいた住所に必要書類の取得を代行するための書類を発送します。
+                    本メールが届いた日を含めて平日3日以内に下記のご住所に必要書類の取得を代行するための書類を発送します。
                     
-                    ご登録いただいた住所 {user_address}
-                    ※誤りがある場合は、ご登録いただいたメールアドレスと訂正後のご住所をお知らせください。
+                        {user_address}
+                        ※誤りがある場合は、ご登録いただいたメールアドレスと訂正後のご住所をお知らせください。
                     
                     届きましたら同封の案内状に従って書類に署名押印などをお願いします。
-                    
                     ''').rstrip()
                 content = content.format(user_address=user.address)
                 
             else:
                 content = textwrap.dedent('''\
-                    今後の流れについてのお知らせです。
-                    
                     本メールが届いた日を含めて平日3日以内に担当する司法書士の連絡先をメールいたします。
                     
                     そちらのメールが届きましたら数日以内に担当の司法書士からお客様にお電話またはメールにて

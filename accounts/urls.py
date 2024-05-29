@@ -22,7 +22,7 @@ urlpatterns = [
     path("option_select/", views.option_select, name="option_select"), # オプション選択
     path("bank_transfer/", views.bank_transfer, name="bank_transfer"), # 銀行振込のとき
     path("option_select/card_regist", card_regist.main, name="card_regist"), # 決済情報登録
-    path("option_select/guidance", views.guidance, name="guidance"), # 決済情報登録
+    path("option_select/guidance", views.guidance, name="guidance"), # オプション1のみまたはオプション2のみのカード決済後のページ
     path('webhook/fincode', views.FincodeWebhookView.as_view(), name='fincode_webhook'), # fincodeからwebhook
     
     path("password/reset/is_user_email/", views.is_user_email, name="is_user_email"), 

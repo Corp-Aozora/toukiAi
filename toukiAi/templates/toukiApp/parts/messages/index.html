@@ -72,6 +72,30 @@
                 </div>
             </div>
         </div>
+    {% elif message.tags == "info" %}
+        <div class="modal message_modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header justify-content-center bg-primary-subtle bg-gradient bg-opacity-50">
+                        <h4 class="modal-title">
+                            {{ message.message|until:" "|safe }}
+                        </h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="fw-bold">
+                            {{ message.message|after:" "|safe|linebreaksbr }}
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% elif message.tags == "warning" %}
         <div class="modal message_modal modal-warning" tabindex="-1">
             <div class="modal-dialog">

@@ -10,7 +10,8 @@ function storeCurrentLocation(){
         "/account/change_email/", 
         "/account/delete_account/", 
         "/account/logout/",
-        "/account/bank_transfer/"
+        "/account/bank_transfer/",
+        "/account/option_select/guidance"
     ];
 
     const currentUrl = window.location.pathname;

@@ -9,5 +9,6 @@ class ExternalLinks:
     }
     
     api = {
-        "adobe_get_access_token": "https://pdf-services-ue1.adobe.io/token"
+        "adobe_get_access_token": "https://pdf-services-ue1.adobe.io/token",
+        "adobe_html_to_pdf": "https://pdf-services-ue1.adobe.io/operation/htmltopdf"
     }

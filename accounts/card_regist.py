@@ -78,6 +78,9 @@ def get_payment_data(data, user_email):
 
     def get_client_field_2():
         """決済情報に付加する自由登録欄2"""
+        if not address:
+            return ""
+        
         address_bytes = address.encode("utf-8")
         
         # 100バイトを超えるときは、100バイト分の文字を最後から取得する

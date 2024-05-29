@@ -38,6 +38,7 @@ from .models import RelatedIndividual
 from .prefectures_and_city import *
 from .sections import *
 from .external_info import ExternalLinks
+from common import const
 
 logger = logging.getLogger(__name__)
 
@@ -437,19 +438,6 @@ def compare_dict_by_two_key(x, y, key_one, key_two):
     """
     return x[key_one] == y[key_one] and x[key_two] == y[key_two]
 
-# メールの署名部分
-EMAIL_SIGNATURE = textwrap.dedent('''
-    -----------------------------------------
-    {company_name}
-    {company_post_number}
-    {company_address}
-    {company_bldg}
-    電話番号 {company_receiving_phone_number}
-    ※弊社からお客様にお電話するときの電話番号 {company_calling_phone_number}
-    営業時間 {company_opening_hours}
-    ホームページ {company_url}
-''')
-
 INQUIRY_FULL_TEXT = textwrap.dedent('''
                                     
     件名
@@ -460,7 +448,7 @@ INQUIRY_FULL_TEXT = textwrap.dedent('''
 
 ''')
 
-ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + EMAIL_SIGNATURE
+ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + const.EMAIL_SIGNATURE
 
 # 問い合わせへの自動返信メールテンプレート
 AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
@@ -626,15 +614,15 @@ def upload_to_gdrive(file_path, file_name):
 
     return shared_url
 
-def convert_html_to_pdf(request):
+class ConvertHtmlToPdf:
     """
     
-        htmlをpdfファイルに変換してユーザーにダウンロードさせる
+        htmlをpdfファイルに変換する処理に関するクラス
         
         adobe pdf service apiを使用
     
     """
-    
+    @staticmethod
     def get_access_token():
         """アクセストークンを取得する"""
         
@@ -674,25 +662,28 @@ def convert_html_to_pdf(request):
         else:
             raise Exception(f"{get_current_function_name()}でエラー: {response.status_code}, {response.text}")
     
+    @staticmethod
     def get_header():
         """ヘッダー情報を取得する"""
-        access_token = get_access_token()
+        access_token = ConvertHtmlToPdf.get_access_token()
+        
         return {
             'Authorization': f'Bearer {access_token}',
             "Content_Type": "application/json",
             'x-api-key': settings.ADOBE_CLIENT_ID,
         }
-        
+    
+    @staticmethod
     def create_pdf_download_url(asset_id):
         """assetIDからpdfを生成する"""
         function_name = get_current_function_name()
         
-        API_URL = 'https://pdf-services-ue1.adobe.io/operation/htmltopdf'
-        headers = get_header()
+        url = ExternalLinks.api["adobe_html_to_pdf"]
+        headers = ConvertHtmlToPdf.get_header()
         payload = {
             "assetID": asset_id
         }
-        response = requests.post(API_URL, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload)
         
         if response.status_code == 201:
             # ステータスURIを取得
@@ -722,10 +713,11 @@ def convert_html_to_pdf(request):
             error_detail = response.json()
             raise Exception(f'{function_name}のPDF生成でエラー: status code={response.status_code}, detail={error_detail}')
         
+    @staticmethod
     def get_presigned_uri():
         """アップロード先のurl情報を生成する"""
         url = "https://pdf-services-ue1.adobe.io/assets"
-        headers = get_header()
+        headers = ConvertHtmlToPdf.get_header()
         data = {
             'mediaType': "text/html"
         }
@@ -735,7 +727,8 @@ def convert_html_to_pdf(request):
             return response.json()
         else:
             raise Exception(f'{get_current_function_name()}でエラー: status code={response.status_code}')
-
+        
+    @staticmethod
     def upload_html_content_to_presigned_uri(presigned_uri, html_content):
         headers = {
             'Content-Type': 'text/html'
@@ -745,40 +738,54 @@ def convert_html_to_pdf(request):
         if response.status_code != 200:
             raise Exception(f'htmlファイルのアップロードでエラー: status code={response.status_code}')
 
+    @staticmethod
     def create_asset(html_content):
         """一時HTMLファイルを作成してassetに登録してassetIDを返す"""
         # プリサインドURIを取得
-        presigned_response = get_presigned_uri()
+        presigned_response = ConvertHtmlToPdf.get_presigned_uri()
         uploadUri_uri = presigned_response['uploadUri']
         asset_id = presigned_response['assetID']
         
         # HTMLファイルをプリサインドURIにアップロード
-        upload_html_content_to_presigned_uri(uploadUri_uri, html_content)
+        ConvertHtmlToPdf.upload_html_content_to_presigned_uri(uploadUri_uri, html_content)
         
         return asset_id
     
-    """
-    
-        メイン処理
-    
-    """
-    if request.method == 'POST':
+    @staticmethod
+    def get_url_by_async(request):       
+        """
+        
+            非同期でダウンロードurlを取得する
+        
+        """
+        if request.method == 'POST':
 
-        try:
-            data = json.loads(request.body)
-            html_content = data.get('html_content', '')
+            try:
+                data = json.loads(request.body)
+                html_content = data.get('html_content', '')
 
-            asset_id = create_asset(html_content)
-            pdf_url  = create_pdf_download_url(asset_id)
-            return JsonResponse({"pdf_url": pdf_url})
-        except Exception as e:
-            return handle_error(
-                e,
-                request,
-                request.user,
-                get_current_function_name(),
-                None,
-                True
-            )
+                asset_id = ConvertHtmlToPdf.create_asset(html_content)
+                pdf_url  = ConvertHtmlToPdf.create_pdf_download_url(asset_id)
+                return JsonResponse({"pdf_url": pdf_url})
+            except Exception as e:
+                return handle_error(
+                    e,
+                    request,
+                    request.user,
+                    get_current_function_name(),
+                    None,
+                    True
+                )
 
-    return JsonResponse({'status': 'error', "message": "POST以外のメソッドでアクセスがありました"}, status=405)
+        return JsonResponse({'status': 'error', "message": "POST以外のメソッドでアクセスがありました"}, status=405)
+
+    @staticmethod
+    def get_url_by_in_sync(html_content):       
+        """
+        
+            同期でpdfを取得する
+        
+        """
+        asset_id = ConvertHtmlToPdf.create_asset(html_content)
+        pdf_url  = ConvertHtmlToPdf.create_pdf_download_url(asset_id)
+        return pdf_url

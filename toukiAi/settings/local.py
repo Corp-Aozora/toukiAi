@@ -21,12 +21,12 @@ ALLOWED_HOSTS = [
 ]
 
 # ローカルでの開発のためメールをコンソールで表示する
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
 
 # toukiaidev@gmail.comを使うとき
-# DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
-# EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
-# EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS
+EMAIL_HOST_USER = CompanyData.DEBUG_MAIL_ADDRESS
+EMAIL_HOST_PASSWORD = env("DEBUG_EMAIL_HOST_PASSWORD")
 
 FINCODE_PUBLIC_KEY = env('FINCODE_TEST_PUBLIC_KEY')
 FINCODE_SECRET_KEY = env('FINCODE_TEST_SECRET_KEY')

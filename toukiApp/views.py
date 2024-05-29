@@ -673,9 +673,9 @@ def step_one(request):
             return redirect("toukiApp:step_one_trial")
         
         if get_boolean_session(request.session, "new_basic_user"):
-            message = "サービス開始 ご利用いただき誠にありがとうございます。\n\nお客様の相続登記が完了するまでしっかりサポートさせていただきます!\nご不明なことがありましたら、お気軽にお問い合わせください。"
+            message = "サービス開始 ご利用いただき誠にありがとうございます。\n\nお客様の相続登記が完了するまでしっかりサポートさせていただきます!\n\nご不明なことがありましたら、お気軽にお問い合わせください。"
             if get_boolean_session(request.session, "new_option1_user"):
-                message += f"\n\n{Service.OPTION1_NAME}につきましては、数日以内に弊社から書類をご入力いただいた住所に郵送いたしますので到着まで今しばらくお待ちください。"
+                message += f"\n\n{Service.OPTION1_NAME}につきましては、平日3日以内に弊社からご入力いただいたご住所に書類を発送いたしますので到着まで今しばらくお待ちください。"
             messages.success(request, message)
         
         user = User.objects.get(email = request.user)
@@ -2916,13 +2916,10 @@ def get_principal_names_and_POA_count_and_agent_name(decedent):
     
 
 def step_division_agreement(request):
-    """遺産分割協議証明書の表示
+    """
+    
+        遺産分割協議証明書を表示するページ
 
-    Args:
-        request (_type_): _description_
-
-    Returns:
-        _type_: _description_
     """
     try:
         function_name = get_current_function_name()

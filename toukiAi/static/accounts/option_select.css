@@ -2,7 +2,6 @@
 section ul{
     padding-left: 0!important;
     margin-bottom: 0!important;
-    margin-top: 1rem!important;
 }
 
 section ul li{
@@ -100,6 +99,10 @@ label{
     レスポンシブ
  */
 @media (max-width:575px){
+
+    #basic-section ul li .d-flex > div:first-child{
+        margin-left: 1rem!important;
+    }
 
     fieldset .label, input[type=text]{
         width: 100%!important;

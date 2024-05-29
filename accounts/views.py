@@ -183,7 +183,11 @@ def get_option_select_data(user):
     return unpaid_data, paid_data, paid_option_and_amount
 
 def option_select(request):
-    """オプション選択"""
+    """
+    
+        オプション選択ページ
+    
+    """
     function_name = get_current_function_name()
     current_url_name = "accounts:option_select"
     current_html = 'account/option_select.html'
@@ -238,6 +242,7 @@ def option_select(request):
         
         context = {
             "title": "オプション選択",
+            "user_email": user.email,
             "company_data": CompanyData,
             "company_mail_address": CompanyData.MAIL_ADDRESS,
             "service": Service,
@@ -259,7 +264,11 @@ def option_select(request):
         )
         
 def bank_transfer(request):
-    """銀行振込の場合"""
+    """
+    
+        銀行振込によるオプション利用の申込みがあったときのページ
+        
+    """
     function_name = get_current_function_name()
     current_url_name = "accounts:bank_transfer"
     current_html = 'account/bank_transfer.html'
@@ -312,7 +321,6 @@ def after_card_pay(request):
         カード決済後の処理
         
     """
-    
     if request.method != "POST":
         return JsonResponse("不正なリクエストです。", status=400)
     
@@ -320,22 +328,23 @@ def after_card_pay(request):
     body = json.loads(request.body)
     
     try:
-        payment_data = body.get("paymentData")
-        order_id = payment_data.get("id")
-        access_id =  payment_data.get("access_id")
-        transaction_id = payment_data.get("transaction_id")
-        
-        datetime_format = "%Y/%m/%d %H:%M:%S.%f"
-        process_date_naive = datetime.strptime(payment_data.get("process_date"), datetime_format)
-        process_date = make_aware(process_date_naive)
-        
+        payment_data = body.get("paymentData") # fincodeからのresponse
+        order_id = payment_data.get("id") # オーダーid
+        access_id =  payment_data.get("access_id") # 取引id
+        transaction_id = payment_data.get("transaction_id") # トランザクションID
+        amount = payment_data.get("amount") # 金額<int>
         name = body.get("name")
         address = body.get("address")
         phone_number = body.get("phone_number")
         charge = body.get("charge")
-        is_basic = True if body.get("basic") == "on" else False
-        is_option1 = True if body.get("option1") == "on" else False
-        is_option2 = True if body.get("option2") == "on" else False
+        
+        datetime_format = "%Y/%m/%d %H:%M:%S.%f"
+        original_process_date = payment_data.get("process_date")
+        process_date = string_to_datetime(datetime_format, original_process_date) # 処理日時
+        
+        is_basic = checkbox_value_to_boolean(body.get("basic"))
+        is_option1 = checkbox_value_to_boolean(body.get("option1"))
+        is_option2 = checkbox_value_to_boolean(body.get("option2"))
         
         def update_option_request():
             """オプション利用申請を更新"""
@@ -363,6 +372,8 @@ def after_card_pay(request):
             instance.updated_by = user
         
             instance.save()
+            
+            return instance.id
         
         def update_user():
             """ユーザー情報を更新"""
@@ -391,37 +402,144 @@ def after_card_pay(request):
                 instance.progress = 1
                 instance.save()
         
-        with transaction.atomic():
-            # オプション利用情報を更新
-            update_option_request()
+        def validate_option_combination():
+            """オプション選択のバリデーション"""
+            if not any([is_basic, is_option1, is_option2]):
+                return "オプションが選択されていません"
             
-            # ユーザー情報を更新
-            update_user()
+            if is_option2 and (is_basic or is_option1):
+                return "オプションの選択の組み合わせが不適切です"
             
-            # システム利用の申込みがあるとき
+            return ""
+        
+        def create_receipt(option_request_id):
+            """領収書をpdfにして返す"""
+            company_email = settings.DEFAULT_FROM_EMAIL # 会社のメール
+            received_date = original_process_date.split(' ')[0] # 受領日 年/月/日
+            receipt_no = f"{received_date}/{option_request_id}" # 領収書番号 年/月/日/option_requestのid
+            pay_amount = mojimoji.zen_to_han(charge) # 半角数字のコンマ付き
+            
+            # option2の金額の計算(他のオプションの利用状況によって変動することがあるため)
+            option2_price_tax = amount * 0.1 if is_option2 else ""
+            option2_price_exclude_tax = amount - (option2_price_tax) if is_option2 else ""
+            option2_price_tax_str = f"{option2_price_tax:,}" if option2_price_tax else ""
+            option2_price_exclude_tax_str = f"{option2_price_exclude_tax}" if option2_price_exclude_tax else ""
+            context = {
+                "company_data": CompanyData,
+                "company_email": company_email,
+                "service": Service,
+                "received_date": received_date,
+                "user_name": name,
+                "receipt_no": receipt_no,
+                "pay_amount": pay_amount,
+                "is_basic": is_basic,
+                "is_option1": is_option1,
+                "is_option2": is_option2,
+                "option2_price_exclude_tax": option2_price_tax_str,
+                "option2_price_tax": option2_price_exclude_tax_str
+            }
+            html_content = render_to_string("account/receipt.html", context)
+            
+            pdf_url = ConvertHtmlToPdf.get_url_by_in_sync(html_content)
+            pdf = download_file(pdf_url)
+            if pdf["message"]:
+                raise Exception(pdf["message"])
+            
+            return pdf["data"]
+        
+        def send_confirm_mail(option_request_id):
+            """ユーザーに完了メールを送る"""
             if is_basic:
-                # 被相続人を更新
-                update_decedent()
-                request.session["new_basic_user"] = True
+                content = textwrap.dedent('''\
+                    システムをご利用いただけるように設定いたしました。
+                    
+                    以下のurlからログインしてご利用ください。
+                    {company_url}/account/login/
+                    ''')
+                content = content.format(company_url=CompanyData.URL)
                 
                 if is_option1:
-                    request.session["new_option1_user"] = True
+                    content += textwrap.dedent('''
+                        書類取得代行につきましては、本メールが届いた日を含めて平日3日以内に
+                        ご登録いただいた住所に必要書類の取得を代行するための書類を発送します。
+                        
+                        ご登録いただいた住所 {user_address}
+                        ※誤りがある場合は、ご登録いただいたメールアドレスと訂正後のご住所をお知らせください。
+                        
+                        届きましたら同封の案内状に従って書類に署名押印などをお願いします。
+                        ''').rstrip()
+                    content = content.format(user_address=user.address)
+                    
+            elif is_option1:
+                content = textwrap.dedent('''\
+                    本メールが届いた日を含めて平日3日以内にご登録いただいた住所に必要書類の取得を代行するための書類を発送します。
+                    
+                    ご登録いただいた住所 {user_address}
+                    ※誤りがある場合は、ご登録いただいたメールアドレスと訂正後のご住所をお知らせください。
+                    
+                    届きましたら同封の案内状に従って書類に署名押印などをお願いします。
+                    
+                    ''').rstrip()
+                content = content.format(user_address=user.address)
+                
+            else:
+                content = textwrap.dedent('''\
+                    今後の流れについてのお知らせです。
+                    
+                    本メールが届いた日を含めて平日3日以内に担当する司法書士の連絡先をメールいたします。
+                    
+                    そちらのメールが届きましたら数日以内に担当の司法書士からお客様にお電話またはメールにて
+                    ご連絡がありますので、ご対応をお願いします。
+                    
+                    実費は別途登記申請前に司法書士からご請求がありますので、司法書士へ直接お支払いください。
+                    ''').rstrip()
+            
+                        
+            receipt = create_receipt(option_request_id)
+            attachments = [("領収書.pdf", receipt, 'application/pdf')]
+            
+            send_email_to_user(user, "お申し込み誠にありがとうございます。", content, attachments)
+        
+        def sort_by_option_and_get_next_path():
+            """選択されたオプション別に整理して次のパスを返す"""
+            if is_option1:
+                request.session["new_option1_user"] = True
+                
+            if is_option2:
+                request.session["new_option2_user"] = True
+            
+            next_path = ""
+            if is_basic:
+                update_decedent()
+                request.session["new_basic_user"] = True
                     
                 next_path = "/toukiApp/step_one"
                 
-            elif is_option1 or is_option2:
-                
-                if is_option1:
-                    request.session["new_option1_user"] = True
-                    
-                if is_option2:
-                    request.session["new_option2_user"] = True
-                    
-                next_path = "/account/option_select/guidance"
             else:
-                return JsonResponse({"message": "オプションが選択されていません"})
-                
+                next_path = "/account/option_select/guidance"
+                            
+            return next_path
+        
+        # メイン処理
+        error_message = validate_option_combination()
+        if error_message:
+            return JsonResponse({"message": error_message})
+        
+        with transaction.atomic():
+            # オプション利用情報を更新
+            option_request_id = update_option_request()
+            
+            # ユーザー情報を更新
+            update_user()
+
+            # 次のパスを取得する
+            next_path = sort_by_option_and_get_next_path()
+            
+            # 完了メールを送る
+            send_confirm_mail(option_request_id)
+            
         return JsonResponse({"message": "", "next_path": next_path})
+    
     except Exception as e:
         error_message = f"e={e}\n\nuser={user if 'user' in locals() else None}\n\nbody={body if 'body' in locals() else None}\n\npaymentData={payment_data if 'paymentData' in locals() else None}"
         send_mail(
@@ -470,8 +588,9 @@ class FincodeWebhookView(View):
             access_id = payload.get('access_id') # トランザクションID(fincodeでの取引管理番号)
             pay_type = payload.get("pay_type") # 決済方法
             error_code = payload.get("error_code") # エラーコード
-            client_field_1 = payload.get("client_field_1") # 申込内容
-            client_field_2 = payload.get("client_field_2") # 個人情報
+            client_field_1 = payload.get("client_field_1") # 氏名、電話番号、メールアドレス
+            client_field_2 = payload.get("client_field_2") # 住所
+            client_field_3 = payload.get("client_field_3") # 申込内容
             amount = payload.get('amount') # 決済金額
             currency = payload.get('currency') # 通貨
 
@@ -483,7 +602,7 @@ class FincodeWebhookView(View):
             # メール送信
             send_mail(
                 subject=f"カード決済情報 種類:{subject}",
-                message=f'オーダーID: {order_id}\nトランザクションID: {transaction_id}\n処理日時: {transaction_date}\n取引ID: {access_id}\n決済方法: {pay_type}\nエラーコード: {error_code}\n申込者: {client_field_2}\n申込内容: {client_field_1}\n決済金額: {amount}\n通貨: {currency}',
+                message=f'オーダーID: {order_id}\nトランザクションID: {transaction_id}\n処理日時: {transaction_date}\n取引ID: {access_id}\n決済方法: {pay_type}\nエラーコード: {error_code}\n申込者情報1: {client_field_1}\n申込者情報2: {client_field_2}\n申込内容: {client_field_3}\n決済金額: {amount}\n通貨: {currency}',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.DEFAULT_FROM_EMAIL],
             )
@@ -503,7 +622,7 @@ class FincodeWebhookView(View):
         except Exception as e:
             basic_log(function_name, e, None, "fincodeからのwebhookによる通知の受取に失敗したため再試行")
             return JsonResponse({'receive': '1'}, status=200)
-        
+
 def guidance(request):
     """
     
@@ -516,6 +635,7 @@ def guidance(request):
     pre_url_name = "accounts:option_select"
 
     if request.method != "GET":
+        messages.warning(request, "アクセス不可 不正なリクエストです。")
         return redirect("toukiApp:index")
     
     try:
@@ -533,10 +653,9 @@ def guidance(request):
             tab_title = "戸籍取得代行の流れについて"
         elif is_option2:
             tab_title = "提携の司法書士紹介の流れについて"
-        request.session["new_option2_user"] = True
-        # else:
-        #     messages.warning("アクセス制限 オプションを選択してください")
-        #     return redirect(pre_url_name)
+        else:
+            messages.warning(request, "アクセス制限 オプションを選択してください")
+            return redirect(pre_url_name)
         
         context = {
             "title": tab_title,
@@ -556,7 +675,7 @@ def guidance(request):
             user if "user" in locals() else None,
             function_name,
             pre_url_name,
-            notice=request,
+            notices=request,
         )
         
 def is_valid_email_pattern(request):

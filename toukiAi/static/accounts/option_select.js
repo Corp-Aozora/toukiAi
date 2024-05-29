@@ -462,7 +462,7 @@ class FormSectionInputEvent{
             // カード番号
             function handleCardNumber(inProcessInput){
                 try{
-                    // 15または16桁
+                    // 14 - 16桁
                     let result = isDigit(inProcessInput, "creditCardNumber");
                     if(typeof result === "string")
                         return result;

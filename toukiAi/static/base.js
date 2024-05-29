@@ -307,7 +307,7 @@ function isDigit(input, type) {
     switch (type) {
         case "creditCardNumber":
             //クレジットカード（15または16桁）
-            return [15, 16].includes(countDigit) ? true : "15,16桁で入力してください";
+            return [14, 15, 16].includes(countDigit) ? true : "14 - 16桁で入力してください";
         case "cvv":
             // cvv（3または4桁）
             return [3, 4].includes(countDigit) ? true : "3,4桁で入力してください";

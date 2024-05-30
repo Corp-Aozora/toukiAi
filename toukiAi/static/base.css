@@ -98,6 +98,10 @@ h1, h2, h3, h4, h5, h6{
     text-indent: 1rem!important;
 }
 
+.mt-2rem{
+    margin-top: 2rem!important;
+}
+
 /* ブートストラップのカードに影をつける用 */
 .shadow-sm-above {
     box-shadow: 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
@@ -208,5 +212,10 @@ form .form-error-wrapper{
 @media (max-width:575px){
     .sm-text-center{
         text-align: center!important;
+    }
+
+    .sm-mx-auto{
+        margin-right: auto!important;
+        margin-left: auto!important;
     }
 }

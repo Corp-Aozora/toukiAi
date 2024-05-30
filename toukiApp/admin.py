@@ -473,28 +473,6 @@ class SiteAdmin(admin.ModelAdmin):
 
 admin.site.register(Site, SiteAdmin)
 
-#登記簿上の住所
-class RegistryNameAndAddressChangeForm(forms.ModelForm):
-    class Meta:
-        model = RegistryNameAndAddress
-        fields = '__all__'
-
-class RegistryNameAndAddressAdmin(admin.ModelAdmin):
-    fieldsets = (
-        (None, {'fields': ('decedent', "name", "prefecture", 'city', 'address', 'bldg','created_by', 'updated_by')}),
-        (_('Important dates'), {'fields': ('updated_at', 'created_at')}),
-    )
-    
-    readonly_fields = ('updated_at', 'created_at')
-    
-    form = RegistryNameAndAddressChangeForm
-    list_display = ("id", 'updated_at', 'created_by', 'decedent', 'updated_by')
-    list_filter = ('updated_at', 'created_by', 'decedent', 'updated_by')
-    search_fields = ('updated_at', 'created_by', 'decedent', 'updated_by')
-    ordering = ['-updated_at']
-
-admin.site.register(RegistryNameAndAddress, RegistryNameAndAddressAdmin)
-
 #遺産分割の方法
 class TypeOfDivisionChangeForm(forms.ModelForm):
     class Meta:

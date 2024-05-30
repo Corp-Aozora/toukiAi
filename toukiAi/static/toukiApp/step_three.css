@@ -7,6 +7,10 @@
     max-width: 425px!important;
 }
 
+#id_decedent-0-fieldset > .sm-mx-auto > div{
+    margin-top: 2rem!important;
+}
+
 #type-of-division-section div.input-group-text{
     display: block!important;
     text-align: left!important;
@@ -36,10 +40,6 @@
 
 .fraction{
     max-width: 125px;
-}
-
-.registry-name-and-address-div, .destination-office-div{
-    width: 425px!important;
 }
 
 .heirsFieldset, #id_application-fieldset{

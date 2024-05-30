@@ -64,12 +64,14 @@ def basic_log(function_name, e, user, message = None, is_traceback_info = True):
     traceback_info = traceback.format_exc() if is_traceback_info else None
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     user_id = user.id if user else ""
-    logger.error(f"エラー発生箇所:{function_name}\n\
-        発生時刻：{current_time}\n\
-        user_id:{user_id}\n\
-        開発者メッセージ:{message}\n\
-        詳細：{e}\n\
-        経路:{traceback_info}"
+    logger.error(textwrap.dedent(f"""\
+        エラー発生箇所:{function_name}
+        発生時刻：{current_time}
+        user_id:{user_id}
+        開発者メッセージ:{message}
+        詳細：{e}
+        経路:{traceback_info}
+        """).rstrip()
     )
 
 def handle_error(e, request, user, function_name, redirect_to, is_async=False, context=None, notices=None):

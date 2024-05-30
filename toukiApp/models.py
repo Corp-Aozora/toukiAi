@@ -190,50 +190,6 @@ class Decedent(CommonModel):
     class Meta:
         verbose_name = _("被相続人")
         verbose_name_plural = _("被相続人")
-        
-class RegistryNameAndAddress(CommonModel):
-    decedent = models.ForeignKey(
-        Decedent,
-        verbose_name="被相続人",
-        on_delete=models.CASCADE,
-        null = False,
-        blank = False,
-        related_name="registry_name_and_address",
-    )
-    name = models.CharField(verbose_name="氏名", max_length=30, default="")
-    prefecture = models.CharField(verbose_name="登記上の都道府県", max_length=20, choices=PREFECTURES, default=None, null=True, blank=True)
-    city = models.CharField(verbose_name="登記上の市区町村", max_length=100, default=None, null=True, blank=True)
-    address = models.CharField(verbose_name="登記上の町域・番地", max_length=100, default="", null=True, blank=True)
-    bldg = models.CharField(verbose_name="登記上の建物", max_length=100, default="", null=True, blank=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        verbose_name = "作成者",
-        on_delete = models.CASCADE,
-        null = False,
-        blank = False,
-        related_name = "registry_name_and_address_created_by",
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        verbose_name = "最終更新者",
-        on_delete = models.CASCADE,
-        null = False,
-        blank = False,
-        related_name = "registry_name_and_address_update_by",
-    )
-    
-    step_three_fields=[
-        "name",
-        "prefecture",
-        "city",
-        "address",
-        "bldg",
-        "decedent",
-    ]
-    
-    class Meta:
-        verbose_name = _("登記簿上の住所氏名")
-        verbose_name_plural = _("登記簿上の住所氏名")
 
 # 配偶者
 # 外部キー：被相続人、配偶者、卑属、尊属、傍系のいずれかのモデルとid

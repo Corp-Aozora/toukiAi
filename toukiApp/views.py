@@ -1103,162 +1103,156 @@ def step_two(request):
 
 """
 
-def check_type_of_division_conditions(data):
-    """登録されている遺産分割方法のデータが入力完了しているものか判別する
-    
-    Args:
-        data (TypeOfDivision): 遺産分割方法のデータ
-
-    Returns:
-        bool: 入力完了であればtrue、未完了はfalse
-    """
-    # data.property_allocationの値が存在するかどうか
-    condition1 = bool(data.property_allocation)
-    
-    # data.content_type1 と data.object_id1 の両方の値が存在するかどうか
-    condition2 = bool(data.content_type1) and bool(data.object_id1)
-    
-    # data.cash_allocationの値が存在するかどうか
-    condition3 = bool(data.cash_allocation)
-    
-    # data.content_type2 と data.object_id2 の両方の値が存在するかどうか
-    condition4 = bool(data.content_type2) and bool(data.object_id2)
-    
-    # data.type_of_divisionが存在するかどうか
-    condition5 = bool(data.type_of_division)
-
-    # 組み合わせた条件
-    # data.property_allocationが存在する または data.content_type1 と data.object_id1 の両方が存在する
-    combined_condition1 = condition1 or condition2
-
-    # data.cash_allocationが存在する または data.content_type2 と data.object_id2 の両方が存在する
-    combined_condition2 = condition3 or condition4
-
-    # 最終的な条件：上記の条件とdata.type_of_divisionが存在する
-    final_condition = combined_condition1 and combined_condition2 and condition5
-
-    return final_condition
-
-def check_heirs_conditions(data):
-    #ループ処理できるようにdataを配列形式に変える
-    if not isinstance(data, list):
-        data = [data]
-    flg = True
-    for d in data:
-        attr = [
-            d.name,
-            d.birth_year, d.birth_month, d.birth_date
-        ]
-        #卑属又は兄弟姉妹のとき前配偶者又は異父母データを追加する
-        if d.__class__ in [Descendant, Collateral]:
-            attr.append(d.object_id2)
-        #死亡して相続放棄してない又は空欄とき、死亡年月日を追加
-        if d.is_live is False and not d.is_refuse:
-            attr.extend([d.death_year, d.death_month, d.death_date])
-        #不動産を取得するとき、都道府県、市区町村、町域・番地を追加
-        if d.is_acquire is True:
-            attr.extend([d.prefecture, d.city, d.address])
-        #全項目をチェック
-        if not all(attr):
-            flg = False
-            break
-        
-    return flg    
 
 def step_three_input_status(data):
-    """登録されているステップ３のデータをチェックしてどこまで入力が完了しているか判別する
+    """
     
-    Args:
-        data (Model): ステップ３で使用するデータ
-
-    Returns:
-        bool: 入力完了はtrue、未完了はfalse
+        登録されているステップ3のデータをチェックしてどこまで入力が完了しているか判別する
+    
     """
-    function_name = get_current_function_name()
-    try:
-        #被相続人データのとき
-        if data.__class__ == Decedent:
-            #チェック対象の属性リスト
+    def is_decedent_done():
+        """被相続人情報"""
+        attr = [
+            data.name,
+            data.death_year, data.death_month, data.death_date, 
+            data.birth_year, data.birth_month, data.birth_date, 
+            data.prefecture, data.city, data.address, 
+            data.domicile_prefecture, data.domicile_city, data.domicile_address
+        ]
+
+        return all(attr)
+    
+    def is_heirs_done():
+        """相続人情報"""
+        if not isinstance(data, (list, QuerySet)):
+            data_list = [data]
+        else:
+            data_list = data
+            
+        is_done = True
+        
+        for d in data_list:
             attr = [
-                data.name,
-                data.death_year, data.death_month, data.death_date, 
-                data.birth_year, data.birth_month, data.birth_date, 
-                data.prefecture, data.city, data.address, 
-                data.domicile_prefecture, data.domicile_city, data.domicile_address
+                d.name,
+                d.birth_year, d.birth_month, d.birth_date
             ]
-            #チェック対象が全て値を持つときTrueを返す
-            return all(attr)
-        elif data.__class__ == RegistryNameAndAddress:
-            return all([all([d.name, d.prefecture, d.city, d.address]) for d in data])
-        elif data.__class__ in [Spouse, Ascendant, Descendant, Collateral]:
-            return check_heirs_conditions(data)
-        elif data.__class__ == TypeOfDivision:
-            return check_type_of_division_conditions(data)
-        elif data.__class__ == NumberOfProperties:
-            attr = [data.land, data.house, data.bldg]
-            return any(x > 0 for x in attr)
-        elif data.__class__ in [Land, House, Bldg]:
-            attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data.office]
-            return all(attr)
-        elif data.__class__ == Site:
-            attr = [data.bldg, data.number, data.address_and_land_number, data.type, 
-                    data.purparty_bottom, data.purparty_top, data.price,]
-            return all(attr)
-        elif data.__class__ in [PropertyAcquirer, CashAcquirer]:
-            attr = [data.content_type1, data.object_id1, data.content_object1, 
-                    data.content_type2, data.object_id2, data.content_object2,
-                    data.percentage]
-            return all(attr)
-        elif data.__class__ == Application:
-            if data.is_agent is not None:
-                attr = []
-                if data.is_agent == True:
-                    attr = [data.content_type, data.object_id,
-                            data.agent_name, data.agent_address, data.agent_phone_number,
-                            data.is_return, data.is_mail]
-                else:
-                    attr = [data.content_type, data.object_id, data.phone_number,
-                            data.is_return, data.is_mail]
-                return all(attr)        
+            #卑属又は兄弟姉妹のとき前配偶者又は異父母データを追加する
+            if d.__class__ in [Descendant, Collateral]:
+                attr.append(d.object_id2)
+            #死亡して相続放棄してない又は空欄とき、死亡年月日を追加
+            if d.is_live == False and d.is_refuse == False:
+                attr.extend([d.death_year, d.death_month, d.death_date])
+            #不動産を取得するとき、都道府県、市区町村、町域・番地を追加
+            if d.is_acquire:
+                attr.extend([d.prefecture, d.city, d.address])
                 
-        return False
+            #全項目をチェック
+            if not all(attr):
+                is_done = False
+                break
+            
+        return is_done    
+    
+    def is_type_of_division_done():
+        """遺産分割方法情報"""
+        # 遺産分割の方法が存在するかどうか
+        is_division = bool(data.type_of_division)
+        
+        # 不動産の分配方法の値が存在するかどうか
+        is_property_allocation = bool(data.property_allocation)
+        
+        # 単独の不動産取得者の値が存在するかどうか
+        is_property_acquirer = bool(data.content_type1) and bool(data.object_id1)
+        
+        # 金銭の分配方法の値が存在するかどうか
+        is_cash_allocation = bool(data.cash_allocation)
+        
+        # 単独の金銭取得者の値が存在するかどうか
+        is_cash_acquirer = bool(data.content_type2) and bool(data.object_id2)
+        
+        is_property_division = is_property_allocation or is_property_acquirer
+        is_cash_division = is_cash_allocation or is_cash_acquirer
+        is_done = is_property_division and is_cash_division and is_division
+
+        return is_done
+    
+    def is_number_of_properties_done():
+        """不動産の数"""
+        attr = [data.land, data.house, data.bldg]
+        return any(x > 0 for x in attr)
+    
+    def is_properties():
+        """不動産情報"""
+        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data.office]
+        return all(attr)
+    
+    def is_site():
+        """敷地権情報"""
+        attr = [data.bldg, data.number, data.address_and_land_number, data.type, 
+                data.purparty_bottom, data.purparty_top, data.price,]
+        return all(attr)
+    
+    def is_acquirer():
+        """取得者情報"""
+        attr = [data.content_type1, data.object_id1, data.content_object1, 
+                data.content_type2, data.object_id2, data.content_object2,
+                data.percentage]
+        return all(attr)
+    
+    def is_application():
+        """申請情報"""
+        if data.is_agent == None:
+            return False
+            
+        attr = []
+        if data.is_agent == True:
+            attr = [data.content_type, data.object_id,
+                    data.agent_name, data.agent_address, data.agent_phone_number,
+                    data.is_return, data.is_mail]
+        else:
+            attr = [data.content_type, data.object_id, data.phone_number,
+                    data.is_return, data.is_mail]
+        return all(attr)
+    
+    def get_class_name():
+        """データのクラス名を取得する"""
+        if hasattr(data, 'model'):  # クエリセットかどうかを確認
+            return data.model.__name__
+        else:  # 単一インスタンスの場合
+            return data.__class__.__name__
+    
+    """メイン処理"""
+    function_name = get_current_function_name()
+    class_name = get_class_name()
+    
+    try:
+        
+        if class_name == "Decedent":
+            return is_decedent_done()
+        elif class_name in ["Spouse", "Ascendant", "Descendant", "Collateral"]:
+            return is_heirs_done()
+        elif class_name == "TypeOfDivision":
+            return is_type_of_division_done()
+        elif class_name == "NumberOfProperties":
+            return is_number_of_properties_done()
+        elif class_name in ["Land", "House", "Bldg"]:
+            return is_properties()
+        elif class_name == "Site":
+            return is_site()
+        elif class_name in ["PropertyAcquirer", "CashAcquirer"]:
+            return is_acquirer()
+        elif class_name == "Application":
+            return is_application()
+                
+        raise Exception("想定外のデータが引数に渡されました。")
     except Exception as e:
-        basic_log(function_name, e, None)
-        raise e
-        
-def get_registry_name_and_address_initial_data(data):
-    """登記簿上の氏名住所の初期データ生成処理。
-
-    Args:
-        data (RegistryNameAndAddress): データセットまたはモデルのインスタンス。
-
-    Returns:
-        list of dict: 初期データのリスト。
-    """
-    initial_data = []
-    for d in data:
-        data_dict = {
-            "id": d.id,
-            "name": d.name,
-            "prefecture": d.prefecture,
-            "city": d.city,
-            "address": d.address,
-            "bldg": d.bldg,
-            "decedent": d.decedent,
-        }
-        
-        initial_data.append(data_dict)
-
-    return initial_data
+        raise Exception(f"{function_name}でエラー。\nclass_name={class_name}") from e
 
 def get_spouse_or_ascendant_initial_data(data):
-    """配偶者又は直系尊属の初期データ生成処理。
-
-    Args:
-        data (Spouse or Ascendant): データセットまたはモデルのインスタンス。
-
-    Returns:
-        list of dict: 初期データのリスト。
+    """
+    
+        配偶者又は直系尊属のフォームに渡す初期データを返す
+        
     """
     initial_data = []
     for d in data:
@@ -1285,6 +1279,8 @@ def get_spouse_or_ascendant_initial_data(data):
             "content_type": getattr(d, 'content_type', None),
             "object_id": getattr(d, 'object_id', None),
         }
+        
+        # select要素のvalueに設定するための値
         if hasattr(d, 'id') and hasattr(d, 'content_type'):
             data_dict["id_and_content_type"] = f"{d.id}_{ContentType.objects.get_for_model(d).id}"
         
@@ -1293,24 +1289,16 @@ def get_spouse_or_ascendant_initial_data(data):
     return initial_data
 
 def get_descendant_or_collateral_initial_data(data, content_type_model):
-    """_summary_
-    初期表示する直系卑属又は傍系データを返す
-
-    Args:
-        data (Descendant or Collateral): 直系卑属又は傍系のデータ
-
-    Returns:
-        dict: 辞書型に格納したデータ
     """
     
+        直系卑属又は傍系のフォームに渡す初期データを返す
+
+    """
     content_type = ContentType.objects.get_for_model(content_type_model)
     related_individual_content_type = ContentType.objects.get_for_model(RelatedIndividual)
 
     initial_data = []
     for d in data:
-        
-        other_parent_name = None
-        
         if d.content_type1 == related_individual_content_type and d.content_type2 == related_individual_content_type:
             raise ValidationError(f"{d.name}さんの父母のデータが適切に登録されていません。\ncontent_type={content_type}\nid={d.id}")
         
@@ -1365,13 +1353,10 @@ def get_descendant_or_collateral_initial_data(data, content_type_model):
     return initial_data     
 
 def get_property_initial_data(data):
-    """不動産の初期データ生成処理。
+    """
+    
+        不動産のフォームに渡す初期データを返す。
 
-    Args:
-        data (Land or House or Bldg or Site): データセットまたはモデルのインスタンス。
-
-    Returns:
-        list of dict: 初期データのリスト。
     """
     initial_data = []
     for d in data:
@@ -1402,13 +1387,10 @@ def get_property_initial_data(data):
     return initial_data
 
 def get_acquirer_initial_data(data):
-    """取得者の初期データ生成処理。
+    """
+    
+        取得者のフォームに渡す初期データを返す。
 
-    Args:
-        data (PropertyAcquirer or CashAcquirer): データセットまたはモデルのインスタンス。
-
-    Returns:
-        list of dict: 初期データのリスト。
     """
     initial_data = []
     for d in data:
@@ -1429,149 +1411,85 @@ def get_acquirer_initial_data(data):
 def add_required_for_data(instance, user, decedent):
     """データに必須の項目を追加する
     
-    ・更新者は常に必須、被相続人と作成者は新規登録のとき必須
-
-    Args:
-        instance (_type_): モデルに登録するインスタンス
-        user (_type_): _description_
-        decedent (_type_): _description_
+        ・updated_by(更新者)は常に必須、被相続人と作成者は新規登録のとき必須
+        
     """
     instance.updated_by = user
     if not instance.id:
         instance.decedent = decedent
         instance.created_by = user
-        
-def form_and_data_not_match_http_response():
-    return HttpResponse("入力内容と登録データに齟齬があります。\n解決方法をご案内いたしますので、お手数ですがお問い合わせをお願いします", status=400)
     
-def save_step_three_registry_name_and_address(decedent, user, form_set):
-    """登記簿上の氏名住所のデータ操作
-    
-    被相続人に紐づくデータを全削除してすべて新規登録にする
-    
-    Args:
-        user (_type_): _description_
-        form_set (_type_): _description_
-    """
-    if is_form_set(form_set):
-        function_name = get_current_function_name()
-        form_class_name = get_form_set_class_name(form_set)
-        try:
-            RegistryNameAndAddress.objects.filter(decedent=decedent).delete()
-            for form in form_set:
-                instance = form.save(commit=False)
-                add_required_for_data(instance, user, decedent)
-                instance.save()
-        except DatabaseError as e:
-            basic_log(function_name, e, user, form_class_name)
-            raise e
-        except Exception as e:
-            basic_log(function_name, e, user, form_class_name)
-            raise e
-    else:
-        basic_log(get_current_function_name(), e, user, "フォームが存在しません")
-        raise ValidationError("登記簿上の氏名住所のフォームが存在しません")
-
 def update_form_set_validation(data, form_set, user):
-    """フォームセットを更新する際のバリデーション
-    
-    ・データが１つ以上ある
-    ・データ数とフォームセットの数が一致する
-    ・データとフォームセットのidが一致する
-
-    Args:
-        data (_type_): _description_
-        form_set (_type_): _description_
-        user (_type_): _description_
-        form_class_name (_type_): _description_
-        update_target_ids (_type_): _description_
-        data_keys (_type_): _description_
-
-    Returns:
-        _type_: _description_
     """
-    if is_data(data) == False:
-        return False
     
+        フォームセットを更新する際のバリデーション
+
+    """
     function_name = get_current_function_name()
     form_class_name = get_form_set_class_name(form_set)
+    
+    def is_form_set_count_equal_to_data_count():
+        """データの数とフォームセットの数を検証する"""
+        if form_set.management_form.cleaned_data["TOTAL_FORMS"] == len(data):
+            return ""
+            
+        return f"{function_name}でエラー。\n{form_class_name}のフォームセットの数とデータの数が一致しません"
+
+    def is_all_id_match(target_ids, data_ids, form_class_name):
+        """フォームセットのidとデータのidを比較する"""
+        #idを比較してフォームセットから送られたデータが全て更新対象のものか確認する
+        target_ids_set = set(int(id_str) for id_str in target_ids if id_str.isdigit())
+        
+        # data_dict のキーからセットを作成
+        data_ids_set = set(data_ids)
+        
+        # 両方のセットが完全に一致するか確認
+        if target_ids_set == data_ids_set:
+            return ""
+        
+        missing_in_target_ids = data_ids_set - target_ids_set
+        missing_in_data_ids = target_ids_set - data_ids_set
+
+        message = f"{function_name}でエラー。\n\
+            form_class_name={form_class_name}\n\
+            missing_in_target_ids={missing_in_target_ids}\n\
+            missing_in_data_ids={missing_in_data_ids}"
+        return message
+    
+    if is_data(data) == False:
+        return False
+
     update_target_ids = [form.cleaned_data.get("id") for form in form_set if form.cleaned_data.get('id')]
     data_dict = {d.id: d for d in data}
     data_keys = data_dict.keys()
-    if not is_form_set_count_equal_to_data_count(form_set, data):
-        basic_log(function_name, None, user, f"{form_class_name}のフォームセットの数とデータの数が一致しません")
-        raise ValidationError("データとフォームの数が一致ません")
-        
-    if not is_all_id_match(update_target_ids, data_keys, user, form_class_name):
-        basic_log(function_name, None, user, f"{form_class_name}のフォームセットのidとデータのidが一致しません")
-        raise ValidationError(id_not_match_message("データ", "フォーム"))
+    
+    result = is_form_set_count_equal_to_data_count()
+    if result != "":
+        raise ValueError(result)
+    
+    result = is_all_id_match(update_target_ids, data_keys, form_class_name)
+    if result != "":
+        raise ValueError(result)
 
 def update_form_set(data, form_set, user, decedent, content_type = None, relationship = None):
-    """フォームセットの更新処理
-
-    バリデーション後に更新処理を行う
+    """
     
-    Args:
-        data (_type_): _description_
-        form_set (_type_): _description_
-        user (_type_): _description_
-        decedent (_type_): _description_
-        content_type (_type_, optional): _description_. Defaults to None.
-        relationship (_type_, optional): _description_. Defaults to None.
-
-    Returns:
-        _type_: _description_
+        フォームセットの更新処理
+        
     """
     function_name = get_current_function_name()
+    form_class_name = get_form_set_class_name(form_set)
     
-    try:
-        if update_form_set_validation(data, form_set, user) == False:
-            return
-        
-        form_class_name = get_form_set_class_name(form_set)
-        if form_class_name in ["StepThreeDescendantForm", "StepThreeCollateralForm"]:
-            
-            save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship)
-            
-        elif form_class_name in ["StepThreeSpouseForm", "StepThreeAscendantForm"]:
-            
-            save_step_three_child_spouse_or_ascendant(user, form_set, data)
-            
-        else:
-            basic_log(get_current_function_name(), None, user, form_class_name)
-            raise ValidationError("想定しない形式のフォームが使用されてます")
-        
-    except Exception as e:
-        basic_log(function_name, e, user)
-        raise e
-
-def is_all_id_match(target_ids, data_ids, user, form_class_name):
-    """フォームセットのidとデータのidを比較する
-
-    Args:
-        target_ids (_type_): _description_
-        data_ids (_type_): _description_
-        user (_type_): _description_
-        form_class_name (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    #idを比較してフォームセットから送られたデータが全て更新対象のものか確認する
-    target_ids_set = set(int(id_str) for id_str in target_ids if id_str.isdigit())
-    # data_dict のキーからセットを作成
-    data_ids_set = set(data_ids)
-    # 両方のセットが完全に一致するか確認
-    if target_ids_set != data_ids_set:
-        missing_in_target_ids = data_ids_set - target_ids_set
-        missing_in_data_ids = target_ids_set - data_ids_set
-        message = f"{form_class_name}のid比較時にエラー発生\n\
-            フォームセットに含まれていないID：{missing_in_target_ids}\n\
-            データに含まれていないID：{missing_in_data_ids}"
-        basic_log(get_current_function_name(), None, user, message)
-        raise ValidationError(id_not_match_message("データ", "フォーム"))
-
-    return True
+    if update_form_set_validation(data, form_set, user) == False:
+        return
+    
+    if form_class_name in ["StepThreeDescendantForm", "StepThreeCollateralForm"]:
+        save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship)
+    elif form_class_name in ["StepThreeSpouseForm", "StepThreeAscendantForm"]:
+        save_step_three_child_spouse_or_ascendant(user, form_set, data)
+    else:
+        basic_log(get_current_function_name(), None, user, form_class_name)
+        raise ValidationError(f"{function_name}\nform_class_name={form_class_name}")
     
 def save_step_three_child_spouse_or_ascendant(user, form_set, data):
     """ステップ３の子の配偶者又は尊属の更新処理
@@ -1626,18 +1544,10 @@ def get_update_fields_for_form_set(data):
     return [field for field in model_fields if field not in exclude_fields]
 
 def save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship):
-    """ステップ３の卑属又は傍系のデータ更新処理
+    """
+    
+        ステップ3の卑属又は傍系のデータ更新処理
 
-    Args:
-        decedent (_type_): _description_
-        user (_type_): _description_
-        form_set (_type_): _description_
-        content_type (_type_): _description_
-        relationship (_type_): _description_
-        data (_type_): _description_
-
-    Raises:
-        ValueError: _description_
     """
     
     def assign_relation(data_dict, relation_number, val1, val2):
@@ -1649,8 +1559,8 @@ def save_step_three_descendant_or_collateral(decedent, user, data, form_set, con
         data_dict[f"object_id{relation_number}"] = val2
         
     function_name = get_current_function_name()
+    form_class_name = get_form_set_class_name(form_set)
     
-    form_class_name = get_form_set_class_name(form_set)  # formのクラス名を取得
     related_indivisual_content_type, Ascendant_content_type = get_content_types_for_models(RelatedIndividual, Ascendant)
     
     data_dict = {d.id: d for d in data}
@@ -1828,30 +1738,9 @@ def get_form_set_class_name(form_set):
 def is_form_set(form_set):
     return form_set.management_form.cleaned_data["TOTAL_FORMS"] > 0
 
-def is_form_set_count_equal_to_data_count(form_set, data):
-    return form_set.management_form.cleaned_data["TOTAL_FORMS"] == len(data)
-
 def is_any_exchange_property(form_set):
     """換価対象の不動産があるか判定する"""
     return any(form.cleaned_data.get('is_exchange') for form in form_set)
-
-def id_not_match_message(str1 = None, str2 = None):
-    """idが一致しないときのメッセージを返します
-    
-    str1とstr2のidが一致しない場合、それらのidを含んだエラーメッセージを返します。
-    どちらかまたは両方の引数がNoneの場合は、一般的なエラーメッセージを返します。
-    
-    Args:
-        str1 (str, optional): 比較するオブジェクト１. Defaults to None.
-        str2 (str, optional): 比較するオブジェクト２. Defaults to None.
-
-    Returns:
-        str: エラーメッセージ
-    """
-    if(str1 and str2):
-        return (f"{str1}と{str2}のidが一致しません")
-    else:
-        return ("idが一致しません")
 
 def save_step_three_spouse_data(data, form, decedent, user):
     """ステップ３の配偶者データ保存"""
@@ -1909,9 +1798,10 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
         _type_: _description_
     """
 
+    function_name = get_current_function_name()
+    
     forms_idx = get_forms_idx_for_step_three()
     form_sets_idx = get_formsets_idx_for_step_three()
-    function_name = get_current_function_name()
     
     try:
         #被相続人
@@ -1948,14 +1838,7 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
             user,
             forms[forms_idx["application"]]
         )
-        
-        # 登記簿上の氏名住所
-        save_step_three_registry_name_and_address(
-            decedent,
-            user,
-            form_sets[form_sets_idx["registry_name_and_address"]],
-        )
-        
+                
         # 子（前配偶者がいるとき、前配偶者の新規登録又は更新をしてから更新する）
         descendant_content_type = ContentType.objects.get_for_model(Descendant)
         update_form_set(
@@ -2098,28 +1981,27 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
         basic_log(function_name, e, user)
         raise e
         
-def get_data_idx_for_document():
+def get_data_idx_for_step_three():
     idxs = {
-        "registry_name_and_address": 0,
-        "spouse": 1,
-        "child": 2,
-        "child_spouse": 3,
-        "grand_child": 4,
-        "ascendant": 5,
-        "collateral": 6,
-        "type_of_division": 7,
-        "number_of_properties": 8,
-        "land": 9,
-        "land_acquirer": 10,
-        "land_cash_acquirer": 11,
-        "house": 12,
-        "house_acquirer": 13,
-        "house_cash_acquirer": 14,
-        "bldg": 15,
-        "site": 16,
-        "bldg_acquirer": 17,
-        "bldg_cash_acquirer": 18,
-        "application": 19,
+        "spouse": 0,
+        "child": 1,
+        "child_spouse": 2,
+        "grand_child": 3,
+        "ascendant": 4,
+        "collateral": 5,
+        "type_of_division": 6,
+        "number_of_properties": 7,
+        "land": 8,
+        "land_acquirer": 9,
+        "land_cash_acquirer": 10,
+        "house": 11,
+        "house_acquirer": 12,
+        "house_cash_acquirer": 13,
+        "bldg": 14,
+        "site": 15,
+        "bldg_acquirer": 16,
+        "bldg_cash_acquirer": 17,
+        "application": 18,
     }
     return idxs
 
@@ -2131,7 +2013,6 @@ def get_all_decedent_related_data(decedent):
     """
     function_name = get_current_function_name()
     try:
-        registry_name_and_address_data = RegistryNameAndAddress.objects.filter(decedent=decedent).order_by('id')
         spouse_data = Spouse.objects.filter(object_id=decedent.id).first()
         child_data = Descendant.objects.filter(object_id1=decedent.id).order_by('id')
         child_ids = child_data.values_list('id', flat=True)  # child_dataの各要素が持つIDのリストを取得
@@ -2156,7 +2037,6 @@ def get_all_decedent_related_data(decedent):
         bldg_cash_acquirer_data = CashAcquirer.objects.filter(decedent=decedent, content_type1=bldg_content_type).order_by('id')
         application_data = Application.objects.filter(decedent=decedent).first()
         return [
-            registry_name_and_address_data,
             spouse_data, child_data, child_spouse_data, grand_child_data, ascendant_data, collateral_data,
             type_of_division_data,
             number_of_properties_data,
@@ -2173,7 +2053,6 @@ def get_all_decedent_related_data(decedent):
         raise e
 
 step_three_formset_configuration = [
-    (StepThreeRegistryNameAndAddressForm, 1, 10),
     (StepThreeDescendantForm, 0, 15),
     (StepThreeSpouseForm, 0, 15),
     (StepThreeDescendantForm, 0, 15),
@@ -2199,7 +2078,7 @@ def get_formsets_for_step_three():
     return form_sets
 
 def get_forms_for_step_three_post(request, decedent, data, data_idx):
-    """ステップ３で使用するフォームにPOSTデータを代入してリストに格納して返す"""
+    """ステップ3で使用するフォームにPOSTデータを代入してリストに格納して返す"""
 
     function_name = get_current_function_name()
     
@@ -2248,32 +2127,26 @@ def get_forms_for_step_three_post(request, decedent, data, data_idx):
 
 def get_formsets_idx_for_step_three():
     idxs = {
-        "registry_name_and_address": 0,
-        "child": 1,
-        "child_spouse": 2,
-        "grand_child": 3,
-        "ascendant": 4,
-        "collateral": 5,
-        "land": 6,
-        "land_acquirer": 7,
-        "land_cash_acquirer": 8,
-        "house": 9,
-        "house_acquirer": 10,
-        "house_cash_acquirer": 11,
-        "bldg": 12,
-        "site": 13,
-        "bldg_acquirer": 14,
-        "bldg_cash_acquirer": 15,
+        "child": 0,
+        "child_spouse": 1,
+        "grand_child": 2,
+        "ascendant": 3,
+        "collateral": 4,
+        "land": 5,
+        "land_acquirer": 6,
+        "land_cash_acquirer": 7,
+        "house": 8,
+        "house_acquirer": 9,
+        "house_cash_acquirer": 10,
+        "bldg": 11,
+        "site": 12,
+        "bldg_acquirer": 13,
+        "bldg_cash_acquirer": 14,
     }
     return idxs
 
 def get_form_sets_for_step_three_post(request, form_sets, form_sets_idxs, data, data_idxs):
     form_sets =[
-        form_sets[form_sets_idxs["registry_name_and_address"]](
-            request.POST or None,
-            initial=get_registry_name_and_address_initial_data(data[data_idxs["registry_name_and_address"]]),
-            prefix="registry_name_and_address",
-        ),
         form_sets[form_sets_idxs["child"]](
             request.POST or None,
             initial=get_descendant_or_collateral_initial_data(data[data_idxs["child"]], Descendant),
@@ -2371,7 +2244,7 @@ def step_three(request):
         
         #被相続人に紐づくデータを取得する
         data = get_all_decedent_related_data(decedent)
-        data_idx = get_data_idx_for_document()
+        data_idx = get_data_idx_for_step_three()
         
         #フォームセットを生成
         form_sets = get_formsets_for_step_three()
@@ -2413,30 +2286,7 @@ def step_three(request):
         progress = decedent.progress
         #被相続人のデータを初期値にセットしたフォーム
         decedent_form = StepThreeDecedentForm(prefix="decedent", instance=decedent)
-        
-        #登記簿上の氏名住所のデータを取得してデータがあるとき
-        registry_name_and_address_data = data[data_idx["registry_name_and_address"]]
-        if registry_name_and_address_data.exists():
-            #余分なフォームを消すためにextraを0に変更して、初期値を与える
-            form_set = formset_factory(
-                form=StepThreeRegistryNameAndAddressForm, 
-                extra=0, 
-                max_num=10
-            )
-            registry_name_and_address_forms = form_set(
-                initial = get_registry_name_and_address_initial_data(registry_name_and_address_data),
-                prefix="registry_name_and_address"
-            )
-            #被相続人情報の入力状況チェック
-            if step_three_input_status(decedent):
-                user_data_scope.append("decedent")
-            #登記簿上の氏名住所の入力状況チェック
-            if step_three_input_status(registry_name_and_address_data):
-                user_data_scope.append("registry_name_and_address")
-        #ないとき    
-        else:
-            registry_name_and_address_forms = form_sets[form_sets_idx["registry_name_and_address"]](prefix="registry_name_and_address")
-            
+                    
         #配偶者
         spouse_data = data[data_idx["spouse"]]
         if spouse_data.is_exist:
@@ -2708,7 +2558,6 @@ def step_three(request):
             "user_data_scope": json.dumps(user_data_scope),
             "decedent": decedent,
             "decedent_form": decedent_form,
-            "registry_name_and_address_forms": registry_name_and_address_forms,
             "spouse_form": spouse_form,
             "child_forms": child_forms,
             "child_spouse_forms": child_spouse_forms,
@@ -4898,21 +4747,6 @@ def get_decedent_city_data(request):
             None,
             True
         )
-
-# ユーザーに紐づく被相続人の登記上の住所の市区町村データリストを取得する
-def get_registry_name_and_address_city_data(request):
-    user = User.objects.get(email = request.user)
-    decedent = Decedent.objects.filter(user=user).first()
-    registry_name_and_address_datas = RegistryNameAndAddress.objects.filter(decedent=decedent)
-    
-    if registry_name_and_address_datas.exists():
-        citys = [data.city for data in registry_name_and_address_datas]
-    else:
-        citys = []
-    repsonse_data = {
-        'citys': citys,
-    }
-    return JsonResponse(repsonse_data)
 
 # ユーザーに紐づく相続人の住所の市区町村データリストを取得する
 def get_heirs_city_data(request):

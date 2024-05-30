@@ -26,7 +26,6 @@ urlpatterns = [
     path("step_inquiry", views.step_inquiry, name="step_inquiry"),
 
     path("get_decedent_city_data", views.get_decedent_city_data, name="get_decedent_city_data"),
-    path("get_registry_name_and_address_city_data", views.get_registry_name_and_address_city_data, name="get_registry_name_and_address_city_data"),
     path("get_heirs_city_data", views.get_heirs_city_data, name="get_heirs_city_data"),
     path("get_city", views.get_city, name="get_city"),
     path("get_office", views.get_office, name="get_office"),

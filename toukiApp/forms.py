@@ -228,13 +228,6 @@ class Labels:
             labels.update({"is_acquire": Labels.IS_ACQUIRE})
             
         return labels
-    
-    step_three_registry_name_and_address_labels = {
-        "prefecture": PREFECTURE,
-        "city": CITY,
-        "address": ADDRESS,
-        "bldg": BLDG,
-    }
 
 class WidgetGroup:
     """カスタム使用するヴィジェット群"""
@@ -273,10 +266,6 @@ class WidgetGroup:
         if model_name == "Decedent":
             return {
                 "user": forms.HiddenInput()
-            }
-        if model_name == "RegistryNameAndAddress":
-            return {
-                "decedent": forms.HiddenInput()
             }
         if model_name in ["Spouse", "Ascendant"]:
             return {
@@ -537,22 +526,6 @@ def set_step_three_decedent_form(form):
         else:
             field.widget.attrs.update(WidgetAttributes.select)
 
-def set_step_three_registry_name_and_address_form(form):
-    """登記簿上の氏名住所のフォーム"""
-    for name, field in form.base_fields.items():
-        field.required = False
-
-        if name == "name":
-            field.widget.attrs.update(WidgetAttributes.name)
-        elif name == "city":
-            field.widget.attrs.update(WidgetAttributes.city)
-        elif name == "address":
-            field.widget.attrs.update(WidgetAttributes.address)
-        elif name == "bldg":
-            field.widget.attrs.update(WidgetAttributes.bldg)
-        else:
-            field.widget.attrs.update(WidgetAttributes.select)
-
 def set_step_three_heir_form(form, is_descendant_or_collateral):
     """相続人のフォーム"""
     for name, field in form.base_fields.items():
@@ -584,20 +557,6 @@ class StepThreeDecedentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         set_step_three_decedent_form(self)
-        super().__init__(*args, **kwargs)
-        
-#登記簿上の氏名住所情報
-class StepThreeRegistryNameAndAddressForm(forms.ModelForm):
-    id = forms.CharField(widget=forms.HiddenInput())
-    
-    class Meta:
-        model = RegistryNameAndAddress
-        fields = model.step_three_fields
-        widgets = WidgetGroup.step_three(model.__name__)
-        labels = Labels.step_three_registry_name_and_address_labels
-
-    def __init__(self, *args, **kwargs):
-        set_step_three_registry_name_and_address_form(self)
         super().__init__(*args, **kwargs)
         
 #相続人情報（配偶者、子の配偶者）

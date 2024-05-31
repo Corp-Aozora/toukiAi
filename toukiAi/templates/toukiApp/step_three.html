@@ -56,7 +56,7 @@
                             {% if field.name == "name" %}
                             <div>
                                 <div class="form-text">
-                                    ※死亡の記載がある戸籍謄本に記載された氏名。
+                                    ※死亡の記載がある戸籍謄本に記載のもの。
                                 </div>
                                 <div class="input-group position-relative Q">
                                     <label for="{{field.auto_id}}" class="input-group-text label">
@@ -82,7 +82,7 @@
                                                 ※
                                             </div>
                                             <div>
-                                                死亡の記載がある戸籍謄本に記載された死亡年月日。
+                                                死亡の記載がある戸籍謄本に記載のもの。
                                             </div>
                                         </div>
                                         <div class="d-flex form-text text-nowrap">
@@ -103,7 +103,7 @@
                                                 ※
                                             </div>
                                             <div>
-                                                死亡の記載がある戸籍謄本に記載された生年月日。
+                                                死亡の記載がある戸籍謄本に記載のもの。
                                             </div>
                                         </div>
                                     {% endif %}
@@ -143,7 +143,7 @@
                                                     ※
                                                 </div>
                                                 <div>
-                                                    住民票の除票又は戸籍の附票に記載の住所。
+                                                    住民票の除票又は戸籍の附票に記載のもの。
                                                 </div>
                                             </div>
                                             <div class="d-flex text-nowrap">
@@ -209,34 +209,32 @@
                 </fieldset>
             </section>
             <section id="heirs-section" class="container px-0 px-sm-3" style="display: none;">
-                <hr class="mt-5 mb-5">
-                <div>
-                    <h5>
-                        ２．相続人情報
-                    </h5>
-                </div>
+                <hr class="my-5">
+                <h5 class="sm-text-center">
+                    ２．相続人情報
+                </h5>
                 {% if spouse_form %}
                     <fieldset id="id_decedent_spouse-fieldset" class="heirsFieldset spouseFieldset">
                         <div class="border rounded-3 p-sm-4 p-3 mt-3">
-                            <div>
-                                <div>
+                            <div class="sm-text-center">
+                                <h5>
                                     {% if spouse_form.is_live.value != "true" %}
                                         故
                                     {% endif %}
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="text-success fw-bold">
                                         {{spouse_form.name.value}}
                                     </span>
                                     さん
-                                </div>
+                                </h5>
                                 <div>
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="fw-bold px-3 border-bottom border-dark">
                                         被相続人との続柄：配偶者
                                     </span>
                                 </div>
                             </div>
                             {% for field in spouse_form %}
                                 {% if field.name == "name" %}
-                                    <div class="input-group mt-4 position-relative Q">
+                                    <div class="input-group mt-2rem position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>
@@ -245,32 +243,36 @@
                                         </span>
                                     </div>
                                 {% elif field.name == "death_year" or field.name == "birth_year" %}
-                                    <div class="mt-4 heirsDeathDateDiv"
+                                    <div class="mt-2rem heirsDeathDateDiv"
                                         {% if field.name == "death_year" %}
                                             {% if spouse_form.is_live.value == "true" or spouse_form.is_refuse.value == "true" %}
                                                 style="display:none;"
                                             {% endif %}
                                         {% endif %}>
-                                        <div class="form-label">
-                                            <span class="fw-bold fs-5">
+                                        <div>
+                                            <h5 class="sm-text-center mb-3">
                                                 {% if field.name == "death_year" %}
-                                                    死亡した年月日
+                                                    死亡年月日
                                                 {% else %}
                                                     生年月日
                                                 {% endif %}
-                                            </span>
+                                            </h5>
                                             {% if field.name == "death_year" %}
-                                                <div class="d-flex form-text mt-3">
+                                                <div class="d-flex form-text">
                                                     <div>
                                                         ※
                                                     </div>
                                                     <div>
-                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、
+                                                        <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                            お問い合わせ
+                                                        </a>
+                                                        ください。
                                                     </div>
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q">
+                                        <div class="input-group Q">
                                             <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                                 {{ field.label }}
                                             </label>
@@ -291,15 +293,30 @@
                                         </div>
                                     {% endif %}
                                 {% elif field.name == "is_acquire" %}
-                                    <div class="mt-4" {% if spouse_form.is_heir.value == "false" %} style="display:none;"{% endif %}>
+                                    <div class="mt-2rem"{% if spouse_form.is_heir.value == "false" %} style="display:none;"{% endif %}>
                                         <div>
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 {{ field.label }}
-                                            </div>
-                                            <div class="form-text">
-                                                ※一部（持分）を取得する場合も含みます。
-                                                <br>
-                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </h5>
+                                            <div class="form-text sm-d-flex justify-content-center">
+                                                <div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            一部（持分）を取得する場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
@@ -320,9 +337,9 @@
                                             </div>
                                 {% elif field.name == "prefecture" %}
                                     <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
-                                        <span class="form-label fs-5 fw-bold">
+                                        <h5 class="sm-text-center">
                                             住所
-                                        </span>
+                                        </h5>
                                         <div class="form-text">
                                             {% if spouse_form.is_japan.value == "true" %}
                                                 <div class="d-flex">
@@ -330,7 +347,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住民票又は戸籍の附票のとおりに入力。
+                                                        住民票又は戸籍の附票に記載のもの。
                                                     </div>
                                                 </div>
                                                 <div class="d-flex text-danger">
@@ -352,7 +369,7 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q" {% if spouse_form.is_japan.value == "false" %} style="display: none;"{% endif %}>
+                                        <div class="input-group Q" {% if spouse_form.is_japan.value == "false" %} style="display: none;"{% endif %}>
                                             <label for="{{field.auto_id}}" class="input-group-text label">
                                                 {{ field.label }}
                                             </label>
@@ -408,25 +425,25 @@
                 {% for form in child_forms %}
                     <fieldset id="id_child-{{forloop.counter0}}-fieldset" class="heirsFieldset childFieldset">
                         <div class="border rounded-3 p-sm-4 p-3 mt-3">
-                            <div>
-                                <div>
+                            <div class="sm-text-center">
+                                <h5>
                                     {% if form.is_live.value != "true" %}
                                         故
                                     {% endif %}
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="text-success fw-bold">
                                         {{form.name.value}}
                                     </span>
                                     さん
-                                </div>
+                                </h5>
                                 <div>
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="fw-bold px-3 border-bottom border-dark">
                                         被相続人との続柄：子
                                     </span>
                                 </div>
                             </div>
                             {% for field in form %}
                                 {% if field.name == "name" %}
-                                    <div class="input-group mt-4 position-relative Q">
+                                    <div class="input-group mt-2rem position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>
@@ -435,32 +452,36 @@
                                         </span>
                                     </div>
                                 {% elif field.name == "death_year" or field.name == "birth_year" %}
-                                    <div class="mt-4 heirsDeathDateDiv"
+                                    <div class="mt-2rem heirsDeathDateDiv"
                                         {% if field.name == "death_year" %}
                                             {% if form.is_live.value == "true" or form.is_refuse.value == "true" %}
                                                 style="display:none;"
                                             {% endif %}
                                         {% endif %}>
-                                        <div class="form-label">
-                                            <span class="fw-bold fs-5">
+                                        <div>
+                                            <h5 class="sm-text-center mb-3">
                                                 {% if field.name == "death_year" %}
-                                                    死亡した年月日
+                                                    死亡年月日
                                                 {% else %}
                                                     生年月日
                                                 {% endif %}
-                                            </span>
+                                            </h5>
                                             {% if field.name == "death_year" %}
-                                                <div class="d-flex form-text mt-3">
+                                                <div class="d-flex form-text">
                                                     <div>
                                                         ※
                                                     </div>
                                                     <div>
-                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、
+                                                        <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                            お問い合わせ
+                                                        </a>
+                                                        ください。
                                                     </div>
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q">
+                                        <div class="input-group Q">
                                             <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                                 {{ field.label }}
                                             </label>
@@ -481,15 +502,30 @@
                                         </div>
                                     {% endif %}
                                 {% elif field.name == "is_acquire" %}
-                                    <div class="mt-4"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
+                                    <div class="mt-2rem"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
                                         <div>
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 {{ field.label }}
-                                            </div>
-                                            <div class="form-text">
-                                                ※一部（持分）を取得する場合も含みます。
-                                                <br>
-                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </h5>
+                                            <div class="form-text sm-d-flex justify-content-center">
+                                                <div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            一部（持分）を取得する場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
@@ -510,9 +546,9 @@
                                             </div>
                                 {% elif field.name == "prefecture" %}
                                     <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
-                                        <span class="form-label fs-5 fw-bold">
+                                        <h5 class="sm-text-center">
                                             住所
-                                        </span>
+                                        </h5>
                                         <div class="form-text">
                                             {% if form.is_japan.value == "true" %}
                                                 <div class="d-flex">
@@ -520,7 +556,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住民票又は戸籍の附票のとおりに入力。
+                                                        住民票又は戸籍の附票に記載のもの。
                                                     </div>
                                                 </div>
                                                 <div class="d-flex text-danger">
@@ -542,7 +578,7 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
+                                        <div class="input-group Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
                                             <label for="{{field.auto_id}}" class="input-group-text label">
                                                 {{ field.label }}
                                             </label>
@@ -589,14 +625,12 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value == 9 %} style="display: none;"{% endif %}>
-                                        <div class="form-label">
-                                            <span class="fs-5 fw-bold">
-                                                被相続人とは他方の親の氏名
-                                            </span>
-                                        </div>
+                                    <div class="mt-2rem otherParentDiv" {% if form.content_type2.value == 9 %} style="display: none;"{% endif %}>
+                                        <h5 class="sm-text-center mb-3">
+                                            被相続人とは他方の親の氏名
+                                        </h5>
                                         <div>
-                                            <div class="mt-3 form-text">
+                                            <div class="form-text">
                                                 <div class="d-flex">
                                                     <div>
                                                         ※
@@ -625,7 +659,7 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "is_adult" or field.name == "is_japan" or field.name == "is_refuse" or field.name == "object_id1" or field.name == "id_and_content_type" or field.name == "decedent" or field.name == "content_type1" or field.name == "content_type2" or field.name == "object_id2" or field.name == "id" %}
-                                    {{field}}
+                                    {{ field }}
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -634,26 +668,26 @@
                 {{ child_spouse_forms.management_form }}
                 {% for form in child_spouse_forms %}
                     <fieldset id="id_child_spouse-{{forloop.counter0}}-fieldset" class="heirsFieldset childSpouseFieldset">
-                        <div class="border rounded-3 p-sm-4 mt-3">
-                            <div>
-                                <div>
+                        <div class="border rounded-3 p-sm-4 p-3 mt-3">
+                            <div class="sm-text-center">
+                                <h5>
                                     {% if form.is_live.value != "true" %}
                                         故
                                     {% endif %}
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="text-success fw-bold">
                                         {{form.name.value}}
                                     </span>
                                     さん
-                                </div>
+                                </h5>
                                 <div>
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="fw-bold px-3 border-bottom border-dark">
                                         被相続人との続柄：子の配偶者
                                     </span>
                                 </div>
                             </div>
                             {% for field in form %}
                                 {% if field.name == "name" %}
-                                    <div class="input-group mt-4 position-relative Q">
+                                    <div class="input-group mt-2rem position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>
@@ -662,32 +696,36 @@
                                         </span>
                                     </div>
                                 {% elif field.name == "death_year" or field.name == "birth_year" %}
-                                    <div class="mt-4 heirsDeathDateDiv"
+                                    <div class="mt-2rem heirsDeathDateDiv"
                                         {% if field.name == "death_year" %}
                                             {% if form.is_live.value == "true" or form.is_refuse.value == "true" %}
                                                 style="display:none;"
                                             {% endif %}
                                         {% endif %}>
-                                        <div class="form-label">
-                                            <span class="fw-bold fs-5">
+                                        <div>
+                                            <h5 class="sm-text-center mb-3">
                                                 {% if field.name == "death_year" %}
-                                                    死亡した年月日
+                                                    死亡年月日
                                                 {% else %}
                                                     生年月日
                                                 {% endif %}
-                                            </span>
+                                            </h5>
                                             {% if field.name == "death_year" %}
-                                                <div class="d-flex form-text mt-3">
+                                                <div class="d-flex form-text">
                                                     <div>
                                                         ※
                                                     </div>
                                                     <div>
-                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、
+                                                        <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                            お問い合わせ
+                                                        </a>
+                                                        ください。
                                                     </div>
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q">
+                                        <div class="input-group Q">
                                             <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                                 {{ field.label }}
                                             </label>
@@ -715,15 +753,30 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "is_acquire" %}
-                                    <div class="mt-4"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
+                                    <div class="mt-2rem4"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
                                         <div>
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 {{ field.label }}
-                                            </div>
-                                            <div class="form-text">
-                                                ※一部（持分）を取得する場合も含みます。
-                                                <br>
-                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </h5>
+                                            <div class="form-text sm-d-flex justify-content-center">
+                                                <div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            一部（持分）を取得する場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
@@ -744,9 +797,9 @@
                                             </div>
                                 {% elif field.name == "prefecture" %}
                                     <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
-                                        <span class="form-label fs-5 fw-bold">
+                                        <h5 class="sm-text-center">
                                             住所
-                                        </span>
+                                        </h5>
                                         <div class="form-text">
                                             {% if form.is_japan.value == "true" %}
                                                 <div class="d-flex">
@@ -754,7 +807,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住民票又は戸籍の附票のとおりに入力。
+                                                        住民票又は戸籍の附票に記載のもの。
                                                     </div>
                                                 </div>
                                                 <div class="d-flex text-danger">
@@ -776,7 +829,7 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
+                                        <div class="input-group Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
                                             <label for="{{field.auto_id}}" class="input-group-text label">
                                                 {{ field.label }}
                                             </label>
@@ -790,10 +843,7 @@
                                                 {{ field.label }}
                                             </label>
                                             {{ field }}
-                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                                市区町村データの取得に失敗しました。<br>
-                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
-                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
                                             </span>
                                         </div>
                                 {% elif field.name == "address" %}
@@ -835,26 +885,26 @@
                 {{ grand_child_forms.management_form }}
                 {% for form in grand_child_forms %}
                     <fieldset id="id_grand_child-{{forloop.counter0}}-fieldset" class="heirsFieldset grandChildFieldset">
-                        <div class="border rounded-3 p-sm-4 mt-3">
-                            <div>
-                                <div>
+                        <div class="border rounded-3 p-sm-4 p-3 mt-3">
+                            <div class="sm-text-center">
+                                <h5>
                                     {% if form.is_live.value != "true" %}
                                         故
                                     {% endif %}
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="text-success fw-bold">
                                         {{form.name.value}}
                                     </span>
                                     さん
-                                </div>
+                                </h5>
                                 <div>
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="fw-bold px-3 border-bottom border-dark">
                                         被相続人との続柄：孫
                                     </span>
                                 </div>
                             </div>
                             {% for field in form %}
                                 {% if field.name == "name" %}
-                                    <div class="input-group mt-4 position-relative Q">
+                                    <div class="input-group mt-2rem position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>
@@ -863,49 +913,35 @@
                                         </span>
                                     </div>
                                 {% elif field.name == "death_year" or field.name == "birth_year" %}
-                                    <div class="mt-4 heirsDeathDateDiv"
+                                    <div class="mt-2rem heirsDeathDateDiv"
                                         {% if field.name == "death_year" %}
                                             {% if form.is_live.value == "true" or form.is_refuse.value == "true" %}
                                                 style="display:none;"
                                             {% endif %}
                                         {% endif %}>
-                                        <div class="form-label">
-                                            <span class="fw-bold fs-5">
+                                        <div>
+                                            <h5 class="sm-text-center mb-3">
                                                 {% if field.name == "death_year" %}
-                                                    死亡した年月日
+                                                    死亡年月日
                                                 {% else %}
                                                     生年月日
                                                 {% endif %}
-                                            </span>
+                                            </h5>
                                             {% if field.name == "death_year" %}
-                                                <div class="d-flex form-text mt-3">
+                                                <div class="d-flex form-text">
                                                     <div>
                                                         ※
                                                     </div>
                                                     <div>
-                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、
+                                                        <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                            お問い合わせ
+                                                        </a>
+                                                        ください。
                                                     </div>
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q">
-                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                                {{ field.label }}
-                                            </label>
-                                            {{field}}
-                                            <span class="errorMessage emPosition" style="display: none;">
-                                            </span>
-                                        </div>
-                                {% elif field.name == "death_month" or field.name == "birth_month" %}
-                                    <div class="input-group Q">
-                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                            {{ field.label }}
-                                        </label>
-                                        {{field}}
-                                        <span class="errorMessage emPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                {% elif field.name == "death_date" or field.name == "birth_date" %}
                                         <div class="input-group Q">
                                             <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                                 {{ field.label }}
@@ -914,17 +950,43 @@
                                             <span class="errorMessage emPosition" style="display: none;">
                                             </span>
                                         </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" or field.name == "death_date" or field.name == "birth_date" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
                                     </div>
+                                    {% if field.name == "death_date" or field.name == "birth_date" %}
+                                        </div>
+                                    {% endif %}
                                 {% elif field.name == "is_acquire" %}
-                                    <div class="mt-4"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
+                                    <div class="mt-2rem"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
                                         <div>
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 {{ field.label }}
-                                            </div>
-                                            <div class="form-text">
-                                                ※一部（持分）を取得する場合も含みます。
-                                                <br>
-                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </h5>
+                                            <div class="form-text sm-d-flex justify-content-center">
+                                                <div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            一部（持分）を取得する場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
@@ -945,9 +1007,9 @@
                                             </div>
                                 {% elif field.name == "prefecture" %}
                                     <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
-                                        <span class="form-label fs-5 fw-bold">
+                                        <h5 class="sm-text-center">
                                             住所
-                                        </span>
+                                        </h5>
                                         <div class="form-text">
                                             {% if form.is_japan.value == "true" %}
                                                 <div class="d-flex">
@@ -955,7 +1017,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住民票又は戸籍の附票のとおりに入力。
+                                                        住民票又は戸籍の附票に記載のもの。
                                                     </div>
                                                 </div>
                                                 <div class="d-flex text-danger">
@@ -977,7 +1039,7 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
+                                        <div class="input-group Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
                                             <label for="{{field.auto_id}}" class="input-group-text label">
                                                 {{ field.label }}
                                             </label>
@@ -991,10 +1053,7 @@
                                                 {{ field.label }}
                                             </label>
                                             {{ field }}
-                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                                市区町村データの取得に失敗しました。<br>
-                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
-                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
                                             </span>
                                         </div>
                                 {% elif field.name == "address" %}
@@ -1027,14 +1086,12 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.content_type2.value == 9 %} style="display: none;"{% endif %}>
-                                        <div class="form-label">
-                                            <span class="fs-5 fw-bold">
-                                                子とは他方の親の氏名
-                                            </span>
-                                        </div>
+                                    <div class="mt-2rem otherParentDiv" {% if form.content_type2.value == 9 %} style="display: none;"{% endif %}>
+                                        <h5 class="sm-text-center mb-3">
+                                            子とは他方の親の氏名
+                                        </h5>
                                         <div>
-                                            <div class="mt-3 form-text">
+                                            <div class="form-text">
                                                 <div class="d-flex">
                                                     <div>
                                                         ※
@@ -1072,19 +1129,19 @@
                 {{ ascendant_forms.management_form }}
                 {% for form in ascendant_forms %}
                     <fieldset id="id_ascendant-{{forloop.counter0}}-fieldset" class="heirsFieldset ascendantFieldset">
-                        <div class="border rounded-3 p-sm-4 mt-3">
-                            <div>
-                                <div>
+                        <div class="border rounded-3 p-sm-4 p-3 mt-3">
+                            <div class="sm-text-center">
+                                <h5>
                                     {% if form.is_live.value != "true" %}
                                         故
                                     {% endif %}
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="text-success fw-bold">
                                         {{form.name.value}}
                                     </span>
                                     さん
-                                </div>
+                                </h5>
                                 <div>
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="fw-bold px-3 border-bottom border-dark">
                                         {% if forloop.counter0 == 0 %}
                                             被相続人との続柄：父
                                         {% elif forloop.counter0 == 1 %}
@@ -1107,7 +1164,7 @@
                             </div>
                             {% for field in form %}
                                 {% if field.name == "name" %}
-                                    <div class="input-group mt-4 position-relative Q">
+                                    <div class="input-group mt-2rem position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>
@@ -1116,49 +1173,35 @@
                                         </span>
                                     </div>
                                 {% elif field.name == "death_year" or field.name == "birth_year" %}
-                                    <div class="mt-4 heirsDeathDateDiv"
+                                    <div class="mt-2rem heirsDeathDateDiv"
                                         {% if field.name == "death_year" %}
                                             {% if form.is_live.value == "true" or form.is_refuse.value == "true" %}
                                                 style="display:none;"
                                             {% endif %}
                                         {% endif %}>
-                                        <div class="form-label">
-                                            <span class="fw-bold fs-5">
+                                        <div>
+                                            <h5 class="sm-text-center mb-3">
                                                 {% if field.name == "death_year" %}
-                                                    死亡した年月日
+                                                    死亡年月日
                                                 {% else %}
                                                     生年月日
                                                 {% endif %}
-                                            </span>
+                                            </h5>
                                             {% if field.name == "death_year" %}
-                                                <div class="d-flex form-text mt-3">
+                                                <div class="d-flex form-text">
                                                     <div>
                                                         ※
                                                     </div>
                                                     <div>
-                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、
+                                                        <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                            お問い合わせ
+                                                        </a>
+                                                        ください。
                                                     </div>
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q">
-                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                                {{ field.label }}
-                                            </label>
-                                            {{field}}
-                                            <span class="errorMessage emPosition" style="display: none;">
-                                            </span>
-                                        </div>
-                                {% elif field.name == "death_month" or field.name == "birth_month" %}
-                                    <div class="input-group Q">
-                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                            {{ field.label }}
-                                        </label>
-                                        {{field}}
-                                        <span class="errorMessage emPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                {% elif field.name == "death_date" or field.name == "birth_date" %}
                                         <div class="input-group Q">
                                             <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                                 {{ field.label }}
@@ -1167,17 +1210,43 @@
                                             <span class="errorMessage emPosition" style="display: none;">
                                             </span>
                                         </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" or field.name == "death_date" or field.name == "birth_date" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
                                     </div>
+                                    {% if field.name == "death_date" or field.name == "birth_date" %}
+                                        </div>
+                                    {% endif %}
                                 {% elif field.name == "is_acquire" %}
-                                    <div class="mt-4"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
+                                    <div class="mt-2rem"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
                                         <div>
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 {{ field.label }}
-                                            </div>
-                                            <div class="form-text">
-                                                ※一部（持分）を取得する場合も含みます。
-                                                <br>
-                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </h5>
+                                            <div class="form-text sm-d-flex justify-content-center">
+                                                <div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            一部（持分）を取得する場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
@@ -1198,9 +1267,9 @@
                                             </div>
                                 {% elif field.name == "prefecture" %}
                                     <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
-                                        <span class="form-label fs-5 fw-bold">
+                                        <h5 class="sm-text-center">
                                             住所
-                                        </span>
+                                        </h5>
                                         <div class="form-text">
                                             {% if form.is_japan.value == "true" %}
                                                 <div class="d-flex">
@@ -1208,7 +1277,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住民票又は戸籍の附票のとおりに入力。
+                                                        住民票又は戸籍の附票に記載のもの。
                                                     </div>
                                                 </div>
                                                 <div class="d-flex text-danger">
@@ -1230,7 +1299,7 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
+                                        <div class="input-group Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
                                             <label for="{{field.auto_id}}" class="input-group-text label">
                                                 {{ field.label }}
                                             </label>
@@ -1244,10 +1313,7 @@
                                                 {{ field.label }}
                                             </label>
                                             {{ field }}
-                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                                市区町村データの取得に失敗しました。<br>
-                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
-                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
                                             </span>
                                         </div>
                                 {% elif field.name == "address" %}
@@ -1289,26 +1355,26 @@
                 {{ collateral_forms.management_form }}
                 {% for form in collateral_forms %}
                     <fieldset id="id_collateral-{{forloop.counter0}}-fieldset" class="heirsFieldset collateralFieldset">
-                        <div class="border rounded-3 p-sm-4 mt-3">
-                            <div>
-                                <div>
+                        <div class="border rounded-3 p-sm-4 p-3 mt-3">
+                            <div class="sm-text-center">
+                                <h5>
                                     {% if form.is_live.value != "true" %}
                                         故
                                     {% endif %}
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="text-success fw-bold">
                                         {{form.name.value}}
                                     </span>
                                     さん
-                                </div>
+                                </h5>
                                 <div>
-                                    <span class="text-success fw-bold fs-5">
+                                    <span class="fw-bold px-3 border-bottom border-dark">
                                         被相続人との続柄：兄弟姉妹
                                     </span>
                                 </div>
                             </div>
                             {% for field in form %}
                                 {% if field.name == "name" %}
-                                    <div class="input-group mt-4 position-relative Q">
+                                    <div class="input-group mt-2rem position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>
@@ -1317,49 +1383,35 @@
                                         </span>
                                     </div>
                                 {% elif field.name == "death_year" or field.name == "birth_year" %}
-                                    <div class="mt-4 heirsDeathDateDiv"
+                                    <div class="mt-2rem heirsDeathDateDiv"
                                         {% if field.name == "death_year" %}
                                             {% if form.is_live.value == "true" or form.is_refuse.value == "true" %}
                                                 style="display:none;"
                                             {% endif %}
                                         {% endif %}>
-                                        <div class="form-label">
-                                            <span class="fw-bold fs-5">
+                                        <div>
+                                            <h5 class="sm-text-center mb-3">
                                                 {% if field.name == "death_year" %}
-                                                    死亡した年月日
+                                                    死亡年月日
                                                 {% else %}
                                                     生年月日
                                                 {% endif %}
-                                            </span>
+                                            </h5>
                                             {% if field.name == "death_year" %}
-                                                <div class="d-flex form-text mt-3">
+                                                <div class="d-flex form-text">
                                                     <div>
                                                         ※
                                                     </div>
                                                     <div>
-                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、お問い合わせください。
+                                                        死亡日が◯日～◯日の間に死亡などのように不確定な表記のときは、
+                                                        <a class="fw-bold text-primary text-decoration-none" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=戸籍謄本の死亡日について&body=※可能であれば戸籍謄本の画像の添付をお願いします。%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A相続人の死亡日が不確定な表記になってますが、どうすればいいですか？">
+                                                            お問い合わせ
+                                                        </a>
+                                                        ください。
                                                     </div>
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q">
-                                            <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                                {{ field.label }}
-                                            </label>
-                                            {{field}}
-                                            <span class="errorMessage emPosition" style="display: none;">
-                                            </span>
-                                        </div>
-                                {% elif field.name == "death_month" or field.name == "birth_month" %}
-                                    <div class="input-group Q">
-                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
-                                            {{ field.label }}
-                                        </label>
-                                        {{field}}
-                                        <span class="errorMessage emPosition" style="display: none;">
-                                        </span>
-                                    </div>
-                                {% elif field.name == "death_date" or field.name == "birth_date" %}
                                         <div class="input-group Q">
                                             <label for="{{field.auto_id}}" class="input-group-text single-word-label">
                                                 {{ field.label }}
@@ -1368,17 +1420,43 @@
                                             <span class="errorMessage emPosition" style="display: none;">
                                             </span>
                                         </div>
+                                {% elif field.name == "death_month" or field.name == "birth_month" or field.name == "death_date" or field.name == "birth_date" %}
+                                    <div class="input-group Q">
+                                        <label for="{{field.auto_id}}" class="input-group-text single-word-label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{field}}
+                                        <span class="errorMessage emPosition" style="display: none;">
+                                        </span>
                                     </div>
+                                    {% if field.name == "death_date" or field.name == "birth_date" %}
+                                        </div>
+                                    {% endif %}
                                 {% elif field.name == "is_acquire" %}
-                                    <div class="mt-4"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
+                                    <div class="mt-2rem"{% if form.is_heir.value == "false" %} style="display:none;"{% endif %}>
                                         <div>
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 {{ field.label }}
-                                            </div>
-                                            <div class="form-text">
-                                                ※一部（持分）を取得する場合も含みます。
-                                                <br>
-                                                ※換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                            </h5>
+                                            <div class="form-text sm-d-flex justify-content-center">
+                                                <div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            一部（持分）を取得する場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            ※
+                                                        </div>
+                                                        <div>
+                                                            換価分割を行う場合に一時的に名義人になる場合も含みます。
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="mt-3 border rounded-3">
@@ -1399,9 +1477,9 @@
                                             </div>
                                 {% elif field.name == "prefecture" %}
                                     <div class="py-3 px-sm-3 heirsAddressDiv" style="display: none;">
-                                        <span class="form-label fs-5 fw-bold">
+                                        <h5 class="sm-text-center">
                                             住所
-                                        </span>
+                                        </h5>
                                         <div class="form-text">
                                             {% if form.is_japan.value == "true" %}
                                                 <div class="d-flex">
@@ -1409,7 +1487,7 @@
                                                         ※
                                                     </div>
                                                     <div>
-                                                        住民票又は戸籍の附票のとおりに入力。
+                                                        住民票又は戸籍の附票に記載のもの。
                                                     </div>
                                                 </div>
                                                 <div class="d-flex text-danger">
@@ -1431,7 +1509,7 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                                        <div class="input-group mt-2 Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
+                                        <div class="input-group Q" {% if form.is_japan.value == "false" %} style="display: none;"{% endif %}>
                                             <label for="{{field.auto_id}}" class="input-group-text label">
                                                 {{ field.label }}
                                             </label>
@@ -1445,10 +1523,7 @@
                                                 {{ field.label }}
                                             </label>
                                             {{ field }}
-                                            <span id="{{field.auto_id}}_message" class="errorMessage cityEmPosition rounded-3" style="display: none;">
-                                                市区町村データの取得に失敗しました。<br>
-                                                ページを更新（Ｆ５ボタン）しても変わらない場合は、<br>
-                                                恐れ入りますが、弊社までお問い合わせをお願いします。
+                                            <span class="errorMessage emPosition rounded-3" style="display: none;">
                                             </span>
                                         </div>
                                 {% elif field.name == "address" %}
@@ -1481,16 +1556,16 @@
                                         </div>
                                     </div>
                                 {% elif field.name == "other_parent_name" %}
-                                    <div class="mt-4 otherParentDiv" {% if form.content_type1.value == 5 and form.content_type2.value == 5 %}style="display: none;"{% endif %}>
-                                        <span class="form-label fs-5 fw-bold">
+                                    <div class="mt-2rem otherParentDiv" {% if form.content_type1.value == 5 and form.content_type2.value == 5 %}style="display: none;"{% endif %}>
+                                        <h5 class="sm-text-center mb-3">
                                             {% if form.content_type1.value == 5 %}
                                                 母の氏名
                                             {% elif form.content_type2.value == 5 %}
                                                 父の氏名
                                             {% endif %}
-                                        </span>
+                                        </h5>
                                         <div>
-                                            <div class="mt-3 form-text d-flex">
+                                            <div class="form-text d-flex">
                                                 <div>
                                                     ※
                                                 </div>
@@ -1498,7 +1573,7 @@
                                                     お持ちの戸籍謄本から判明する最後の氏名。
                                                 </div>
                                             </div>
-                                            <div class="input-group position-relative Q mt-3">
+                                            <div class="input-group position-relative Q">
                                                 <label for="{{field.auto_id}}" class="input-group-text label">
                                                     {{ field.label }}
                                                 </label>
@@ -1525,20 +1600,20 @@
                 </div>
             </section>
             <section id="type-of-division-section" class="container px-0 px-sm-3" style="display: none;">
-                <hr>
+                <hr class="my-5">
                 <div>
-                    <h5 class="form-label">３．遺産分割の方法</h5>
+                    <h5 class="sm-text-center mb-3">３．遺産分割の方法</h5>
                 </div>
-                <fieldset id="id_type_of_division-0-fieldset" class="mt-3">
-                    <div>
+                <fieldset id="id_type_of_division-0-fieldset">
+                    <div class="sm-mx-auto">
                         {% for field in type_of_division_form %}
                             {% if field.name == "type_of_division" or field.name == "property_allocation" or field.name == "cash_allocation" %}
                                 {% if field.name == "type_of_division" %}
                                     <div class="Q">
                                         <div class="input-group-text p-3">
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center">
                                                 換価分割をしますか？
-                                            </div>
+                                            </h5>
                                             <div class="form-text mt-0 text-wrap">
                                                 ※換価分割とは、不動産の相続後に、その不動産を売却して売却代金を相続人間で分けることをいいます。
                                                 一部の不動産でも換価分割する場合は、「する」にチェックしてください。
@@ -1547,16 +1622,16 @@
                                 {% elif field.name == "property_allocation" %}
                                     <div class="Q" style="display: none;">
                                         <div class="input-group-text p-3">
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center mb-0">
                                                 不動産はどのように取得しますか？
-                                            </div>
+                                            </h5>
                                         </div>
                                 {% elif field.name == "cash_allocation" %}
                                     <div class="Q" style="display: none;">
                                         <div class="input-group-text p-3">
-                                            <div class="fs-5 fw-bold">
+                                            <h5 class="sm-text-center mb-0">
                                                 換価した金銭はどのように取得しますか？
-                                            </div>
+                                            </h5>
                                         </div>
                                 {% endif %}
                                     <div class="form-control input-group justify-content-evenly">
@@ -1594,25 +1669,29 @@
                 </fieldset>
             </section>
             <section id="number-of-properties-section" class="container px-0 px-sm-3" style="display: none;">
-                <hr>
-                <h5>
+                <hr class="my-5">
+                <h5 class="sm-text-center mb-3">
                     ４．不動産情報
                 </h5>
-                <div class="mt-3 text-primary">
-                    <button type="button" class="border-bottom border-primary text-primary" data-bs-toggle="modal" data-bs-target="#touki_info_modal">
-                        各種不動産の登記簿謄本例
-                    </button>
-                    <div class="d-flex">
-                        <div>
-                            ※
+                <div class="sm-d-flex justify-content-center">
+                    <div>
+                        <div class="sm-d-flex justify-content-center">
+                            <button type="button" class="border-bottom border-primary text-primary" data-bs-toggle="modal" data-bs-target="#touki_info_modal">
+                                各種不動産の登記簿謄本例
+                            </button>
                         </div>
-                        <div>
-                            区分建物の敷地は土地の数には含めないでください。
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                区分建物の敷地は土地の数には含めないでください。
+                            </div>
                         </div>
                     </div>
                 </div>
-                <fieldset id="id_number_of_properties-0-fieldset" class="mt-3">
-                    <div>
+                <fieldset id="id_number_of_properties-0-fieldset">
+                    <div class="sm-mx-auto">
                         {% for field in number_of_properties_form %}
                             {% if field.name == "decedent" %}
                                 {{ field }}
@@ -1641,19 +1720,19 @@
                 </fieldset>
             </section>
             <section id="land-section" class="container px-0 px-sm-3" style="display: none;">
-                <hr>
+                <hr class="my-5">
                 <div>
                     <div>
                         <div>
-                            <h5 class="form-label">
+                            <h5 class="sm-text-center mb-3">
                                 ４－土地情報
                             </h5>
-                            <div class="d-flex">
+                            <div class="d-flex sm-justify-content-center">
                                 <div class="text-primary">
                                     ※
                                 </div>
                                 <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#land_input_nav_modal">
-                                    登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                                    こちらを参考にご入力ください
                                 </button>
                             </div>
                         </div>
@@ -1715,11 +1794,11 @@
                                                             </label>
                                                         </div>
                                                         <div class="d-flex">
-                                                            <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_top" name="land-{{forloop.parentloop.counter0}}-purparty_top">
+                                                            <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_top" name="land-{{forloop.parentloop.counter0}}-purparty_top">
                                                             <span class="mx-1 text-nowrap">
                                                                 分の
                                                             </span>
-                                                            <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_bottom" name="land-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                            <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_land-{{forloop.parentloop.counter0}}-purparty_bottom" name="land-{{forloop.parentloop.counter0}}-purparty_bottom">
                                                         </div>
                                                         {{ field }}
                                                     </div>
@@ -1792,7 +1871,7 @@
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
                                                 <input class="p-0 fraction form-control text-center" type="text" id="id_land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_top" name="land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_top">
-                                                <span>
+                                                <span class="mx-1 text-nowrap">
                                                     分の
                                                 </span>
                                                 <input class="p-0 fraction form-control text-center" type="text" id="id_land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_bottom" name="land_{{forloop.counter0}}_temp_land_acquirer-0-percentage_bottom">
@@ -1830,7 +1909,7 @@
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
                                                 <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_land_{{forloop.counter0}}_temp_land_cash_acquirer-0-percentage_top" name="land_{{forloop.counter0}}_temp_land_cash_acquirer-0-percentage_top">
-                                                <span>
+                                                <span class="mx-1 text-nowrap">
                                                     分の
                                                 </span>
                                                 <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_land_{{forloop.counter0}}_temp_land_cash_acquirer-0-percentage_bottom" name="land_{{forloop.counter0}}_temp_land_cash_acquirer-0-percentage_bottom">
@@ -1884,18 +1963,18 @@
                 </div>
             </section>
             <section id="house-section" class="container px-0 px-sm-3" style="display: none;">
-                <hr>
+                <hr class="my-5">
                 <div>
                     <div>
-                        <h5 class="form-label">
+                        <h5 class="sm-text-center mb-3">
                             ４－建物情報
                         </h5>
-                        <div class="d-flex">
+                        <div class="d-flex sm-justify-content-center">
                             <div class="text-primary">
                                 ※
                             </div>
                             <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#house_input_nav_modal">
-                                登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                                こちらを参考にご入力ください
                             </button>
                         </div>
                     </div>
@@ -1934,7 +2013,7 @@
                                                     </label>
                                                     <div class="form-control rounded-end d-flex justify-content-evenly">
                                                         <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-house_number_top" name="house-{{forloop.parentloop.counter0}}-house_number_top">
-                                                        <span >
+                                                        <span>
                                                             番
                                                         </span>
                                                         <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-house_number_bottom" name="house-{{forloop.parentloop.counter0}}-house_number_bottom">
@@ -1956,11 +2035,11 @@
                                                             </label>
                                                         </div>
                                                         <div class="d-flex">
-                                                            <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_top" name="house-{{forloop.parentloop.counter0}}-purparty_top">
+                                                            <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_top" name="house-{{forloop.parentloop.counter0}}-purparty_top">
                                                             <span class="mx-1 text-nowrap">
                                                                 分の
                                                             </span>
-                                                            <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_bottom" name="house-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                            <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_house-{{forloop.parentloop.counter0}}-purparty_bottom" name="house-{{forloop.parentloop.counter0}}-purparty_bottom">
                                                         </div>
                                                         {{ field }}
                                                     </div>
@@ -2033,7 +2112,7 @@
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
                                                 <input class="p-0 fraction form-control text-center" type="text" id="id_house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_top" name="house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_top">
-                                                <span>
+                                                <span class="mx-1 text-nowrap">
                                                     分の
                                                 </span>
                                                 <input class="p-0 fraction form-control text-center" type="text" id="id_house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_bottom" name="house_{{forloop.counter0}}_temp_house_acquirer-0-percentage_bottom">
@@ -2071,7 +2150,7 @@
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
                                                 <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_top" name="house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_top">
-                                                <span>
+                                                <span class="mx-1 text-nowrap">
                                                     分の
                                                 </span>
                                                 <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_bottom" name="house_{{forloop.counter0}}_temp_house_cash_acquirer-0-percentage_bottom">
@@ -2128,15 +2207,15 @@
                 <hr>
                 <div>
                     <div>
-                        <h5 class="form-label">
+                        <h5 class="sm-text-center mb-3">
                             ４－区分建物情報
                         </h5>
-                        <div class="d-flex">
+                        <div class="d-flex sm-justify-content-center">
                             <div class="text-primary">
                                 ※
                             </div>
                             <button type="button" class="text-primary text-start" data-bs-toggle="modal" data-bs-target="#bldg_input_nav_modal">
-                                ※登記情報又は全部事項証明書（登記簿謄本）のとおりに入力
+                                こちらを参考にご入力ください
                             </button>
                         </div>
                     </div>
@@ -2190,11 +2269,11 @@
                                                             </label>
                                                         </div>
                                                         <div class="d-flex">
-                                                            <input class="mx-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_top" name="bldg-{{forloop.parentloop.counter0}}-purparty_top">
+                                                            <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_top" name="bldg-{{forloop.parentloop.counter0}}-purparty_top">
                                                             <span class="mx-1 text-nowrap">
                                                                 分の
                                                             </span>
-                                                            <input class="ms-1 p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_bottom" name="bldg-{{forloop.parentloop.counter0}}-purparty_bottom">
+                                                            <input class="p-0 fraction form-control text-center" type="text" maxlength="6" id="id_bldg-{{forloop.parentloop.counter0}}-purparty_bottom" name="bldg-{{forloop.parentloop.counter0}}-purparty_bottom">
                                                         </div>
                                                         {{ field }}
                                                     </div>
@@ -2277,7 +2356,7 @@
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
                                                 <input class="p-0 fraction form-control text-center" type="text" id="id_bldg_{{forloop.counter0}}_temp_bldg_acquirer-0-percentage_top" name="bldg_{{forloop.counter0}}_temp_bldg_acquirer-0-percentage_top">
-                                                <span>
+                                                <span class="mx-1 text-nowrap">
                                                     分の
                                                 </span>
                                                 <input class="p-0 fraction form-control text-center" type="text" id="id_bldg_{{forloop.counter0}}_temp_bldg_acquirer-0-percentage_bottom" name="bldg_{{forloop.counter0}}_temp_bldg_acquirer-0-percentage_bottom">
@@ -2315,7 +2394,7 @@
                                             </label>
                                             <div class="form-control rounded-end d-flex justify-content-evenly">
                                                 <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_bldg_{{forloop.counter0}}_temp_bldg_cash_acquirer-0-percentage_top" name="bldg_{{forloop.counter0}}_temp_bldg_cash_acquirer-0-percentage_top">
-                                                <span>
+                                                <span class="mx-1 text-nowrap">
                                                     分の
                                                 </span>
                                                 <input class="p-0 fraction form-control text-center" type="text" min="0" id="id_bldg_{{forloop.counter0}}_temp_bldg_cash_acquirer-0-percentage_bottom" name="bldg_{{forloop.counter0}}_temp_bldg_cash_acquirer-0-percentage_bottom">
@@ -2423,18 +2502,35 @@
                 </div>
             </section>
             <section id="application-section" class="container px-0 px-sm-3" style="display: none;">
-                <hr>
+                <hr class="my-5">
                 <div>
-                    <h5 class="form-label">５．申請情報</h5>
+                    <h5 class="sm-text-center mb-3">
+                        ５．申請情報
+                    </h5>
                 </div>
-                <fieldset id="id_application-fieldset">
-                    <div class="border rounded-3 p-sm-4 p-3 mt-3">
+                <fieldset id="id_application-fieldset" class="sm-mx-auto">
+                    <div class="border rounded-3 p-sm-4 p-3">
                         <div class="input-group position-relative Q">
-                            <span class="form-label fs-5 fw-bold">
+                            <h5 class="sm-mx-auto mb-3">
                                 申請手続きをする方を選択してください
-                            </span>
+                            </h5>
                             <div class="form-text">
-                                ※申請に不備があったときに法務局から連絡を受けたり完了後の書類の受け取りを行います。
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        申請に不備があったときに法務局から連絡を受けたり手続完了後の書類を受け取ります。
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        代理人に任せる場合は、代表して委任する方をご選択ください。
+                                    </div>
+                                </div>
                             </div>
                             <label for="{{field.auto_id}}" class="input-group-text label">
                                 申請人
@@ -2450,10 +2546,10 @@
                          {% for field in application_form %}
                             {% if field.name == "is_agent" %}
                                 <div class="mt-4">
-                                    <span class="form-label fs-5 fw-bold">
+                                    <h5 class="sm-text-center mb-3">
                                         代理人が申請をしますか？
-                                    </span>
-                                    <div class="border rounded-3 mt-3">
+                                    </h5>
+                                    <div class="border rounded-3">
                                         <div class="d-flex justify-content-center p-sm-2 input-group Q">
                                             {% for choice in field %}
                                                 <div class="form-check col">
@@ -2471,10 +2567,10 @@
                                         </div>
                             {% elif field.name == "phone_number" %}
                                         <div class="py-3 px-sm-3 isAgentNoDiv" style="display: none;">
-                                            <span class="form-label fs-5 fw-bold">
+                                            <h5 class="sm-text-center mb-3">
                                                 申請人
-                                            </span>
-                                            <div class="input-group position-relative Q mt-3">
+                                            </h5>
+                                            <div class="input-group position-relative Q">
                                                 <label for="{{field.auto_id}}" class="input-group-text label">
                                                     {{ field.label }}
                                                 </label>
@@ -2485,10 +2581,10 @@
                                         </div>
                             {% elif field.name == "agent_name" %}
                                 <div class="py-3 px-sm-3 isAgentYesDiv" style="display: none;">
-                                    <span class="form-label fs-5 fw-bold">
+                                    <h5 class="sm-text-center mb-3">
                                         代理人
-                                    </span>
-                                    <div class="input-group position-relative Q mt-3">
+                                    </h5>
+                                    <div class="input-group position-relative Q">
                                         <label for="{{field.auto_id}}" class="input-group-text label">
                                             {{ field.label }}
                                         </label>

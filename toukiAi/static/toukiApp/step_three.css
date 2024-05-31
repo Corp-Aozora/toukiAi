@@ -1,49 +1,14 @@
-#decedent-section label, #heirs-section label, #application-section label{
+/* ラベル */
+#decedent-section label,
+#heirs-section label, 
+#application-section label{
     width: 115px!important;
 }
 
-#id_decedent-0-fieldset > div, #statusArea, #heirsSectionToggleBtn, #type-of-division-section > fieldset > div,
-.buttons-area{
-    max-width: 425px!important;
-}
-
-#id_decedent-0-fieldset > .sm-mx-auto > div{
-    margin-top: 2rem!important;
-}
-
-#type-of-division-section div.input-group-text{
-    display: block!important;
-    text-align: left!important;
-}
-
-#type-of-division-section .input-group-text{
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-#type-of-division-section .form-control{
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-}
-
-#number-of-properties-section > fieldset > div{
-    width:200px
-}
-
-#land-section label, #house-section label, #bldg-section label{
+#land-section label, 
+#house-section label, 
+#bldg-section label{
     width: 125px!important;
-}
-
-.landWrapper, .landBtnsDiv, .houseWrapper, .houseBtnsDiv, .bldgWrapper, .bldgBtnsDiv{
-    max-width:600px;
-}
-
-.fraction{
-    max-width: 125px;
-}
-
-.heirsFieldset, #id_application-fieldset{
-    max-width: 500px!important;
 }
 
 .single-word-label{
@@ -52,6 +17,46 @@
     font-weight: 700!important;
 }
 
+label[for*="purparty_top"] + * > .form-check{
+    padding-left: 0px;
+}
+
+label[for*="purparty_top"] + * > .form-check > .form-check-input{
+    margin-left: 0px;
+}
+
+/* 各セクションの幅指定 */
+#id_decedent-0-fieldset > div, 
+#statusArea, 
+#heirsSectionToggleBtn, 
+#type-of-division-section > fieldset > div,
+.buttons-area{
+    max-width: 425px!important;
+}
+
+.heirsFieldset, 
+#id_application-fieldset{
+    max-width: 500px!important;
+}
+
+#number-of-properties-section > fieldset > div{
+    width:200px
+}
+
+.landWrapper, 
+.landBtnsDiv, 
+.houseWrapper, 
+.houseBtnsDiv, 
+.bldgWrapper, 
+.bldgBtnsDiv{
+    max-width:600px;
+}
+
+.fraction{
+    max-width: 125px;
+}
+
+/* エラーメッセージの位置 */
 .emPosition{
     top: -54px;
     left: 150px;
@@ -67,11 +72,6 @@
     left: 30px;
 }
 
-.cityEmPosition{
-    top: -93px;
-    left: 150px;
-}
-
 .officeEmPosition{
     top: -75px;
     left: 150px;
@@ -82,40 +82,21 @@
     left: 150px;
 }
 
-::placeholder{
-    text-align: center;
+/* その他 */
+#id_decedent-0-fieldset > .sm-mx-auto > div{
+    margin-top: 2rem!important;
 }
 
-#number-of-properties-section .Q:first-of-type span{
-    border-bottom-right-radius: initial;
-    border-bottom-left-radius: initial;
-}
-
-#number-of-properties-section .Q:not(:first-of-type) span{
-    border-radius: initial;
-    border-radius: initial;
-}
-
-#number-of-properties-section .Q:last-of-type .decreaseBtn{
-    border-bottom-left-radius: var(--bs-border-radius)!important;
-}
-
-#number-of-properties-section .Q:last-of-type .increaseBtn{
-    border-bottom-right-radius: var(--bs-border-radius)!important;
+#type-of-division-section div.input-group-text{
+    display: block!important;
+    text-align: left!important;
 }
 
 .swal2-html-container{
     text-align: left !important;
 }
 
-label[for*="purparty_top"] + * > .form-check{
-    padding-left: 0px;
-}
-
-label[for*="purparty_top"] + * > .form-check > .form-check-input{
-    margin-left: 0px;
-}
-
+/* レスポンシブ */
 @media (max-width:767px){
     
     form .input-group .label, form .input-group .single-word-label{

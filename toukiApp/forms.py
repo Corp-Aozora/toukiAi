@@ -42,14 +42,14 @@ class WidgetAttributes:
     }
     # 評価額
     price = {
-        "placeholder": "数字のみで入力（コンマ不要）",
+        "placeholder": "数字のみ(コンマ不要)",
         "class": "form-control text-center rounded-end",
         "maxlength": "16",
     }
     # 氏名
     name = {
         "class": "form-control rounded-end",
-        "placeholder": "姓名の間にスペースなし",
+        "placeholder": "姓名の間にスペース不要",
         "maxlength": "30",
     }
     # カウントする入力欄
@@ -83,7 +83,7 @@ class WidgetAttributes:
     # 不動産番号
     rs_number = {
         "class": "form-control rounded-end",
-        "placeholder": "１３桁の数字",
+        "placeholder": "13桁の数字",
         "maxlength": "13",
     }
     # 土地の所在地
@@ -129,14 +129,14 @@ class WidgetAttributes:
     # 法務局
     office = {
         "class": "form-control rounded-end text-center",
-        "placeholder": "不動産番号を入力すると自動で表示されます",
+        "placeholder": "不動産番号を入力すると自動表示",
         "maxlength": "30",
         "disabled": "true",
     }
     # 一括住所
     full_address = {
         "class": "form-control rounded-end",
-        "placeholder": "福岡県福岡市中央区天神一丁目１番１号登記ハイツ１０１号室",
+        "placeholder": "都道府県から",
         "maxlength": "100",        
     }
     # 電話番号
@@ -215,7 +215,7 @@ class Labels:
             "death_date": Labels.DATE,
             "birth_year": Labels.YEAR,
             "birth_month": Labels.MONTH,
-            "birth_date": Labels.MONTH,
+            "birth_date": Labels.DATE,
         }
         
         if is_decedent:
@@ -1061,7 +1061,7 @@ class StepThreeApplicationForm(forms.ModelForm):
             if field.label == "氏名":
                 field.widget.attrs.update(WidgetAttributes.name)
             elif field.label == "住所":
-                field.widget.attrs.update(WidgetAttributes.address)
+                field.widget.attrs.update(WidgetAttributes.full_address)
             elif field.label == "電話番号":
                 field.widget.attrs.update(WidgetAttributes.phone_number)
             elif field.label in ["代理人の有無", "原本還付の有無", "郵送の有無"]:

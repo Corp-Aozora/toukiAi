@@ -26,6 +26,10 @@ h1, h2, h3, h4, h5, h6{
     font-weight: 700!important;
 }
 
+::placeholder{
+    text-align: center;
+}
+
 /* 手型のカーソルにする */
 .cursor-pointer:hover{
     cursor: pointer;
@@ -217,5 +221,18 @@ form .form-error-wrapper{
     .sm-mx-auto{
         margin-right: auto!important;
         margin-left: auto!important;
+    }
+
+    .sm-d-flex{
+        display: flex!important;
+    }
+
+    .sm-justify-content-center{
+        justify-content: center!important;
+    }
+
+    .sm-d-flex-center{
+        display: flex!important;
+        justify-content: center!important;
     }
 }

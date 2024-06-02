@@ -73,6 +73,15 @@ label{
     font-weight: 700!important;
 }
 
+.linebreak-wrapper{
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.linebreak-wrapper span{
+    display: inline;
+}
+
 @media (min-width:576px){
 
     fieldset > .input-group:first-child label,
@@ -135,5 +144,16 @@ label{
 
     #basic-section label > span, #option1-section label > span, #option2-section label > span{
         display: block;
+    }
+}
+
+@media (max-width:420px){
+    .linebreak-wrapper{
+        flex-direction: column;
+    }
+
+    .linebreak-wrapper span{
+        display: block;
+        text-align: center;
     }
 }

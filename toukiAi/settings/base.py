@@ -198,7 +198,7 @@ ACCOUNT_FORMS = {
     'change_password': 'accounts.forms.CustomChangePasswordForm',
 }
 
-SESSION_COOKIE_AGE = 604800 # 秒（604800は7日）
+SESSION_COOKIE_AGE = 30 * 24 * 60 * 60 # 30日
 
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 

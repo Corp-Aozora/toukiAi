@@ -109,8 +109,8 @@ def index(request):
             form = OpenInquiryForm()
         
         # 更新情報（表示は最新２つまで）
-        update_articles = UpdateArticle.objects.order_by("-updated_by")[:2]
-        
+        update_articles = UpdateArticle.objects.order_by("-updated_at")[:2]
+        print()
         context = {
             "title" : tab_title,
             "update_articles": update_articles,
@@ -477,29 +477,22 @@ def validate_and_log(item, prefix, function_name, user):
     return is_valid
 
 def step_one_trial(request):
-    """ステップ１（無料会員用）
+    """ステップ1（無料会員用）
     
-        POSTに成功してもステップ２には遷移せずに法定相続人を表示するだけにする
-        その他は実際のステップ１と同じ処理にする
+        POSTに成功してもステップ2には遷移せずに法定相続人を表示するだけにする
+        
+        利用条件の確認も兼ねている
     """
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:step_one_trial"
+    this_html = "toukiApp/step_one_trial.html"
     
     try:
-        # 会員以外はアカウント登録ページに遷移させる
-        if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 会員専用のページです。アカウント登録が必要です。")
-            return redirect("accounts:signup")
-        
-        # 有料会員はstep_oneに遷移させる
-        if request.user.basic:
+        # ログイン中のシステム利用会員はstep_oneに遷移させる
+        if request.user.is_authenticated and request.user.basic:
             return redirect("toukiApp:step_one")
         
-        request.session['account_created'] = True #登録確認ページに戻れないようにするためのセッション
-
-        function_name = get_current_function_name()
-        this_url_name = "toukiApp:step_one_trial"
-        this_html = "toukiApp/step_one_trial.html"
-        
-        user = User.objects.get(email = request.user)
+        session_id = get_or_create_session_id(request)
         
         child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
         grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
@@ -522,18 +515,18 @@ def step_one_trial(request):
                 ("兄弟姉妹", collateral_form_set(request.POST or None, prefix="collateral"))
             ]
 
-            valid_forms = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
-            valid_form_sets = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
+            # valid_forms = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
+            # valid_form_sets = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
 
-            if valid_forms and valid_form_sets:
-                try:
-                    with transaction.atomic():
-                        save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], True)
-                except Exception as e:
-                    basic_log(function_name, e, user, "POSTのデータ保存処理でエラー")
-                    raise e
-            else:
-                messages.warning(request, "受付に失敗。 入力に不備があるためデータを保存できませんでした。\n再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
+            # if valid_forms and valid_form_sets:
+            #     try:
+            #         with transaction.atomic():
+            #             save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], True)
+            #     except Exception as e:
+            #         basic_log(function_name, e, user, "POSTのデータ保存処理でエラー")
+            #         raise e
+            # else:
+            #     messages.warning(request, "受付に失敗。 入力に不備があるためデータを保存できませんでした。\n再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
 
             
             return redirect(this_url_name)
@@ -553,60 +546,60 @@ def step_one_trial(request):
         child_common_form = StepOneDescendantCommonForm(prefix="child_common")
         collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
         
-        decedent = user.decedent.first() # 被相続人
-        if decedent:
-            progress = decedent.progress
-            decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
-            userDataScope.append("decedent")
+        # decedent = user.decedent.first() # 被相続人
+        # if decedent:
+        #     progress = decedent.progress
+        #     decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
+        #     userDataScope.append("decedent")
             
-            spouse = Spouse.objects.filter(decedent=decedent, object_id=decedent.id).first() # 被相続人の被相続人
-            if spouse:
-                spouse_data = model_to_dict(spouse)
-                userDataScope.append("spouse")
+        #     spouse = Spouse.objects.filter(decedent=decedent, object_id=decedent.id).first() # 被相続人の被相続人
+        #     if spouse:
+        #         spouse_data = model_to_dict(spouse)
+        #         userDataScope.append("spouse")
 
-            child_common = DescendantCommon.objects.filter(decedent=decedent).first() # 子共通
-            if child_common:
-                child_common_form = StepOneDescendantCommonForm(prefix="child_common", instance=child_common)
-                userDataScope.append("child_common")
+        #     child_common = DescendantCommon.objects.filter(decedent=decedent).first() # 子共通
+        #     if child_common:
+        #         child_common_form = StepOneDescendantCommonForm(prefix="child_common", instance=child_common)
+        #         userDataScope.append("child_common")
                 
-                childs = Descendant.objects.filter(object_id1=decedent.id) # 子全員
-                if childs.exists():
-                    descendant_form_fields = StepOneDescendantForm().fields
-                    childs_data = get_step_one_childs_data(decedent, childs, descendant_form_fields)
-                    userDataScope.append("child")
+        #         childs = Descendant.objects.filter(object_id1=decedent.id) # 子全員
+        #         if childs.exists():
+        #             descendant_form_fields = StepOneDescendantForm().fields
+        #             childs_data = get_step_one_childs_data(decedent, childs, descendant_form_fields)
+        #             userDataScope.append("child")
                     
-                    child_spouses = Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id)
-                    spouse_form_fields = StepOneSpouseForm().fields
-                    child_spouses_data = get_step_one_child_heirs_data(child_spouses, spouse_form_fields)
+        #             child_spouses = Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id)
+        #             spouse_form_fields = StepOneSpouseForm().fields
+        #             child_spouses_data = get_step_one_child_heirs_data(child_spouses, spouse_form_fields)
                         
-                    grand_childs = Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id)
-                    grand_childs_data = get_step_one_child_heirs_data(grand_childs, descendant_form_fields)
+        #             grand_childs = Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id)
+        #             grand_childs_data = get_step_one_child_heirs_data(grand_childs, descendant_form_fields)
                         
-                    if child_spouses_data or grand_childs_data:
-                        child_heirs_data = child_spouses_data + grand_childs_data
-                        child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
-                        userDataScope.append("child_heirs")
+        #             if child_spouses_data or grand_childs_data:
+        #                 child_heirs_data = child_spouses_data + grand_childs_data
+        #                 child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
+        #                 userDataScope.append("child_heirs")
 
-                ascendants = Ascendant.objects.filter(decedent=decedent)
-                if ascendants.exists():
-                    ascendant_form_fields = StepOneAscendantForm().fields
-                    ascendant_data = get_step_one_ascendant_or_collateral_data(ascendants, ascendant_form_fields)
-                    ascendant_data = sorted(ascendant_data, key=lambda x: x['id']) #父、母、父方の祖父、父方の祖母、母方の祖父、母方の祖母の順
-                    userDataScope.append("ascendant")
+        #         ascendants = Ascendant.objects.filter(decedent=decedent)
+        #         if ascendants.exists():
+        #             ascendant_form_fields = StepOneAscendantForm().fields
+        #             ascendant_data = get_step_one_ascendant_or_collateral_data(ascendants, ascendant_form_fields)
+        #             ascendant_data = sorted(ascendant_data, key=lambda x: x['id']) #父、母、父方の祖父、父方の祖母、母方の祖父、母方の祖母の順
+        #             userDataScope.append("ascendant")
 
-                collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
-                if collateral_common:
-                    collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
-                    userDataScope.append("collateral_common")
+        #         collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
+        #         if collateral_common:
+        #             collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
+        #             userDataScope.append("collateral_common")
                     
-                    collaterals = Collateral.objects.filter(decedent=decedent)
-                    if collaterals.exists():
-                        collateral_form_fields = StepOneCollateralForm().fields
-                        collateral_data = get_step_one_ascendant_or_collateral_data(collaterals, collateral_form_fields)
-                        userDataScope.append("collateral")
+        #             collaterals = Collateral.objects.filter(decedent=decedent)
+        #             if collaterals.exists():
+        #                 collateral_form_fields = StepOneCollateralForm().fields
+        #                 collateral_data = get_step_one_ascendant_or_collateral_data(collaterals, collateral_form_fields)
+        #                 userDataScope.append("collateral")
                         
-            heir_querysets = get_legal_heirs(decedent)
-            result = [x.name for x in heir_querysets]
+        #     heir_querysets = get_legal_heirs(decedent)
+        #     result = [x.name for x in heir_querysets]
         
         decedent_form_internal_field_name = ["user", "progress"]
         spouse_or_ascendant_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
@@ -616,7 +609,6 @@ def step_one_trial(request):
         
         context = {
             "title" : Sections.STEP1,
-            "user" : user,
             "progress": progress,
             "result": result,
             "decedent_form": decedent_form,
@@ -649,7 +641,7 @@ def step_one_trial(request):
         return handle_error(
             e,
             request,
-            user,
+            None,
             function_name,
             this_url_name,
         )
@@ -4495,7 +4487,7 @@ def step_inquiry(request):
                     with transaction.atomic():
                         register_user_inquiry_and_return_instance(user, inquiry_form)
                         send_auto_email_to_inquiry(inquiry_form.cleaned_data, user.email)
-                        messages.success(request, "受付完了 お問い合わせありがとうございます。\n原則24時間以内にご回答いたしますので、少々お待ちください。")
+                        messages.success(request, "受付完了 お問い合わせありがとうございます。\nご回答まで少々お待ちください。")
                         return redirect(this_url_name)
                 else:
                     basic_log(function_name, None, user, f"POSTでエラー\n{inquiry_form.errors}")
@@ -4660,48 +4652,48 @@ def terms(request):
             redirect_to
         )
 
-def condition(request):
-    """利用条件の確認ページ
+# def condition(request):           事前の利用条件確認は一旦停止中
+#     """利用条件の確認ページ
 
-        POSTのとき条件全てにチェックが入っているか確認してアカウント登録ページに遷移させる
-        入ってないときはエラーメッセージを表示する
-    """
+#         POSTのとき条件全てにチェックが入っているか確認してアカウント登録ページに遷移させる
+#         入ってないときはエラーメッセージを表示する
+#     """
     
-    function_name = get_current_function_name()
-    this_html = "toukiApp/condition.html"
-    this_url_name = "toukiApp:condition"
-    error_redirect_to = "toukiApp:index"
-    next_redirect_to = "accounts:signup"
-    tab_title = "利用条件確認"
+#     function_name = get_current_function_name()
+#     this_html = "toukiApp/condition.html"
+#     this_url_name = "toukiApp:condition"
+#     error_redirect_to = "toukiApp:index"
+#     next_redirect_to = "accounts:signup"
+#     tab_title = "利用条件確認"
     
-    try:
-        canonical_url = get_canonical_url(request, this_url_name)
+#     try:
+#         canonical_url = get_canonical_url(request, this_url_name)
         
-        if request.method == "POST":
-            checkboxes = request.POST.getlist("conditionCb")
-            # 条件全てにチェックが入っているとき（formクラスを使用していないため数のみで検証している）
-            if len(checkboxes) == 10:
-                request.session["condition_passed"] = True
-                return redirect(next_redirect_to)
-            else:
-                basic_log(function_name, None, None, "利用条件全てにチェックを入れずにアカウント登録ボタンが押されました")
-                messages.warning("アクセス不可 利用条件を満たしていない場合は、本システムで対応できないためアカウント登録できません。")
+#         if request.method == "POST":
+#             checkboxes = request.POST.getlist("conditionCb")
+#             # 条件全てにチェックが入っているとき（formクラスを使用していないため数のみで検証している）
+#             if len(checkboxes) == 10:
+#                 request.session["condition_passed"] = True
+#                 return redirect(next_redirect_to)
+#             else:
+#                 basic_log(function_name, None, None, "利用条件全てにチェックを入れずにアカウント登録ボタンが押されました")
+#                 messages.warning("アクセス不可 利用条件を満たしていない場合は、本システムで対応できないためアカウント登録できません。")
 
-        context = {
-            "title" : tab_title,
-            "canonical_url": canonical_url
-        }
+#         context = {
+#             "title" : tab_title,
+#             "canonical_url": canonical_url
+#         }
         
-        return render(request, this_html, context)
+#         return render(request, this_html, context)
     
-    except Exception as e:
-        return handle_error(
-            e, 
-            request, 
-            None, 
-            function_name, 
-            error_redirect_to, 
-        )
+#     except Exception as e:
+#         return handle_error(
+#             e, 
+#             request, 
+#             None, 
+#             function_name, 
+#             error_redirect_to, 
+#         )
 
 #不正な投稿があったとき
 def csrf_failure(request, reason=""):

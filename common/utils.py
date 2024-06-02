@@ -150,3 +150,16 @@ def download_file(download_uri):
         return {"message": "", "data": response.content}
     else:
         return {"message": f"ファイルのダウンロードに失敗, {response.status_code}", "data": ""}
+    
+def get_or_create_session_id(request):
+    """
+    
+        SessionIDを生成または取得する
+
+    """
+    session_id = request.session.session_key
+    if not session_id:
+        request.session.create()
+        session_id = request.session.session_key
+        
+    return session_id

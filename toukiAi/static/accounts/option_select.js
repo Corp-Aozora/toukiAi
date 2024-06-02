@@ -143,8 +143,6 @@ class FormSection{
                 this.cardHolderName,
             ] = this.inputs
 
-            this.returnBtn = document.getElementById("returnBtn");
-            this.returnSpinner = document.getElementById("return-spinner");
             this.submitBtn = document.getElementById("submitBtn");
             this.submitSpinner = document.getElementById("submitSpinner");
             this.standByMessageEl = document.getElementsByClassName("stand-by-message")[0];
@@ -978,9 +976,6 @@ function handleFormSectionEvent(instances){
             FormSectionInputEvent.keydown(e, form, input, i);
         })
     }
-    
-    // 元のページに戻るボタン
-    setEventToReturnBtn();
 
     // submitボタン
     form.form.addEventListener("submit", (e)=>{

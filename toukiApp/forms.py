@@ -15,7 +15,11 @@ CustomUser = get_user_model()
 
 """
 class WidgetAttributes:
-    """フォームの属性集"""
+    """
+    
+        フォームの属性集
+        
+    """
     # メールアドレス
     # ラジオボタン
     radio = {
@@ -147,9 +151,12 @@ class WidgetAttributes:
     }
     
 class Labels:
-    """ラベル属性値"""
+    """
     
-    # ステップ１
+        ラベル属性値
+        
+    """  
+    # ステップ1
     YEAR = "年"
     MONTH = "月"
     
@@ -174,6 +181,7 @@ class Labels:
         "death_year": YEAR,
         "death_month": MONTH,
     }
+    
     @staticmethod
     def get_step_one_relations_labels(is_descendant_or_collateral):
         return {
@@ -183,6 +191,7 @@ class Labels:
             "is_japan": Labels.IS_JAPAN,
             **({"is_adult": Labels.IS_ADULT} if is_descendant_or_collateral else {})
         }
+        
     @staticmethod
     def get_step_one_common_labels(is_descendant):
         return {
@@ -230,7 +239,11 @@ class Labels:
         return labels
 
 class WidgetGroup:
-    """カスタム使用するヴィジェット群"""
+    """
+    
+        カスタム使用するヴィジェット群
+        
+    """
     @staticmethod
     def step_one(model_name):
 
@@ -306,9 +319,12 @@ def conversion_bool_value(form):
     トップページ
 
 """
-
 class OpenInquiryForm(forms.ModelForm):
-    """問い合わせ"""
+    """
+    
+        問い合わせ
+        
+    """
     class Meta:
         model = OpenInquiry
         fields = model.fields
@@ -340,9 +356,9 @@ class OpenInquiryForm(forms.ModelForm):
 
 """
 
-    ステップ１関連
+    ステップ1トライアルとステップ1関連
 
-"""
+"""   
 def set_step_one_decedent_form(form):
     """被相続人のフォームの初期化処理"""
     for i, (name, field) in enumerate(form.base_fields.items()):

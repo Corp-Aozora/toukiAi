@@ -17,7 +17,11 @@ from common.validations import *
 from toukiApp.common_model import *
     
 class UserManager(BaseUserManager):
-    """ターミナルでユーザーを作成するときに使用される"""
+    """
+    
+        ターミナルでユーザーを作成するときに使用される
+        
+    """
     use_in_migrations = True
 
     def _create_user(self, username, email, password, **extra_fields):
@@ -54,11 +58,10 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """ユーザーのデータ
+    """
+    
+        会員情報
 
-    Args:
-        AbstractBaseUser (_type_): _description_
-        PermissionsMixin (_type_): _description_
     """
     username = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyValidator()], unique=False, default="")
     address = models.CharField(verbose_name="住所", max_length=100, default="")
@@ -105,10 +108,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email], **kwargs)
         
 class OptionRequest(CommonModel):
-    """オプションの利用申請データ
+    """
+    
+        オプションの利用申請データ
 
-    Args:
-        models (_type_): _description_
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

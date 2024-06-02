@@ -1,0 +1,13 @@
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+<script src="{% static 'toukiApp/step_one_common.js' %}"></script>
+<script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+<script> const progress = JSON.parse("{{progress|escapejs}}"); </script>
+<script> const userDataScope = JSON.parse("{{userDataScope|escapejs}}"); </script>
+<script> const spouse_data = JSON.parse("{{spouse_data|escapejs}}"); </script>
+<script> const childs_data = JSON.parse("{{childs_data|escapejs}}"); </script>
+<script> const child_heirs_data = JSON.parse("{{child_heirs_data|escapejs}}"); </script>
+<script> const ascendant_data = JSON.parse("{{ascendant_data|escapejs}}"); </script>
+<script> const collateral_data = JSON.parse("{{collateral_data|escapejs}}"); </script>

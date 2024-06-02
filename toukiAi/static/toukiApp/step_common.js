@@ -377,7 +377,6 @@ async function getCityData(val, el, instance){
     }).finally(()=>{
         //データ取得中ツールチップを削除する
         document.getElementById(`${el.id}_verifyingEl`).remove();
-        isActivateOkBtn(instance);
     });
 }
 

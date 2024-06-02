@@ -179,4 +179,16 @@
     .emPosition{
         left: 0px!important;
     }
+
+    .nav-list {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .nav-list li {
+        flex: 0 0 33.333%; /* 幅を45%に設定して2段に分ける */
+        margin-bottom: 10px; /* アイテム間のスペースを確保 */
+        text-align: center;
+        white-space: nowrap;
+    }
 }

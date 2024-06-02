@@ -58,11 +58,11 @@ class CustomSignupView(SignupView):
         context["canonical_url"] = get_canonical_url(self.request, "accounts:signup")
         return context
     
-    def get(self, request, *args, **kwargs):
-        """条件確認ページからの遷移かチェック"""
-        if not request.session.get('condition_passed', False):
-            return redirect('toukiApp:condition')
-        return super().get(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):          事前の利用条件確認は一旦停止中
+    #     """条件確認ページからの遷移かチェック"""
+    #     if not request.session.get('condition_passed', False):
+    #         return redirect('toukiApp:condition')
+    #     return super().get(request, *args, **kwargs)
 
 class CustomLoginView(LoginView):
     """カスタムログインページ"""
@@ -146,7 +146,11 @@ class CustomPasswordChangeView(PasswordChangeView):
         return super().form_invalid(form)
 
 def save_option_select(user, form):
-    """オプション選択のデータ登録"""
+    """
+    
+        オプション選択のデータ登録
+        
+    """
     function_name = get_current_function_name()
     try:
         instance = form.save(commit=False)
@@ -163,15 +167,19 @@ def save_option_select(user, form):
         raise e
 
 def get_option_select_data(user):
-    """オプション選択データ"""
+    """
+    
+        オプション選択データ
+        
+    """
     unpaid_data = OptionRequest.objects.filter(user=user, is_recieved=False).first() # 未払い
     paid_data = OptionRequest.objects.filter(user=user, is_recieved=True) # 支払済み
     paid_option_and_amount = {
-            'basic': False,
-            'option1': False,
-            'option2': False,
-            'charge': 0,
-        }
+        'basic': False,
+        'option1': False,
+        'option2': False,
+        'charge': 0,
+    }
 
     if paid_data:
         paid_option_and_amount = {
@@ -195,13 +203,14 @@ def option_select(request):
     next_url_name = "accounts:bank_transfer"
     
     try:
-        if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
-            return redirect("account_login")
+        # 会員制限(解除中)
+        # if not request.user.is_authenticated:
+        #     messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
+        #     return redirect("account_login")
         
-        user = request.user
+        user = request.user if request.user.is_authenticated else None
         unpaid_data, paid_data, paid_option_and_amount = get_option_select_data(user)
-        
+
         if request.method == "POST":
             form = OptionSelectForm(request.POST, paid_option_and_amount=paid_option_and_amount, instance=unpaid_data)
             
@@ -243,7 +252,7 @@ def option_select(request):
         
         context = {
             "title": "オプション選択",
-            "user_email": user.email,
+            "user_email": user.email if user else None,
             "company_data": CompanyData,
             "company_mail_address": CompanyData.MAIL_ADDRESS,
             "service": Service,

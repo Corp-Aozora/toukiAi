@@ -8,13 +8,19 @@ from common.create_reciept import *
 app_name = 'accounts'
 
 urlpatterns = [
-    path("signup/", views.CustomSignupView.as_view(), name="signup"), #新規登録ページ
-    path("login/", views.CustomLoginView.as_view(), name="account_login"), #ログインページ
-    path('confirm-email/', views.CustomEmailVerificationSentView.as_view(), name='email_verification_sent'), # 本登録リンク送信完了ページ
-    path('confirm-email/resend_confirmation/', views.resend_confirmation, name='resend_confirmation'), # 本登録リンク再発行処理
-    path('confirm-email/<key>/', views.CustomConfirmEmailView.as_view(), name='account_confirm_email'), # 本登録確認ページ
+    # 使用停止中
+    # path("signup/", views.CustomSignupView.as_view(), name="signup"), # 新規登録ページ
+    path("signup/", views.error_404, name="signup"),
+    # path('confirm-email/', views.CustomEmailVerificationSentView.as_view(), name='email_verification_sent'), # 本登録リンク送信完了ページ
+    path('confirm-email/', views.error_404, name='email_verification_sent'),
+    # path('confirm-email/resend_confirmation/', views.resend_confirmation, name='resend_confirmation'), # 本登録リンク再発行処理
+    path('confirm-email/resend_confirmation/', views.error_404, name='resend_confirmation'),
+    # path('confirm-email/<key>/', views.CustomConfirmEmailView.as_view(), name='account_confirm_email'), # 本登録確認ページ
+    path('confirm-email/<key>/', views.error_404, name='account_confirm_email'),
+    
     path('password/change/', views.CustomPasswordChangeView.as_view(), name='account_change_password'),
     path('password/change/is_oldpassword/', views.is_oldpassword, name='is_oldpassword'),
+    path("login/", views.CustomLoginView.as_view(), name="account_login"), #ログインページ
     path('password/reset/', views.CustomPasswordResetView.as_view(), name='account_reset_password'),
     path("change_email/", views.change_email, name="change_email"),
     path('confirm/<str:token>/', views.confirm_email, name='confirm_email'),
@@ -33,7 +39,7 @@ urlpatterns = [
     path('create_reciept_view/', CreateRecieptView.as_view(), name='create_reciept_view'),
     path('option_select/card_payment/after_card_pay', views.after_card_pay, name='after_card_pay'), # カード決済後の処理
     
-    # 使用しないallauthのurlを404にする
+    # 利用予定がないallauthのurlを404にする
     path('email/', views.error_404, name='account_email'),
     path('google/login/', views.error_404, name='google_login'),
     path('line/login/', views.error_404, name='line_login'),

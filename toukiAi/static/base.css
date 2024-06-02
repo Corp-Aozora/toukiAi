@@ -149,6 +149,34 @@ h1, h2, h3, h4, h5, h6{
     top:-2px;
 }
 
+/* チェックマーク */
+.checkmark{
+    position: relative;
+}
+
+.checkmark::after{
+    content: '';
+    display: block;
+    position: absolute;
+    top: .5em;
+    left: -1em;
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid rgb(25, 135, 84);
+    border-bottom: 2px solid rgb(25, 135, 84);
+    transform: rotate(-45deg);
+}
+
+/* 画面サイズに応じた改行をする要素に付与する ※max-widthの設定が必要 */
+.linebreak-wrapper{
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.linebreak-wrapper span{
+    display: inline;
+}
+
 /* SweetAlert2 ボタンの配置を変更する */
 .swal2-actions {
     display: flex;
@@ -204,6 +232,10 @@ form .form-error-wrapper{
         padding-left: 0.5rem!important;
         padding-right: 0.5rem!important;
         text-align: center!important;
+    }
+
+    .md-w-100{
+        width: 100%!important;
     }
 }
 

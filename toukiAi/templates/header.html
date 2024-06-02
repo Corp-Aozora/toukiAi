@@ -8,13 +8,16 @@
         <a class="me-lg-4" href="{% url 'toukiApp:index' %}">
             <img class="logo-img" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </a>
-        <button class="menu-toggler-btn px-3 btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">
-            メニュー
+        <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
+            相続人判定
+        </a>
+        <button class="menu-toggler-btn btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">
+            サイトマップ
         </button>
         <div id="offcanvasMenus" class="offcanvas offcanvas-end" tabindex="-1" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header bg-light border-bottom">
                 <h5 id="offcanvasLabel" class="offcanvas-title">
-                    メニュー
+                    サイトマップ
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#offcanvasMenus">
                 </button>
@@ -23,7 +26,7 @@
                 <ul class="navbar-nav py-md-0">
                     {% if user.is_authenticated %}
                         <li class="nav-item col col-md-auto account-menu">
-                            <a id="logoutBtn" class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                            <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
                                 ログアウト
                             </a>
                         </li>
@@ -39,40 +42,15 @@
                             </a>
                         </li>
                         <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
-                            <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow signupBtn" href="{% url 'toukiApp:condition' %}">
-                                アカウント登録
+                            <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
+                                サービスを申し込む
                             </a>                                
                         </li>
                     {% endif %}
-                    <li class="nav-item col col-md-auto">
-                        <button type="button" id="toIntroBtn" class="btn btn-outline-primary p-2 fw-bold toIntro">
-                            システム概要
-                        </button>
-                    </li>
-                    <li class="nav-item col col-md-auto">
-                        <button type="button" id="toSupportBtn" class="btn btn-outline-primary p-2 fw-bold toSupport">
-                            機能詳細
-                        </button>
-                    </li>
-                    <li class="nav-item col col-md-auto">
-                        <button type="button" id="toChargeBtn" class="btn btn-outline-primary p-2 fw-bold toCharge">
-                            料金
-                        </button>
-                    </li>
-                    <li class="nav-item col col-md-auto">
-                        <button type="button" id="toCompareBtn" class="btn btn-outline-primary p-2 fw-bold toCompare">
-                            他社比較
-                        </button>
-                    </li>
-                    <li class="nav-item col col-md-auto">
-                        <button type="button" id="toQABtn" class="btn btn-outline-primary p-2 fw-bold toQA">
-                            Ｑ＆Ａ
-                        </button>
-                    </li>
-                    <li class="nav-item col col-md-auto last-header-li">
-                        <button type="button" id="toInquiryBtn" class="btn btn-outline-primary p-2 fw-bold toInquiry">
-                            お問い合わせ
-                        </button>
+                    <li class="nav-item col col-md-auto proxy-footer-li">
+                        <a class="proxy-footer" href="{% url 'toukiApp:index' %}">
+                            トップページ
+                        </a>
                     </li>
                     <li class="nav-item col col-md-auto proxy-footer-li">
                         <a class="proxy-footer" href="{% url 'toukiApp:terms' %}">
@@ -99,7 +77,7 @@
         </div>
         <div id="accountLink">
             {% if user.is_authenticated %}
-                <a id="logoutBtn" class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
                     ログアウト
                 </a>
                 <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
@@ -109,8 +87,8 @@
                 <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">
                     ログイン
                 </a>
-                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow signupBtn" href="{% url 'toukiApp:condition' %}">
-                    アカウント登録
+                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
+                    サービスを申し込む
                 </a>
             {% endif %}
         </div>

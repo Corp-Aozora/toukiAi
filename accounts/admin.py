@@ -19,7 +19,7 @@ class MyUserCreationForm(UserCreationForm):
 
 class MyUserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username', 'email', "phone_number",'password', "basic", "option1", "option2", "option3", "option4", "option5", "pay_amount")}),
+        (None, {'fields': ('username', "address", 'email', "phone_number", 'password', "basic_date", "option1_date", "option2_date", "option3_date", "option4_date", "option5_date", "pay_amount", "last_login_session_key")}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', "last_update", 'date_joined')}),
@@ -31,7 +31,7 @@ class MyUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', "is_staff", "is_superuser",'password1', 'password2'),
+            'fields': ('username', "address", 'email', "phone_number", "is_staff", "is_superuser",'password1', 'password2'),
         }),
     )
     
@@ -76,16 +76,16 @@ class OptionRequestForm(forms.ModelForm):
 
 class OptionRequestAdmin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': ('user', "order_id", "transaction_id", "access_id", "is_recieved", "is_recieved_date", "name", "payer", "address", "phone_number", "basic", "option1", "option2", "charge", "created_by", "updated_by")}),
+        (None, {'fields': ('user', "order_id", "transaction_id", "access_id", "recieved_date", "payer", "basic", "option1", "option2", "charge", "created_by", "updated_by")}),
         (_('Important dates'), {'fields': ('updated_at', "created_at")}),
     )
     
     readonly_fields = ('updated_at', "created_at")
     
     form = OptionRequestForm
-    list_display = ('updated_at', 'user', "order_id", "name", "payer", "phone_number", "basic", "option1", "option2", "charge", "is_recieved")
-    list_filter = ('updated_at', "order_id",'user', "name", "payer", "is_recieved")
-    search_fields = ('updated_at', 'user__email', "order_id", "transaction_id", "access_id", "name", "payer", "phone_number")
+    list_display = ('updated_at', 'user', "order_id", "payer", "basic", "option1", "option2", "charge")
+    list_filter = ('updated_at', 'user', "order_id", "payer")
+    search_fields = ('updated_at', 'user__email', "user__name", "user__address", "user__phone_number", "order_id", "transaction_id", "access_id", "payer")
     ordering = ["-updated_at"]
         
     # def get_urls(self):
@@ -112,3 +112,25 @@ class OptionRequestAdmin(admin.ModelAdmin):
     #     # return HttpResponse("Processed!")
     
 admin.site.register(OptionRequest, OptionRequestAdmin)
+
+# メールアドレス変更申請
+class EmailVerificationForm(forms.ModelForm):
+    class Meta:
+        model = EmailVerification
+        fields = '__all__'
+
+class EmailVerificationAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('user', "session_id", "email", "token", "is_verified")}),
+        (_('Important dates'), {'fields': ("created_at",)}),
+    )
+    
+    readonly_fields = ('user', "session_id", "email", "token", "is_verified", "created_at")
+    
+    form = EmailVerificationForm
+    list_display = ('created_at', 'user', "email", "is_verified")
+    list_filter = ('created_at', 'user', "email", "is_verified")
+    search_fields = ('user', "session_id", "email", "token", "is_verified", "created_at")
+    ordering = ["-created_at"]
+
+admin.site.register(EmailVerification, EmailVerificationAdmin)

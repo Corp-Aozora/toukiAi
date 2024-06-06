@@ -3,9 +3,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
 from .company_data import Service
 from django.utils import timezone
-from .models import *
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
+
+from .models import *
+from common.forms import CustomModelForm
 
 CustomUser = get_user_model()
 
@@ -319,7 +321,7 @@ def conversion_bool_value(form):
     トップページ
 
 """
-class OpenInquiryForm(forms.ModelForm):
+class OpenInquiryForm(CustomModelForm):
     """
     
         問い合わせ
@@ -415,7 +417,7 @@ def initialize_step_one_common_form(form, *args, **kwargs):
     super(type(form), form).__init__(*args, **kwargs)
     conversion_bool_value(form)
 
-class BaseOneForm(forms.ModelForm):
+class BaseOneForm(CustomModelForm):
     """被相続人、配偶者、尊属の共通項目"""
     index = forms.CharField(required=False, widget=forms.HiddenInput(attrs=WidgetAttributes.hidden_input))
     target = forms.CharField(required=False, widget=forms.HiddenInput(attrs=WidgetAttributes.hidden_input))
@@ -426,7 +428,7 @@ class BaseOneForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-class BaseTwoForm(forms.ModelForm):
+class BaseTwoForm(CustomModelForm):
     """子、兄弟姉妹の共通項目"""
     index = forms.CharField(required=False, widget=forms.HiddenInput(attrs=WidgetAttributes.hidden_input))
     target1 = forms.CharField(required=False, widget=forms.HiddenInput(attrs=WidgetAttributes.hidden_input))
@@ -461,7 +463,7 @@ class StepOneSpouseForm(BaseOneForm):
     def __init__(self, *args, **kwargs):
         initialize_step_one_relations_form(self, False, *args, **kwargs)
 
-class StepOneDescendantCommonForm(forms.ModelForm):
+class StepOneDescendantCommonForm(CustomModelForm):
     """子全員"""
     class Meta:
         model = DescendantCommon
@@ -495,7 +497,7 @@ class StepOneAscendantForm(BaseOneForm):
     def __init__(self, *args, **kwargs):
         initialize_step_one_relations_form(self, False, *args, **kwargs)
 
-class StepOneCollateralCommonForm(forms.ModelForm):
+class StepOneCollateralCommonForm(CustomModelForm):
     """兄弟姉妹全員"""
     class Meta:
         model = CollateralCommon
@@ -564,7 +566,7 @@ def set_step_three_heir_form(form, is_descendant_or_collateral):
             field.widget.attrs.update(WidgetAttributes.select)
             
 # 被相続人情報
-class StepThreeDecedentForm(forms.ModelForm):
+class StepThreeDecedentForm(CustomModelForm):
     class Meta:
         model = Decedent
         fields = model.step_three_fields
@@ -576,7 +578,7 @@ class StepThreeDecedentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
 #相続人情報（配偶者、子の配偶者）
-class StepThreeSpouseForm(forms.ModelForm):
+class StepThreeSpouseForm(CustomModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
     id = forms.CharField(widget=forms.HiddenInput())
@@ -600,7 +602,7 @@ class StepThreeSpouseForm(forms.ModelForm):
         conversion_bool_value(self)
         
 #相続人情報（子、孫）
-class StepThreeDescendantForm(forms.ModelForm):
+class StepThreeDescendantForm(CustomModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
     #前配偶者との子のとき用
@@ -628,7 +630,7 @@ class StepThreeDescendantForm(forms.ModelForm):
         conversion_bool_value(self)
         
 #相続人情報（尊属）
-class StepThreeAscendantForm(forms.ModelForm):
+class StepThreeAscendantForm(CustomModelForm):
      # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
     id = forms.CharField(widget=forms.HiddenInput())
@@ -653,7 +655,7 @@ class StepThreeAscendantForm(forms.ModelForm):
 
         
 #相続人情報（兄弟姉妹）
-class StepThreeCollateralForm(forms.ModelForm):
+class StepThreeCollateralForm(CustomModelForm):
     # [id]_[content_type]の形式文字列、不動産取得者用
     id_and_content_type = forms.CharField(widget=forms.HiddenInput())
     #異父母との子のとき用
@@ -681,7 +683,7 @@ class StepThreeCollateralForm(forms.ModelForm):
         conversion_bool_value(self)
         
 #遺産分割の方法
-class StepThreeTypeOfDivisionForm(forms.ModelForm):
+class StepThreeTypeOfDivisionForm(CustomModelForm):
     all_cash_acquirer = forms.CharField(widget=forms.Select(choices=[("", "選択してください")]), required=False)
     
     class Meta:
@@ -718,7 +720,7 @@ class StepThreeTypeOfDivisionForm(forms.ModelForm):
         return self.cleaned_data.get("all_cash_acquirer")
             
 #不動産の数
-class StepThreeNumberOfPropertiesForm(forms.ModelForm):
+class StepThreeNumberOfPropertiesForm(CustomModelForm):
     class Meta:
         model = NumberOfProperties
         fields = model.step_three_fields
@@ -736,7 +738,7 @@ class StepThreeNumberOfPropertiesForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
 #土地
-class StepThreeLandForm(forms.ModelForm):
+class StepThreeLandForm(CustomModelForm):
     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
     land_id = forms.CharField(widget=forms.HiddenInput())
     
@@ -785,7 +787,7 @@ class StepThreeLandForm(forms.ModelForm):
                 self.initial[field] = 'true' if self.initial[field] else 'false'
 
 #土地取得者
-class StepThreeLandAcquirerForm(forms.ModelForm):
+class StepThreeLandAcquirerForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
@@ -809,7 +811,7 @@ class StepThreeLandAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 #土地金銭取得者
-class StepThreeLandCashAcquirerForm(forms.ModelForm):
+class StepThreeLandCashAcquirerForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
@@ -833,7 +835,7 @@ class StepThreeLandCashAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 #建物
-class StepThreeHouseForm(forms.ModelForm):
+class StepThreeHouseForm(CustomModelForm):
     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
     house_id = forms.CharField(widget=forms.HiddenInput())
     
@@ -878,7 +880,7 @@ class StepThreeHouseForm(forms.ModelForm):
                 self.initial[field] = 'true' if self.initial[field] else 'false'
 
 #建物取得者
-class StepThreeHouseAcquirerForm(forms.ModelForm):
+class StepThreeHouseAcquirerForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
@@ -902,7 +904,7 @@ class StepThreeHouseAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 #建物金銭取得者
-class StepThreeHouseCashAcquirerForm(forms.ModelForm):
+class StepThreeHouseCashAcquirerForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
@@ -926,7 +928,7 @@ class StepThreeHouseCashAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 # 区分建物
-class StepThreeBldgForm(forms.ModelForm):
+class StepThreeBldgForm(CustomModelForm):
     index = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
     bldg_id = forms.CharField(widget=forms.HiddenInput())
     
@@ -970,7 +972,7 @@ class StepThreeBldgForm(forms.ModelForm):
                 self.initial[field] = 'true' if self.initial[field] else 'false'
 
 # 敷地権        
-class StepThreeSiteForm(forms.ModelForm):
+class StepThreeSiteForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput(), initial="0")
     
     class Meta:
@@ -1001,7 +1003,7 @@ class StepThreeSiteForm(forms.ModelForm):
         self.fields['type'].choices = [("", "選択してください")] + list(Site.TYPE_CHOICES)
         
 # 区分建物取得者
-class StepThreeBldgAcquirerForm(forms.ModelForm):
+class StepThreeBldgAcquirerForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
@@ -1025,7 +1027,7 @@ class StepThreeBldgAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 # 区分金銭取得者
-class StepThreeBldgCashAcquirerForm(forms.ModelForm):
+class StepThreeBldgCashAcquirerForm(CustomModelForm):
     target = forms.CharField(required=False, widget=forms.HiddenInput())
     
     class Meta:
@@ -1049,7 +1051,7 @@ class StepThreeBldgCashAcquirerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
                 
 #申請情報
-class StepThreeApplicationForm(forms.ModelForm):
+class StepThreeApplicationForm(CustomModelForm):
     class Meta:
         model = Application
         # decedent, content_type, object_id, is_agent, agent_name, agent_address, agent_phone_number, is_return, is_mail,
@@ -1095,7 +1097,7 @@ class StepThreeApplicationForm(forms.ModelForm):
             if self.initial.get(field) is not None:
                 self.initial[field] = 'true' if self.initial[field] else 'false'
                 
-class StepUserInquiryForm(forms.ModelForm):
+class StepUserInquiryForm(CustomModelForm):
     """ユーザーの問い合わせページ"""
     class Meta:
         model = UserInquiry
@@ -1120,22 +1122,22 @@ class StepUserInquiryForm(forms.ModelForm):
     管理者サイト関連フォーム
 
 """
-class OpenInquiryAdminForm(forms.ModelForm):
+class OpenInquiryAdminForm(CustomModelForm):
     class Meta:
         model = OpenInquiry
         fields = '__all__'
             
-class AnswerToOpenInquiryAdminForm(forms.ModelForm):
+class AnswerToOpenInquiryAdminForm(CustomModelForm):
     class Meta:
         model = AnswerToOpenInquiry
         fields = "__all__"
 
-class UserInquiryAdminForm(forms.ModelForm):
+class UserInquiryAdminForm(CustomModelForm):
     class Meta:
         model = UserInquiry
         fields = '__all__'
             
-class AnswerToUserInquiryAdminForm(forms.ModelForm):
+class AnswerToUserInquiryAdminForm(CustomModelForm):
     class Meta:
         model = AnswerToUserInquiry
         fields = "__all__"

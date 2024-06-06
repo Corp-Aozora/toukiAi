@@ -1,5 +1,7 @@
 "use strict"
 
+const isUser = document.getElementById("id_email")? false: true;
+
 // エラーメッセージ
 class ErrorLogger{
     static createInstance(id, e){
@@ -101,48 +103,114 @@ class FormSection{
             this.form = document.getElementsByTagName("form")[0];
             this.fieldset = this.section.getElementsByTagName("fieldset")[0];
             this.Qs = this.fieldset.getElementsByClassName("Q");
-            [   
-                this.paymentQ,
-                this.nameQ,
-                this.payerQ,
-                this.addressQ,
-                this.phoneNumberQ,
+
+            if(isUser){
+                [   
+                    this.paymentQ,
+                    this.payerQ,
+                    this.cardNumberQ,
+                    this.expiryMonthQ,
+                    this.expiryYearQ,
+                    this.cvvQ,
+                    this.cardHolderNameQ,
+                    this.termsAgreementQ,
+                ] = this.Qs;
+            }else{
+                [   
+                    this.emailQ,
+                    this.nameQ,
+                    this.addressQ,
+                    this.phoneNumberQ,
+                    this.password1Q,
+                    this.password2Q,
+                    this.paymentQ,
+                    this.payerQ,
+                    this.cardNumberQ,
+                    this.expiryMonthQ,
+                    this.expiryYearQ,
+                    this.cvvQ,
+                    this.cardHolderNameQ,
+                    this.termsAgreementQ,
+                    this.tokenQ,
+                ] = this.Qs;
+            }
+            this.cardInfoQsArr = [
                 this.cardNumberQ,
                 this.expiryMonthQ,
                 this.expiryYearQ,
                 this.cvvQ,
                 this.cardHolderNameQ,
-            ] = this.Qs;
-
+            ]
             this.errMsgEls = this.fieldset.getElementsByClassName("errorMessage");
-            [
-                this.paymentErrMsgEl,
-                this.nameErrMsgEl,
-                this.payerErrMsgEl,
-                this.addressErrMsgEl,
-                this.phoneNumberErrMsgEl,
-                this.cardNumberErrMsgEl,
-                this.expiryMonthErrMsgEl,
-                this.expiryYearErrMsgEl,
-                this.cvvErrMsgEl,
-                this.cardHolderNameErrMsgEl,
-            ] = this.errMsgEls
+            if(isUser){
+                [
+                    this.paymentErrMsgEl,
+                    this.payerErrMsgEl,
+                    this.cardNumberErrMsgEl,
+                    this.expiryMonthErrMsgEl,
+                    this.expiryYearErrMsgEl,
+                    this.cvvErrMsgEl,
+                    this.cardHolderNameErrMsgEl,
+                    this.termsAgreementErrMsgEl,
+                ] = this.errMsgEls
+            }else{
+                [
+                    this.emailErrMsgEl,
+                    this.nameErrMsgEl,
+                    this.addressErrMsgEl,
+                    this.phoneNumberErrMsgEl,
+                    this.password1ErrMsgEl,
+                    this.password2ErrMsgEl,
+                    this.paymentErrMsgEl,
+                    this.payerErrMsgEl,
+                    this.cardNumberErrMsgEl,
+                    this.expiryMonthErrMsgEl,
+                    this.expiryYearErrMsgEl,
+                    this.cvvErrMsgEl,
+                    this.cardHolderNameErrMsgEl,
+                    this.termsAgreementErrMsgEl,
+                    this.tokenErrMsgEl,
+                ] = this.errMsgEls
+            }
 
             this.inputs = this.fieldset.getElementsByTagName("input");
-            [
-                this.paymentCard,
-                this.paymentBank,
-                this.name,
-                this.payer,
-                this.address,
-                this.phoneNumber,
-                this.cardNumber,
-                this.expiryMonth,
-                this.expiryYear,
-                this.cvv,
-                this.cardHolderName,
-            ] = this.inputs
+            if(isUser){
+                [
+                    this.paymentCard,
+                    this.paymentBank,
+                    this.payer,
+                    this.cardNumber,
+                    this.expiryMonth,
+                    this.expiryYear,
+                    this.cvv,
+                    this.cardHolderName,
+                    this.termsAgreement,
+                ] = this.inputs
+            }else{
+                [
+                    this.email,
+                    this.name,
+                    this.address,
+                    this.phoneNumber,
+                    this.password1,
+                    this.password2,
+                    this.paymentCard,
+                    this.paymentBank,
+                    this.payer,
+                    this.cardNumber,
+                    this.expiryMonth,
+                    this.expiryYear,
+                    this.cvv,
+                    this.cardHolderName,
+                    this.termsAgreement,
+                    this.token,
+                ] = this.inputs
+            }
 
+            if(!isUser){
+                this.verifyEmailBtn = document.getElementById("verify-email-btn");
+                this.veryfyEmailSpinnerBtn = document.getElementById("verify-email-btn-spinner");
+            }
             this.submitBtn = document.getElementById("submitBtn");
             this.submitSpinner = document.getElementById("submitSpinner");
             this.standByMessageEl = document.getElementsByClassName("stand-by-message")[0];
@@ -222,17 +290,7 @@ class CommonEvent{
     
     // 入力欄のトグル
     static toggleFormSection(isChecked, form, basicCb, option1Cb, option2Cb){
-        const {fieldset, addressQ, submitBtn, address, addressErrMsgEl} = form;
-
-        // 有料版のみのチェックのとき、住所欄を非表示にする/ 住所欄を初期化する
-        const isOnlyBasicCbChecked = basicCb.checked && !option1Cb.checked && !option2Cb.checked;
-        if(isOnlyBasicCbChecked){
-            addressQ.style.display = "none";
-            address.value = "";
-            addressErrMsgEl.style.display = "none";
-        }else{
-            addressQ.style.display = "";
-        }
+        const {fieldset, submitBtn} = form;
 
         if(isChecked){
             slideDown(fieldset);
@@ -279,7 +337,7 @@ function handleBasicSectionEvent(instances){
 
     basic.navBtn.addEventListener("click",()=>{
         scrollToTarget(form.fieldset);
-        form.name.focus();
+        form.fieldset.querySelector("input").focus();
     })
 }
 
@@ -315,7 +373,7 @@ function handleOption1SectionEvent(instances){
 
     option1.navBtn.addEventListener("click",()=>{
         scrollToTarget(form.fieldset);
-        form.name.focus();
+        form.fieldset.querySelector("input").focus();
     })
 }
 
@@ -351,7 +409,7 @@ function handleOption2SectionEvent(instances){
 
     option2.navBtn.addEventListener("click",()=>{
         scrollToTarget(form.fieldset);
-        form.name.focus();
+        form.fieldset.querySelector("input").focus();
     })
 }
 
@@ -360,22 +418,26 @@ function handleOption2SectionEvent(instances){
  */
 class FormSectionInputEvent{
 
-    // changeイベント
-    static change(form, input, inputIdx){
+    /**
+     * changeイベント
+     */
+    static async change(form, input, inputIdx){
+        let name, address, email, phoneNumber, password1, password2, token, verifyEmailBtn;
+        if(!isUser){
+            ({name, address, email, phoneNumber, password1, password2, token, verifyEmailBtn} = form)
+        }
 
         const {
-            paymentCard, paymentBank, name, payer, address, phoneNumber, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName,
-            Qs, 
-            payerQ,
+            paymentCard, paymentBank, payer, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName, termsAgreement,
+            cardInfoQsArr, payerQ,
             errMsgEls,
             payerErrMsgEl,
+            submitBtn
         } = form;
 
         // 支払方法
         function handlePayment(isCard){
             try{
-                const QsArr = Array.from(Qs);
-                const startIdx = QsArr.findIndex(element => element.classList.contains('card-info-start'));
                 const cardInfoDisplay = isCard? "flex": "none";
                 const payerDisplay = isCard? "none": "flex";
     
@@ -385,8 +447,8 @@ class FormSectionInputEvent{
                 payer.value = "";
     
                 // カードのとき、カード情報を表示する
-                for(let i = startIdx; i < Qs.length; i++){
-                    const q = Qs[i];
+                for(let i = 0, len = cardInfoQsArr.length; i < len; i++){
+                    const q = cardInfoQsArr[i];
                     q.style.display = cardInfoDisplay;
     
                     if(!isCard){
@@ -394,8 +456,11 @@ class FormSectionInputEvent{
                         q.querySelector(".errorMessage").style.display = "none";
                     }
                 }
-    
-                name.focus();
+                
+                if(isCard)
+                    cardNumber.focus();
+                else
+                    payer.focus();
             }catch(e){
                 basicLog("handlePayment", e, `isCard=${isCard}`);
             }
@@ -431,7 +496,7 @@ class FormSectionInputEvent{
                 return result;
 
             inProcessInput.value = hankakuToZenkaku(inProcessInput.value)
-            return result;
+            return true;
         }
 
         // 数字のみの入力欄イベント
@@ -522,6 +587,19 @@ class FormSectionInputEvent{
                 }
             }
 
+            // 一時コード
+            function handleToken(inProcessInput){
+                try{
+                    let result = isDigit(inProcessInput, "token");
+                    if(typeof result === "string")
+                        return result;
+    
+                    return true;
+                }catch(e){
+                    basicLog("handleToken", e, `inProcessInput=${inProcessInput}`);
+                }
+            }
+
             /**
              * メイン処理
              */
@@ -537,6 +615,8 @@ class FormSectionInputEvent{
                 return handleExpiryYear(numInput);
             else if(numInput === cvv)
                 return handleCvv(numInput);
+            else if(numInput === token)
+                return handleToken(numInput);
         }
 
         // カード名義人
@@ -570,9 +650,29 @@ class FormSectionInputEvent{
             }
         }
 
+        // メールアドレス検証
+        async function handleEmail(input){
+            const response = await validateEmail(input);
+            
+            if(response.status === 200)
+                return true;
+
+            if(typeof response === "string")
+                return response;
+
+            if(response.status === 409)
+                return "会員の方は先にログインをお願いします";
+            
+            const data = await response.json();
+            return data.message;
+        }
+
         // エラーメッセージ表示トグル
         function toggleErrMsgEl(result){
-            const el = errMsgEls[inputIdx - 1];
+            // 支払方法欄に2つinputがあるためカードcheckbox以降のinputIdxを - 1している
+            const idx = isUser? inputIdx - 1: 
+                inputIdx > 6? inputIdx -1: inputIdx
+            const el = errMsgEls[idx];
 
             // エラーがあるとき、メッセージを表示して値を初期化
             if(typeof result === "string"){
@@ -586,70 +686,116 @@ class FormSectionInputEvent{
             }else{
                 ErrorLogger.invalidArgs("FormSectionInputEvent.toggleErrMsgEl", {result: result, el: el, input: input});
             }
+
+            // パスワード1のchangeイベントのとき、常に確認用の値を初期化する
+            if(input === password1)
+                password2.value = "";
+        }
+
+        // 規約に同意
+        function handleTermsAgreement(){
+            if(isUser && input.checked)
+                submitBtn.focus();
+            else if(!isUser && input.checked)
+                verifyEmailBtn.focus();
         }
 
         let result;
 
-        // 支払い方法
-        if([paymentCard, paymentBank].includes(input)){
-            const isCard = input === paymentCard? true: false;
-            handlePayment(isCard);
-            return;
-        }else if(input === name){
+        switch(input){
+            // 支払い方法
+            case paymentCard:
+            case paymentBank:
+                const isCard = input === paymentCard? true: false;
+                handlePayment(isCard);
+                return;
             // 氏名 = 全角確認
-            result = isOnlyZenkaku(input);
-        }else if(input === payer){
+            case name:
+                result = isOnlyZenkaku(input);
+                break;
             // 支払名義人 = カタカナチェック、カタカナ変換
-            result = handlePayer();
-        }else if(input === address){
+            case payer:
+                result = handlePayer();
+                break;
             // 住所 = 空欄チェック, 半角を全角に変換
-            result = handleAddress(input);
-        }else if(input === phoneNumber){
+            case address:
+                result = handleAddress(input);
+                break;
+            // メールアドレス = 形式チェックと既存のチェック
+            case email:
+                result = await handleEmail(input);
+                break;
+            // パスワード1
+            case password1:
+                result = validatePassword1(input);
+                break;
+            // 確認用
+            case password2:
+                result = validatePassword2(password1, input);
+                break;
             // 電話番号 = 数字のみかつ10または11桁
-            result = checkPhoneNumber(input, false);
-        }else if(input === cardNumber){
+            case phoneNumber:
+                result = checkPhoneNumber(input, false);
+                break;
             // カード番号 = 数字のみかつ15,16桁, 4桁ごとに半角スペース
-            result = handleNumInputs(input);
-        }else if(input === expiryMonth){
+            case cardNumber:
+                result = handleNumInputs(input);
+                break;
             // 有効期限(月) = 数字のみかつ2桁, 1桁のときは先頭に0を付与
-            result = handleNumInputs(input);
-        }else if(input === expiryYear){
+            case expiryMonth:
+                result = handleNumInputs(input);
+                break;
             // 有効期限(年) = 数字のみかつ2桁, 現在から10年以内
-            result = handleNumInputs(input);
-        }else if(input === cvv){
+            case expiryYear:
+                result = handleNumInputs(input);
+                break;
             // cvv = 数字のみかつ3または4桁
-            result = handleNumInputs(input);
-        }else if(input === cardHolderName){
+            case cvv:
+                result = handleNumInputs(input);
+                break;
             // カード名義人 = 半角のアルファベットのみ、スペースがある
-            result = handleCardHolderName();
+            case cardHolderName:
+                result = handleCardHolderName();
+                break;
+            // 利用規約に同意 = 次の要素にフォーカス
+            case termsAgreement:
+                handleTermsAgreement();
+                return;
+            case token:
+                result = handleNumInputs(input);
+                break;
         }
 
-        // 検証後のエラーメッセージ表示処理(支払方法欄に2つinputがあるためidx - 1にしている)
-        toggleErrMsgEl(result, input);
+        // 検証後のエラーメッセージ表示処理
+        toggleErrMsgEl(result);
     }   
 
-    // keydownイベント
+    /**
+     * keydownイベント
+     */
     static keydown(e, form, input, inputIdx){
+        let name, address, email, phoneNumber, password1, password2, token, addressQ;
+        if(!isUser){
+            ({name, address, email, phoneNumber, password1, password2, token, addressQ} = form)
+        }
         const {
             inputs,
-            paymentCard, paymentBank, name, payer, address, phoneNumber, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName,
-            payerQ, addressQ, cardNumberQ,
+            paymentCard, paymentBank, payer, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName, termsAgreement,
+            payerQ, cardNumberQ,
             submitBtn
         } = form;
 
         // フォーカス対象の次の要素を取得する
         function getNextTargetEl(){
 
-            // 氏名欄で支払名義人が非表示のとき住所欄を返す
-            if(input === name && window.getComputedStyle(payerQ).display === "none"){
-                // 住所欄が非表示のとき電話番号欄を返す
-                if(window.getComputedStyle(addressQ).display === "none")
-                    return phoneNumber;
-                else
-                    return address
-            }else if(input === phoneNumber && window.getComputedStyle(cardNumberQ).display === "none" ||
-                input === cardHolderName){
-                // 電話番号欄でカード番号が非表示のとき、またはカード名義人欄のときsubmitボタンを返す
+            // 氏名欄で住所欄が非表示のときメールアドレス欄を返す
+            if(input === name && window.getComputedStyle(addressQ).display === "none"){
+                return phoneNumber
+            }else if(input === payer){
+                // 支払名義人欄のとき利用規約の同意ボタンを返す
+                return termsAgreement;
+            }else if(input === token){
+                // 一時コードのとき申込むボタン
                 return submitBtn;
             }else{
                 // その他は次のインデックスの要素を返す
@@ -657,15 +803,15 @@ class FormSectionInputEvent{
             }
         }
 
-        // ラジオボタン以外
-        if(input !== paymentCard && input !== paymentBank)
+        // ラジオボタン、チェックボックス以外
+        if(!["radio", "checkbox"].includes(input.type))
             setEnterKeyFocusNext(e, getNextTargetEl());
 
-        // 氏名, 支払名義人は数字不可
-        if([name, payer].includes(input)){
+        // 氏名, 支払名義人, カード名義人は数字不可
+        if([name, payer, cardHolderName].includes(input)){
             disableNumKey(e);
-        }else if([phoneNumber, cardNumber, expiryMonth, expiryYear, cvv].includes(input)){
-            // 電話番号, カード番号, 有効期限(月), 有効期限(年), cvvは数字以外不可
+        }else if([phoneNumber, cardNumber, expiryMonth, expiryYear, cvv, token].includes(input)){
+            // 電話番号, カード番号, 有効期限(月), 有効期限(年), cvvは数字のみ可
             allowOnlyNumber(e);
         }
     }
@@ -679,13 +825,13 @@ class FormSectionSubmitEvent{
     // メイン処理
     static async submit(event, instances){
         
-        const [basic, option1, option2, charge, form, cardInfoError] = instances;
+        const [basic, option1, option2, charge, form, cardInfoError, emailVerificationToken] = instances;
         const {
             errMsgEls,
             submitBtn, submitSpinner,
             inputs,
-            paymentCard, payer, address, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName,
-            payerQ, addressQ, cardNumberQ,
+            paymentCard, payer, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName,
+            payerQ, cardNumberQ,
             standByMessageEl
         } = form;
 
@@ -706,8 +852,7 @@ class FormSectionSubmitEvent{
             for(let i = 0, len = inputs.length; i < len; i++){
                 const input = inputs[i];
     
-                if((input === payer && window.getComputedStyle(payerQ).display === "none")||
-                    (input === address && window.getComputedStyle(addressQ).display === "none")){
+                if((input === payer && window.getComputedStyle(payerQ).display === "none")){
                     input.value = "";
                     continue;
                 }
@@ -715,7 +860,7 @@ class FormSectionSubmitEvent{
                 if(input === cardNumber && window.getComputedStyle(cardNumberQ).display === "none")
                     return true;
     
-                if(input.type === "text" && trimAllSpace(input.value).length === 0){
+                if(["text", "email", "number", "password"].includes(input.type) && trimAllSpace(input.value).length === 0){
                     input.focus();
                     return false;
                 }
@@ -840,10 +985,6 @@ class FormSectionSubmitEvent{
                             return {message: "", paymentData: execRes, formData: formData};
                         else
                             return {message: execRes.message}
-                            
-                    }else if(registRes.status === 401){
-                        // 会員ではないとき
-                        window.location.href("/account/login/")
                     }else{
                         // エラーセッションに登録
                         cardInfoError.set(); 
@@ -921,9 +1062,6 @@ class FormSectionSubmitEvent{
                     throw new Error(result);
             }
 
-            // 送信ボタンを無効化/ スピナーを表示/ 入力欄を有効化
-            toggleProcess(isCardPaymentStart);
-
             // オプションが１つは選択されていることを確認
             if(!isOptionSelected()){
                 throw new Error("どれか１つオプションを選択してください。");
@@ -940,6 +1078,9 @@ class FormSectionSubmitEvent{
                 throw new Error("適切に入力されていない欄があります。");
             }
 
+            // 送信ボタンを無効化/ スピナーを表示/ 入力欄を有効化
+            toggleProcess(isCardPaymentStart);
+
             // カード決済のとき
             if(isCardPaymentStart){
                 event.preventDefault();
@@ -950,10 +1091,14 @@ class FormSectionSubmitEvent{
                     const result = await afterCardPay(paymentResult.paymentData, paymentResult.formData);
                     if(result.message !== "")
                         throw new Error(result.message);
+
+                    cardInfoError.clear();
                 }else{
                     throw new Error(`受付に失敗\n\n${paymentResult.message}`)
                 }   
             }
+
+            emailVerificationToken.clear();
         }catch(error){
             toggleProcess(false, error.message);
             basicLog("submit", error);
@@ -961,10 +1106,81 @@ class FormSectionSubmitEvent{
     }
 }
 
+/**
+ * メールアドレスを認証ボタンイベント
+ */
+class VerifyEmailBtnEvent{
+
+    // クリックイベント
+    static async click(emailInput, emailErrMsgEl, formInstance, emailVerificationTokenInstance){
+        const functionName = "VerifyEmailBtnEvent > click";
+        const val = emailInput.value;
+
+        // メールアドレス検証
+        async function checkEmail(){
+            await new Promise((resolve)=>{
+                emailInput.dispatchEvent(new Event("change"));
+                setTimeout(resolve, 0);
+            })
+
+            if(window.getComputedStyle(emailErrMsgEl).display === "none"){
+                return true;
+            }else{
+                await scrollToTarget(emailErrMsgEl);
+                return false;
+            }
+        }
+
+        // 認証リンクを送信
+        async function sendVerificationMail(){
+            const url = "/account/send_verification_mail";
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({ email: val }),
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                },
+                mode: "same-origin"
+            })
+
+            return response;
+        }
+
+        try{
+            let result = await checkEmail();
+            if(!result)
+                return;
+    
+            result = emailVerificationTokenInstance.isValid();
+            if(typeof result === "string"){
+                alert(result);
+                return;
+            }
+
+            const response = await sendVerificationMail();
+            if(response.ok){
+                emailVerificationTokenInstance.set();
+                alert(`${val} にメールを送信しました。\n\n受信したメールの内容のご確認をお願いします。`);
+                formInstance.token.focus();
+                return;
+            }
+            
+            const data = await response.json();
+            const message = data.message;
+            alert(message);
+            emailInput.focus();
+        }catch(e){
+            basicLog(functionName, e, `email=${val}`);
+            alert("通信エラー\n\n数分空けて再試行しても同じエラーになる場合は、恐れ入りますが、お問い合わせをお願いします。");
+        }   
+    }
+}
+
 // 入力欄のイベント設定
 function handleFormSectionEvent(instances){
-    const [basic, option1, option2, charge, form] = instances;
-    const {inputs} = form;
+    const [basic, option1, option2, charge, form, cardInfoError, emailVerificationToken] = instances;
+    const {inputs, email, emailErrMsgEl} = form;
 
     // 入力欄にイベント設定
     for(let i = 0, len = inputs.length; i < len; i++){
@@ -974,6 +1190,12 @@ function handleFormSectionEvent(instances){
         })
         input.addEventListener("keydown", (e)=>{
             FormSectionInputEvent.keydown(e, form, input, i);
+        })
+    }
+
+    if(!isUser){
+        form.verifyEmailBtn.addEventListener("click", ()=>{
+            VerifyEmailBtnEvent.click(email, emailErrMsgEl, form, emailVerificationToken);
         })
     }
 
@@ -1005,42 +1227,56 @@ function setEventHandler(instances){
     handleFormSectionEvent(instances);
 }
 
-/**
- * エラー表示部分にスクロールする
- */
-function scrollToFormErrors(){
-    const wrapper = document.getElementsByClassName("form-error-wrapper")[0];
-    if(wrapper)
-        scrollToTarget(field);
-}
+window.addEventListener("DOMContentLoaded", ()=>{
 
-/**
- * 入力状況を復元する
- * @param {[]} instances 
- */
-function restoreForm(instances){
-    const [basic, option1, option2, charge, form] = instances;
-    const targetInputs = [basic.cb, option1.cb, option2.cb];
-
-    charge.totalPrice.value = 0;
-
-    targetInputs.forEach(x => {
-        if(x.checked)
-            x.dispatchEvent(new Event("change"));
-    })
-
-}
-
-window.addEventListener("load", ()=>{
-    try{
+    // 使用するインスタンスの生成
+    function createInstances(){
         const basic = new OptionSection(Ids.fieldset.basic);
         const option1 = new OptionSection(Ids.fieldset.option1);
         const option2 = new OptionSection(Ids.fieldset.option2);
         const charge = new ChargeSection();
         const form = new FormSection();
         const cardInfoError = new CardInfoError();
+        const emailVerificationToken = new EmailVerificationToken();
+
+        return [basic, option1, option2, charge, form, cardInfoError, emailVerificationToken]
+    }
+
+    /**
+     * フォームエラーが発生して再表示するときに入力状況を復元する処理
+     * @param {[]} instances 
+     */
+    function restoreForm(instances){
+        const [basic, option1, option2, charge, form] = instances;
+        
+        // 合計額を初期化
+        charge.totalPrice.value = 0;
+        
+        // オプションの選択状況を再現
+        const optionsCheckboxes = [basic.cb, option1.cb, option2.cb];
+        optionsCheckboxes.forEach(x => {
+            if(x.checked)
+                x.dispatchEvent(new Event("change"));
+        })
+
+        // 銀行振込のときは、銀行振込用の表示にする(初期表示はクレジットカード用)
+        if(form.paymentBank.checked){
+            Array.from(form.cardInfoQsArr).forEach(x => x.style.display = "none");
+            form.payerQ.style.display = "flex";
+        }
+    }
+
+    /**
+     * エラー表示部分にスクロールする
+     */
+    function scrollToFormErrors(){
+        const wrapper = document.getElementsByClassName("form-error-wrapper")[0];
+        if(wrapper)
+            scrollToTarget(wrapper, 0);
+    }
     
-        const instances = [basic, option1, option2, charge, form, cardInfoError];
+    try{
+        const instances = createInstances();
     
         // inputでenterによるsubmitを阻止
         disableEnterKeyForInputs();

@@ -305,8 +305,11 @@ function validateIntInput(el){
 function isDigit(input, type) {
     const countDigit = input.value.length; // 文字列化の必要はない
     switch (type) {
+        case "token":
+            //一時コード(4桁)
+            return [4].includes(countDigit) ? true : "4桁で入力してください";
         case "creditCardNumber":
-            //クレジットカード（15または16桁）
+            //クレジットカード(15または16桁)
             return [14, 15, 16].includes(countDigit) ? true : "14 - 16桁で入力してください";
         case "cvv":
             // cvv（3または4桁）
@@ -962,4 +965,24 @@ function isAlphabetOnly(val){
         return true;
 
     return "アルファベットのみで入力してください";
+}
+
+/**
+ * targetInputの上部にtextのツールチップをトグルする
+ * @param {HTMLInputElement} targetInput 
+ * @param {string} text 
+ */
+function toggleVerifyingTooltip(isDisplay, targetInput, text = null){
+    const targetId = targetInput.id;
+    if(isDisplay){
+        const tooltip = 
+        `<div id="${targetId}_verifyingEl" class="verifying emPosition" style="z-index: 100; position: absolute;">
+            ${text}
+            <div class="spinner-border text-white spinner-border-sm" role="status">
+            </div>
+        </div>`;
+        targetInput.insertAdjacentHTML('afterend', tooltip);
+    }else{
+        document.getElementById(`${targetId}_verifyingEl`).remove();
+    }
 }

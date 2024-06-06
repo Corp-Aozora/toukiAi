@@ -156,12 +156,6 @@ window.addEventListener("load", ()=>{
         addScrollEvent(classEls[key], idEls[key]);
     }
 
-    //他のページでヘッダーのボタンが押された場合でも対象の項目へスクロールさせる
-    const navTo = sessionStorage.getItem(navToSessionKey);
-    if(navTo && idEls[navTo]){
-        scrollToTarget(idEls[navTo], 0);
-    }
-    
     //セッション情報を初期化
     sessionStorage.clear();
     

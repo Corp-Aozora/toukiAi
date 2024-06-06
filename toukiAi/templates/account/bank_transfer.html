@@ -65,29 +65,25 @@
             </div>
             <hr>
             <h5 class="text-center">
-                {{not_paid_data.charge}}円（税込）
+                {{not_paid_data.charge|to_half_width_digits}}円(税込)
             </h5>
         </div>
         <hr>
         <ul class="px-3">
-            <li>
-                <div class="d-flex fw-bold">
-                    <div>
-                        ※
-                    </div>
-                    <div>
-                        こちらが表示されてから１週間以内にお支払いを確認できない場合は、キャンセルされたものとします。
-                    </div>
+            <li class="d-flex fw-bold">
+                <div>
+                    ※
+                </div>
+                <div>
+                    こちらが表示されてから１週間以内にお支払いを確認できない場合は、キャンセルされたものとします。
                 </div>
             </li>
-            <li>
-                <div class="d-flex fw-bold">
-                    <div>
-                        ※
-                    </div>
-                    <div>
-                        弊社でお支払いを確認した後は、原則キャンセルできません。
-                    </div>
+            <li class="d-flex fw-bold">
+                <div>
+                    ※
+                </div>
+                <div>
+                    弊社でお支払いを確認した後は、原則キャンセルできません。
                 </div>
             </li>
         </ul>
@@ -117,7 +113,7 @@
                 <div>
                     <li class="d-flex">
                         <div class="label">
-                            金融機関名
+                            金融機関
                         </div>
                         <div class="ms-3">
                             {{ company_data.BANK_NAME }}    
@@ -158,18 +154,28 @@
                 </div>
             </ul>
             <div {% if not_paid_data.basic %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-                <hr>
+                <hr class="my-4">
                 <h5 class="fst-italic text-center">
-                    システムの有料版をお申し込みいただいた方
+                    {{service.BASIC_NAME}}をお申し込みいただいた場合
                 </h5>
                 <div class="mt-3">
-                    <p class="text-indent">
-                        以下のメールアドレスに
-                        <span class="px-3 border-bottom border-dark">
-                            お振込内容を確認できる画像
-                        </span>
-                        をお送りください。
-                    </p>
+                    <div>
+                        <div class="text-indent">
+                            以下のメールアドレスに
+                            <span class="px-2 border-bottom border-dark">
+                                お振込内容を確認できる画像
+                            </span>
+                            をお送りいただきますと入金確認前でも弊社の担当者が画像を確認してシステムを利用できるように設定いたします。
+                        </div>
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                毎日(土日祝日を含む)10時から20時まで随時確認を行ってます。
+                            </p>
+                        </div>
+                    </div>
                     <p class="text-center">
                         {% with "オプション利用料の振込連絡" as subject %}
                         <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ subject|urlencode }}&body=※振込内容を確認できる画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A名義人：{{ unique_payer|urlencode }}%0D%0A金額：{{ not_paid_data.charge|urlencode }}円">
@@ -177,21 +183,8 @@
                         </a>
                         {% endwith %}
                         <br>
-                        （クリックするとお客様のメールソフトが起動します）
+                        (お客様のメールソフトが起動します)
                     </p>
-                    <div>
-                        <div class="text-indent">
-                            弊社の担当者が画像を確認しましたら、お客様がシステムを利用できる状態に設定してメールでお知らせいたします。
-                        </div>
-                        <div class="d-flex">
-                            <div>
-                                ※
-                            </div>
-                            <div>
-                                毎日（土日祝日を含む）１０時から２０時まで確認を行ってます。
-                            </div>
-                        </div>
-                    </div>
                     <div class="d-flex mt-3">
                         <div>
                             <span class="border-bottom border-dark">
@@ -200,7 +193,7 @@
                         </div>
                         <div>
                             <span class="border-bottom border-dark fw-bold">
-                                ２４時間以内に弊社からメールが届かない場合
+                                24時間以内に弊社からメールが届かない場合
                             </span>
                             <br>
                             システム障害などの可能性がありますので、お手数ですが、弊社にお知らせをお願いします。
@@ -220,13 +213,13 @@
                 </div>
             </div>
             <div class="mt-3" {% if not_paid_data.option1 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
-                <hr>
+                <hr class="my-4">
                 <h5 class="fst-italic text-center">
-                    戸籍取得代行をお申し込みいただいた方
+                    {{service.OPTION1_NAME}}をお申し込みいただいた場合
                 </h5>
                 <div class="mt-3">
                     <div class="text-indent">
-                        弊社に着金したことを確認後、ご登録いただいた以下の住所に委任状などの書類を郵送してメールでその旨をお知らせいたします。
+                        弊社で入金確認後、ご登録いただいた以下の住所に委任状などの書類を郵送してメールでその旨をお知らせいたします。
                     </div>
                     <div class="fw-bold text-center my-3">
                         {{ not_paid_data.address }}
@@ -272,18 +265,15 @@
         <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
             <div class="text-center mb-0 d-flex justify-content-center align-items-center">
                 <h5>
-                    弊社提携の司法書士に依頼をお申し込みいただいた方
+                    {{service.OPTION2_NAME}}をお申し込みいただいた場合
                 </h5>
             </div>
         </div>
         <div class="card-body px-sm-5">
             <p class="text-indent">
-                <span class="fw-bold">
-                    受任する司法書士が決まりましたら弊社からお客様に司法書士の連絡先をメールします。
-                </span>
-                その後、
-                <span class="border-bottom border-dark">
-                    数日内に
+                受任する司法書士が決まりましたら弊社からお客様に司法書士の連絡先をメールいたします。その後、
+                <span class="border-bottom border-dark ">
+                    平日3日以内に
                 </span>
                 司法書士からお客様に電話またはメールにてご連絡があります。
             </p>
@@ -298,17 +288,15 @@
             <div class="mt-3">
                 <div class="d-flex">
                     <div>
-                        <span class="border-bottom border-dark">
-                            ※
-                        </span>
+                        ※
                     </div>
-                    <div>
+                    <p>
                         <span class="border-bottom border-dark fw-bold">
                             以下の場合は、弊社までお問い合わせをお願いします。
                         </span>
-                    </div>
+                    </p>
                 </div>
-                <ul class="ps-3 mb-0 mt-3">
+                <ul class="ps-3 mb-0">
                     <li class="d-flex">
                         <div>
                            ・ 

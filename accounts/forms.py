@@ -1,6 +1,6 @@
 from allauth.account.forms import SignupForm, LoginForm, ResetPasswordForm, ResetPasswordKeyForm, ChangePasswordForm, AddEmailForm
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
 from django.utils import timezone
 
@@ -8,6 +8,7 @@ from toukiApp.company_data import *
 from .models import *
 from common.widgets import *
 from common.utils import *
+from common.forms import CustomModelForm
 
 CustomUser = get_user_model()
 
@@ -42,8 +43,6 @@ class CustomLoginForm(LoginForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.error_messages["invalid_login"] = "・メールアドレス又はパスワードが登録されたものと一致しません。\n・英語は大文字と小文字を区別します。"                
-        
         self.fields["login"].widget.attrs.update({
             "class": "form-control rounded-end",
             "placeholder": "",
@@ -127,7 +126,7 @@ class CustomChangePasswordForm(ChangePasswordForm):
         self.fields["password2"].label = "再入力"
 
 # メールアドレスの変更
-class ChangeEmailForm(forms.ModelForm):
+class ChangeEmailForm(CustomModelForm):
     current_email = forms.EmailField(label="現在のメールアドレス")
     password = forms.CharField(label="パスワード", widget=forms.PasswordInput())
     
@@ -218,9 +217,70 @@ class DeleteAccountForm(forms.Form):
             raise forms.ValidationError("パスワードが正しくありません。")
         
         return cleaned_data
+  
+# class UpdateUserForm(UserChangeForm):
+#     """"
     
-class OptionSelectForm(forms.ModelForm):
-    """"オプション選択フォーム"""
+#         ユーザー更新フォーム
+    
+#     """
+#     class Meta:
+#         model = User
+#         fields = model.fields
+#         labels = {
+#             "email": "メール",
+#         }
+        
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+        
+#         self.fields["username"].widget.attrs.update(WidgetAttributes.name)
+#         self.fields["username"].required = False
+        
+#         self.fields["address"].widget.attrs.update(WidgetAttributes.full_address_2)
+#         self.fields["address"].required = False
+        
+#         self.fields["phone_number"].widget.attrs.update(WidgetAttributes.phone_number_no_hyphen)
+#         self.fields["phone_number"].validators.append(validate_no_hyphen_phone_number)
+        
+#         self.fields["email"].widget.attrs.update(WidgetAttributes.email)
+        
+class RegistUserForm(UserCreationForm):
+    """"
+    
+        ユーザー登録フォーム
+    
+    """
+    class Meta:
+        model = User
+        fields = model.fields
+    
+    def clean_username(self):
+        return self.cleaned_data['username']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields["email"].widget.attrs.update(WidgetAttributes.email)
+        
+        self.fields["username"].widget.attrs.update(WidgetAttributes.name)
+        
+        self.fields["address"].widget.attrs.update(WidgetAttributes.full_address_2)
+        
+        self.fields["phone_number"].widget.attrs.update(WidgetAttributes.phone_number_no_hyphen)
+        self.fields["phone_number"].validators.append(validate_no_hyphen_phone_number)
+        
+        self.fields["password1"].widget.attrs.update(WidgetAttributes.password1)
+        
+        self.fields["password2"].widget.attrs.update(WidgetAttributes.password2)
+        self.fields["password2"].label = "確認用"
+        
+class OptionSelectForm(CustomModelForm):
+    """"
+    
+        オプション選択フォーム
+        
+    """
     # カード決済用（データは保存しない）
     card_number = forms.CharField(max_length=19, required=False)
     expiry_month = forms.CharField(max_length=2, required=False)
@@ -237,6 +297,7 @@ class OptionSelectForm(forms.ModelForm):
         labels = {
             "is_card": "支払方法",
             "charge": "ご請求額",
+            "terms_agreement": "利用規約を確認した。"
         }
         
     def __init__(self, *args, **kwargs):
@@ -262,23 +323,18 @@ class OptionSelectForm(forms.ModelForm):
         self.initial["is_card"] = "true"
         self.fields["is_card"].widget.attrs.update(WidgetAttributes.radio)
         
-        self.fields["name"].widget.attrs.update(WidgetAttributes.name_normal)
-        self.fields["name"].validators.append(JapaneseOnlyValidator()) # 日本語のみ検証
-        
         self.fields["payer"].widget.attrs.update(WidgetAttributes.payer)
         self.fields["payer"].required = False
         self.fields["payer"].validators.append(validate_katakana) # カタカナのみ検証
-        
-        self.fields["address"].widget.attrs.update(WidgetAttributes.full_address_2)
-        self.fields["address"].required = False
-        
-        self.fields["phone_number"].widget.attrs.update(WidgetAttributes.phone_number_no_hyphen)
-        self.fields["phone_number"].validators.append(validate_no_hyphen_phone_number) # 10桁または11桁の全角数字検証
         
         self.fields["basic"].widget.attrs.update(WidgetAttributes.checkbox)
         self.fields["option1"].widget.attrs.update(WidgetAttributes.checkbox)
         self.fields["option2"].widget.attrs.update(WidgetAttributes.checkbox)
         self.fields["charge"].widget.attrs.update(WidgetAttributes.charge)
+        
+        self.fields["terms_agreement"].widget.attrs.update(WidgetAttributes.checkbox)
+        if self.instance and self.instance.pk:
+            self.initial['terms_agreement'] = False
     
     def clean_card_number(self):
         """カード番号検証"""
@@ -329,3 +385,26 @@ class OptionSelectForm(forms.ModelForm):
         
         return cleaned_data
 
+class EmailVerificationForm(CustomModelForm):
+    """"
+    
+        メールアドレス認証フォーム
+        
+    """
+    class Meta:
+        model = EmailVerification
+        fields = model.fields
+        labels = {
+            "token": "一時コード",
+        }
+        widgets = { 
+            "token": forms.TextInput(attrs={'maxlength': 4})
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["session_id"].required = False
+        self.fields["email"].required = False
+        self.fields["is_verified"].required = False
+        self.fields["token"].widget.attrs.update(WidgetAttributes.token)
+        

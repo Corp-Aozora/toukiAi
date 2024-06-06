@@ -6,8 +6,10 @@ from django.db.models import Aggregate, BooleanField
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 
+import mojimoji
 import re
 import requests
+import secrets
 import unicodedata
 
 from common import const
@@ -51,6 +53,30 @@ def extract_numbers_and_convert_to_hankaku(s):
     hankaku_string = s.translate(zenkaku_to_hankaku_table)
     
     return ''.join(filter(str.isdigit, hankaku_string))
+
+
+def string_to_int(s, extract=False, strict=True):
+    """
+
+        文字列を数値型に変換する(extract=True にすると数字のみを抽出して変換する)
+    
+    """
+    s = mojimoji.zen_to_han(s, kana=False, digit=True, ascii=False)
+    
+    if extract:
+        # 正規表現を使用して、文字列から数字のみを抽出する
+        numbers = re.findall(r'[0-9０-９]+', s)
+        # 数字のみの文字列を連結して数値型に変換する
+        numeric_value = int(''.join(numbers))
+        return numeric_value
+    
+    if s.isdigit():
+        return int(s)
+    
+    if strict:
+        raise ValueError("数字以外の文字が含まれています。")
+        
+    return s
 
 def trim_all_space(s):
     """
@@ -97,15 +123,15 @@ def send_email_to_user(user, subject, content, attachments = None):
     """ユーザーに対するメール送信テンプレート
         
         Args:
-            user (User): ユーザーインスタンス
+            user (User): ユーザーインスタンスまたは辞書型(userがannonymousのとき)
             subject (str): 件名
             content (str): 本文
             attachments (list[tuple[str, bytes, str]], optional): 添付ファイル (ファイル名, ファイル, MIME)のタプルのリスト。デフォルトはなし
 
     """
     mail_subject = f"{CompanyData.APP_NAME}＜{subject}＞"
-    to_mail = user.email
-    username = user.username
+    to_mail = user["email"] if isinstance(user, dict) else user.email
+    username = user["username"] if isinstance(user, dict) else user.username
     
     content = const.EMAIL_TEMPLATE.format(
         username = username,

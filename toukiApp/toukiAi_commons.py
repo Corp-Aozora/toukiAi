@@ -108,7 +108,7 @@ def handle_exception_error(e, request, user, function_name, redirect_to, is_asyn
     if is_async:
         context.update({"error_level": "error", "message": message})
     
-    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=500) if is_async else redirect(redirect_to)
 
 def handle_badhead_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """無効なヘッダーエラーハンドリング"""
@@ -238,7 +238,7 @@ def handle_data_base_error(e, request, user, function_name, redirect_to, is_asyn
     if is_async:
         context.update({"error_level": "error", "message": message})
         
-    return JsonResponse(context, status=400) if is_async else redirect(redirect_to)
+    return JsonResponse(context, status=500) if is_async else redirect(redirect_to)
 
 def handle_http_error(e, request, user, function_name, redirect_to, is_async, context=None, notices=None):
     """httpエラーハンドリング"""

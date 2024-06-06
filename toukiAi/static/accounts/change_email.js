@@ -11,7 +11,12 @@ async function emailValidation(email, errMsgEl){
     if(result[0] === false){
         toggleErrorMessage(result[0], errMsgEl, result[1]);
     }else{
-        await isNewEmail(email, errMsgEl);
+        const response = await isNewEmail(email);
+        const message = response.message;
+        if(response.status === 200)
+            toggleErrorMessage((message === ""), errMsgEl, message);
+        else
+            alert(`通信エラー\n\n${message}`);
     }
 }
 

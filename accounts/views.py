@@ -1,6 +1,8 @@
 from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation, EmailAddress
 from allauth.account.utils import send_email_confirmation
 from allauth.account.views import SignupView, LoginView, EmailVerificationSentView, ConfirmEmailView, PasswordResetView, PasswordChangeView
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -32,6 +34,7 @@ import requests
 import socket
 import textwrap
 import secrets
+import random
 
 from .account_common import *
 from .forms import *
@@ -65,16 +68,44 @@ class CustomSignupView(SignupView):
     #     return super().get(request, *args, **kwargs)
 
 class CustomLoginView(LoginView):
-    """カスタムログインページ"""
+    """
+    
+        カスタムログインページ
+        
+        会員登録時に一時コードによるメールアドレス認証をしているためログイン時に認証テーブルは参照していない
+        
+    """
     template_name = 'account/login.html'
-
+    
+    def form_valid(self, form):
+        """ユーザーがメールアドレスとパスワードでログインする際の処理"""
+        email = form.cleaned_data.get('login')
+        password = form.cleaned_data.get('password')
+        remember_me = form.cleaned_data.get('remember')
+        user = authenticate(self.request, username=email, password=password)
+        
+        if user is not None:
+            login(self.request, user)
+            
+            if remember_me:
+                self.request.session.set_expiry(30 * 24 * 60 * 60)
+                
+            return redirect('toukiApp:nav_to_last_user_page')
+        
+        return self.form_invalid(form)
+    
+    def form_invalid(self, form):
+        """アカウント不存在時のカスタムメッセージ"""
+        form.errors['__all__'] = form.error_class(["入力されたメールアドレスとパスワードに一致するアカウントは見つかりませんでした。"])
+        return super().form_invalid(form)
+    
     def get_context_data(self, **kwargs):
         """正規 URL をテンプレートに渡す"""
         context = super(CustomLoginView, self).get_context_data(**kwargs)
 
         context['canonical_url'] = get_canonical_url(self.request, "account_login")
         return context
-
+    
 class CustomEmailVerificationSentView(EmailVerificationSentView):
     """仮登録メール送信ページ"""
     def get(self, request, *args, **kwargs):
@@ -133,7 +164,11 @@ class CustomPasswordResetView(PasswordResetView):
         return context
     
 class CustomPasswordChangeView(PasswordChangeView):
-    """パスワードの変更（会員ページ内）"""
+    """
+    
+        パスワードの変更（会員ページ内）
+        
+    """
     success_url = reverse_lazy('accounts:account_change_password')  # パスワード変更後のリダイレクト先
 
     def form_valid(self, form):
@@ -146,18 +181,14 @@ class CustomPasswordChangeView(PasswordChangeView):
         return super().form_invalid(form)
 
 def save_option_select(user, form):
-    """
-    
-        オプション選択のデータ登録
-        
-    """
+    """オプション選択のデータ登録"""
     function_name = get_current_function_name()
+    
     try:
         instance = form.save(commit=False)
         instance.user = user
         instance.updated_by = user
 
-        # 作成者は新規登録のときのみ
         if not instance.pk:
             instance.created_by = user
             
@@ -167,13 +198,9 @@ def save_option_select(user, form):
         raise e
 
 def get_option_select_data(user):
-    """
-    
-        オプション選択データ
-        
-    """
-    unpaid_data = OptionRequest.objects.filter(user=user, is_recieved=False).first() # 未払い
-    paid_data = OptionRequest.objects.filter(user=user, is_recieved=True) # 支払済み
+    """オプション選択データを取得する"""
+    unpaid_data = OptionRequest.objects.filter(user=user, recieved_date__isnull=True).first() # 未払い
+    paid_data = OptionRequest.objects.filter(user=user, recieved_date__isnull=False) # 支払済み
     paid_option_and_amount = {
         'basic': False,
         'option1': False,
@@ -191,76 +218,152 @@ def get_option_select_data(user):
     
     return unpaid_data, paid_data, paid_option_and_amount
 
+def get_forms_for_option_select(post_data, user, paid_option_and_amount, unpaid_data):
+    """オプション選択ページのフォーム"""
+    if post_data:
+        option_select_form = OptionSelectForm(post_data, paid_option_and_amount=paid_option_and_amount, instance=unpaid_data)
+    else:
+        option_select_form = OptionSelectForm(instance=unpaid_data)
+        
+    user_form = None if user else RegistUserForm(post_data)
+    email_verification_form = None if user else EmailVerificationForm(post_data)
+    forms = [option_select_form] if user else [option_select_form, user_form, email_verification_form]
+    
+    return forms, option_select_form, user_form, email_verification_form
+
+def get_target_email_verification_data(request, user_form, form = None, token = None):
+    """既存の特定のメールアドレス認証データを取得する"""
+    session_id = request.session.session_key
+    email = user_form.cleaned_data.get("email")
+    token = form.cleaned_data.get("token") if form else token
+    within_24_hours = timezone.now() - timedelta(hours=24)
+    instance = EmailVerification.objects.filter(
+        user=None,
+        session_id=session_id,
+        email=email,
+        token=token,
+        created_at__gte=within_24_hours
+        ).first()
+
+    return instance
+
 def option_select(request):
     """
     
-        オプション選択ページ
+        オプション選択ページの処理
     
     """
     function_name = get_current_function_name()
     current_url_name = "accounts:option_select"
     current_html = 'account/option_select.html'
     next_url_name = "accounts:bank_transfer"
+
+    def save_email_verification(instance, user):
+        """メールアドレス認証データの更新"""
+        instance.user = user
+        instance.is_verified = True
+        instance.save()
     
-    try:
-        # 会員制限(解除中)
-        # if not request.user.is_authenticated:
-        #     messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
-        #     return redirect("account_login")
+    def handle_post_process(user, paid_option_and_amount, unpaid_data):
+        """POSTのときの処理"""      
         
+        def validate_forms(forms):
+            """フォーム検証"""
+            if all(form.is_valid() for form in forms):
+                return True
+            
+            msg = mark_safe("受付に失敗 入力に不備がありました。<br>エラー内容をご確認ください。")
+            messages.warning(request, msg)
+            return False
+        
+        def is_email_verification_instance(user_form, email_verification_form):
+            """メールアドレス認証データ存在確認"""
+            if user:
+                return True, None
+            
+            email_verification_instance = get_target_email_verification_data(request, user_form, email_verification_form)
+            
+            if email_verification_instance:
+                return True, email_verification_instance
+            
+            msg = mark_safe("受付に失敗 入力された一時コードに誤りがあります。")
+            email_verification_form.add_error('token', "入力された一時コードに誤りがあります。")
+            messages.warning(request, msg)
+            
+            return False, None
+        
+        # メイン処理
+        try:
+            forms, option_select_form, user_form, email_verification_form = get_forms_for_option_select(request.POST, user, paid_option_and_amount, unpaid_data)
+            if not validate_forms(forms):
+                return option_select_form, user_form, email_verification_form
+                
+            result, email_verification_instance = is_email_verification_instance(user_form, email_verification_form)
+            if not result:
+                return option_select_form, user_form, email_verification_form
+                
+            # 変更がないときは何もせずに銀行振込のページへ
+            if not option_select_form.has_changed():
+                return True, True, True
+
+            with transaction.atomic():
+                # 非会員のとき
+                if not user:
+                    # 会員登録
+                    user = user_form.save()
+                    # メールアドレス認証登録
+                    save_email_verification(email_verification_instance, user)
+                    # ログイン状態にする
+                    login(request, user, 'django.contrib.auth.backends.ModelBackend')
+                    
+                save_option_select(user, option_select_form)
+                
+                return True, True, True
+        except Exception as e:
+            message = f"user={user}, paid_option_and_amount={paid_option_and_amount}, unpaid_data={unpaid_data}"
+            basic_log(get_current_function_name(), e, user, message)
+            raise e    
+        
+    """
+        メイン処理
+    """
+    try:
         user = request.user if request.user.is_authenticated else None
         unpaid_data, paid_data, paid_option_and_amount = get_option_select_data(user)
 
+        # 銀行振込のときの処理(カード決済のときはafter_card_pay)
         if request.method == "POST":
-            form = OptionSelectForm(request.POST, paid_option_and_amount=paid_option_and_amount, instance=unpaid_data)
-            
-            try:
-                if form.is_valid():
-                    
-                    # 変更がないときは何もせずに銀行振込のページへ
-                    if not form.has_changed():
-                        return redirect(next_url_name)
-
-                    with transaction.atomic():
-                        save_option_select(user, form)
-                        return redirect(next_url_name)
-                else:
-                    msg = mark_safe("受付に失敗 入力に不備がありました。<br>エラー内容をご確認ください。")
-                    messages.warning(request, msg)
-                    
-            except Exception as e:
-                basic_log(function_name, e, user, "POSTでエラー")
-                raise e
+            option_select_form, user_form, email_verification_form = handle_post_process(user, paid_option_and_amount, unpaid_data)
+            if option_select_form == True and user_form == True and email_verification_form == True:
+                return redirect(next_url_name)
         else:
-            form = None
-            latest_paid_data = paid_data.order_by('-updated_at').first()
-            
-            if unpaid_data:
-                form = OptionSelectForm(instance=unpaid_data)
-            elif latest_paid_data:
-                form = OptionSelectForm(initial={
-                    "name": latest_paid_data.name,
-                    "payer": latest_paid_data.payer,
-                    "address": latest_paid_data.address,
-                    "phone_number": latest_paid_data.phone_number,
-                })
-            else:
-                form = OptionSelectForm()
+            forms, option_select_form, user_form, email_verification_form = get_forms_for_option_select(None, user, paid_option_and_amount, unpaid_data)
 
             if paid_option_and_amount["option2"]:
                 messages.info(request, "利用不可 司法書士にご依頼いただいた場合、その他のオプションはご利用できなくなります。")
         
+        user_email = user.email if user else None
+        company_mail_address = CompanyData.MAIL_ADDRESS
+        option_select_form_field_names = list(option_select_form.fields.keys())
+        user_form_field_names = list(user_form.fields.keys()) if user_form else None
+        email_verification_form_field_names = list(email_verification_form.fields.keys()) if email_verification_form else None
+        paid = paid_option_and_amount["charge"]
+        fincode_public_key = settings.FINCODE_PUBLIC_KEY
         context = {
             "title": "オプション選択",
-            "user_email": user.email if user else None,
+            "user_email": user_email,
             "company_data": CompanyData,
-            "company_mail_address": CompanyData.MAIL_ADDRESS,
+            "company_mail_address": company_mail_address,
             "service": Service,
-            "form": form,
-            "field_names": list(form.fields.keys()), # エラーのラベル用
+            "option_select_form": option_select_form,
+            "option_select_form_field_names": option_select_form_field_names,
+            "user_form": user_form,
+            "user_form_field_names": user_form_field_names,
+            "email_verification_form": email_verification_form,
+            "email_verification_form_field_names": email_verification_form_field_names,
             "paid_option_and_amount": paid_option_and_amount,
-            "paid": paid_option_and_amount["charge"],
-            "fincode_public_key": settings.FINCODE_PUBLIC_KEY
+            "paid": paid,
+            "fincode_public_key": fincode_public_key
         }
 
         return render(request, current_html, context)
@@ -286,7 +389,6 @@ def bank_transfer(request):
     tab_title = "銀行振込の場合"
     
     try:
-        
         if not request.user.is_authenticated:
             messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
             return redirect("account_login")
@@ -295,22 +397,22 @@ def bank_transfer(request):
         option_request_data = OptionRequest.objects.filter(user=user)
         
         # 司法書士に依頼して連絡を確認済みのとき
-        if option_request_data.filter(is_recieved=True, option2=True).exists():
+        if option_request_data.filter(recieved_date__isnull=False, option2=True).exists():
             return redirect(pre_url_name)
 
-        not_paid_data = option_request_data.filter(is_recieved=False).first()
+        not_paid_data = option_request_data.filter(recieved_date__isnull=True).first()
         # 未払の利用申込みがないとき、オプション選択ページにリダイレクトする
         if not not_paid_data:
             messages.warning(request, "アクセス不可 先にオプションを選択してください。")
             return redirect(pre_url_name)
 
-        unique_payer = not_paid_data.payer + not_paid_data.phone_number[-4:]
-        
+        user_email = user.email
+        unique_payer = not_paid_data.payer + user.phone_number[-4:]
         context = {
             "title": tab_title,
             "company_data": CompanyData,
             "service": Service,
-            "user_email": user.email,
+            "user_email": user_email,
             "unique_payer": unique_payer,
             "not_paid_data": not_paid_data
         }
@@ -334,7 +436,7 @@ def after_card_pay(request):
     if request.method != "POST":
         return JsonResponse("不正なリクエストです。", status=400)
     
-    user = request.user
+    user = request.user if request.user.is_authenticated else None
     body = json.loads(request.body)
     
     try:
@@ -346,6 +448,8 @@ def after_card_pay(request):
         name = body.get("name")
         address = body.get("address")
         phone_number = body.get("phone_number")
+        email = body.get("email")
+        password = body.get("password1")
         charge = body.get("charge")
         
         datetime_format = "%Y/%m/%d %H:%M:%S.%f"
@@ -356,61 +460,59 @@ def after_card_pay(request):
         is_option1 = checkbox_value_to_boolean(body.get("option1"))
         is_option2 = checkbox_value_to_boolean(body.get("option2"))
         
-        def update_option_request():
+        def update_option_request(user_instance):
             """オプション利用申請を更新"""
-            instance = OptionRequest.objects.filter(user=user, is_recieved=False).first()
+            instance = OptionRequest.objects.filter(user=user_instance, recieved_date__isnull=True).first()
             if instance is None:
                 instance = OptionRequest(
-                    user = user,
-                    created_by = user,
+                    user = user_instance,
+                    created_by = user_instance,
                 )
 
             instance.order_id = order_id
             instance.transaction_id = transaction_id
             instance.access_id = access_id
-            instance.is_recieved = True
-            instance.is_recieved_date = process_date
+            instance.recieved_date = process_date
             instance.is_card = True
-            instance.name = name
             instance.payer = ""
-            instance.address = address
-            instance.phone_number = phone_number
             instance.basic = is_basic
             instance.option1 = is_option1
             instance.option2 = is_option2
             instance.charge = charge
-            instance.updated_by = user
+            instance.updated_by = user_instance
         
             instance.save()
             
             return instance.id
         
-        def update_user():
-            """ユーザー情報を更新"""
-            user.username = name
-            user.address = address
-            user.phone_number = phone_number
-            user.pay_amount = user.pay_amount + zenkaku_currency_to_int(charge)
-            user.last_update = process_date
+        def regist_user():
+            """会員登録"""
+            instance = User(
+                username = name,
+                address = address,
+                phone_number = phone_number,
+                email = email
+            )
+            instance.set_password(password)
+            instance.pay_amount = instance.pay_amount + zenkaku_currency_to_int(charge)
             
             if is_basic:
-                user.basic = is_basic
-                user.basic_date = process_date
+                instance.basic_date = process_date
             if is_option1:
-                user.option1 = is_option1
-                user.option1_date = process_date
+                instance.option1_date = process_date
             if is_option2:
-                user.option2 = is_option2
-                user.option2_date = process_date
+                instance.option2_date = process_date
             
-            user.save()
-        
-        def update_decedent():
-            """被相続人を更新"""
-            instance = Decedent.objects.filter(user=user).first()
-            if instance:
-                instance.progress = 1
-                instance.save()
+            instance.save()
+            
+            return instance
+                
+        def update_email_verification(user):
+            """メールアドレス認証データを更新する"""
+            instance = EmailVerification.objects.filter(session_id=request.session.session_key, email=user.email, token=body.get("token"))
+            instance.user = user
+            instance.is_verified = True
+            instance.save()
         
         def validate_option_combination():
             """オプション選択のバリデーション"""
@@ -458,7 +560,7 @@ def after_card_pay(request):
             
             return pdf["data"]
         
-        def send_confirm_mail(option_request_id):
+        def send_confirm_mail(user_instance, option_request_id):
             """ユーザーに完了メールを送る"""
             if is_basic:
                 content = textwrap.dedent('''\
@@ -479,7 +581,7 @@ def after_card_pay(request):
                         
                         届きましたら同封の案内状に従って書類に署名押印などをお願いします。
                         ''').rstrip()
-                    content = content.format(user_address=user.address)
+                    content = content.format(user_address=user_instance.address)
                     
             elif is_option1:
                 content = textwrap.dedent('''\
@@ -490,7 +592,7 @@ def after_card_pay(request):
                     
                     届きましたら同封の案内状に従って書類に署名押印などをお願いします。
                     ''').rstrip()
-                content = content.format(user_address=user.address)
+                content = content.format(user_address=user_instance.address)
                 
             else:
                 content = textwrap.dedent('''\
@@ -506,7 +608,7 @@ def after_card_pay(request):
             receipt = create_receipt(option_request_id)
             attachments = [("領収書.pdf", receipt, 'application/pdf')]
             
-            send_email_to_user(user, "お申し込み誠にありがとうございます。", content, attachments)
+            send_email_to_user(user_instance, "お申し込み誠にありがとうございます。", content, attachments)
         
         def sort_by_option_and_get_next_path():
             """選択されたオプション別に整理して次のパスを返す"""
@@ -518,11 +620,8 @@ def after_card_pay(request):
             
             next_path = ""
             if is_basic:
-                update_decedent()
                 request.session["new_basic_user"] = True
-                    
                 next_path = "/toukiApp/step_one"
-                
             else:
                 next_path = "/account/option_select/guidance"
                             
@@ -534,17 +633,22 @@ def after_card_pay(request):
             return JsonResponse({"message": error_message})
         
         with transaction.atomic():
+            new_user = None
+            if not user:
+                # ユーザー情報を更新
+                new_user = regist_user()
+
+                # メールアドレス認証
+                update_email_verification(new_user)
+                
             # オプション利用情報を更新
-            option_request_id = update_option_request()
-            
-            # ユーザー情報を更新
-            update_user()
+            option_request_id = update_option_request(user if user else new_user)
 
             # 次のパスを取得する
             next_path = sort_by_option_and_get_next_path()
             
             # 完了メールを送る
-            send_confirm_mail(option_request_id)
+            send_confirm_mail(user if user else new_user, option_request_id)
             
         return JsonResponse({"message": "", "next_path": next_path})
     
@@ -740,7 +844,11 @@ def delete_account(request):
         )
 
 def is_new_email(request):
-    """djangoのメールアドレス検証と重複チェック"""
+    """
+    
+        djangoのメールアドレス検証と重複チェック
+        
+    """
     function_name = get_current_function_name()
     email = request.POST.get("email")
 
@@ -748,22 +856,12 @@ def is_new_email(request):
         validate_email(email)
         is_duplicate = User.objects.filter(email=email).exists()
         if is_duplicate:
-            return JsonResponse({
-                "error_level": "warning",
-                "message": "このメールアドレスはすでに登録されてます",
-            })
+            return JsonResponse({"message": "このメールアドレスはすでに登録されてます"}, status=409)
     
-        return JsonResponse({
-            "error_level": "success",
-            "message": "",
-        })
+        return JsonResponse({"message": ""}, status=200)
 
     except (ValueError, ValidationError) as e:
-        context = {
-            "error_level": "warning",
-            "message": "有効なメールアドレスを入力してください",
-         }
-        return JsonResponse(context)
+        return JsonResponse({"message": "有効なメールアドレスを入力してください"}, status=400)
     except Exception as e:
         return handle_error(
             e,
@@ -774,8 +872,81 @@ def is_new_email(request):
             True,
         )
 
-#djangoのメール形式チェックと登録済みメールアドレスチェック
+def send_verification_mail(request):
+    """
+    
+        メールアドレス認証コードを送信する
+        
+    """
+    function_name = get_current_function_name()
+    
+    body = json.loads(request.body)
+    email = body.get("email")
+
+    def generate_unique_token(session_id):
+        """一意のトークンを生成する"""
+        while True:
+            token = random.randint(1000, 9999)
+            within_24_hours = timezone.now() - timedelta(hours=24)
+            if not EmailVerification.objects.filter(
+                user=None,
+                session_id=session_id,
+                email=email,
+                token=token,
+                created_at__gte=within_24_hours
+                ).exists():
+                
+                return token
+
+    def create_email_verification():
+        """EmailVerificationに登録"""
+        session_id = get_or_create_session_id(request)
+        token = generate_unique_token(session_id)
+        instance = EmailVerification.objects.create(
+            session_id=session_id,
+            email=email,
+            token=token,
+        )
+        return instance
+    
+    def send_verification_mail(instance):
+        """一時コードをメールする"""
+        user = {"email": email, "username": email}
+        subject = "メールアドレスの確認"
+        content = textwrap.dedent(f'''\
+            以下の番号をオプション選択ページの「一時コード」にご入力ください。
+            
+                {instance.token}
+                ※有効期限1日
+            ''').rstrip()
+        send_email_to_user(user, subject, content)
+
+    try:
+        if request.user.is_authenticated:
+            return JsonResponse({"message": "不正なリクエストです"}, status=400)
+        
+        with transaction.atomic():
+            instance = create_email_verification()
+            
+            send_verification_mail(instance)
+            
+            return JsonResponse({"message": ""}, status=200)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            None,
+            function_name,
+            None,
+            True,
+        )
+
 def is_user_email(request):
+    """
+    
+        djangoによるメール形式チェック
+    
+    """
     function_name = get_current_function_name()
     input_email = request.POST.get("email")
     
@@ -826,7 +997,11 @@ def is_oldpassword(request):
 
 @ratelimit(key='ip', rate='5/h', block=True)
 def resend_confirmation(request):
-    """メールアドレス認証リンクの再発行"""
+    """
+    
+        メールアドレス認証リンクの再発行
+        
+    """
     function_name = get_current_function_name()
     input_email = request.POST.get("email")
     

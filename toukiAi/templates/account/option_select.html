@@ -20,25 +20,22 @@
 {% include "account/parts/modals/condition.html" %}
 
 <div class="mx-auto  col-md-11 col-lg-9 col-xl-8 mt-3 px-3">
-    <h1 class="fs-4 text-center mb-0">
-        オプション選択
-    </h1>
-    <hr>
     <div {% if paid_option_and_amount.option2 %}style="display: none"{% endif %}>
-        <h5 class="text-center">
+        <h1 class="fs-4 text-center mb-0">
             ご希望のオプションに☑してください
-        </h5>
+        </h1>
     </div>
-    <form class="mt-3" action="{% url 'accounts:option_select' %}" method="POST" novalidate>
+    <hr>
+    <form action="{% url 'accounts:option_select' %}" method="POST" novalidate>
         {% csrf_token %}
         <section id="basic-section" class="card shadow mt-3" {% if paid_option_and_amount.basic or paid_option_and_amount.option2 %}style="display: none"{% endif %}>
             <div class="card-header p-3 bg-primary-subtle bg-gradient bg-opacity-50">
                 <div class="card-title text-center mb-0 d-sm-flex justify-content-center align-items-center">
                     <div>
-                        {{form.basic}}
+                        {{option_select_form.basic}}
                     </div>
                     <div class="ms-sm-3">
-                        <label class="fs-5 fw-bold" for="{{ form.basic.id_for_label }}">
+                        <label class="fs-5 fw-bold" for="{{ option_select_form.basic.id_for_label }}">
                             {{service.BASIC_NAME}}
                             <span class="ms-sm-3">
                                 {{service.CAMPAIGN_BASIC_PRICE_STR}}(税込)
@@ -202,10 +199,10 @@
             <div class="card-header p-3 bg-success-subtle bg-gradient bg-opacity-50">
                 <div class="card-title text-center mb-0 d-sm-flex justify-content-center align-items-center">
                     <div>
-                        {{form.option1}}
+                        {{option_select_form.option1}}
                     </div>
                     <div class="ms-sm-3">
-                        <label class="fs-5 fw-bold" for="{{ form.option1.id_for_label }}">
+                        <label class="fs-5 fw-bold" for="{{ option_select_form.option1.id_for_label }}">
                             {{service.OPTION1_NAME}}
                             <span class="ms-sm-3">
                                 {{service.CAMPAIGN_OPTION1_PRICE_STR}}(実費・税込)
@@ -267,10 +264,10 @@
             <div class="card-header p-3 bg-warning-subtle bg-gradient bg-opacity-50">
                 <div class="card-title text-center mb-0 d-sm-flex justify-content-center align-items-center">
                     <div>
-                        {{form.option2}}
+                        {{option_select_form.option2}}
                     </div>
                     <div class="ms-sm-3">
-                        <label class="fs-5 fw-bold" for="{{ form.option2.id_for_label }}">
+                        <label class="fs-5 fw-bold" for="{{ option_select_form.option2.id_for_label }}">
                             {{service.OPTION2_NAME}}
                             <span class="ms-sm-3">
                                 {{service.CAMPAIGN_OPTION2_PRICE_STR}}(税込)
@@ -306,7 +303,11 @@
                             </div>
                             <div>
                                 実費の金額を事前に確認されたい場合は、
-                                <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続登記にかかる実費の見積もりについて&body=※毎年4月ごろに役所から届く固定資産納税通知書の不動産が列挙されているページの画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A%0D%0A相続登記にかかる実費の見積もりをお願いします。">
+                                {% if user_form %}
+                                    <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続登記にかかる実費の見積もりについて&body=※毎年4月ごろに役所から届く固定資産納税通知書の不動産が列挙されているページの画像を添付してください%0D%0A%0D%0A相続登記にかかる実費の見積もりをお願いします。">
+                                {% else %}
+                                    <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続登記にかかる実費の見積もりについて&body=※毎年4月ごろに役所から届く固定資産納税通知書の不動産が列挙されているページの画像を添付してください%0D%0A%0D%0Aアカウント：{{ user_email|urlencode }}%0D%0A%0D%0A相続登記にかかる実費の見積もりをお願いします。">
+                                {% endif %}
                                     お問い合わせ
                                 </a>
                                 をお願いします。
@@ -337,7 +338,7 @@
         <section id="charge-section" class="card shadow">
             <div class="card-header p-3 bg-danger-subtle bg-gradient bg-opacity-50">
                 <h5 class="fw-bold card-title text-center mb-0">
-                    {{form.charge.label}}（税込）
+                    {{option_select_form.charge.label}}（税込）
                 </h5>
             </div>
             <div class="card-body px-sm-5">
@@ -382,7 +383,7 @@
                     <hr>
                     <li class="fw-bold text-center d-flex justify-content-center">
                         <div>
-                            {{form.charge}}
+                            {{option_select_form.charge}}
                         </div>
                         <div class="d-flex align-items-center ms-3">
                             <span>
@@ -430,12 +431,28 @@
                 </h5>
             </div>
             <div class="card-body px-2 px-sm-5">
-                {% include "toukiApp/parts/form_error.html" %}
-                <fieldset class="mt-3" style="display: none;">
-                    {% for field in form %}
-                        {% if field.name == "basic" or field.name == "option1" or field.name == "option2" or field.name == "charge" %}
+                {% if user_form %}
+                    {% include "toukiApp/parts/form_error.html" with form=user_form field_names=user_form_field_names %}
+                    {% include "toukiApp/parts/form_error.html" with form=email_verification_form field_names=email_verification_form_field_names %}
+                {% endif %}
+                {% include "toukiApp/parts/form_error.html" with form=option_select_form field_names=option_select_form_field_names %}
+                <fieldset style="display: none;">
+                    {% if user_form %}
+                        {% for field in user_form %}
+                            <div class="input-group Q">
+                                <label class="input-group-text label" for="{{ field.auto_id }}">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                <span class="errorMessage emPosition" style="display: none;">
+                                </span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% for field in option_select_form %}
+                        {% if field.name == "basic" or field.name == "option1" or field.name == "option2" or field.name == "charge" or field.name == "terms_agreement" %}
                         {% elif field.name == "is_card" %}
-                            <div class="input-group position-relative Q">
+                            <div class="input-group position-relative Q mt-3">
                                 <label for="{{field.auto_id}}_0" class="input-group-text label">
                                     {{ field.label }}
                                 </label>
@@ -456,7 +473,7 @@
                                 </span>
                             </div>
                         {% else %}
-                            <div class="input-group Q{% if field.name == "card_number" %} card-info-start{% elif field.name == "payer" %} payer{% endif %}">
+                            <div class="input-group Q{% if field.name == "payer" %} payer{% endif %}">
                                 <label class="input-group-text label" for="{{ field.auto_id }}">
                                     {{ field.label }}
                                 </label>
@@ -466,8 +483,53 @@
                             </div>
                         {% endif %}
                     {% endfor %}
+                    <div class="d-flex justify-content-center mt-3 Q">
+                        <div class="form-check">
+                            {{ option_select_form.terms_agreement }}
+                            <label class="form-check-label fw-bold" for="{{ option_select_form.terms_agreement.auto_id }}">
+                                <div>
+                                    {{ option_select_form.terms_agreement.label }}
+                                </div>
+                            </label>
+                            <span class="errorMessage emPosition" style="display: none;">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <a class="fw-bold" href="{% url 'toukiApp:terms' %}" target="_blank" rel="noopener noreferrer">
+                            ※利用規約
+                        </a>
+                    </div>
+                    {% if user_form %}
+                        <div class="mt-5">
+                            <div class="d-flex justify-content-center">
+                                <button id="verify-email-btn" type="button" class="px-4 btn btn-info text-white text-center p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
+                                    メールアドレスを認証
+                                    <span id="verify-email-btn-spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="input-group Q mt-3">
+                                <label class="input-group-text label" for="{{ email_verification_form.token.auto_id }}">
+                                    {{ email_verification_form.token.label }}
+                                </label>
+                                {{ email_verification_form.token }}
+                                <span class="errorMessage emPosition" style="display: none;">
+                                </span>
+                            </div>
+                            <div class="d-flex mt-3 fw-bold">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    お申し込み前に「メールアドレスを認証」をクリックして、受信したメールに記載された数字を入力してください。
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
                 </fieldset>
-                <p class="mt-5 text-center">
+                <hr>
+                <p class="text-center">
                     <button id="submitBtn" disabled type="submit" class="px-4 btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow">
                         申し込む
                         <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
@@ -499,10 +561,11 @@
     <script src="{% static 'session.js' %}"></script>
     <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
     <script src="{% static 'toukiApp/step_header.js' %}"></script>
+    <script src="{% static 'accounts/common.js' %}"></script>
     {% if DJANGO_SETTINGS_MODULE == "toukiAi.settings.production" %}
-        <script src="https://js.fincode.jp/v1/fincode.js"></script>
+    <script src="https://js.fincode.jp/v1/fincode.js"></script>
     {% else %}
-        <script src="https://js.test.fincode.jp/v1/fincode.js"></script>
+    <script src="https://js.test.fincode.jp/v1/fincode.js"></script>
     {% endif %}
     <script src="{% static 'accounts/option_select.js' %}"></script>
 {% endblock %}

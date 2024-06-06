@@ -91,34 +91,7 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                {% if form.errors %}
-                    <div class="fw-bold bg-danger-subtle border rounded-3 ps-3 pt-3 mt-3">
-                        {% for field, errors in form.errors.items %}
-                            <div>
-                                {% if field == "__all__" %}
-                                    <div>
-                                        アカウントデータに関するエラー
-                                    </div>
-                                {% else %}
-                                    {% if field == "login" %}
-                                        <div>
-                                            メールアドレスのエラー
-                                        </div>
-                                    {% elif field == "password" %}
-                                        <div>
-                                            パスワードのエラー
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
-                                <ul>
-                                    {% for error in errors %}
-                                    <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+                {% include "toukiApp/parts/form_error.html" %}
                 {% if redirect_field_value %}
                     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
                 {% endif %}

@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * アカウント共通フォーム
  */
@@ -106,28 +108,100 @@ function setEventToReturnBtn(){
 }
 
 /**
- * 重複メールアドレスとdjangoによるメールアドレス形式チェック
- * @param {string} email 
- * @param {HTMLElement} errMsgEl 
+ * メールアドレス検証
+ * 
+ * 空欄チェック/ スペース削除/ 形式チェック/ 重複チェック
+ * @param {HTMLInputElement} input メールアドレスのinput要素
  */
-async function isNewEmail(email, errMsgEl){
-    const url = '/account/is_new_email/';
-    fetch(url, {
-        method: 'POST',
-        body: `email=${email}`,
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'X-CSRFToken': csrftoken,
-        },
-        mode: "same-origin"
-    }).then(response => {
-        return response.json();
-    }).then(response => {
-        if(["success", "warning"].includes(response.error_level))
-            toggleErrorMessage((response.message === ""), errMsgEl, response.message);
-        else
-            alert(response.message);
-    }).catch(e => {
-        basicLog("isNewEmail", e);
-    });
+async function validateEmail(input, clientSideOnly=false){
+    
+    // 重複メールアドレスとdjangoによるメールアドレス形式チェック
+    async function isNewEmail(val){
+        const functionName = "isNewEmail";
+        const url = '/account/is_new_email/';
+
+        //処理中のツールチップを表示する
+        toggleVerifyingTooltip(true, input, "検証中");
+
+        try{
+            const response = await fetch(url, {
+                method: 'POST',
+                body: `email=${val}`,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                    'X-CSRFToken': csrftoken,
+                },
+                mode: "same-origin"
+            })
+
+            return response;
+        }catch(e){
+            basicLog(functionName, e, `email=${val}`);
+            alert("通信エラー 数分空けて再試行しても同じエラーが出る場合は、お問い合わせをお願いします。");
+        }finally{
+            toggleVerifyingTooltip(false, input);
+        }
+    }
+
+    // 空欄チェック
+    let result = isBlank(input);
+    if(typeof result === "string")
+        return result;
+
+    // スペース削除
+    let val = input.value;
+    input.value = trimAllSpace(val);
+
+    // 形式チェック
+    val = input.value;
+    result = isEmail(val);
+    if(!result[0])
+        return result[1];
+
+    if(clientSideOnly)
+        return true;
+
+    // 重複チェック
+    return await isNewEmail(val);
+}
+
+/**
+ * パスワード1検証
+ * @param {HTMLInputElement} input 
+ * @returns 
+ */
+function validatePassword1(input){
+    // 空欄チェック
+    let result = isBlank(input);
+    if(typeof result === "string")
+        return result;
+
+    // スペース削除
+    let val = input.value;
+    input.value = trimAllSpace(val);
+
+    result = checkPassword(input.value, input);
+
+    if(result)
+        return true;
+    else
+        return "半角で英数記号3種類を含む8文字以上";
+}
+
+/**
+ * パスワード2検証
+ * @param {HTMLInputElement} pass1Input 
+ * @param {HTMLInputElement} pass2Input 
+ * @returns 
+ */
+function validatePassword2(pass1Input, pass2Input){
+    // パス1の値が存在するかチェック
+    if(pass1Input.value.length === 0)
+        return "先にパスワードを入力してください";
+
+    // パス2と同じ値かチェック
+    if(pass1Input.value === pass2Input.value)
+        return true;
+    else
+        return "パスワードと一致しません";
 }

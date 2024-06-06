@@ -6,14 +6,18 @@
                     <div class="{% if forloop.counter0 > 0 %}mt-3{% endif %}">
                         <span class="border-bottom border-dark">
                             {% if field == "__all__" %}
-                                フォームエラー
-                            {% elif field == "created_by" %}
+                                {% if request.path == "/account/login/" %}
+                                    アカウントエラー
+                                {% else %}
+                                    フォームエラー
+                                {% endif %}
+                            {% elif field == "created_by" or field == "email" %}
                                 メールアドレス
                             {% elif field == "subject" %}
                                 件名
                             {% elif field == "content" %}
                                 お問い合わせ内容
-                            {% elif field == "name" %}
+                            {% elif field == "name" or field == "username" %}
                                 氏名
                             {% elif field == "payer" %}
                                 支払名義人
@@ -29,8 +33,16 @@
                                 有効期限(年)
                             {% elif field == "cvv" %}
                                 CVV
-                            {% elif field == "card_holder_name" %}
-                                カード名義人
+                            {% elif field == "password1" %}
+                                パスワード
+                            {% elif field == "password2" %}
+                                確認用
+                            {% elif field == "terms_agreement" %}
+                                規約に同意
+                            {% elif field == "session_id" %}
+                                セッションID
+                            {% elif field == "token" %}
+                                一時コード
                             {% else %}
                                 入力エラー
                             {% endif %}
@@ -40,7 +52,7 @@
                 <ul class="mb-0 ps-md-5 ps-3">
                     {% for error in errors %}
                         <li class="text-danger">
-                            {{ error }}
+                            {{ error|linebreaksbr }}
                         </li>
                     {% endfor %}
                 </ul>

@@ -489,7 +489,7 @@ def step_one_trial(request):
     
     try:
         # ログイン中のシステム利用会員はstep_oneに遷移させる
-        if request.user.is_authenticated and request.user.basic:
+        if request.user.is_authenticated and request.user.basic_date:
             return redirect("toukiApp:step_one")
         
         session_id = get_or_create_session_id(request)
@@ -657,10 +657,10 @@ def step_one(request):
     try:
         # 会員以外はアカウント登録ページに遷移させる
         if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 会員専用のページです")
-            return redirect("accounts:signup")
+            messages.warning(request, "アクセス不可 システム利用の会員専用のページです")
+            return redirect("accounts:login")
         
-        if not request.user.basic:
+        if not request.user.basic_date:
             messages.warning(request, "アクセス不可 有料会員専用のページです")
             return redirect("toukiApp:step_one_trial")
         
@@ -827,7 +827,7 @@ def sort_out_trial(request):
     if not request.user.is_authenticated:
         return redirect("accounts:signup")
         
-    if not request.user.basic:
+    if not request.user.basic_date:
         return redirect("toukiApp:step_one_trial")
         
     return redirect("toukiApp:step_one")
@@ -4975,7 +4975,7 @@ def redirect_to_progress_page(request):
     if decedent:
         return redirect_to_step(decedent.progress)
     
-    if request.user.basic:
+    if request.user.basic_date:
         return redirect(reverse("toukiApp:step_one"))
         
     return redirect(reverse("toukiApp:step_one_trial"))

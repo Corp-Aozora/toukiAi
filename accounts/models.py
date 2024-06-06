@@ -68,17 +68,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="メールアドレス", unique=True)
     phone_number = models.CharField(verbose_name="電話番号", validators=[validate_no_hyphen_phone_number], max_length=11, default="")
     
-    basic = models.BooleanField(verbose_name="システムの有料版", default=False) # システムの本使用
     basic_date = models.DateTimeField(verbose_name="システムの有料版の利用開始日", null=True, blank=True)
-    option1 = models.BooleanField(verbose_name="戸籍取得代行の利用状況", default=False)
     option1_date = models.DateTimeField(verbose_name="戸籍取得代行の利用開始日", null=True, blank=True)
-    option2 = models.BooleanField(verbose_name="司法書士紹介の利用状況", default=False)
     option2_date = models.DateTimeField(verbose_name="司法書士紹介の利用開始日", null=True, blank=True)
-    option3 = models.BooleanField(verbose_name="オプション3の利用状況", default=False)
     option3_date = models.DateTimeField(verbose_name="オプション3の利用開始日", null=True, blank=True)
-    option4 = models.BooleanField(verbose_name="オプション4の利用状況", default=False)
     option4_date = models.DateTimeField(verbose_name="オプション4の利用開始日", null=True, blank=True)
-    option5 = models.BooleanField(verbose_name="オプション5の利用状況", default=False)
     option5_date = models.DateTimeField(verbose_name="オプション5の利用開始日", null=True, blank=True)
     pay_amount = models.PositiveIntegerField(verbose_name="支払額", default=0)
     
@@ -95,6 +89,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
     REQUIRED_FIELDS = ['username']
+
+    fields = [
+        "email",
+        "username",
+        "address",
+        "phone_number",
+        "password1",
+        "password2"
+    ]
 
     class Meta:
         verbose_name = _("ユーザー")
@@ -125,18 +128,14 @@ class OptionRequest(CommonModel):
     order_id = models.CharField(verbose_name="オーダーID", max_length=50, null=True, blank=True)
     transaction_id = models.CharField(verbose_name="トランザクションID", max_length=50, null=True, blank=True)
     access_id = models.CharField(verbose_name="取引ID", max_length=50, null=True, blank=True)
-    is_recieved = models.BooleanField(verbose_name="着金確認", default=False)
-    is_recieved_date = models.DateTimeField(verbose_name="着金確認日", null=True, blank=True)
+    recieved_date = models.DateTimeField(verbose_name="着金確認日", null=True, blank=True)
     is_card = models.BooleanField(verbose_name="カード決済", default=False)
-    name = models.CharField(verbose_name="氏名", max_length=30, validators=[JapaneseOnlyValidator()], null=False, blank=False)
     payer = models.CharField(verbose_name="支払名義人", max_length=30, validators=[validate_katakana], null=True, blank=True)
-    address = models.CharField(verbose_name="住所", max_length=100, default="", null=True, blank=True)
-    phone_number = models.CharField(verbose_name="電話番号", validators=[validate_no_hyphen_phone_number], max_length=11, null=False, blank=False)
-    
     basic = models.BooleanField(verbose_name="システムの有料版の申込み", default=False)
     option1 = models.BooleanField(verbose_name="戸籍取得代行の申込み", default=False)
     option2 = models.BooleanField(verbose_name="司法書士紹介の申込み", default=False)
     charge = models.CharField(verbose_name="支払額", max_length=7, default="０")
+    terms_agreement = models.BooleanField(verbose_name="規約への同意", default=False)
     
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -157,14 +156,12 @@ class OptionRequest(CommonModel):
     
     fields =[
         "is_card",
-        "name",
         "payer",
-        "address",
-        "phone_number",
         "basic",
         "option1",
         "option2",
         "charge",
+        "terms_agreement"
     ]
     
     class Meta:
@@ -172,10 +169,10 @@ class OptionRequest(CommonModel):
         verbose_name_plural = _("オプション利用申請")
         
 class EmailChange(models.Model):
-    """メールアドレス変更申請データ
+    """
+    
+        メールアドレス変更申請データ
 
-    Args:
-        models (_type_): _description_
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -196,3 +193,35 @@ class EmailChange(models.Model):
     class Meta:
         verbose_name = _("メールアドレス変更申請")
         verbose_name_plural = _("メールアドレス変更申請")
+        
+class EmailVerification(models.Model):
+    """
+
+        メールアドレス認証
+        
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="ユーザー",
+        on_delete=models.CASCADE,
+        null = True,
+        blank = True,
+        related_name="email_verification_user",
+    )
+    
+    session_id = models.CharField(verbose_name="セッションID", max_length=100)
+    email = models.EmailField(verbose_name="メールアドレス")
+    token = models.PositiveIntegerField(verbose_name="トークン", validators=[validate_four_digit_number])
+    is_verified = models.BooleanField(verbose_name="認証結果", default=False)
+    created_at = models.DateTimeField(verbose_name="作成日", auto_now_add=True)
+        
+    fields =[
+        "session_id",
+        "email",
+        "token",
+        "is_verified"
+    ]    
+    
+    class Meta:
+        verbose_name = _("メールアドレス認証")
+        verbose_name_plural = _("メールアドレス認証")

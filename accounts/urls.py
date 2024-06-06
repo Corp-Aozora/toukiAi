@@ -38,6 +38,7 @@ urlpatterns = [
     path("is_new_email/", views.is_new_email, name="is_new_email"), # 汎用の重複メールアドレスチェック
     path('create_reciept_view/', CreateRecieptView.as_view(), name='create_reciept_view'),
     path('option_select/card_payment/after_card_pay', views.after_card_pay, name='after_card_pay'), # カード決済後の処理
+    path('send_verification_mail', views.send_verification_mail, name='send_verification_mail'), # メール認証リンクをメールする
     
     # 利用予定がないallauthのurlを404にする
     path('email/', views.error_404, name='account_email'),

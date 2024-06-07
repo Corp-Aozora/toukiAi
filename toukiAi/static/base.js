@@ -986,3 +986,14 @@ function toggleVerifyingTooltip(isDisplay, targetInput, text = null){
         document.getElementById(`${targetId}_verifyingEl`).remove();
     }
 }
+
+/**
+ * ボタンのイベント開始と終了の表示処理
+ * @param {boolean} start 
+ * @param {HTMLButtonElement} btn 
+ * @param {HTMLElement} spinner 
+ */
+function toggleProcessing(start, btn, spinner){
+    spinner.style.display = start? "": "none";
+    btn.disabled = start? true: false;
+}

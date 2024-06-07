@@ -1,9 +1,25 @@
-form fieldset:first-of-type label{
-    width: 90px!important;
+fieldset label, 
+fieldset .form-control,
+fieldset .form-select,
+fieldset span.input-group-text{
+    border-radius: 0!important;
+    border-top-left-radius: 0!important;
+    border-top-right-radius: 0!important;
+    border-bottom-left-radius: 0!important;
+    border-bottom-right-radius: 0!important;
 }
 
-form fieldset:first-of-type > div{
-    max-width: 335px!important;
+section.container > fieldset .card{
+    border: 0;
+}
+
+section.container > fieldset .card-body{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+form fieldset:first-of-type label{
+    width: 90px!important;
 }
 
 .single-word-label{
@@ -22,7 +38,7 @@ form fieldset:first-of-type > div{
 }
 
 section.container{
-    max-width: 500px;
+    width: 500px;
 }
 
 section.card{
@@ -51,38 +67,40 @@ section.card li{
     font-weight: bold;
 }
 
-.Q span, .Q .form-control{
-    border-radius: initial;
-}
-
-.Q:last-child .form-control{
-    border-bottom-right-radius: var(--bs-border-radius)!important;
-    border-bottom-left-radius: var(--bs-border-radius)!important;
-}
-
-@media (max-width: 1245px){
-
+@media (max-width: 1255px){
+    /* ガイド */
     section.card{
         display: none!important;
+    }
+
+    #mainContainer > .container-xxl{
+        width: initial;
+    }
+}
+
+@media (max-width:991px){
+    section.container > fieldset h5{
+        text-align: center;
     }
 }
 
 @media (max-width:575px){
-    
+    section.container{
+        width: 100%;
+    }
+
+    #mainContainer > .container-xxl{
+        width: 100%;
+    }
+
     form .input-group .label, form .input-group .single-word-label{
         width: 100%!important;
         text-align-last: initial!important;
         text-align: center!important;
-        border-radius: 0!important;
-        border-top-left-radius:var(--bs-border-radius)!important;
-        border-top-right-radius:var(--bs-border-radius)!important;
     }
 
     form .input-group input:not([type="radio"]), form .input-group select{
         margin-left: 0px!important;
-        border-radius: 0!important;
-        border-bottom-left-radius:var(--bs-border-radius)!important;
-        border-bottom-right-radius:var(--bs-border-radius)!important;
         text-align: center!important;
     }
     

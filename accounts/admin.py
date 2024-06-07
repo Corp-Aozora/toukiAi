@@ -25,7 +25,7 @@ class MyUserAdmin(UserAdmin):
         (_('Important dates'), {'fields': ('last_login', "last_update", 'date_joined')}),
     )
     
-    readonly_fields = ("last_login", "last_update", "date_joined", "basic_date", "option1_date", "option2_date", "option3_date", "option4_date", "option5_date")
+    readonly_fields = ("last_login", "last_update", "date_joined")
     
     # ユーザーを追加画面の入力欄
     add_fieldsets = (
@@ -83,7 +83,7 @@ class OptionRequestAdmin(admin.ModelAdmin):
     readonly_fields = ('updated_at', "created_at")
     
     form = OptionRequestForm
-    list_display = ('updated_at', 'user', "order_id", "payer", "basic", "option1", "option2", "charge")
+    list_display = ('updated_at', 'user', "order_id", "payer", "basic", "option1", "option2", "charge", "recieved_date")
     list_filter = ('updated_at', 'user', "order_id", "payer")
     search_fields = ('updated_at', 'user__email', "user__name", "user__address", "user__phone_number", "order_id", "transaction_id", "access_id", "payer")
     ordering = ["-updated_at"]

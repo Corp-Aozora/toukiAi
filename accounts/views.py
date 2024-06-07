@@ -40,6 +40,8 @@ from .account_common import *
 from .forms import *
 from .models import *
 from common.utils import *
+from common.const.common import *
+from common.const import session_key
 from toukiApp.company_data import *
 from toukiApp.models import Decedent
 from toukiApp.toukiAi_commons import *
@@ -255,7 +257,7 @@ def option_select(request):
     """
     function_name = get_current_function_name()
     current_url_name = "accounts:option_select"
-    current_html = 'account/option_select.html'
+    html = 'account/option_select.html'
     next_url_name = "accounts:bank_transfer"
 
     def save_email_verification(instance, user):
@@ -366,12 +368,12 @@ def option_select(request):
             "fincode_public_key": fincode_public_key
         }
 
-        return render(request, current_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             current_url_name
         )
@@ -422,7 +424,7 @@ def bank_transfer(request):
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             current_url_name
         )
@@ -433,10 +435,13 @@ def after_card_pay(request):
         カード決済後の処理
         
     """
+    
     if request.method != "POST":
         return JsonResponse("不正なリクエストです。", status=400)
     
-    user = request.user if request.user.is_authenticated else None
+    function_name = get_current_function_name()
+    request_user = request.user
+    user = request_user if request_user.is_authenticated else None
     body = json.loads(request.body)
     
     try:
@@ -445,7 +450,7 @@ def after_card_pay(request):
         access_id =  payment_data.get("access_id") # 取引id
         transaction_id = payment_data.get("transaction_id") # トランザクションID
         amount = payment_data.get("amount") # 金額<int>
-        name = body.get("name")
+        username = body.get("username")
         address = body.get("address")
         phone_number = body.get("phone_number")
         email = body.get("email")
@@ -485,32 +490,34 @@ def after_card_pay(request):
             
             return instance.id
         
-        def regist_user():
-            """会員登録"""
-            instance = User(
-                username = name,
-                address = address,
-                phone_number = phone_number,
-                email = email
-            )
-            instance.set_password(password)
-            instance.pay_amount = instance.pay_amount + zenkaku_currency_to_int(charge)
-            
-            if is_basic:
-                instance.basic_date = process_date
-            if is_option1:
-                instance.option1_date = process_date
-            if is_option2:
-                instance.option2_date = process_date
-            
-            instance.save()
-            
-            return instance
+        def update_or_regist_user(user_instance):
+            """会員情報を更新または新規登録"""
+            if not user_instance:
+                user_instance = User(
+                    username = username,
+                    address = address,
+                    phone_number = phone_number,
+                    email = email
+                )
+                user_instance.set_password(password)
                 
-        def update_email_verification(user):
+            user_instance.pay_amount = user_instance.pay_amount + zenkaku_currency_to_int(charge)
+                
+            if is_basic:
+                user_instance.basic_date = process_date
+            if is_option1:
+                user_instance.option1_date = process_date
+            if is_option2:
+                user_instance.option2_date = process_date
+            
+            user_instance.save()
+            
+            return user_instance
+                
+        def update_email_verification(new_user):
             """メールアドレス認証データを更新する"""
-            instance = EmailVerification.objects.filter(session_id=request.session.session_key, email=user.email, token=body.get("token"))
-            instance.user = user
+            instance = EmailVerification.objects.filter(session_id=request.session.session_key, email=new_user.email, token=body.get("token")).first()
+            instance.user = new_user
             instance.is_verified = True
             instance.save()
         
@@ -524,7 +531,7 @@ def after_card_pay(request):
             
             return ""
         
-        def create_receipt(option_request_id):
+        def create_receipt(username, option_request_id):
             """領収書をpdfにして返す"""
             company_email = settings.DEFAULT_FROM_EMAIL # 会社のメール
             received_date = original_process_date.split(' ')[0] # 受領日 年/月/日
@@ -542,7 +549,7 @@ def after_card_pay(request):
                 "company_email": company_email,
                 "service": Service,
                 "received_date": received_date,
-                "user_name": name,
+                "username": username,
                 "receipt_no": receipt_no,
                 "pay_amount": pay_amount,
                 "is_basic": is_basic,
@@ -605,7 +612,7 @@ def after_card_pay(request):
                     ''').rstrip()
             
                         
-            receipt = create_receipt(option_request_id)
+            receipt = create_receipt(user_instance.username, option_request_id)
             attachments = [("領収書.pdf", receipt, 'application/pdf')]
             
             send_email_to_user(user_instance, "お申し込み誠にありがとうございます。", content, attachments)
@@ -613,14 +620,14 @@ def after_card_pay(request):
         def sort_by_option_and_get_next_path():
             """選択されたオプション別に整理して次のパスを返す"""
             if is_option1:
-                request.session["new_option1_user"] = True
+                request.session[session_key.NewUser.OPTION1] = True
                 
             if is_option2:
-                request.session["new_option2_user"] = True
+                request.session[session_key.NewUser.OPTION2] = True
             
             next_path = ""
             if is_basic:
-                request.session["new_basic_user"] = True
+                request.session[session_key.NewUser.BASIC] = True
                 next_path = "/toukiApp/step_one"
             else:
                 next_path = "/account/option_select/guidance"
@@ -633,46 +640,38 @@ def after_card_pay(request):
             return JsonResponse({"message": error_message})
         
         with transaction.atomic():
-            new_user = None
             if not user:
                 # ユーザー情報を更新
-                new_user = regist_user()
+                user = update_or_regist_user(user)
 
                 # メールアドレス認証
-                update_email_verification(new_user)
+                update_email_verification(user)
+            else:
+                user = update_or_regist_user(user)
                 
             # オプション利用情報を更新
-            option_request_id = update_option_request(user if user else new_user)
+            option_request_id = update_option_request(user)
 
             # 次のパスを取得する
             next_path = sort_by_option_and_get_next_path()
             
+            # ログインした状態にする
+            login(request, user, 'django.contrib.auth.backends.ModelBackend')
+            
             # 完了メールを送る
-            send_confirm_mail(user if user else new_user, option_request_id)
+            send_confirm_mail(user, option_request_id)
             
         return JsonResponse({"message": "", "next_path": next_path})
     
     except Exception as e:
-        error_message = f"e={e}\n\nuser={user if 'user' in locals() else None}\n\nbody={body if 'body' in locals() else None}\n\npaymentData={payment_data if 'paymentData' in locals() else None}"
-        send_mail(
-            "カード決済後にエラー",
-            error_message,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.DEFAULT_FROM_EMAIL],
-            True
-        )
+        subject = "カード決済後にエラー"
+        error_message = f"e={e}\n\nuser={request_user}\n\nbody={body if 'body' in locals() else None}\n\npaymentData={payment_data if 'paymentData' in locals() else None}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [settings.DEFAULT_FROM_EMAIL]
+        send_mail(subject, error_message, from_email, recipient_list, True)
             
         notice = f"*****重大*****\n\n{error_message}"
-        return handle_error(
-            e, 
-            request, 
-            user, 
-            get_current_function_name(), 
-            None, 
-            True, 
-            notices=notice
-        )
-        
+        return handle_error(e, request, request_user, function_name, None, True, notices=notice)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FincodeWebhookView(View):
@@ -741,33 +740,35 @@ def guidance(request):
         カード決済後の戸籍取得代行または司法書士紹介の流れについてのページを表示する
         
     """
-    function_name = get_current_function_name()
-    current_url_name = "accounts:guidance"
-    current_html = 'account/guidance.html'
-    pre_url_name = "accounts:option_select"
+    def get_tab_title(is_option1, is_option2):
+        """タブのタイトルを取得する"""
+        if is_option1:
+            return f"{Service.OPTION1_NAME}の流れについて"
+        elif is_option2:
+            return f"{Service.OPTION2_NAME}の流れについて"
+        else:
+            messages.warning(request, "アクセス制限 オプションを選択してください")
+            return ""
 
-    if request.method != "GET":
-        messages.warning(request, "アクセス不可 不正なリクエストです。")
+    function_name = get_current_function_name()
+    html = 'account/guidance.html'
+    option_select_url = "accounts:option_select"
+    request_user = request.user
+
+    if not is_valid_request_method(request, "GET", True):
         return redirect("toukiApp:index")
     
     try:
-        if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
-            return redirect("account_login")
+        if is_anonymous(request):
+            return redirect("accounts:account_login")
         
-        user = request.user
+        user = request_user
+        is_option1 = get_boolean_session(request.session, session_key.NewUser.OPTION1)
+        is_option2 = get_boolean_session(request.session, session_key.NewUser.OPTION2)
         
-        tab_title = ""
-        is_option1 = get_boolean_session(request.session, "new_option1_user")
-        is_option2 = get_boolean_session(request.session, "new_option2_user")
-        
-        if is_option1:
-            tab_title = "戸籍取得代行の流れについて"
-        elif is_option2:
-            tab_title = "提携の司法書士紹介の流れについて"
-        else:
-            messages.warning(request, "アクセス制限 オプションを選択してください")
-            return redirect(pre_url_name)
+        tab_title = get_tab_title(is_option1, is_option2)
+        if tab_title == "":
+            return redirect(option_select_url)
         
         context = {
             "title": tab_title,
@@ -779,14 +780,14 @@ def guidance(request):
             "is_option2": is_option2
         }
 
-        return render(request, current_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request_user,
             function_name,
-            pre_url_name,
+            option_select_url,
             notices=request,
         )
         
@@ -838,7 +839,7 @@ def delete_account(request):
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             current_url_name,
         )
@@ -866,7 +867,7 @@ def is_new_email(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             None,
             True,
@@ -912,7 +913,7 @@ def send_verification_mail(request):
     def send_verification_mail(instance):
         """一時コードをメールする"""
         user = {"email": email, "username": email}
-        subject = "メールアドレスの確認"
+        subject = "一時コードを発行しました"
         content = textwrap.dedent(f'''\
             以下の番号をオプション選択ページの「一時コード」にご入力ください。
             
@@ -935,7 +936,7 @@ def send_verification_mail(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             None,
             True,
@@ -962,7 +963,7 @@ def is_user_email(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             None,
             True,
@@ -979,7 +980,7 @@ def is_user_email(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             None,
             True,
@@ -1028,7 +1029,7 @@ def resend_confirmation(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             None,
             True,
@@ -1097,7 +1098,7 @@ def change_email(request):
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             current_url_name
         )
@@ -1154,7 +1155,7 @@ def confirm_email(request, token):
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             login_url_name
         )    

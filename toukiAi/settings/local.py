@@ -21,7 +21,7 @@ ALLOWED_HOSTS = [
 ]
 
 # ローカルでの開発のためメールをコンソールで表示する
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
 
 # toukiaidev@gmail.comを使うとき
 DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS

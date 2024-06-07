@@ -209,7 +209,7 @@ class FormSection{
 
             if(!isUser){
                 this.verifyEmailBtn = document.getElementById("verify-email-btn");
-                this.veryfyEmailSpinnerBtn = document.getElementById("verify-email-btn-spinner");
+                this.verifyEmailBtnSpinner = document.getElementById("verify-email-btn-spinner");
             }
             this.submitBtn = document.getElementById("submitBtn");
             this.submitSpinner = document.getElementById("submitSpinner");
@@ -830,37 +830,52 @@ class FormSectionSubmitEvent{
             errMsgEls,
             submitBtn, submitSpinner,
             inputs,
-            paymentCard, payer, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName,
+            paymentCard, paymentBank, payer, cardNumber, expiryMonth, expiryYear, cvv, cardHolderName, termsAgreement,
             payerQ, cardNumberQ,
             standByMessageEl
         } = form;
 
         // オプションが１つは選択されていることを確認
         function isOptionSelected(){
-
             const isBasic = basic.cb.checked;
             const isOption1 = option1.cb.checked;
             const isOption2 = option2.cb.checked;
 
-            // いずれかチェックされているときはtrueを返す
             return [isBasic, isOption1, isOption2].some(x => x);
         }
 
         // 全入力欄の空欄チェック
-        function blankValidation(){
+        function fullInputed(){
     
+            // 非表示チェック
+            function isHidden(input, targetInput, targetQ){
+                return input === targetInput && window.getComputedStyle(targetQ).display === "none";
+            }
+
+            // 空欄チェック
+            function checkBlank(input){
+                if(["text", "email", "number", "password"].includes(input.type))
+                    return typeof isBlank(input) === "string";
+                else if(input === termsAgreement)
+                    return !termsAgreement.checked;
+                else if([paymentCard, paymentBank].includes(input))
+                    return !paymentCard.checked && !paymentBank.checked;
+
+                throw new Error(`isBlankで想定しないinputが渡されました。\ninput=${input}`);
+            }
+
             for(let i = 0, len = inputs.length; i < len; i++){
                 const input = inputs[i];
     
-                if((input === payer && window.getComputedStyle(payerQ).display === "none")){
+                if(isHidden(input, payer, payerQ)){
                     input.value = "";
                     continue;
                 }
 
-                if(input === cardNumber && window.getComputedStyle(cardNumberQ).display === "none")
+                if(isHidden(input, cardNumber, cardNumberQ))
                     return true;
-    
-                if(["text", "email", "number", "password"].includes(input.type) && trimAllSpace(input.value).length === 0){
+
+                if(checkBlank(input)){
                     input.focus();
                     return false;
                 }
@@ -954,7 +969,7 @@ class FormSectionSubmitEvent{
                     },
                     function() {
                         // 通信エラー処理
-                        reject(new Error("カード決済時に通信エラーが発生しました。\n時間を空けて再試行しても同じエラーが発生する場合は、恐れ入りますがお問い合わせをお願いします。"));
+                        reject(new Error("カード決済完了前に通信エラー。\n時間を空けて再試行しても同じエラーが発生する場合は、恐れ入りますがお問い合わせをお願いします。"));
                     }
                 );
             });
@@ -991,7 +1006,7 @@ class FormSectionSubmitEvent{
 
                         // エラーメッセージを返す
                         let message = (await registRes.json()).message;
-                        message = message.replace(/\|/g, '\n ');
+                        message = message.replace(/\\n/g, '\n').replace(/[\[\]\'\"]/g, ''); // pythonからstr(e)を受け取っているため改行コードなどを修正
                         return {message: message};
                     }
                 }catch(e){
@@ -1000,7 +1015,7 @@ class FormSectionSubmitEvent{
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }else{
-                        return {message: "通信エラーが発生しました。\n時間を空けて再試行しても同じエラーが発生する場合は、恐れ入りますがお問い合わせをお願いします。"};
+                        return {message: "通信エラー。\n時間を空けて再試行しても同じエラーが発生する場合は、恐れ入りますがお問い合わせをお願いします。"};
                     }
                 }
             }
@@ -1035,7 +1050,7 @@ class FormSectionSubmitEvent{
                         window.location.href = data.next_path
                         return {message: ""}
                     }else{
-                        return ({message: "受付に失敗\n\n決済完了後にエラーが発生したため対応を開始しました。\n対応が完了しましたらメールでご報告いたしますので、大変恐れ入りますがサービス開始まで少々お待ちください。"});
+                        return ({message: "決済完了後にシステムエラーが発生。\n大至急で修正作業をしております。対応が完了しましたらメールでご報告いたしますので、大変恐れ入りますがサービス開始まで少々お待ちください。"});
                     }
                 }catch(e){
                     if(attempt < retryCount - 1){
@@ -1043,7 +1058,7 @@ class FormSectionSubmitEvent{
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
                     }else{
-                        return {message: `通信エラー\n決済完了後にエラーが発生しました。大変恐れ入りますが弊社までお問い合わせをお願いします。\n${companyMailAddress}`};
+                        return {message: `決済完了後に通信エラー。\n大変恐れ入りますが弊社までお問い合わせをお願いします。\n${companyMailAddress}`};
                     }
                 }
             }
@@ -1053,10 +1068,10 @@ class FormSectionSubmitEvent{
          * メイン
          */
         try{
-            const isCardPaymentStart = paymentCard.checked;
+            const isPaymentCard = paymentCard.checked;
             
             // カード情報の連続リクエストエラーチェック
-            if(isCardPaymentStart){
+            if(isPaymentCard){
                 const result = cardInfoError.isValid();
                 if(typeof result === "string")
                     throw new Error(result);
@@ -1068,7 +1083,7 @@ class FormSectionSubmitEvent{
             }
 
             // 空欄チェック
-            if(!blankValidation())
+            if(!fullInputed())
                 throw new Error("未入力の欄があります。");
 
             // エラーメッセージが表示されているものを取得
@@ -1079,10 +1094,10 @@ class FormSectionSubmitEvent{
             }
 
             // 送信ボタンを無効化/ スピナーを表示/ 入力欄を有効化
-            toggleProcess(isCardPaymentStart);
+            toggleProcess(isPaymentCard);
 
             // カード決済のとき
-            if(isCardPaymentStart){
+            if(isPaymentCard){
                 event.preventDefault();
                 
                 const paymentResult = await handleCardPayment();
@@ -1090,7 +1105,7 @@ class FormSectionSubmitEvent{
                 if(paymentResult.message === ""){
                     const result = await afterCardPay(paymentResult.paymentData, paymentResult.formData);
                     if(result.message !== "")
-                        throw new Error(result.message);
+                        throw new Error(`受付に失敗\n\n${result.message}`);
 
                     cardInfoError.clear();
                 }else{
@@ -1112,7 +1127,8 @@ class FormSectionSubmitEvent{
 class VerifyEmailBtnEvent{
 
     // クリックイベント
-    static async click(emailInput, emailErrMsgEl, formInstance, emailVerificationTokenInstance){
+    static async click(formInstance, emailVerificationTokenInstance){
+        const{email:emailInput, token, emailErrMsgEl, verifyEmailBtn, verifyEmailBtnSpinner} = formInstance;
         const functionName = "VerifyEmailBtnEvent > click";
         const val = emailInput.value;
 
@@ -1148,6 +1164,8 @@ class VerifyEmailBtnEvent{
         }
 
         try{
+            toggleProcessing(true, verifyEmailBtn, verifyEmailBtnSpinner);
+
             let result = await checkEmail();
             if(!result)
                 return;
@@ -1162,7 +1180,7 @@ class VerifyEmailBtnEvent{
             if(response.ok){
                 emailVerificationTokenInstance.set();
                 alert(`${val} にメールを送信しました。\n\n受信したメールの内容のご確認をお願いします。`);
-                formInstance.token.focus();
+                token.focus();
                 return;
             }
             
@@ -1173,7 +1191,9 @@ class VerifyEmailBtnEvent{
         }catch(e){
             basicLog(functionName, e, `email=${val}`);
             alert("通信エラー\n\n数分空けて再試行しても同じエラーになる場合は、恐れ入りますが、お問い合わせをお願いします。");
-        }   
+        }finally{
+            toggleProcessing(false, verifyEmailBtn, verifyEmailBtnSpinner);
+        }
     }
 }
 
@@ -1195,7 +1215,7 @@ function handleFormSectionEvent(instances){
 
     if(!isUser){
         form.verifyEmailBtn.addEventListener("click", ()=>{
-            VerifyEmailBtnEvent.click(email, emailErrMsgEl, form, emailVerificationToken);
+            VerifyEmailBtnEvent.click(form, emailVerificationToken);
         })
     }
 
@@ -1274,7 +1294,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
         if(wrapper)
             scrollToTarget(wrapper, 0);
     }
-    
+
     try{
         const instances = createInstances();
     

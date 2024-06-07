@@ -21,7 +21,7 @@
 
 <div class="d-flex container-xxl">
     {% include "toukiApp/step_sidebar.html" %}
-    <div class="pt-4 ps-sm-5 container-xxl">
+    <div class="pt-4 ps-lg-5 container-xxl">
         {% include "toukiApp/parts/step_one/top.html" %}
         <form action="{% url 'toukiApp:step_one' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}

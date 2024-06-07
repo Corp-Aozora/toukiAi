@@ -54,18 +54,21 @@ def exec_card_regist(amount, client_field_1, client_field_2, client_field_3):
         
         raise ValueError(error_message)
         
-def get_payment_data(option_select_form_data, user_form_data):
+def get_payment_data(option_select_form_data, user_form_data, user):
     """決済情報を取得する"""
-    client_field_byte_limit = 100
+    if not user_form_data and not user:
+        raise Exception(f"{get_current_function_name()}の引数エラー: user_form_data={user_form_data}, user={user}")
     
-    charge = option_select_form_data.get('charge')
-    is_basic = option_select_form_data.get('basic')
-    is_option1 = option_select_form_data.get('option1')
-    is_option2 = option_select_form_data.get('option2')
-    name = user_form_data.get("name")
-    address = user_form_data.get("address")
-    phone_number = user_form_data.get("phone_number")
-    email = user_form_data.get("email")
+    charge, is_basic, is_option1, is_option2 = (
+        option_select_form_data.get(key) for key in ('charge', 'basic', 'option1', 'option2')
+    )
+    
+    name = user.username if user else user_form_data.get("username")
+    address = user.address if user else user_form_data.get("address")
+    phone_number = user.phone_number if user else user_form_data.get("phone_number")
+    email = user.email if user else user_form_data.get("email")
+    
+    client_field_byte_limit = 100
     
     def get_amount():
         """金額を取得する"""
@@ -96,6 +99,7 @@ def get_payment_data(option_select_form_data, user_form_data):
         return address
     
     def get_client_field_3():
+        """決済情報に付加する自由登録欄3"""
         return f"{Service.BASIC_NAME}={is_basic}, {Service.OPTION1_NAME}={is_option1}, {Service.OPTION2_NAME}={is_option2}"
     
     return get_amount(), get_client_field_1(), get_client_field_2(), get_client_field_3()
@@ -109,15 +113,15 @@ def validate_forms(forms):
         raise ValidationError(f"入力内容に不備があります。\n\n{error_list}")
             
 def main(request):
-    """カード決済情報を決済代行会社に登録する"""
+    """
+    
+        カード決済情報を決済代行会社に登録する
+        
+    """
     function_name = "card_regist"
 
     if request.method == "POST":
         try:
-            # 会員制限解除中
-            # if not request.user.is_authenticated:
-            #     return JsonResponse(status=401)
-            
             user = request.user if request.user.is_authenticated else None
             unpaid_data, paid_data, paid_option_and_amount = get_option_select_data(user)
             
@@ -125,14 +129,14 @@ def main(request):
             forms, option_select_form, user_form, email_verification_form = get_forms_for_option_select(request.POST, user, paid_option_and_amount, unpaid_data)
             validate_forms(forms)
             
-            # メールアドレス認証データ存在
-            if not get_target_email_verification_data(request, user_form, email_verification_form):
-                raise ValidationError("受付に失敗\n\n入力された一時コードに誤りがあります。")
+            # メールアドレス認証データ存在(会員ではないとき)
+            if not user and not get_target_email_verification_data(request, user_form, email_verification_form):
+                raise ValidationError("入力された一時コードに誤りがあります。")
             
             # 決済情報を付加
             option_select_form_data = option_select_form.cleaned_data
-            user_form_data = user_form.cleaned_data
-            amount, client_field_1, client_field_2, client_field_3 = get_payment_data(option_select_form_data, user_form_data)
+            user_form_data = user_form.cleaned_data if user_form else None
+            amount, client_field_1, client_field_2, client_field_3 = get_payment_data(option_select_form_data, user_form_data, user)
 
             # 決済情報登録
             res = exec_card_regist(amount, client_field_1, client_field_2, client_field_3)
@@ -144,27 +148,25 @@ def main(request):
             return JsonResponse({"message": str(e)}, status=400)
         
         except Exception as e:
+            subject = "カード登録処理でサーバーエラー"
             error_message = f"user={user if 'user' in locals() else None}\n request.POST={request.POST}"
-            send_mail(
-                "カード登録処理でサーバーエラー",
-                error_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.DEFAULT_FROM_EMAIL],
-                True
-            )
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [settings.DEFAULT_FROM_EMAIL]
+            send_mail(subject, error_message, from_email, recipient_list, True)
             
             notice = f"*****重大*****\n\n{error_message}"
             return handle_error(
                 e, 
                 request, 
-                user if "user" in locals() else None, function_name, 
+                user if "user" in locals() else None,
+                function_name, 
                 None,
                 True,
                 {"status": "500"},
                 notice
             )
     else:
-        basic_log(function_name, None, user if "user" in locals() else None, "無効なリクエストがありました。")
+        basic_log(function_name, None, request.user, "無効なリクエストがありました。")
         return JsonResponse({"message": "無効なリクエストです"}, status=400)
  
 if __name__ == "__main__":

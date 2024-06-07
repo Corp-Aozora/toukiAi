@@ -477,19 +477,22 @@ def validate_and_log(item, prefix, function_name, user):
     return is_valid
 
 def step_one_trial(request):
-    """ステップ1（無料会員用）
+    """ステップ1(公開用)
     
         POSTに成功してもステップ2には遷移せずに法定相続人を表示するだけにする
+        
+        データはsessionに登録する
         
         利用条件の確認も兼ねている
     """
     function_name = get_current_function_name()
     this_url_name = "toukiApp:step_one_trial"
-    this_html = "toukiApp/step_one_trial.html"
+    html = "toukiApp/step_one_trial.html"
+    request_user = request.user
     
     try:
         # ログイン中のシステム利用会員はstep_oneに遷移させる
-        if request.user.is_authenticated and request.user.basic_date:
+        if request_user.is_authenticated and request_user.basic_date:
             return redirect("toukiApp:step_one")
         
         session_id = get_or_create_session_id(request)
@@ -636,41 +639,37 @@ def step_one_trial(request):
             "result_for_modal": json.dumps(result)
         }
 
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
-        return handle_error(
-            e,
-            request,
-            None,
-            function_name,
-            this_url_name,
-        )
+        return handle_error(e, request, request_user, function_name, this_url_name)
    
 def step_one(request):
-    """ステップ１．基本データ入力"""
+    """
+    
+        ステップ１．基本データ入力
+        
+    """
     function_name = get_current_function_name()
     this_url_name = "toukiApp:step_one"
-    this_html = "toukiApp/step_one.html"
+    html = "toukiApp/step_one.html"
     next_url_name = "toukiApp:step_two"
     step_progress = 1
+    request_user = request.user
     
     try:
-        # 会員以外はアカウント登録ページに遷移させる
-        if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 システム利用の会員専用のページです")
-            return redirect("accounts:login")
-        
-        if not request.user.basic_date:
-            messages.warning(request, "アクセス不可 有料会員専用のページです")
-            return redirect("toukiApp:step_one_trial")
+        # システム利用の会員以外はアカウント登録ページに遷移させる
+        result, redirect_to = is_basic_user(request)
+        if not result:
+            redirect(redirect_to)
         
         if get_boolean_session(request.session, "new_basic_user"):
             message = "サービス開始 ご利用いただき誠にありがとうございます。\n\nお客様の相続登記が完了するまでしっかりサポートさせていただきます!\n\nご不明なことがありましたら、お気軽にお問い合わせください。"
             if get_boolean_session(request.session, "new_option1_user"):
                 message += f"\n\n{Service.OPTION1_NAME}につきましては、平日3日以内に弊社からご入力いただいたご住所に書類を発送いたしますので到着まで今しばらくお待ちください。"
+                
             messages.success(request, message)
         
-        user = User.objects.get(email = request.user)
+        user = User.objects.get(email = request_user.email)
         decedent = user.decedent.first()
         
         child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
@@ -812,12 +811,12 @@ def step_one(request):
             "collateral_data" : json.dumps(collateral_data),
         }
 
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
             request,
-            user,
+            request_user,
             function_name,
             this_url_name,
         )
@@ -1014,7 +1013,7 @@ def step_two(request):
                 return handle_error(
                     e,
                     request,
-                    user,
+                    request.user,
                     function_name,
                     None,
                     True
@@ -1083,7 +1082,7 @@ def step_two(request):
         return handle_error(
             e,
             request,
-            user,
+            request.user,
             function_name,
             this_url_name,
         )
@@ -2578,7 +2577,7 @@ def step_three(request):
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             this_url_name
         )
@@ -2672,7 +2671,7 @@ def step_four(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             this_url_name
         )
@@ -2806,7 +2805,7 @@ def step_division_agreement(request):
         return handle_error(
             e, 
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             redirect_to
         )
@@ -3164,7 +3163,7 @@ def step_diagram(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             redirect_to, 
         )
@@ -3756,7 +3755,7 @@ def step_application_form(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             redirect_to, 
         )
@@ -4217,7 +4216,7 @@ def step_POA(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             redirect_to, 
         )
@@ -4384,7 +4383,7 @@ def step_five(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             this_url_name, 
         )
@@ -4440,7 +4439,7 @@ def step_six(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             this_url_name, 
         )
@@ -4512,7 +4511,7 @@ def step_inquiry(request):
         return handle_error(
             e, 
             request, 
-            user if "user" in locals() else None,
+            request.user,
             function_name, 
             this_url_name, 
         )
@@ -4565,7 +4564,7 @@ def administrator(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             redirect_to
         )
@@ -4592,7 +4591,7 @@ def commerceLaw(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             redirect_to
         )
@@ -4620,7 +4619,7 @@ def privacy(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             redirect_to
         )
@@ -4647,7 +4646,7 @@ def terms(request):
         return handle_error(
             e,
             request,
-            None,
+            request.user,
             function_name,
             redirect_to
         )
@@ -4690,7 +4689,7 @@ def terms(request):
 #         return handle_error(
 #             e, 
 #             request, 
-#             None, 
+#             request.user, 
 #             function_name, 
 #             error_redirect_to, 
 #         )
@@ -4734,7 +4733,7 @@ def get_decedent_city_data(request):
         return handle_error(
             e,
             request,
-            user if "user" in locals() else None,
+            request.user,
             function_name,
             None,
             True
@@ -4939,7 +4938,7 @@ def step_back(request):
         return handle_error(
             e,
             request,
-            user,
+            request.user,
             function_name,
             None,
             True        

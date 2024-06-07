@@ -1,10 +1,17 @@
 from django.conf import settings
+from django.contrib import messages
 from django.core.mail import BadHeaderError, EmailMessage
 from django.db.models import Func, Q, Sum
 from django.db.models.functions import Coalesce
 from django.db.models import Aggregate, BooleanField
-from datetime import datetime, timedelta
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import make_aware
+from datetime import datetime, timedelta
+from email.mime.application import MIMEApplication
+from email.encoders import encode_base64
+from email.header import Header
+from email.mime.base import MIMEBase
+from email.utils import formataddr
 
 import mojimoji
 import re
@@ -12,7 +19,7 @@ import requests
 import secrets
 import unicodedata
 
-from common import const
+from common.const import common
 from toukiApp.company_data import CompanyData
 
 def zenkaku_currency_to_int(value):
@@ -133,7 +140,7 @@ def send_email_to_user(user, subject, content, attachments = None):
     to_mail = user["email"] if isinstance(user, dict) else user.email
     username = user["username"] if isinstance(user, dict) else user.username
     
-    content = const.EMAIL_TEMPLATE.format(
+    content = common.EMAIL_TEMPLATE.format(
         username = username,
         content = content,
         company_name = CompanyData.NAME,
@@ -146,12 +153,13 @@ def send_email_to_user(user, subject, content, attachments = None):
         company_url = CompanyData.URL,
     )
     
+    from_email = formataddr((CompanyData.NAME, settings.DEFAULT_FROM_EMAIL))
     to_list = [to_mail]
     bcc_list = [settings.DEFAULT_FROM_EMAIL]
     message = EmailMessage(
         subject=mail_subject, 
         body=content, 
-        from_email=settings.DEFAULT_FROM_EMAIL, 
+        from_email=from_email, 
         to=to_list, 
         bcc=bcc_list,
     )
@@ -160,8 +168,9 @@ def send_email_to_user(user, subject, content, attachments = None):
     if attachments:
         for attachment in attachments:
             file_name, file_data, mime = attachment
-            message.attach(file_name, file_data, mime)
-
+            encoded_file_name = Header(file_name, 'utf-8').encode()
+            message.attach(encoded_file_name, file_data, mime)
+            
     message.send()
     
 def download_file(download_uri):
@@ -177,7 +186,7 @@ def download_file(download_uri):
     else:
         return {"message": f"ファイルのダウンロードに失敗, {response.status_code}", "data": ""}
     
-def get_or_create_session_id(request):
+def get_or_create_session_id(request) -> str:
     """
     
         SessionIDを生成または取得する
@@ -189,3 +198,33 @@ def get_or_create_session_id(request):
         session_id = request.session.session_key
         
     return session_id
+
+def is_valid_request_method(request, method, should_match, need_message = True) -> bool:
+    """
+    
+        リクエストのメソッドが適切か判定
+        
+        should_matchがTrueかつmethodと一致 または should_matchがFalseかつmethodと不一致 = True
+    
+    """
+    if (should_match and request.method == method) or (not should_match and request.method != method):
+        return True
+    
+    if need_message:
+        messages.warning(request, "アクセス不可 不正なリクエストです。")
+        
+    return False
+
+def is_anonymous(request, need_message = True):
+    """
+
+        非会員判定
+    
+    """
+    if request.user.is_authenticated:
+        return False
+    
+    if need_message:
+        messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
+        
+    return True

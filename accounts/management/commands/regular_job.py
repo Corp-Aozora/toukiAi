@@ -33,7 +33,7 @@ class Command(BaseCommand):
         """
         old_requests = OptionRequest.objects.filter(
             updated_at__lte=one_week_ago,
-            is_recieved=False
+            recieved_date__isnull=True
         )
 
         # 削除処理

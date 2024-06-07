@@ -1,6 +1,6 @@
 {% load custom_filters %}
 
-<section class="container ms-0">
+<section class="container px-0 ms-0">
     <fieldset id="id_decedent-0-fieldset" class="decedentFieldset">
         <h5 class="form-label">
             <span class="bg-secondary-subtle p-1 rounded-3 fieldsetTitle">
@@ -72,7 +72,7 @@
                             {% if field.name == "is_exist" or field.name == "is_live" or field.name == "is_refuse" or field.name == "is_japan" %}
                                 <div class="Q {% if field.name == "is_exist" %}mt-3{% endif %}" {% if field.name != "is_exist" %}style="display:none"{% endif %}>
                                     <div>
-                                        <span class="input-group-text fw-bold {% if field.name == "is_exist" %}rounded-top{% endif %}">
+                                        <span class="input-group-text fw-bold">
                                             {{ field.label }}
                                         </span>
                                     </div>
@@ -193,7 +193,7 @@
                             {% if field.name == "is_exist" or field.name == "is_same_parents" or field.name == "is_live" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
                                 <div class="Q" {% if field.name != "is_exist" %}style="display: none;"{% endif %}>
                                     <div>
-                                        <span class="input-group-text fw-bold {% if field.name == "is_exist" %}rounded-top{% endif %}">
+                                        <span class="input-group-text fw-bold">
                                             {{ field.label }}
                                         </span>
                                     </div>
@@ -254,7 +254,7 @@
                                 </div>
                                 <div class="Q">
                                     <div>
-                                        <span class="input-group-text fw-bold rounded-top text-start">
+                                        <span class="input-group-text fw-bold text-start">
                                             配偶者との子ですか？
                                             <br>
                                             ※配偶者がいない又は先に亡くなっているときは「いいえ」
@@ -538,7 +538,7 @@
                                 </div>
                                 <div class="Q">
                                     <div>
-                                        <span class="input-group-text fw-bold rounded-top">
+                                        <span class="input-group-text fw-bold">
                                             子の配偶者との子ですか？
                                         </span>
                                     </div>
@@ -677,7 +677,7 @@
                                 {% if field.name == "is_live" %}
                                     <div class="Q mt-3">
                                         <div>
-                                            <span class="input-group-text fw-bold rounded-top">
+                                            <span class="input-group-text fw-bold">
                                                 {{ field.label }}
                                             </span>
                                         </div>
@@ -841,7 +841,7 @@
                             {% if field.name == "is_exist" or field.name == "is_same_parents" or field.name == "is_live" or field.name == "is_refuse" or field.name == "is_adult" or field.name == "is_japan" %}
                                 <div class="Q" {% if field.name != "is_exist" %}style="display: none;"{% endif %}>
                                     <div>
-                                        <span class="input-group-text fw-bold {% if field.name == "is_exist" %}rounded-top{% endif %}">
+                                        <span class="input-group-text fw-bold">
                                             {{ field.label }}
                                         </span>
                                     </div>
@@ -902,7 +902,7 @@
                                 </div>
                                 <div class="Q mt-3">
                                     <div>
-                                        <span class="input-group-text fw-bold rounded-top">
+                                        <span class="input-group-text fw-bold">
                                             両親は被相続人と同じですか？
                                         </span>
                                     </div>

@@ -13,6 +13,7 @@ from django.db.models.query import QuerySet
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from email.utils import formataddr
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -20,6 +21,7 @@ from io import BytesIO
 from requests.exceptions import HTTPError, ConnectionError, Timeout
 from smtplib import SMTPException
 from time import sleep
+from typing import Tuple
 from urllib.parse import urljoin
 
 import inspect
@@ -38,7 +40,7 @@ from .models import RelatedIndividual
 from .prefectures_and_city import *
 from .sections import *
 from .external_info import ExternalLinks
-from common import const
+from common.const import common
 
 logger = logging.getLogger(__name__)
 
@@ -65,12 +67,12 @@ def basic_log(function_name, e, user, message = None, is_traceback_info = True):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     user_id = user.id if user else ""
     logger.error(textwrap.dedent(f"""\
-        エラー発生箇所:{function_name}
-        発生時刻：{current_time}
-        user_id:{user_id}
-        開発者メッセージ:{message}
-        詳細：{e}
-        経路:{traceback_info}
+        function_name: {function_name}
+        current_time: {current_time}
+        user_id: {user_id}
+        message: {message}
+        e: {e}
+        traceback_info: {traceback_info}
         """).rstrip()
     )
 
@@ -450,7 +452,7 @@ INQUIRY_FULL_TEXT = textwrap.dedent('''
 
 ''')
 
-ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + const.EMAIL_SIGNATURE
+ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + common.EMAIL_SIGNATURE
 
 # 問い合わせへの自動返信メールテンプレート
 AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
@@ -497,12 +499,14 @@ def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
         company_opening_hours = CompanyData.OPENING_HOURS,
         company_url = CompanyData.URL,
     )
+    
+    from_email = formataddr((CompanyData.NAME, settings.DEFAULT_FROM_EMAIL))
     to_list = [to_email]
     bcc_list = [settings.DEFAULT_FROM_EMAIL]
     message = EmailMessage(
         subject=mail_subject, 
         body=content, 
-        from_email=settings.DEFAULT_FROM_EMAIL, 
+        from_email=from_email, 
         to=to_list, 
         bcc=bcc_list
     )
@@ -535,12 +539,14 @@ def send_email_to_inquiry(cleaned_data, is_to_user=True):
         company_opening_hours = CompanyData.OPENING_HOURS,
         company_url = CompanyData.URL,
     )
+    
+    from_email = formataddr((CompanyData.NAME, settings.DEFAULT_FROM_EMAIL))
     to_list = [to_mail]
     bcc_list = [settings.DEFAULT_FROM_EMAIL]
     message = EmailMessage(
         subject=mail_subject, 
         body=content, 
-        from_email=settings.DEFAULT_FROM_EMAIL, 
+        from_email=from_email, 
         to=to_list, 
         bcc=bcc_list
     )
@@ -790,3 +796,23 @@ class ConvertHtmlToPdf:
         asset_id = ConvertHtmlToPdf.create_asset(html_content)
         pdf_url  = ConvertHtmlToPdf.create_pdf_download_url(asset_id)
         return pdf_url
+
+def is_basic_user(request) -> Tuple[bool, str]:
+    """
+    
+        システム利用の会員か判定する
+       
+        システム利用の会員のときは空文字、違うときはリダイレクト先を返す。
+        
+    """
+    request_user = request.user
+    
+    if not request_user.is_authenticated:
+        messages.warning(request, "アクセス制限 ログインをお願いします。")
+        return False, "accounts:account_login"
+    
+    if not request_user.basic_date:
+        messages.warning(request, "アクセス制限 システム利用の会員専用のページです。")
+        return False, "toukiApp:step_one_trial"
+    
+    return True, ""

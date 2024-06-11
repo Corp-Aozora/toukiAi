@@ -58,6 +58,7 @@ from .prefectures_and_city import *
 from .sections import *
 from .toukiAi_commons import *
 from common.utils import *
+from common.const import session_key
 
 class ToukiAppUrlName:
     """toukiAppで使用するurlのname"""
@@ -138,6 +139,29 @@ def index(request):
     ステップ１関連
 
 """
+def create_formset(form, extra, max_num):
+    """フォームセットを生成する"""
+    return formset_factory(form=form, extra=extra, max_num=max_num)
+
+def create_formsets_by_configuration(configuration):
+    """
+    
+        configurationに基づいてフォームセットを生成する
+        
+        configuration は [(form_class, extra, max_num), ...] の形式
+    """
+    return [create_formset(form, extra, max_num) for form, extra, max_num in configuration]
+
+def create_forms_by_configuration(configuration, request):
+    """
+    
+        単一のフォームを一括で生成する
+        
+        configuration は [(form_class, prefix), ...] の形式
+    
+    """
+    return [form_class(request.POST or None, prefix=prefix) for form_class, prefix in configuration]
+
 def is_form_in_formset(formset):
     """フォームセット内の各フォームにデータがあるかどうかをチェックする
     
@@ -147,6 +171,10 @@ def is_form_in_formset(formset):
         if form.has_changed():
             return True
     return False
+
+def check_is_heir(form):
+    """法定相続人判定"""
+    return bool(form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False)
 
 def save_step_one_datas(user, forms, form_sets, is_trial):
     """ステップ１のデータ登録処理
@@ -167,10 +195,7 @@ def save_step_one_datas(user, forms, form_sets, is_trial):
         """エラーログのテンプレ"""
         return f"ステップ１の{relation}のデータ登録時にエラー\nis_trial={is_trial}\ninstance={instance}" + (f"\n{message}" if message else "")
         
-    def check_is_heir(form):
-        """法定相続人判定"""
-        return bool(form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False)
-    
+
     def save_decedent(form, user, is_trial):
         """被相続人のデータ登録
         
@@ -476,6 +501,7 @@ def validate_and_log(item, prefix, function_name, user):
         
     return is_valid
 
+
 def step_one_trial(request):
     """ステップ1(公開用)
     
@@ -485,125 +511,316 @@ def step_one_trial(request):
         
         利用条件の確認も兼ねている
     """
+    # リクエストはGETとPOSTのみ
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        return redirect("toukiApp:index")
+    
+    FORMSETS_CONFIGURATION = [
+        (StepOneDescendantForm, 1, 15), # 子
+        (StepOneSpouseForm, 1, 15), # 子の配偶者
+        (StepOneDescendantForm, 1, 15), # 孫
+        (StepOneAscendantForm, 6, 6),
+        (StepOneCollateralForm, 1, 15),
+    ]
+    
+    FORMSETS_IDXS = {
+        "child": 0,
+        "child_spouse": 1,
+        "grand_child": 2,
+        "ascendant": 3,
+        "collateral": 4
+    }
+    
+    FORMS_CONFIGURATION = [
+        (StepOneDecedentForm, "decedent"),
+        (StepOneSpouseForm, "spouse"),
+        (StepOneDescendantCommonForm, "child_common"),
+        (StepOneCollateralCommonForm, "collateral_common"),
+    ]
+
+    FORMS_IDXS = {
+        "decedent": 0,
+        "spouse": 1,
+        "child_common": 2,
+        "collateral_common": 3
+    }
+    
     function_name = get_current_function_name()
     this_url_name = "toukiApp:step_one_trial"
     html = "toukiApp/step_one_trial.html"
     request_user = request.user
     
+    session_id = get_or_create_session_id(request)
+    session_key_form = session_key.Step1.Form
+    session_key_form_set = session_key.Step1.Formset
+    
+    userDataScope = []
+    spouse_data = {}
+    childs_data = []
+    child_heirs_data = []
+    ascendant_data = []
+    collateral_data = []
+    progress = 0 # トライアルは常に0
+    persons_data = []
+    
+    def ini_formsets(form_sets, request):
+        """フォームセットを初期化して返す"""
+        child = form_sets[FORMSETS_IDXS["child"]](request.POST or None, prefix="child")
+        child_spouse = form_sets[FORMSETS_IDXS["child_spouse"]](request.POST or None, prefix="child_spouse")
+        grand_child = form_sets[FORMSETS_IDXS["grand_child"]](request.POST or None, prefix="grand_child") 
+        ascendant = form_sets[FORMSETS_IDXS["ascendant"]](request.POST or None, prefix="ascendant")
+        collateral = form_sets[FORMSETS_IDXS["collateral"]](request.POST or None, prefix="collateral")
+        
+        return [child, child_spouse, grand_child, ascendant, collateral]
+    
+    def save_to_session(forms, form_sets):
+        """セッションにフォームデータを保存する"""
+        
+        def save_form(session_key, form):
+            """フォームを保存"""
+            try:
+                if session_key == session_key_form.DECEDENT_SPOUSE:
+                    form.cleaned_data["is_heir"] = check_is_heir(form)
+                    
+                request.session[session_key] = form.cleaned_data
+            except Exception as e:
+                basic_log(get_current_function_name(), e, None, f"session_key={session_key}, form.cleaned_data={form.cleaned_data}", False)
+                raise
+        
+        def save_formset(session_key, form_set):
+            """フォームセットを保存"""
+            try:
+                if not is_form_in_formset(form_set):
+                    return False
+                
+                for f in form_set:
+                    f.cleaned_data["is_heir"] = check_is_heir(f)
+                
+                request.session[session_key] = [f.cleaned_data for f in form_set]
+                
+                return True
+            except Exception as e:
+                basic_log(get_current_function_name(), e, None, f"session_key={session_key}, form_set_cleaned_data={[f.cleaned_data for f in form_set]}", False)
+                raise
+
+        def process_save(key_and_data):
+            """保存処理"""
+            for key, data in key_and_data:
+                if key in session_key_form.LIST:
+                    save_form(key, data)
+                else:
+                    if key in [session_key_form_set.CHILD, session_key_form_set.ASCENDANT]:
+                        if not save_formset(key, data):
+                            break
+                    else:
+                        save_formset(key, data)
+                
+        key_and_data_group = [
+            [
+                (session_key_form.DECEDENT, forms[FORMS_IDXS["decedent"]]),
+                (session_key_form.DECEDENT_SPOUSE, forms[FORMS_IDXS["spouse"]]),
+                (session_key_form.CHILD_COMMON, forms[FORMS_IDXS["child_common"]])
+            ],
+            [
+                (session_key_form_set.CHILD, form_sets[FORMSETS_IDXS["child"]]),
+                (session_key_form_set.CHILD_SPOUSE, form_sets[FORMSETS_IDXS["child_spouse"]]),
+                (session_key_form_set.GRAND_CHILD, form_sets[FORMSETS_IDXS["grand_child"]])
+            ],
+            [
+                (session_key_form_set.ASCENDANT, form_sets[FORMSETS_IDXS["ascendant"]]),
+                (session_key_form.COLLATERAL_COMMON, forms[FORMS_IDXS["collateral_common"]]),
+                (session_key_form_set.COLLATERAL, form_sets[FORMSETS_IDXS["collateral"]])
+            ]
+        ]
+        for x in key_and_data_group:
+            process_save(x)
+    
+    def add_person_data(arr, data):
+        """配列に各関係者のデータを追加する"""
+        if not data.get("name"):
+            return
+        
+        is_deceased = data.get("is_live") == False and data.get("is_refuse") == False
+        
+        arr.append({
+            "name": data.get("name"),
+            "is_heir": data.get("is_heir"),
+            "is_deceased": is_deceased,
+            "is_refuse": data.get("is_refuse"),
+            "is_adult": data.get("is_adult"),
+            "is_japan": data.get("is_japan"),
+        })
+    
+    def check_session_data(session_key, relation):
+        """セッションデータの有無をチェックする"""
+        data = request.session.get(session_key)
+        if data:
+            userDataScope.append(relation)
+            
+            return True, data
+        
+        return False, None
+    
+    def ini_decedent_or_common_form(session_key):
+        """被相続人、子共通、兄弟姉妹共通の復元"""
+        if session_key == session_key_form.DECEDENT:
+            relation = "decedent"
+            form_class = StepOneDecedentForm
+        elif session_key == session_key_form.CHILD_COMMON:
+            relation = "child_common"
+            form_class = StepOneDescendantCommonForm
+        elif session_key == session_key_form.COLLATERAL_COMMON:
+            relation = "collateral_common"
+            form_class = StepOneCollateralCommonForm
+        else:
+            msg = f"引数の値が不適切です。\n\
+                session_keyは{session_key_form.DECEDENT}, {session_key_form.CHILD_COMMON}, {session_key_form.COLLATERAL_COMMON}のいずれかにしてください。\n\
+                session_key={session_key}"
+            basic_log(get_current_function_name(), None, request_user, msg)
+            
+            raise ValueError(msg)
+        
+        result, data = check_session_data(session_key, relation)
+        form = form_class(prefix=relation, initial=data) if result else form_class(prefix=relation)
+            
+        return result, form
+    
+    def get_decedent_spouse_data():
+        """被相続人の配偶者のデータを取得する"""
+        result, data = check_session_data(session_key_form.DECEDENT_SPOUSE, "spouse")
+        if result:
+            add_person_data(persons_data, data)
+            
+        return data
+    
+    def get_childs_data():
+        """子のデータを取得する"""
+        result, data = check_session_data(session_key_form_set.CHILD, "child")
+        if result:
+            for x in data:
+                x["id"] = x.get("index")
+                x["count"] = x.get("child_count")
+                x["is_spouse"] = x.get("is_spouse")
+                
+                add_person_data(persons_data, x)
+        
+        return data
+    
+    def get_child_heirs_data():
+        """子の相続人のデータを取得する"""
+        
+        def get_data(session_key):
+            data = request.session.get(session_key)
+            if data:
+                for x in data:
+                    x["child_id"] = x.get("target") if session_key == session_key_form_set.CHILD_SPOUSE else x.get("target1")
+            
+            return data
+                    
+        child_spouses_data = get_data(session_key_form_set.CHILD_SPOUSE)
+        grand_childs_data = get_data(session_key_form_set.GRAND_CHILD)
+        child_heirs_data = None
+        
+        if child_spouses_data or grand_childs_data:
+            userDataScope.append("child_heirs")
+            
+            child_heirs_data = child_spouses_data + grand_childs_data
+            child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
+            
+            for x in child_heirs_data:
+                add_person_data(persons_data, x)
+                
+        return child_heirs_data
+    
+    def get_ascendant_or_collateral_data(session_key):
+        """尊属のデータを取得する"""
+        if session_key == session_key_form_set.ASCENDANT:
+            relation = "ascendant"
+        elif session_key == session_key_form_set.COLLATERAL:
+            relation = "collateral"
+        else:
+            msg = f"引数の値が不適切です。\n\
+                session_keyは{session_key_form_set.ASCENDANT}, {session_key_form_set.COLLATERAL}のいずれかにしてください。\n\
+                session_key={session_key}"
+            basic_log(get_current_function_name(), None, request_user, msg)
+            
+            raise ValueError(msg)
+            
+        result, data = check_session_data(session_key, relation)
+        if result:
+            for x in data:
+                x["id"] = x.get("index")
+                
+                add_person_data(persons_data, x)
+                
+            if session_key == session_key_form_set.ASCENDANT:
+                data = sorted(data, key=lambda x: x['id'])
+            
+        return data
+                
+    """メイン"""   
     try:
         # ログイン中のシステム利用会員はstep_oneに遷移させる
         if request_user.is_authenticated and request_user.basic_date:
             return redirect("toukiApp:step_one")
         
-        session_id = get_or_create_session_id(request)
+        form_sets = create_formsets_by_configuration(FORMSETS_CONFIGURATION)
+        child_form_set,\
+        child_spouse_form_set,\
+        grand_child_form_set,\
+        ascendant_form_set,\
+        collateral_form_set = ini_formsets(form_sets, request)
         
-        child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
-        grand_child_form_set = formset_factory(form=StepOneDescendantForm, extra=1, max_num=15)
-        ascendant_form_set = formset_factory(form=StepOneAscendantForm, extra=6, max_num=6)
-        child_spouse_form_set = formset_factory(form=StepOneSpouseForm, extra=1, max_num=15)
-        collateral_form_set = formset_factory(form=StepOneCollateralForm, extra=1, max_num=15)
+        decedent_form,\
+        spouse_form,\
+        child_common_form,\
+        collateral_common_form = create_forms_by_configuration(FORMS_CONFIGURATION, request)
         
         if request.method == "POST":
             forms = [
-                ("被相続人", StepOneDecedentForm(request.POST, prefix="decedent")),
-                ("配偶者", StepOneSpouseForm(request.POST, prefix="spouse")),
-                ("子供全員", StepOneDescendantCommonForm(request.POST, prefix="child_common")),
-                ("兄弟姉妹全員", StepOneCollateralCommonForm(request.POST, prefix="collateral_common")),
+                ("被相続人", decedent_form),
+                ("配偶者", spouse_form),
+                ("子供全員", child_common_form),
+                ("兄弟姉妹全員", collateral_common_form),
             ]
             form_sets = [
-                ("子", child_form_set(request.POST, prefix="child")),
-                ("子の配偶者", child_spouse_form_set(request.POST or None, prefix="child_spouse")),
-                ("孫", grand_child_form_set(request.POST or None, prefix="grand_child")), 
-                ("父母または祖父母", ascendant_form_set(request.POST or None, prefix="ascendant")),
-                ("兄弟姉妹", collateral_form_set(request.POST or None, prefix="collateral"))
+                ("子", child_form_set),
+                ("子の配偶者", child_spouse_form_set),
+                ("孫", grand_child_form_set), 
+                ("父母または祖父母", ascendant_form_set),
+                ("兄弟姉妹", collateral_form_set)
             ]
 
-            # valid_forms = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
-            # valid_form_sets = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
+            is_forms_valid = all(validate_and_log(form[1], form[0], function_name, request_user) for form in forms)
+            is_form_sets_valid = all(validate_and_log(form_set[1], form_set[0], function_name, request_user) for form_set in form_sets)
 
-            # if valid_forms and valid_form_sets:
-            #     try:
-            #         with transaction.atomic():
-            #             save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], True)
-            #     except Exception as e:
-            #         basic_log(function_name, e, user, "POSTのデータ保存処理でエラー")
-            #         raise e
-            # else:
-            #     messages.warning(request, "受付に失敗。 入力に不備があるためデータを保存できませんでした。\n再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
-
+            if is_forms_valid and is_form_sets_valid:
+                cleaned_forms = [f[1] for f in forms]
+                cleaned_form_sets = [fs[1] for fs in form_sets]
+                save_to_session(cleaned_forms, cleaned_form_sets)
+            else:
+                messages.warning(request, "受付に失敗。 入力に不備があるためデータを保存できませんでした。\n再度入力をお願いします。\n同じメッセージが表示される場合はお問い合わせをお願いします。")
             
             return redirect(this_url_name)
-        
-        userDataScope = []
-        spouse_data = {}
-        childs_data = []
-        child_heirs_data = []
-        ascendant_data = []
-        collateral_data = []
-        progress = 0
-        
-        result = [] # 判定結果を格納する（相続人の名前）
-        
-        decedent_form = StepOneDecedentForm(prefix="decedent")
-        spouse_form = StepOneSpouseForm(prefix="spouse")
-        child_common_form = StepOneDescendantCommonForm(prefix="child_common")
-        collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common") 
-        
-        # decedent = user.decedent.first() # 被相続人
-        # if decedent:
-        #     progress = decedent.progress
-        #     decedent_form = StepOneDecedentForm(prefix="decedent", instance=decedent)
-        #     userDataScope.append("decedent")
-            
-        #     spouse = Spouse.objects.filter(decedent=decedent, object_id=decedent.id).first() # 被相続人の被相続人
-        #     if spouse:
-        #         spouse_data = model_to_dict(spouse)
-        #         userDataScope.append("spouse")
 
-        #     child_common = DescendantCommon.objects.filter(decedent=decedent).first() # 子共通
-        #     if child_common:
-        #         child_common_form = StepOneDescendantCommonForm(prefix="child_common", instance=child_common)
-        #         userDataScope.append("child_common")
+        result, decedent_form = ini_decedent_or_common_form(session_key_form.DECEDENT)
+        if result:
+            spouse_data = get_decedent_spouse_data()
+
+            result, child_common_form = ini_decedent_or_common_form(session_key_form.CHILD_COMMON)
+            if result:
                 
-        #         childs = Descendant.objects.filter(object_id1=decedent.id) # 子全員
-        #         if childs.exists():
-        #             descendant_form_fields = StepOneDescendantForm().fields
-        #             childs_data = get_step_one_childs_data(decedent, childs, descendant_form_fields)
-        #             userDataScope.append("child")
-                    
-        #             child_spouses = Spouse.objects.filter(decedent=decedent).exclude(object_id=decedent.id)
-        #             spouse_form_fields = StepOneSpouseForm().fields
-        #             child_spouses_data = get_step_one_child_heirs_data(child_spouses, spouse_form_fields)
-                        
-        #             grand_childs = Descendant.objects.filter(decedent=decedent).exclude(object_id1=decedent.id)
-        #             grand_childs_data = get_step_one_child_heirs_data(grand_childs, descendant_form_fields)
-                        
-        #             if child_spouses_data or grand_childs_data:
-        #                 child_heirs_data = child_spouses_data + grand_childs_data
-        #                 child_heirs_data.sort(key=lambda x: (x['child_id'], not (x in child_spouses_data)))
-        #                 userDataScope.append("child_heirs")
+                childs_data = get_childs_data()
+                if childs_data:
+                    child_heirs_data = get_child_heirs_data()
 
-        #         ascendants = Ascendant.objects.filter(decedent=decedent)
-        #         if ascendants.exists():
-        #             ascendant_form_fields = StepOneAscendantForm().fields
-        #             ascendant_data = get_step_one_ascendant_or_collateral_data(ascendants, ascendant_form_fields)
-        #             ascendant_data = sorted(ascendant_data, key=lambda x: x['id']) #父、母、父方の祖父、父方の祖母、母方の祖父、母方の祖母の順
-        #             userDataScope.append("ascendant")
+                ascendant_data = get_ascendant_or_collateral_data(session_key_form_set.ASCENDANT)
 
-        #         collateral_common = CollateralCommon.objects.filter(decedent=decedent).first()
-        #         if collateral_common:
-        #             collateral_common_form = StepOneCollateralCommonForm(prefix="collateral_common", instance=collateral_common)
-        #             userDataScope.append("collateral_common")
-                    
-        #             collaterals = Collateral.objects.filter(decedent=decedent)
-        #             if collaterals.exists():
-        #                 collateral_form_fields = StepOneCollateralForm().fields
-        #                 collateral_data = get_step_one_ascendant_or_collateral_data(collaterals, collateral_form_fields)
-        #                 userDataScope.append("collateral")
-                        
-        #     heir_querysets = get_legal_heirs(decedent)
-        #     result = [x.name for x in heir_querysets]
+                result, collateral_common_form = ini_decedent_or_common_form(session_key_form.COLLATERAL_COMMON)
+                if result:
+                    collateral_data = get_ascendant_or_collateral_data(session_key_form_set.COLLATERAL)
         
+        deceased_person_names = [x["name"] for x in persons_data if x["is_deceased"]] if len(persons_data) > 0 else []
         decedent_form_internal_field_name = ["user", "progress"]
         spouse_or_ascendant_internal_field_name = ["decedent", "content_type", "object_id", "is_heir"]
         common_form_internal_field_name = ["decedent"]
@@ -613,7 +830,9 @@ def step_one_trial(request):
         context = {
             "title" : Sections.STEP1,
             "progress": progress,
-            "result": result,
+            "deceased_person_names": deceased_person_names,
+            "decedent_name": decedent_form.initial.get("name"),
+            "persons_data": persons_data,
             "decedent_form": decedent_form,
             "decedent_form_internal_field_name": decedent_form_internal_field_name,
             "spouse_form": spouse_form,
@@ -623,25 +842,27 @@ def step_one_trial(request):
             "common_form_internal_field_name" : common_form_internal_field_name,
             "sections" : Sections.SECTIONS[Sections.STEP1],
             "service_content" : Sections.SERVICE_CONTENT,
-            "child_form_set" : child_form_set(prefix="child"),
-            "child_spouse_form_set" : child_spouse_form_set(prefix="child_spouse"),
-            "grand_child_form_set" : grand_child_form_set(prefix="grand_child"),
-            "ascendant_form_set" : ascendant_form_set(prefix="ascendant"),
+            "child_form_set" : child_form_set,
+            "child_spouse_form_set" : child_spouse_form_set,
+            "grand_child_form_set" : grand_child_form_set,
+            "ascendant_form_set" : ascendant_form_set,
             "descendant_or_collateral_internal_field_name" : descendant_or_collateral_internal_field_name,
             "ascendants_relation" : ascendants_relation,
-            "collateral_form_set" : collateral_form_set(prefix="collateral"),
+            "collateral_form_set" : collateral_form_set,
             "userDataScope" : json.dumps(userDataScope),
             "spouse_data" : json.dumps(spouse_data),
             "childs_data" : json.dumps(childs_data),
             "child_heirs_data" : json.dumps(child_heirs_data),
             "ascendant_data" : json.dumps(ascendant_data),
             "collateral_data" : json.dumps(collateral_data),
-            "result_for_modal": json.dumps(result)
+            "persons_data_for_modal": json.dumps(persons_data)
         }
 
         return render(request, html, context)
     except Exception as e:
-        return handle_error(e, request, request_user, function_name, this_url_name)
+        if not "session_id" in locals():
+            session_id = request.session.session_key
+        return handle_error(e, request, request_user, function_name, this_url_name, notices=f"session_id={session_id}")
    
 def step_one(request):
     """
@@ -660,7 +881,7 @@ def step_one(request):
         # システム利用の会員以外はアカウント登録ページに遷移させる
         result, redirect_to = is_basic_user(request)
         if not result:
-            redirect(redirect_to)
+            return redirect(redirect_to)
         
         if get_boolean_session(request.session, "new_basic_user"):
             message = "サービス開始 ご利用いただき誠にありがとうございます。\n\nお客様の相続登記が完了するまでしっかりサポートさせていただきます!\n\nご不明なことがありましたら、お気軽にお問い合わせください。"
@@ -697,10 +918,10 @@ def step_one(request):
                 ("兄弟姉妹", collateral_form_set(request.POST or None, prefix="collateral"))
             ]
 
-            valid_forms = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
-            valid_form_sets = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
+            is_forms_valid = all(validate_and_log(form[1], form[0], function_name, user) for form in forms)
+            is_form_sets_valid = all(validate_and_log(form_set[1], form_set[0], function_name, user) for form_set in form_sets)
 
-            if valid_forms and valid_form_sets:
+            if is_forms_valid and is_form_sets_valid:
                 try:
                     with transaction.atomic():
                         save_step_one_datas(user, [f[1] for f in forms], [fs[1] for fs in form_sets], False)
@@ -855,20 +1076,20 @@ def get_deceased_persons(decedent):
     """相続時に生存していて手続前に死亡した相続人を取得する"""
     deceased_heirs = []
     
-    deceased_heirs += get_persons_by_condition(Spouse, decedent, is_live=False)
+    deceased_heirs += get_persons_by_condition(Spouse, decedent, is_live=False, is_refuse=False)
     
-    childs = Descendant.objects.filter(object_id1=decedent.id, is_live=False)
+    childs = Descendant.objects.filter(object_id1=decedent.id, is_live=False, is_refuse=False)
     if childs.exists():
         deceased_heirs += [x for x in childs]
-        child_spouses = [x for x in Spouse.objects.filter(decedent=decedent, is_live=False).exclude(object_id=decedent.id)]
-        grand_childs = [x for x in Descendant.objects.filter(decedent=decedent, is_live=False).exclude(object_id1=decedent.id)]
+        child_spouses = [x for x in Spouse.objects.filter(decedent=decedent, is_live=False, is_refuse=False).exclude(object_id=decedent.id)]
+        grand_childs = [x for x in Descendant.objects.filter(decedent=decedent, is_live=False, is_refuse=False).exclude(object_id1=decedent.id)]
         child_heirs = child_spouses + grand_childs
 
         if child_heirs:
             deceased_heirs += get_sorted_child_heirs(child_heirs)
     
-    deceased_heirs += get_persons_by_condition(Ascendant, decedent, is_live=False)
-    deceased_heirs += get_persons_by_condition(Collateral, decedent, is_live=False)
+    deceased_heirs += get_persons_by_condition(Ascendant, decedent, is_live=False, is_refuse=False)
+    deceased_heirs += get_persons_by_condition(Collateral, decedent, is_live=False, is_refuse=False)
     
     return deceased_heirs
 
@@ -1049,7 +1270,6 @@ def step_two(request):
         deceased_persons = get_deceased_persons(decedent)
         minors = get_filtered_instances(heirs, "is_adult", False)
         overseas = get_filtered_instances(heirs, "is_japan", False)
-        
         refused_heirs = get_refused_heirs(decedent)
         
         # search_word = "戸籍 郵送請求"
@@ -1093,8 +1313,6 @@ def step_two(request):
     ステップ３関連
 
 """
-
-
 def step_three_input_status(data):
     """
     
@@ -2043,31 +2261,6 @@ def get_all_decedent_related_data(decedent):
         basic_log(function_name, e, None, f"被相続人id：{decedent.id}")
         raise e
 
-step_three_formset_configuration = [
-    (StepThreeDescendantForm, 0, 15),
-    (StepThreeSpouseForm, 0, 15),
-    (StepThreeDescendantForm, 0, 15),
-    (StepThreeAscendantForm, 0, 15),
-    (StepThreeCollateralForm, 0, 15),
-    (StepThreeLandForm, 1, 20),
-    (StepThreeLandAcquirerForm, 1, 20),
-    (StepThreeLandCashAcquirerForm, 1, 20),
-    (StepThreeHouseForm, 1, 20),
-    (StepThreeHouseAcquirerForm, 1, 20),
-    (StepThreeHouseCashAcquirerForm, 1, 20),
-    (StepThreeBldgForm, 1, 20),
-    (StepThreeSiteForm, 1, 20),
-    (StepThreeBldgAcquirerForm, 1, 20),
-    (StepThreeBldgCashAcquirerForm, 1, 20),    
-]
-
-def create_formset(form, extra, max_num):
-    return formset_factory(form=form, extra=extra, max_num=max_num)
-
-def get_formsets_for_step_three():
-    form_sets = [create_formset(form, extra, max_num) for form, extra, max_num in step_three_formset_configuration]
-    return form_sets
-
 def get_forms_for_step_three_post(request, decedent, data, data_idx):
     """ステップ3で使用するフォームにPOSTデータを代入してリストに格納して返す"""
 
@@ -2217,7 +2410,29 @@ def get_form_sets_for_step_three_post(request, form_sets, form_sets_idxs, data, 
     return form_sets
 
 def step_three(request):
-    """詳細データ入力"""
+    """
+    
+        詳細データ入力ページの処理
+        
+    """
+    FORM_SET_CONFIGURATION = [
+        (StepThreeDescendantForm, 0, 15),
+        (StepThreeSpouseForm, 0, 15),
+        (StepThreeDescendantForm, 0, 15),
+        (StepThreeAscendantForm, 0, 15),
+        (StepThreeCollateralForm, 0, 15),
+        (StepThreeLandForm, 1, 20),
+        (StepThreeLandAcquirerForm, 1, 20),
+        (StepThreeLandCashAcquirerForm, 1, 20),
+        (StepThreeHouseForm, 1, 20),
+        (StepThreeHouseAcquirerForm, 1, 20),
+        (StepThreeHouseCashAcquirerForm, 1, 20),
+        (StepThreeBldgForm, 1, 20),
+        (StepThreeSiteForm, 1, 20),
+        (StepThreeBldgAcquirerForm, 1, 20),
+        (StepThreeBldgCashAcquirerForm, 1, 20),    
+    ]
+    
     function_name = get_current_function_name()
     this_html = "toukiApp/step_three.html"
     this_url_name = "toukiApp:step_three"
@@ -2238,7 +2453,7 @@ def step_three(request):
         data_idx = get_data_idx_for_step_three()
         
         #フォームセットを生成
-        form_sets = get_formsets_for_step_three()
+        form_sets = create_formsets_by_configuration(FORM_SET_CONFIGURATION)
         form_sets_idx = get_formsets_idx_for_step_three()
 
         #フォームからデータがPOSTされたとき

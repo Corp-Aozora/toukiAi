@@ -12,6 +12,7 @@ from email.encoders import encode_base64
 from email.header import Header
 from email.mime.base import MIMEBase
 from email.utils import formataddr
+from typing import Union, List, Tuple
 
 import mojimoji
 import re
@@ -199,7 +200,7 @@ def get_or_create_session_id(request) -> str:
         
     return session_id
 
-def is_valid_request_method(request, method, should_match, need_message = True) -> bool:
+def is_valid_request_method(request, method: Union[List[str], Tuple[str]], should_match: bool, need_message: bool = True) -> bool:
     """
     
         リクエストのメソッドが適切か判定
@@ -207,7 +208,7 @@ def is_valid_request_method(request, method, should_match, need_message = True) 
         should_matchがTrueかつmethodと一致 または should_matchがFalseかつmethodと不一致 = True
     
     """
-    if (should_match and request.method == method) or (not should_match and request.method != method):
+    if (should_match and request.method in method) or (not should_match and request.method not in method):
         return True
     
     if need_message:

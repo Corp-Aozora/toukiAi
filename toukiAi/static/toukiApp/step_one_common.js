@@ -718,9 +718,7 @@ function assignAndDispatchChangeEvent(val, input){
     if(val === null)
         return;
 
-    if(typeof val === "string" && val !== ""){
-        input.value = val;
-    }else if(typeof val === "number" && val > 0){
+    if((typeof val === "string" && val !== "") || (typeof val === "number" && val > 0)){
         input.value = val;
     }else if(typeof val === "boolean" && val){
         input.checked = true;
@@ -787,17 +785,17 @@ async function loadData(){
 
     // 氏名欄の処理
     function handleName(data, instance){
-        const nameData = data["name"];
+        const val = data["name"];
         const {inputs, constructor} = instance;
-        const nameInput = inputs[constructor.idxs.name[input]];
-        assignAndDispatchChangeEvent(nameData, nameInput);
+        const input = inputs[constructor.idxs.name.input];
+        assignAndDispatchChangeEvent(val, input);
     }
 
     // 相続放棄しているときの処理
     function handleIsRefuseTrue(instance){
         const {inputs, constructor} = instance;
-        const isRefuseYesInput = inputs[constructor.idxs.isRefuse[input[yes]]];
-        assignAndDispatchChangeEvent(true, isRefuseYesInput);
+        const input = inputs[constructor.idxs.isRefuse.input[yes]];
+        assignAndDispatchChangeEvent(true, input);
     }
 
     // 特定の欄を復元
@@ -813,20 +811,20 @@ async function loadData(){
         const {inputs, constructor} = instance;
         const idxs = constructor.idxs;
 
-        const isRefuseNoInput = inputs[idxs.isRefuse[input[no]]];
+        const isRefuseNoInput = inputs[idxs.isRefuse.input[no]];
         assignAndDispatchChangeEvent(true, isRefuseNoInput);
         
         if(isLive){
-            loadQData(data, "is_japan", inputs, idxs.isJapan[input]);
+            loadQData(data, "is_japan", inputs, idxs.isJapan.input);
         }else{
             let assignTargets = [];
             if(instance instanceof Spouse || instance instanceof ChildSpouse){
-                const isRemarriageNoInput = inputs[idxs.isRemarriage[input[no]]];
-                const isStepChildNoInput = inputs[idxs.isStepChild[input[no]]];
+                const isRemarriageNoInput = inputs[idxs.isRemarriage.input[no]];
+                const isStepChildNoInput = inputs[idxs.isStepChild.input[no]];
                 assignTargets = [isRemarriageNoInput, isStepChildNoInput];
             }else{
-                const isSpouseNoInput = inputs[idxs.isSpouse[input[no]]];
-                const isChildNoInput = inputs[idxs.isChild[input[no]]];
+                const isSpouseNoInput = inputs[idxs.isSpouse.input[no]];
+                const isChildNoInput = inputs[idxs.isChild.input[no]];
                 assignTargets = [isSpouseNoInput, isChildNoInput];
             }
 
@@ -843,12 +841,12 @@ async function loadData(){
         
         // 相続放棄していないとき
         function handleIsRefuseFalse(){
-            const isRefuseNoInput = inputs[idxs.isRefuse[input[no]]];
+            const isRefuseNoInput = inputs[idxs.isRefuse.input[no]];
             toggleAssignAndDispatchChangeEvent(true, isRefuseNoInput);
             
-            const result = loadQData(data, "is_adult", inputs, idxs.isAdult[input]);
+            const result = loadQData(data, "is_adult", inputs, idxs.isAdult.input);
             if(result)
-                loadQData(data, "is_japan", inputs, idxs.isJapan[input]);
+                loadQData(data, "is_japan", inputs, idxs.isJapan.input);
         }
 
         const result = isBooleanData(data, "is_refuse");
@@ -864,10 +862,10 @@ async function loadData(){
 
         // 手続時に生存しているときの処理
         function handleIsLive(){
-            let result = loadQData(data, "is_live", inputs, idxs.isLive[input]);
+            const isLive = loadQData(data, "is_live", inputs, idxs.isLive.input);
 
-            result = isBooleanData(data, "is_refuse");
-            result? handleIsRefuseTrue(instance): handleSpouseOrAscendantIsRefuseFalse(isLive, data, instance);
+            const isRefuse = isBooleanData(data, "is_refuse");
+            isRefuse? handleIsRefuseTrue(instance): handleSpouseOrAscendantIsRefuseFalse(isLive, data, instance);
         }
 
         try{
@@ -875,9 +873,8 @@ async function loadData(){
             handleName(spouse_data, instance);
     
             // 相続時存在欄の処理
-            const result = loadQData(data, "is_exist", inputs, idxs.isExist[input]);
-            // 相続時に存在しているとき、手続時に生存しているときの処理へ
-            if(result)
+            const isExist = loadQData(data, "is_exist", inputs, idxs.isExist.input);
+            if(isExist)
                 handleIsLive();
         }catch(e){
             throw new Error(CustomMessageTemplates.errorWhenLoad(functionName, instance, e));
@@ -917,9 +914,9 @@ async function loadData(){
 
                 // 相続放棄していないとき
                 function handeIsRefuseFalse(){
-                    const isRefuseNoInput = inputs[idxs.isRefuse[input[no]]];
-                    const isSpouseNoInput = inputs[idxs.isSpouse[input[no]]];
-                    const isChildNoInput = inputs[idxs.isChild[input[no]]];
+                    const isRefuseNoInput = inputs[idxs.isRefuse.input[no]];
+                    const isSpouseNoInput = inputs[idxs.isSpouse.input[no]];
+                    const isChildNoInput = inputs[idxs.isChild.input[no]];
                     const assignTargets = [isRefuseNoInput, isSpouseNoInput, isChildNoInput];
                     assignTargets.forEach(x =>{
                         assignAndDispatchChangeEvent(true, x);
@@ -932,16 +929,16 @@ async function loadData(){
 
             // 相続時に死亡していたとき
             function handleIsExistFalse(){
-                const isChildNoInput = inputs[idxs.isChild[input[no]]];
+                const isChildNoInput = inputs[idxs.isChild.input[no]];
                 assignAndDispatchChangeEvent(true, isChildNoInput);
             }
 
-            const isExistIdxs = idxs.isExist[input];
+            const isExistIdxs = idxs.isExist.input;
             const result = loadQData(data, "is_exist", inputs, isExistIdxs);
             result? handleIsExistTrue(): handleIsExistFalse();
         }
 
-        const isLiveIdxs = idxs.isLive[input];
+        const isLiveIdxs = idxs.isLive.input;
         const result = loadQData(data, "is_live", inputs, isLiveIdxs);
         result? handleDescendantOrCollateralIsLiveTrue(data, instance): handleIsLiveFalse();
     }

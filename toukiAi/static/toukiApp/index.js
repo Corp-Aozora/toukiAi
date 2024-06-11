@@ -151,13 +151,34 @@ async function validationList(instance, index){
     イベント集
 */
 window.addEventListener("load", ()=>{
-    //ヘッダーのボタンに対象の項目へスクロールするイベントを設定
+
+    // 対象のエリアにスクロールする
+    function  navToTargetSection(){
+        const targetID = window.location.hash.substring(1);
+        const targetElement = document.getElementById(targetID);
+        if(targetElement){
+            scrollToTarget(targetElement, 0);
+        }
+    }
+
+    // メニュー内にあるお問い合わせにイベント設定
+    function setEventToInquiryLink(){
+        const inquiryLink = document.querySelector(".inquiry-link");
+        inquiryLink.addEventListener("click", ()=>{
+            const offcanvasMenus = document.getElementById('offcanvasMenus');
+            const offcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(offcanvasMenus);
+            offcanvasInstance.hide();
+        })
+    }
+
+    navToTargetSection();
+
+    setEventToInquiryLink();
+
+    // 対象の項目へスクロールするイベントを設定
     for(let key in idEls){
         addScrollEvent(classEls[key], idEls[key]);
     }
-
-    //セッション情報を初期化
-    sessionStorage.clear();
     
     const inquiry = new Inquiry();
     const inputs = inquiry.inputs;

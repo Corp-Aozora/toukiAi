@@ -3,33 +3,175 @@
         <div class="modal-content">
             <div class="modal-header justify-content-center bg-success-subtle bg-gradient bg-opacity-50">
                 <h4 class="modal-title fw-bold">
-                    相続人は以下の方々です。
+                    判定結果
                 </h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
             <div class="modal-body">
+                <h5 class="text-center">
+                    ＜相続人一覧＞
+                </h5>
                 <div class="d-flex justify-content-center">
-                    <ul class="p-0">
-                        {% for heir_name in result %}
-                            <li class="d-flex fs-4 border-bottom border-success px-3">
-                                <div>
-                                    <span class="fw-bold">
-                                        {{heir_name}}
+                    <ul class="p-0 mb-0">
+                        {% for x in persons_data %}
+                            {% if x.is_heir %}
+                                <li class="d-flex">
+                                    <span class="border-bottom border-success fw-bold px-3">
+                                        {{ x.name }}
                                     </span>
-                                </div>
-                                <div class="ms-3">
-                                    <span class="fw-bold">
-                                        さん
-                                    </span>
-                                </div>
-                            </li>
+                                    さん
+                                </li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 </div>
-                <div class="form-text">
-                    ※この結果はページ上部にも表示されてます。
+                <hr class="my-4">
+                <h5 class="text-center">
+                    ＜必要書類一覧＞
+                </h5>
+                <div>
+                    {% if deceased_person_names|length > 0 %}
+                        <div class="mt-3">
+                            <div class="text-center">
+                                <span class="border-bottom border-dark fw-bold">
+                                    以下の方々の出生から死亡までの戸籍謄本
+                                </span>
+                            </div>
+                            <ul class="ps-3 ps-sm-5 mb-0 mt-3">
+                                <li class="checkmark ms-3">
+                                    {{ decedent_name }}
+                                    <span class="ms-3">
+                                        さん
+                                    </span>
+                                </li>
+                                {% for x in deceased_person_names %}
+                                    <li class="checkmark ms-3">
+                                        {{ x }}
+                                        <span class="ms-3">
+                                            さん
+                                        </span>
+                                    </li>                            
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="mt-3">
+                        <div class="text-center">
+                            <span class="border-bottom border-dark fw-bold">
+                                {{ decedent_name }}さんに関する書類
+                            </span>
+                        </div>
+                        <ul class="ps-3 ps-sm-5 mb-0 mt-3">
+                            {% if deceased_persons|length == 0 %}
+                                <li class="checkmark ms-3">
+                                    出生から死亡までの戸籍謄本
+                                </li>
+                            {% endif %}
+                            <li class="checkmark ms-3">
+                                不動産の登記記録がわかるもの
+                                <div class="d-flex">
+                                    <div>
+                                        例）
+                                    </div>
+                                    <div>
+                                        <div>
+                                            登記情報
+                                        </div>
+                                        <div>
+                                            全部事項証明書
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="checkmark ms-3">
+                                不動産の固定資産評価額がわかるもの
+                                <div class="d-flex">
+                                    <div>
+                                        例）
+                                    </div>
+                                    <div>
+                                        <div>
+                                            固定資産評価証明書
+                                        </div>
+                                        <div>
+                                            課税明細書、など
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="checkmark ms-3">
+                                登記記録上の住所から死亡時の住所までの履歴を証明できるもの
+                                <div class="d-flex">
+                                    <div>
+                                        例）
+                                    </div>
+                                    <div>
+                                        <div>
+                                            住民票の除票
+                                        </div>
+                                        <div>
+                                            戸籍の附票、など
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-center">
+                            <span class="border-bottom border-dark fw-bold">
+                                相続人に関する書類
+                            </span>
+                        </div>
+                        <ul class="ps-3 ps-sm-5 mb-0 mt-3">
+                            <li class="checkmark ms-3">
+                                戸籍(全部または個人)事項証明書
+                            </li>
+                            <li class="checkmark ms-3">
+                                印鑑証明書
+                            </li>
+                            <li class="checkmark ms-3">
+                                住民票(不動産を取得する方のみ)
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-center">
+                            <span class="border-bottom border-dark fw-bold">
+                                申請書類
+                            </span>
+                        </div>
+                        <ul class="ps-3 ps-sm-5 mb-0 mt-3">
+                            <li class="checkmark ms-3">
+                                登記申請書
+                            </li>
+                            <li class="checkmark ms-3">
+                                遺産分割協議書
+                            </li>
+                            <li class="checkmark ms-3">
+                                相続関係説明図
+                            </li>
+                            <li class="checkmark ms-3">
+                                委任状(代理人が手続する場合)
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+                <hr class="my-4">
+                <div class="form-text d-flex">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        この結果はページ上部にも表示されてます。
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    閉じる
+                </button>
             </div>
         </div>
     </div>

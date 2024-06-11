@@ -8,9 +8,11 @@
         <a class="me-lg-4" href="{% url 'toukiApp:index' %}">
             <img class="logo-img" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </a>
-        <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
-            相続人判定
-        </a>
+        {% if request.path != "/toukiApp/step_one_trial" %}
+            <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
+                相続人判定
+            </a>
+        {% endif %}
         <button class="menu-toggler-btn btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">
             サイトマップ
         </button>
@@ -30,11 +32,19 @@
                                 ログアウト
                             </a>
                         </li>
-                        <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
-                            <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
-                                会員ページに戻る
-                            </a>
-                        </li>
+                        {% if user.basic_date %}
+                            <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
+                                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
+                                    会員ページに戻る
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
+                                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
+                                    サービスを申し込む
+                                </a>
+                            </li>
+                        {% endif %}
                     {% else %}
                         <li class="nav-item col col-md-auto account-menu">
                             <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">
@@ -71,6 +81,17 @@
                         <a class="proxy-footer" href="{% url 'toukiApp:administrator' %}">
                             会社概要
                         </a>
+                    </li>
+                    <li class="nav-item col col-md-auto proxy-footer-li">
+                        {% if user.is_authenticated %}
+                            <a class="proxy-footer" href="{% url 'toukiApp:step_inquiry' %}">
+                                お問い合わせ
+                            </a>
+                        {% else %}
+                            <a class="proxy-footer inquiry-link" href="{% url 'toukiApp:index' %}#inquiry">
+                                お問い合わせ
+                            </a>
+                        {% endif %}
                     </li>
                 </ul>
             </div>

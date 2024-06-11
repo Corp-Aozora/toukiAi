@@ -220,6 +220,10 @@ form .form-error-wrapper{
     .lg-text-center{
         text-align: center!important;
     }
+
+    .lg-justify-content-center{
+        justify-content: center!important;
+    }
 }
 
 @media (max-width:767px){

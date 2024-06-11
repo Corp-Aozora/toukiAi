@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block header %}
-    {% include "toukiApp/step_header.html" %}
+    {% include "header.html" %}
 {% endblock %}
 
 {% load custom_filters %}
@@ -19,7 +19,7 @@
 {% include "toukiApp/parts/step_messages.html" %}
 {% include "toukiApp/parts/modals/not_available.html" %}
 
-{% if result|length > 0 %}
+{% if persons_data|length > 0 %}
     {% include "toukiApp/parts/modals/legal_heirs_check_result.html" %}
 {% endif %}
 
@@ -27,24 +27,160 @@
     {% include "toukiApp/step_sidebar.html" %}
     <div class="pt-4 ps-lg-5 container-xxl">
         {% include "toukiApp/parts/step_one/top.html" %}
-        {% if result|length > 0 %}
+        {% if persons_data|length > 0 %}
+            <hr>
+            <h4 class="text-primary lg-text-center">
+                判定結果
+            </h4>
             <section id="heirs_list" class="p-3">
-                <h5 class="fw-bold text-success">
-                    相続人は、以下の方々です。
+                <h5 class="text-success lg-text-center">
+                    ＜相続人一覧＞
                 </h5>
-                <ul>
-                    {% for heir_name in result %}
-                        <li>
-                            <span class="border-bottom border-success fw-bold px-3">
-                                {{heir_name}}
-                                <span class="ms-3">
+                <div class="d-flex lg-justify-content-center">
+                    <ul class="p-0 mb-0">
+                        {% for x in persons_data %}
+                            {% if x.is_heir %}
+                                <li class="d-flex">
+                                    <span class="border-bottom border-success fw-bold px-3">
+                                        {{ x.name }}
+                                    </span>
                                     さん
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <h5 class="text-success lg-text-center mt-5">
+                    ＜必要書類＞
+                </h5>
+                <ul class="ps-3 mb-0">
+                    {% if deceased_person_names|length > 0 %}
+                        <li>
+                            <div class="lg-text-center">
+                                <span class="border-bottom border-dark fw-bold">
+                                    以下の方々の出生から死亡までの戸籍謄本
                                 </span>
+                            </div>
+                            <ul class="ps-3 mb-0 mt-3">
+                                <li class="checkmark">
+                                    {{ decedent_name }}
+                                    <span class="ms-3">
+                                        さん
+                                    </span>
+                                </li>
+                                {% for x in deceased_person_names %}
+                                    <li class="checkmark">
+                                        {{ x }}
+                                        <span class="ms-3">
+                                            さん
+                                        </span>
+                                    </li>                            
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        <li class="lg-text-center">
+                            <span class="border-bottom border-dark fw-bold">
+                                {{ decedent_name }}さんに関する書類
                             </span>
                         </li>
-                    {% endfor %}
+                    {% else %}
+                        <li>
+                            <div class="lg-text-center">
+                                <span class="border-bottom border-dark fw-bold">
+                                    {{ decedent_name }}さんに関する書類
+                                </span>
+                            </div>
+                            <div class="checkmark ms-3 mt-3">
+                                出生から死亡までの戸籍謄本
+                            </div>
+                        </li>
+                    {% endif %}
+                    <li class="checkmark ms-3">
+                        不動産の登記記録がわかるもの
+                        <div class="d-flex">
+                            <div>
+                                例）
+                            </div>
+                            <div>
+                                <div>
+                                    登記情報
+                                </div>
+                                <div>
+                                    全部事項証明書
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="checkmark ms-3">
+                        不動産の固定資産評価額がわかるもの
+                        <div class="d-flex">
+                            <div>
+                                例）
+                            </div>
+                            <div>
+                                <div>
+                                    固定資産評価証明書
+                                </div>
+                                <div>
+                                    課税明細書、など
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="checkmark ms-3">
+                        登記記録上の住所から死亡時の住所までの履歴を証明できるもの
+                        <div class="d-flex">
+                            <div>
+                                例）
+                            </div>
+                            <div>
+                                <div>
+                                    住民票の除票
+                                </div>
+                                <div>
+                                    戸籍の附票、など
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="lg-text-center">
+                            <span class="border-bottom border-dark fw-bold">
+                                相続人に関する書類
+                            </span>
+                        </div>
+                        <div class="checkmark ms-3 mt-3">
+                            戸籍(全部または個人)事項証明書
+                        </div>
+                    </li>
+                    <li class="checkmark ms-3">
+                        印鑑証明書
+                    </li>
+                    <li class="checkmark ms-3">
+                        住民票(不動産を取得する方のみ)
+                    </li>
+                    <li>
+                        <div class="lg-text-center">
+                            <span class="border-bottom border-dark fw-bold">
+                                申請書類
+                            </span>
+                        </div>
+                        <div class="checkmark ms-3 mt-3">
+                            登記申請書
+                        </div>
+                    </li>
+                    <li class="checkmark ms-3">
+                        遺産分割協議書
+                    </li>
+                    <li class="checkmark ms-3">
+                        相続関係説明図
+                    </li>
+                    <li class="checkmark ms-3">
+                        委任状(代理人が手続する場合)
+                    </li>
                 </ul>
             </section>
+            <hr class="mb-5">
         {% endif %}
         <form action="{% url 'toukiApp:step_one_trial' %}" method="POST" class="my-4 d-flex" novalidate>
             {% csrf_token %}
@@ -57,12 +193,12 @@
 {% endblock %}
 
 {% block footer %}
-    {% include "toukiApp/step_footer.html" %}
+    {% include "footer.html" %}
 {% endblock %}
 
 {% block js %}
     {% load static %}
     {% include "toukiApp/parts/step_one/block_js.html" %}
     <script src="{% static 'toukiApp/step_one_trial.js' %}"></script>
-    <script> const result_for_modal = JSON.parse("{{result_for_modal|escapejs}}"); </script>
+    <script> const persons_data_for_modal = JSON.parse("{{persons_data_for_modal|escapejs}}"); </script>
 {% endblock %}

@@ -16,7 +16,7 @@ function showResult(){
 window.addEventListener("load", async ()=>{
     try{
         // 判定結果を表示する
-        if(result_for_modal.length > 0)
+        if(persons_data_for_modal.length > 0)
             showResult();
 
         updateSideBar(); // サイドバーの設定

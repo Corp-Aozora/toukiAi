@@ -44,29 +44,9 @@ class Service:
 
         サービス内容
     
-    """    
+    """
+    from common.utils import get_price_str, get_price_exclude_and_tax_str
     
-    def calculate_tax_inclusive(inclusive):
-        """税抜価格と税額を返す"""
-        tax_rate = 0.1
-        exclusive = round(inclusive / (1 + tax_rate))
-        tax = inclusive - exclusive
-        return exclusive, tax
-    
-    def get_price_str(price_int):
-        """価格の文字列を返す"""
-        from common.utils import int_to_string_with_commas
-        
-        return f"{int_to_string_with_commas(price_int)}円"
-    
-    def get_price_exclude_and_tax_str(price_int):
-        """税抜価格と税額の文字列を返す"""
-        exclusive, tax = Service.calculate_tax_inclusive(price_int)
-        exclusive_str = Service.get_price_str(exclusive)
-        tax_str = Service.get_price_str(tax)
-        
-        return exclusive_str, tax_str
-        
     BASIC_NAME = "システムの利用"
     BASIC_PRICE_INT = 30000
     BASIC_PRICE_STR = get_price_str(BASIC_PRICE_INT)

@@ -1048,7 +1048,11 @@
             </div>
             <div>
                 <button id="submitBtn" type="submit" class="btn btn-primary nextBtn fw-bold bg-gradient bg-opacity-50">
-                    判定結果を見る
+                    {% if request.path == "/toukiApp/step_one" %}
+                        次に進む
+                    {% else %}
+                        判定結果を見る
+                    {% endif %}
                     <span id="submitSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                     </span>
                 </button>

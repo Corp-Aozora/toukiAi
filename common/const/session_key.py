@@ -2,7 +2,11 @@ class NewUser:
     BASIC = "new_basic_user"
     OPTION1 = "new_option1_user"
     OPTION2 = "new_option2_user"
-    
+
+class Account:
+    LOGIN_TRY_COUNT = "login_try_count"
+    LAST_LOGIN_TRY_TIME = "last_login_try_time"
+
 class Step1:
     
     class Form:

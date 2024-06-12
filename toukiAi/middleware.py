@@ -17,7 +17,7 @@ class SaveLastUserPageMiddleware(MiddlewareMixin):
         # リクエストが会員ページかどうかを判定
         is_user_page = any(
             x in request.path
-            for x in ["step", "bank_transfer", "delete_account", "change_email", "password/change/"]
+            for x in ["step", "bank_transfer", "delete_account", "change_email", "password/change/", "guidance"]
             if "step_one_trial" not in request.path
         )
 

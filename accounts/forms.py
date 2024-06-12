@@ -12,6 +12,37 @@ from common.forms import CustomModelForm
 
 CustomUser = get_user_model()
 
+"""
+
+    全体共通
+
+"""
+class WidgetAttributes:
+    """
+    
+        フォームの属性
+    
+    """
+    oldpassword = {
+        "class": "form-control",
+        "placeholder": "",
+        'autocomplete': 'off',
+        "maxlength" :"30",
+    }
+    password = {
+        "class": "form-control",
+        "placeholder": "半角で英数記号3種類を含む8文字以上",
+        'autocomplete': 'off',
+        "maxlength" :"30",
+    }
+    password2 = {
+        "class": "form-control",
+        "placeholder": "",
+        'autocomplete': 'off',
+        "maxlength": "0",
+    }
+    
+
 # 新規登録
 class CustomSignupForm(SignupForm):
     
@@ -19,20 +50,20 @@ class CustomSignupForm(SignupForm):
         super().__init__(*args, **kwargs)
         
         self.fields['email'].widget.attrs.update({
-            'class': 'form-control rounded-end',
+            'class': 'form-control',
             'autocomplete': 'on',
             "placeholder": "",
             "autofocus": True,
         })
         
         self.fields['password1'].widget.attrs.update({
-            'class': 'form-control rounded-end',
+            'class': 'form-control',
             'autocomplete': 'off',
             "placeholder": "半角で英数記号3種類を含む8文字以上",
         })
         
         self.fields['password2'].widget.attrs.update({
-            'class': 'form-control rounded-end',
+            'class': 'form-control',
             'placeholder': 'もう一度ご入力ください',
             'autocomplete': 'off',
             "maxlength": "0",
@@ -44,13 +75,13 @@ class CustomLoginForm(LoginForm):
         super().__init__(*args, **kwargs)
 
         self.fields["login"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "",
             'autocomplete': 'on',
         })
         
         self.fields["password"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "",
             'autocomplete': 'off',
         })
@@ -66,7 +97,7 @@ class CustomResetPasswordForm(ResetPasswordForm):
         super().__init__(*args, **kwargs)
         
         self.fields["email"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "登録したメールアドレス",
             'autocomplete': 'on',
         })
@@ -83,13 +114,13 @@ class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
         super().__init__(*args, **kwargs)
         
         self.fields["password1"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "半角英数記号を含むで8文字以上",
             'autocomplete': 'off',
         })
         
         self.fields["password2"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "もう一度ご入力ください",
             'autocomplete': 'off',
             "maxlength": "0",
@@ -97,32 +128,18 @@ class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
         
         self.fields["password2"].label = "再入力"
         
-# パスワードの変更
 class CustomChangePasswordForm(ChangePasswordForm):
+    """
+    
+        会員ページにあるパスワード変更
+    
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields["oldpassword"].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "",
-            'autocomplete': 'off',
-            "maxlength" :"30",
-        })
-                
-        self.fields["password1"].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "半角で英数記号3種類を含む8文字以上",
-            'autocomplete': 'off',
-            "maxlength" :"30",
-        })
-        
-        self.fields["password2"].widget.attrs.update({
-            "class": "form-control rounded-end",
-            "placeholder": "",
-            'autocomplete': 'off',
-            "maxlength": "0",
-        })
-        
+        self.fields["oldpassword"].widget.attrs.update(WidgetAttributes.oldpassword)
+        self.fields["password1"].widget.attrs.update(WidgetAttributes.password)
+        self.fields["password2"].widget.attrs.update(WidgetAttributes.password2)
         self.fields["password2"].label = "再入力"
 
 # メールアドレスの変更
@@ -142,19 +159,19 @@ class ChangeEmailForm(CustomModelForm):
         super().__init__(*args, **kwargs)
         
         self.fields['email'].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "",
             'autocomplete': 'off',
         })
         
         self.fields["current_email"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "",
             'autocomplete': 'off',
         })
         
         self.fields["password"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "半角で英数記号3種類を含む8文字以上",
             'autocomplete': 'off',
         })
@@ -192,13 +209,13 @@ class DeleteAccountForm(forms.Form):
         super().__init__(*args, **kwargs)
         
         self.fields["email"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "登録したメールアドレス",
             'autocomplete': 'off',
         })
         
         self.fields["password"].widget.attrs.update({
-            "class": "form-control rounded-end",
+            "class": "form-control",
             "placeholder": "半角で英数記号3種類を含む8文字以上",
             'autocomplete': 'off',
         })

@@ -30,14 +30,6 @@ section ul li{
     フォーム
  */
 
-fieldset label, 
-fieldset .form-control{
-    border-top-left-radius: 0!important;
-    border-top-right-radius: 0!important;
-    border-bottom-left-radius: 0!important;
-    border-bottom-right-radius: 0!important;
-}
-    
 .form-check-input[type=radio]{
     border-radius: 50%!important;
 }

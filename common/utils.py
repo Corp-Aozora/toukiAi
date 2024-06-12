@@ -21,7 +21,6 @@ import secrets
 import unicodedata
 
 from common.const import common
-from toukiApp.company_data import CompanyData
 
 def int_to_string_with_commas(number):
     """
@@ -145,6 +144,8 @@ def send_email_to_user(user, subject, content, attachments = None):
             attachments (list[tuple[str, bytes, str]], optional): 添付ファイル (ファイル名, ファイル, MIME)のタプルのリスト。デフォルトはなし
 
     """
+    from toukiApp.company_data import CompanyData
+    
     mail_subject = f"{CompanyData.APP_NAME}＜{subject}＞"
     to_mail = user["email"] if isinstance(user, dict) else user.email
     username = user["username"] if isinstance(user, dict) else user.username
@@ -258,4 +259,14 @@ def get_price_exclude_and_tax_str(price_int):
     tax_str = get_price_str(tax)
     
     return exclusive_str, tax_str
+
+def get_decedent_progress(user):
+    """
     
+        被相続人のprogressの値を取得する
+    
+    """
+    from toukiApp.models import Decedent
+    
+    decedent = Decedent.objects.filter(user=user).first()
+    return decedent.progress if decedent else 1

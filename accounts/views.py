@@ -23,7 +23,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
-from django.utils.timezone import make_aware
+from django.utils import timezone
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
@@ -48,7 +48,11 @@ from toukiApp.toukiAi_commons import *
 from toukiApp.views import nav_to_last_user_page
 
 class CustomSignupView(SignupView):
-    """新規登録ページ"""
+    """
+    
+        新規登録ページ
+        
+    """
     template_name = 'account/signup.html'
     
     @method_decorator(never_cache)
@@ -98,7 +102,9 @@ class CustomLoginView(LoginView):
     
     def form_invalid(self, form):
         """アカウント不存在時のカスタムメッセージ"""
-        form.errors['__all__'] = form.error_class(["入力されたメールアドレスとパスワードに一致するアカウントは見つかりませんでした。"])
+        if '__all__' not in form.errors:
+            form.errors['__all__'] = form.error_class(["入力されたメールアドレスとパスワードに一致するアカウントは見つかりませんでした。"])
+            
         return super().form_invalid(form)
     
     def get_context_data(self, **kwargs):
@@ -109,7 +115,11 @@ class CustomLoginView(LoginView):
         return context
     
 class CustomEmailVerificationSentView(EmailVerificationSentView):
-    """仮登録メール送信ページ"""
+    """
+    
+        仮登録メール送信ページ
+        
+    """
     def get(self, request, *args, **kwargs):
         """利用条件の通過セッションを削除する"""
         response = super().get(request, *args, **kwargs)
@@ -124,7 +134,11 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         return redirect("accounts:signup")
 
 class CustomConfirmEmailView(ConfirmEmailView):
-    """本登録確認ページ"""
+    """
+    
+        本登録確認ページ
+        
+    """
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
         """キャッシュしないようにする（本登録直後のページから戻ってこれないようにするため）"""
@@ -157,7 +171,11 @@ class CustomConfirmEmailView(ConfirmEmailView):
         return reverse_lazy('toukiApp:step_one_trial')
     
 class CustomPasswordResetView(PasswordResetView):
-    """"パスワードの再設定（ログイン前でするページ）"""
+    """"
+    
+        パスワードの再設定（ログイン前でするページ）
+        
+    """
     def get_context_data(self, **kwargs):
         context = super(CustomPasswordResetView, self).get_context_data(**kwargs)
         
@@ -175,12 +193,25 @@ class CustomPasswordChangeView(PasswordChangeView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, '受付完了 パスワードの変更が完了しました')
+        messages.success(self.request, '受付完了 パスワードが変更されました。')
         return response
 
     def form_invalid(self, form):
-        messages.error(self.request, '受付に失敗 現在のパスワードに誤りがある、または新しいパスワードと再入力が一致しなかったことによりパスワードを変更できませんでした。')
+        messages.error(self.request, '受付に失敗 現在のパスワードに誤りがある、または新しいパスワードと再入力が一致しませんでした。')
         return super().form_invalid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(User, email=self.request.user.email)
+        decedent = Decedent.objects.filter(user=user).first()
+        progress = decedent.progress if decedent else 1
+            
+        context.update({
+            "progress": progress,
+            "service_content" : Sections.SERVICE_CONTENT
+        })
+        
+        return context
 
 def save_option_select(user, form):
     """オプション選択のデータ登録"""
@@ -830,8 +861,10 @@ def delete_account(request):
         else:            
             form = DeleteAccountForm(user)
         
+        progress = user.decedent.progress
         context = {
             "form": form,
+            "progress": progress
         }
         
         return render(request, current_html, context)
@@ -1036,71 +1069,89 @@ def resend_confirmation(request):
         )
 
 def change_email(request):
-    """メールアドレスの変更"""
-    function_name = get_current_function_name()
-    current_url_name = "accounts:change_email"
-    current_html = "account/change_email.html"
+    """
     
-    try:
-        if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 会員専用のページです。アカウント登録が必要です。")
-            return redirect("accounts:signup")
+        メールアドレスの変更のページ
         
-        user = request.user
-
+    """
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        return redirect("toukiApp:index")
+    
+    function_name = get_current_function_name()
+    this_url_name = "accounts:change_email"
+    html = "account/change_email.html"
+    title = "メールアドレスを変更"
+    request_user = request.user
+    
+    def get_form(request):
+        """フォームを取得する"""
         if request.method == "POST":
-            
-            # トークンを持たせる
             data = request.POST.copy()
             data["user"] = user.id
             data["token"] = secrets.token_hex()
-            form = ChangeEmailForm(user, data)
-            
+            return ChangeEmailForm(user, data), data["token"]
+        
+        return ChangeEmailForm(user), None
+    
+    def delete_old_tokens(user, form):
+        """他のトークンがあるとき削除する"""
+        if EmailChange.objects.filter(user = user).count() > 1:
+            old_data = EmailChange.objects.filter(user=user).exclude(id=form.instance.id)
+            old_data.delete()
+    
+    try:
+        if is_anonymous(request):
+            return redirect("accounts:account_login")
+        
+        user = request_user
+        form, token = get_form(request)
+        
+        if request.method == "POST":
             if form.is_valid():
-                
                 with transaction.atomic():
                     try:
                         form.save()
-                        # 他のトークンがあるとき削除する
-                        if EmailChange.objects.filter(user = user).count() > 1:
-                            # 今回の申請より前のトークンを取得
-                            old_tokens = EmailChange.objects.filter(user=user).exclude(id=form.instance.id)
-                            # 古いトークンを削除
-                            old_tokens.delete()
+                        
+                        delete_old_tokens(user, form)
                         
                         EmailSender.send_email(
                             user,
                             "account/email/change_email_subject.txt",
                             "account/email/change_email_message.txt",
-                            {"token": data["token"]}
+                            {"token": token }
                         )
                         
-                        messages.success(request, "受付完了 新しいメールアドレス宛に変更を完了させるためのURLをお送りしましたので、そのURLにアクセスをお願いします。")
+                        messages.success(request, "メールを送りました 新しいメールアドレスに届いたメールに記載されたURLにアクセスをお願いします。")
                         
+                        return redirect(this_url_name)
+                    
                     except Exception as e:
-                        basic_log(function_name, e, user, "POSTでのエラー")
-                        raise e
-                
-                return redirect(current_url_name)
+                        cleaned_data_str = ", ".join(f"{field_name}={value}" for field_name, value in form.cleaned_data.items())
+                        raise Exception(f"POSTでエラー\n{cleaned_data_str}") from e
             else:
                 messages.warning(request, f"変更に失敗 入力に不備があるため変更できませんでした。")
-        else:
-            form = ChangeEmailForm(user)
         
+        progress = get_decedent_progress(user)
+        company_mail_address = CompanyData.MAIL_ADDRESS
+        service_content = Sections.SERVICE_CONTENT
         context = {
-            "title" : "メールアドレスを変更",
+            "title" : title,
+            "progress": progress,
             "form": form,
-            "company_mail_address": CompanyData.MAIL_ADDRESS
+            "company_mail_address": company_mail_address,
+            "service_content": service_content
         }
         
-        return render(request, current_html, context)
+        return render(request, html, context)
+    
     except Exception as e:
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
-            current_url_name
+            this_url_name,
+            notices=request.POST
         )
 
 def confirm_email(request, token):

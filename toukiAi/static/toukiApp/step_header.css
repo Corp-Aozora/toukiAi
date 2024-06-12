@@ -4,7 +4,7 @@
 
 @media (min-width: 992px){
 
-    .li_logout{
+    .li_logout, .proxy-footer-li{
         display: none;
     }
 }
@@ -29,6 +29,7 @@
 
     .li_logout{
         display: block;
+        margin-top: 0px!important;
     }
 }
 

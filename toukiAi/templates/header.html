@@ -38,13 +38,12 @@
                                     会員ページに戻る
                                 </a>
                             </li>
-                        {% else %}
-                            <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
-                                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
-                                    サービスを申し込む
-                                </a>
-                            </li>
                         {% endif %}
+                        <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
+                            <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
+                                サービスを申し込む
+                            </a>
+                        </li>
                     {% else %}
                         <li class="nav-item col col-md-auto account-menu">
                             <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">
@@ -101,9 +100,15 @@
                 <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
                     ログアウト
                 </a>
-                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
-                    会員ページに戻る
-                </a>
+                {% if user.basic_date %}
+                    <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
+                        会員ページに戻る
+                    </a>
+                {% else %}
+                    <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
+                        サービスを申し込む
+                    </a>
+                {% endif %}
             {% else %}
                 <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">
                     ログイン

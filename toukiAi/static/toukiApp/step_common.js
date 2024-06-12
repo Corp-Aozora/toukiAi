@@ -180,20 +180,22 @@ function inputOrCheckAndDispatchChangeEvent(el, text = null){
 
 /**
  * 値が存在するときにイベントを発生させる
- * @param {HTMLInputElement|HTMLSelectElement} input 
+ * @param {HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement} input 
  * @param {string} event "change", "input"など
  * @returns 
  */
 function dispatchEventIfValue(input, event){
-    if(!input) return;
+    if(!input)
+        return;
 
-    const isInputTextWithValue = input.tagName.toUpperCase() === "INPUT" && input.type === "text" && input.value;
-    const isInputRadioChecked = input.tagName.toUpperCase() === "INPUT" && input.type === "radio" && input.checked;
-    const isSelectWithValue = input.tagName.toUpperCase() === "SELECT" && input.value;
+    const tagName = input.tagName.toUpperCase();
+    const hasValue = (tagName === "INPUT" && (input.type === "text" || input.type === "number") && input.value) ||
+        (tagName === "INPUT" && (input.type === "checkbox" || input.type === "radio") && input.checked) ||
+        (tagName === "SELECT" && input.value) ||
+        (tagName === "TEXTAREA" && input.value);
 
-    if(isInputTextWithValue || isInputRadioChecked || isSelectWithValue){
+    if(hasValue)
         input.dispatchEvent(new Event(event));
-    }
 }
 
 /**

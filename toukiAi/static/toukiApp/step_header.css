@@ -1,17 +1,11 @@
-@media (max-width: 575px){  
-
-    #header .navbar-toggler{
-        position: absolute;
-    }
+.logo-img{
+    max-width: 75px!important;
 }
 
-@media (min-width: 576px){
+@media (min-width: 992px){
 
-}
-
-@media (max-width:767px){
-    #offcanvasMenus, #progress_list_offcanvas{
-        width: 260px;
+    .li_logout{
+        display: none;
     }
 }
 
@@ -38,13 +32,15 @@
     }
 }
 
-@media (min-width: 992px){
-
-    .li_logout{
-        display: none;
+@media (max-width:767px){
+    #offcanvasMenus, #progress_list_offcanvas{
+        width: 260px;
     }
 }
 
-.logo-img{
-    max-width: 75px!important;
+@media (max-width: 575px){  
+
+    #header .navbar-toggler{
+        position: absolute;
+    }
 }

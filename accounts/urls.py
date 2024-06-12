@@ -8,7 +8,7 @@ from common.create_reciept import *
 app_name = 'accounts'
 
 urlpatterns = [
-    # 使用停止中
+    # allauth使用停止中
     # path("signup/", views.CustomSignupView.as_view(), name="signup"), # 新規登録ページ
     path("signup/", views.error_404, name="signup"),
     # path('confirm-email/', views.CustomEmailVerificationSentView.as_view(), name='email_verification_sent'), # 本登録リンク送信完了ページ

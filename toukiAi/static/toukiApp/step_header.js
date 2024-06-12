@@ -50,6 +50,4 @@ window.addEventListener("load", ()=>{
 
     // 進捗状況のオフキャンバスを表示するボタンにイベント設定
     setProgressListOffcanvasBtns();
-
-
 })

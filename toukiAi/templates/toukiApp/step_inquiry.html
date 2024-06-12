@@ -1,4 +1,5 @@
 {% extends "toukiApp/base.html" %}
+
 {% block title %}{{ title }} | {{ block.super}}{% endblock title %}
 {% block stylesheet %}
     {% load static %}
@@ -6,7 +7,11 @@
     <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
 {% endblock %}
 {% block header %}
-    {% include "toukiApp/step_header.html" %}
+    {% if user.basic_date %}
+        {% include "toukiApp/step_header.html" %}
+    {% else %}
+        {% include "header.html" %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -26,66 +31,38 @@
             <div>
                 <p>
                     <span class="border-bottom border-secondary">
-                        個別具体的な事情に対する回答はできない場合もありますのでご了承ください。
+                        個別具体的な事情に対する回答はできない場合もあります。
                     </span>
                 </p>
-                <div>
-                    <a class="fw-bold text-primary" href="https://lin.ee/0X7897N" target="_blank" rel="noopener noreferrer">
-                        LINEからもお問い合わせいただけます。
-                    </a>
+                <div class="d-flex align-items-center">
+                    <div class="fw-bold text-success">
+                        LINEでお問い合わせ
+                    </div>
+                    <p class="ms-3 my-auto">
+                        <a class=" btn btn-success fw-bold bg-gradient bg-opacity-50" href="https://lin.ee/0X7897N" target="_blank" rel="noopener noreferrer">
+                            友だち追加
+                        </a>
+                    </p>
                 </div>
             </div>
         </section>
-        {% if form.errors %}
-            <div class="error_list fw-bold bg-danger-subtle border rounded-3 mx-3 px-3 py-3 my-3">
-                {% for field, errors in form.errors.items %}
-                    <div>
-                        {% if field == "__all__" %}
-                            <div>入力エラー</div>
-                        {% else %}
-                            {% if field == "progress" %}
-                                <div>
-                                    進捗状況の入力エラー
-                                </div>
-                            {% elif field == "subject" %}
-                                <div>
-                                    項目の入力エラー
-                                </div>
-                            {% elif field == "content" %}
-                                <div>
-                                    質問の入力エラー
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                        <ul>
-                            {% for error in errors %}
-                            <li>
-                                {{ error }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <form class="col-lg-10" action="{% url 'toukiApp:step_inquiry' %}" method="POST" novalidate>
+        {% include "toukiApp/parts/form_error.html" %}
+        <form class="col-lg-10 mt-3" action="{% url 'toukiApp:step_inquiry' %}" method="POST" novalidate>
             {% csrf_token %}
-            {% for field in inquiry_form %}
-                <fieldset>
-                    <div class="input-group">
-                        <span class="input-group-text fw-bold label">
-                            {{ field.label }}
-                        </span>
-                        {{ field }}
-                    </div>
-                </fieldset>
+            {% for field in form %}
+                <div class="input-group{% if forloop.counter > 1 %} mt-sm-3{% endif %}">
+                    <span class="input-group-text fw-bold label">
+                        {{ field.label }}
+                    </span>
+                    {{ field }}
+                </div>
             {% endfor %}
             <p class="text-danger text-center">
                 ※
                 <b>
                     {{company_data.MAIL_ADDRESS}}
                 </b>
-                からメールを受信できるように設定をお願いします。
+                から返信があります。
             </p>
             {% include "toukiApp/parts/modals/confirm.html" %}
             <fieldset class="text-center mt-3">
@@ -111,10 +88,18 @@
                                 </p>
                                 <div class="ms-3">
                                     <div>
-                                        ・{{q.category}}の{{q.subject}}について
+                                        {{q.category}}
+                                        <div class="d-flex">
+                                            <div>
+                                                ：    
+                                            </div>
+                                            <p>
+                                                {{q.subject}}
+                                            </p>
+                                        </div>
                                     </div>
                                     <p class="fw-bold">
-                                        {{q.content}}
+                                        {{q.content|linebreaksbr}}
                                     </p>
                                 </div>
                             </div>
@@ -140,7 +125,7 @@
                 {% endfor %}
             {% else %}
                 <div class="ms-3 mt-3">
-                    ありません。お気軽にお問い合わせください。
+                    お気軽にお問い合わせください。
                 </div>
             {% endif %}
         </section>
@@ -149,7 +134,7 @@
 {% endblock %}
 
 {% block footer %}
-{% include "toukiApp/step_footer.html" %}
+    {% include "footer.html" %}
 {% endblock %}
 
 {% block js %}

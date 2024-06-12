@@ -15,32 +15,13 @@
     font-weight: 700;
 }
 
-@media (max-width: 575px){
-    #accountLink{
-        display: none!important;
-    }
-    
-    #offcanvasMenus .account-menu{
-        display: initial!important;
-    }
-
-    #header .navbar-toggler{
-        position: absolute;
-    }
-}
-
-@media (min-width: 576px){
-    #accountLink{
-        display: initial!important;
-    }
-    #offcanvasMenus .account-menu{
-        display: none!important;
-    }
-}
-
-@media (max-width:767px){
+@media (min-width: 992px){
     #offcanvasMenus{
-        width: 240px;
+        display: none;
+    }
+
+    #offcanvasMenus .account-menu{
+        display: none!important;
     }
 }
 
@@ -51,6 +32,10 @@
 
     #offcanvasMenus li{
         margin-top: 1rem;
+    }
+
+    #accountLink{
+        display: none!important;
     }
 
     footer{
@@ -66,8 +51,19 @@
     }
 }
 
-@media (min-width: 992px){
+@media (max-width:767px){
     #offcanvasMenus{
-        display: none;
+        width: 240px;
     }
 }
+
+@media (min-width: 576px){
+
+}
+
+@media (max-width: 575px){   
+    #header .navbar-toggler{
+        position: absolute;
+    }
+}
+

@@ -4668,94 +4668,94 @@ def is_progress_equal_to_step(decedent_progress, step):
     return int(decedent_progress) == step
 
 def step_inquiry(request):
-    """会員からのお問い合わせ
-
-        処理内容
-        ・問い合わせ内容をページ下部に表示する
-        ・問い合わせを受け付けたことをメールで通知する
-        ・問い合わせがあったらメールで通知を受ける
     """
+    
+        会員からのお問い合わせページ
+
+    """
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        return redirect("toukiApp:index")
+    
+    function_name = get_current_function_name()
+    html = "toukiApp/step_inquiry.html"
+    this_url_name = "toukiApp:step_inquiry"
+    request_user = request.user
+    
+    FORM_CONFIGURATION = [(StepUserInquiryForm, "user_inquiry")]
+    
+    def add_user_info_and_save(user, form):
+        """問い合わせにuserデータを付加してデータベースに登録する"""
+        instance = form.save(commit=False)
+        instance.user = user
+        instance.created_by = user
+        instance.updated_by = user
+        instance.save()
+
+    def get_q_and_a_data(user):
+        """Q&Aデータを取得する"""
+        q_querysets = UserInquiry.objects.filter(user=user).order_by('-updated_at')[:5]
+        q_ids = q_querysets.values_list("id", flat=True)
+        a_querysets = AnswerToUserInquiry.objects.filter(user_inquiry_id__in=q_ids)
+        q_and_a_data = []
+        for q in q_querysets:
+            category = Sections.get_category(q.category)
+            subject = Sections.get_subject(q.subject)
+            related_a = a_querysets.filter(user_inquiry=q).first()
+            q_and_a_data.append(
+                (
+                    {"category": category, "subject": subject, "content": q.content, "updated_at": q.updated_at},
+                    related_a
+                )
+            )
+            
+        return q_and_a_data
+
     try:
-        function_name = get_current_function_name()
-        this_html = "toukiApp/step_inquiry.html"
-        this_url_name = "toukiApp:step_inquiry"
+        if is_anonymous(request):
+            return redirect("accounts:account_login")
         
-        if not request.user.is_authenticated:
-            messages.error(request, "アクセス不可 会員専用のページです。先にアカウント登録をしてください。")
-            basic_log(function_name, None, None, "非会員が会員登録ページにアクセスを試みました")
-            return redirect("account_login")
-        
-        user = User.objects.get(email=request.user.email)
+        user = request_user
         decedent = user.decedent.first()
-        progress = decedent.progress if decedent else 0
+        progress = decedent.progress if decedent else 1 if user.basic_date else 0
         
-        inquiry_form = StepUserInquiryForm(prefix="user_inquiry")                
-        #フォームからデータがPOSTされたとき
+        form, = create_forms_by_configuration(FORM_CONFIGURATION, request)
+
         if request.method == "POST":
             try:
-                inquiry_form = StepUserInquiryForm(
-                    request.POST or None,
-                    prefix="user_inquiry",
-                )
-                if inquiry_form.is_valid():
+                if form.is_valid():
                     with transaction.atomic():
-                        register_user_inquiry_and_return_instance(user, inquiry_form)
-                        send_auto_email_to_inquiry(inquiry_form.cleaned_data, user.email)
+                        add_user_info_and_save(user, form)
+                        send_auto_email_to_inquiry(form.cleaned_data, user.email)
                         messages.success(request, "受付完了 お問い合わせありがとうございます。\nご回答まで少々お待ちください。")
+                        
                         return redirect(this_url_name)
                 else:
-                    basic_log(function_name, None, user, f"POSTでエラー\n{inquiry_form.errors}")
+                    basic_log(function_name, None, user, f"POSTでエラー\n{form.errors}")
                     messages.warning(request, "受付に失敗 入力に不備があるため、受け付けできませんでした。")
+                    
             except Exception as e:
-                basic_log(function_name, e, user, "POSTでエラー")
-                raise e
+                raise Exception("POSTでエラー") from e
 
         q_and_a_data = get_q_and_a_data(user)
             
         context = {
             "title" : Service.STEP_TITLES["inquiry"],
             "progress": progress,
-            "inquiry_form": inquiry_form,
+            "field_names": list(form.fields.keys()),
+            "form": form,
             "q_and_a_data": q_and_a_data,
             "company_data": CompanyData,
             "sections" : Sections.SECTIONS,
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, this_html, context)
+        
+        return render(request, html, context)
+
     except Exception as e:
-        return handle_error(
-            e, 
-            request, 
-            request.user,
-            function_name, 
-            this_url_name, 
-        )
-
-def register_user_inquiry_and_return_instance(user, form):
-    """会員からのQデータをデータベースに登録する"""
-    instance = form.save(commit=False)
-    instance.user = user
-    instance.created_by = user
-    instance.updated_by = user
-    instance.save()
-
-def get_q_and_a_data(user):
-    """会員からのQ&Aデータを取得する"""
-    q_querysets = UserInquiry.objects.filter(user=user).order_by('-updated_at')[:5]
-    q_ids = q_querysets.values_list("id", flat=True)
-    a_querysets = AnswerToUserInquiry.objects.filter(user_inquiry_id__in=q_ids)
-    q_and_a_data = []
-    for q in q_querysets:
-        category = Sections.get_category(q.category)
-        subject = Sections.get_subject(q.subject)
-        related_a = a_querysets.filter(user_inquiry=q).first()
-        q_and_a_data.append(
-            (
-                {"category": category, "subject": subject, "content": q.content, "updated_at": q.updated_at},
-                related_a
-            )
-        )
-    return q_and_a_data
+        if not "form" in locals():
+            form = None
+            
+        return handle_error(e, request, request_user, function_name, this_url_name, notices = f"form={form}")
 
 def administrator(request):
     """会社概要"""

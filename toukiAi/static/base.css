@@ -191,11 +191,6 @@ h1, h2, h3, h4, h5, h6{
     order: 2; /* 「キャンセル」ボタンを右に配置 */
 }
 
-/* フォームのエラー表示枠 */
-.error_list{
-    max-width: 500px!important;
-}
-
 /* ラインのQRコード */
 .line-qr{
     max-width: 100px!important;
@@ -204,6 +199,7 @@ h1, h2, h3, h4, h5, h6{
 /* フォーム内のエラーメッセージ表示ラッパー */
 form .form-error-wrapper, .modal .form-error-wrapper{
     font-weight: 700!important;
+    max-width: 500px;
 }
 
 form .form-error-wrapper{
@@ -215,6 +211,17 @@ form .form-error-wrapper{
     margin-bottom: 1rem!important;
 }
 
+form label, 
+form .form-control,
+form .form-select,
+form span.input-group-text{
+    border-radius: 0!important;
+    border-top-left-radius: 0!important;
+    border-top-right-radius: 0!important;
+    border-bottom-left-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+}
+
 /* レスポンシブ用 */
 @media (max-width:991px){
     .lg-text-center{
@@ -223,6 +230,10 @@ form .form-error-wrapper{
 
     .lg-justify-content-center{
         justify-content: center!important;
+    }
+
+    .lg-d-none{
+        display: none!important;
     }
 }
 

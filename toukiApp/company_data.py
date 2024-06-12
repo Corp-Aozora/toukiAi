@@ -1,4 +1,11 @@
+from common.utils import int_to_string_with_commas
+
 class CompanyData:
+    """
+    
+        会社情報
+    
+    """
     APP_NAME = "そうぞくとうきくん"
     NAME = "株式会社あおぞら"
     POST_NUMBER = "〒810-0001"
@@ -6,7 +13,7 @@ class CompanyData:
     BLDG = "T&Jビルディング7F"
     CEO = "砂川宏太"
     MANAGER = "佐賀達也"
-    RECEIVING_PHONE_NUMBER = "0800-805-1528(着信専用)"
+    RECEIVING_PHONE_NUMBER = "0800-805-1528(受付専用)"
     CALLING_PHONE_NUMBER = "050-5482-5832(発信専用)"
     MAIL_ADDRESS = "support@aozoratouki.com"
     DEBUG_MAIL_ADDRESS = "toukiaidev@gmail.com"
@@ -24,7 +31,6 @@ class CompanyData:
     LOGIN_URL = "https://aozoratouki.com/account/login/"
     TRIAL_URL = "https://aozoratouki.com/toukiApp/step_one_trial"
     CHARGE = "サイト上部の「料金」からご確認いただけます。"
-    # PAYMENT = "クレジットカード決済又は銀行振込"
     PAYMENT = "銀行振込・クレジットカード"
     PAYMENT_TERMS = "サービス利用開始時"
     START_TIME = "お支払いを確認後直ちに"
@@ -34,31 +40,52 @@ class CompanyData:
     BANK_ACCOUNT_TYPE = "普通"
     BANK_ACCOUNT_NUMBER = "1822522"
     BANK_ACCOUNT_NAME = "カ)アオゾラ"
-    
+
 class Service:
+    """
+
+        サービス内容
+    
+    """    
+    def calculate_tax_inclusive(inclusive):
+        """税抜価格と税額を返す"""
+        tax_rate = 0.1
+        exclusive = round(inclusive / (1 + tax_rate))
+        tax = inclusive - exclusive
+        return exclusive, tax
+    
+    def get_price_str(price_int):
+        """価格の文字列を返す"""
+        return f"{int_to_string_with_commas(price_int)}円"
+    
+    def get_price_exclude_and_tax_str(price_int):
+        """税抜価格と税額の文字列を返す"""
+        exclusive, tax = Service.calculate_tax_inclusive(price_int)
+        exclusive_str = Service.get_price_str(exclusive)
+        tax_str = Service.get_price_str(tax)
+        
+        return exclusive_str, tax_str
+        
     BASIC_NAME = "システムの利用"
-    BASIC_PRICE = "49,000円"
-    BASIC_PRICE_INT = 49000
-    CAMPAIGN_BASIC_PRICE_EXCLUDE_TAX_STR = "35,455円"
-    CAMPAIGN_BASIC_PRICE_TAX_STR = "3,545円"
-    CAMPAIGN_BASIC_PRICE_STR = "39,000円"
-    CAMPAIGN_BASIC_PRICE_INT = 39000
+    BASIC_PRICE_INT = 30000
+    BASIC_PRICE_STR = get_price_str(BASIC_PRICE_INT)
+    CAMPAIGN_BASIC_PRICE_INT = 20000
+    CAMPAIGN_BASIC_PRICE_STR = get_price_str(CAMPAIGN_BASIC_PRICE_INT)
+    CAMPAIGN_BASIC_PRICE_EXCLUDE_TAX_STR, CAMPAIGN_BASIC_PRICE_TAX_STR = get_price_exclude_and_tax_str(CAMPAIGN_BASIC_PRICE_INT)
     
     OPTION1_NAME = "書類取得代行"
-    OPTION1_PRICE_STR = "35,000円"
-    OPTION1_PRICE_INT = 35000
-    CAMPAIGN_OPTION1_PRICE_EXCLUDE_TAX_STR = "27,273円"
-    CAMPAIGN_OPTION1_PRICE_TAX_STR = "2,727円"
-    CAMPAIGN_OPTION1_PRICE_STR = "30,000円"
-    CAMPAIGN_OPTION1_PRICE_INT = 30000
+    OPTION1_PRICE_INT = 30000
+    OPTION1_PRICE_STR = get_price_str(OPTION1_PRICE_INT)
+    CAMPAIGN_OPTION1_PRICE_INT = 20000
+    CAMPAIGN_OPTION1_PRICE_STR = get_price_str(CAMPAIGN_OPTION1_PRICE_INT)
+    CAMPAIGN_OPTION1_PRICE_EXCLUDE_TAX_STR, CAMPAIGN_OPTION1_PRICE_TAX_STR = get_price_exclude_and_tax_str(CAMPAIGN_OPTION1_PRICE_INT)
     
     OPTION2_NAME = "弊社提携の司法書士に依頼"
-    OPTION2_PRICE_STR = "109,000円"
-    OPTION2_PRICE_INT = 109000
-    CAMPAIGN_OPTION2_PRICE_EXCLUDE_TAX_STR = "90,000円"
-    CAMPAIGN_OPTION2_PRICE_TAX_STR = "9,000円"
-    CAMPAIGN_OPTION2_PRICE_STR = "99,000円"
+    OPTION2_PRICE_INT = 99000
+    OPTION2_PRICE_STR = get_price_str(OPTION2_PRICE_INT)
     CAMPAIGN_OPTION2_PRICE_INT = 99000
+    CAMPAIGN_OPTION2_PRICE_STR = get_price_str(CAMPAIGN_OPTION2_PRICE_INT)
+    CAMPAIGN_OPTION2_PRICE_EXCLUDE_TAX_STR, CAMPAIGN_OPTION2_PRICE_TAX_STR = get_price_exclude_and_tax_str(CAMPAIGN_OPTION2_PRICE_INT)
     
     OPTIONS = [
         {"name" : OPTION1_NAME, "price" : OPTION1_PRICE_STR},

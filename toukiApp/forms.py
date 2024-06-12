@@ -29,32 +29,32 @@ class WidgetAttributes:
     }
     # セレクト
     select = {
-        "class": "form-select text-center cursor-pointer rounded-end"
+        "class": "form-select text-center cursor-pointer"
     }
     # 隠しinput
     hidden_input = {
         "class": "hidden"
     }
     email = {
-        'class': 'form-control rounded-end',
+        'class': 'form-control',
         'autocomplete': 'on',
         "placeholder": "",
     }
     # 問い合わせ内容
     inquiry_content = {
-        'class': 'form-control rounded-end',
+        'class': 'form-control',
         "placeholder": "300文字まで",
         "style":"resize:none;"
     }
     # 評価額
     price = {
         "placeholder": "数字のみ(コンマ不要)",
-        "class": "form-control text-center rounded-end",
+        "class": "form-control text-center",
         "maxlength": "16",
     }
     # 氏名
     name = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "姓名の間にスペース不要",
         "maxlength": "30",
     }
@@ -64,67 +64,67 @@ class WidgetAttributes:
     }
     # 市区町村
     city = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "〇〇市〇〇区、〇〇郡〇〇町など",
         "maxlength": "100",
     }
     # 本籍の町域・番地
     domicile_address = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "戸籍謄本のとおり",
         "maxlength": "100",
     }
     # 住所の町域・番地
     address = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",
     }
     # 住所の建物
     bldg = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "住民票（戸籍の附票）のとおり",
         "maxlength": "100",
     }
     # 不動産番号
     rs_number = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "13桁の数字",
         "maxlength": "13",
     }
     # 土地の所在地
     land_address = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",
     }
     # 建物の所在地
     house_address = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",
     }
     # 一棟の建物の所在
     bldg_address = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "「◯丁目」の◯は漢数字",
         "maxlength": "100",        
     }
     # 区分建物の家屋番号
     bldg_number = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "専有部分の建物の表示にある家屋番号",
         "maxlength": "100",        
     }
     # 敷地権の所在及び地番
     site_address_and_number = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "「番地」ではなく「番」",
         "maxlength": "100",
     }
     # 敷地権の土地の符号
     site_order_number = {
-        "class": "form-control rounded-end text-center",
+        "class": "form-control text-center",
         "maxlength": "3",
     }
     # 分子または分母の入力欄
@@ -134,20 +134,20 @@ class WidgetAttributes:
     }
     # 法務局
     office = {
-        "class": "form-control rounded-end text-center",
+        "class": "form-control text-center",
         "placeholder": "不動産番号を入力すると自動表示",
         "maxlength": "30",
         "disabled": "true",
     }
     # 一括住所
     full_address = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "都道府県から",
         "maxlength": "100",        
     }
     # 電話番号
     phone_number = {
-        "class": "form-control rounded-end",
+        "class": "form-control",
         "placeholder": "ハイフンあり",
         "maxlength": "13",
     }
@@ -768,7 +768,7 @@ class StepThreeLandForm(CustomModelForm):
                 field.widget.attrs.update(WidgetAttributes.office)
             elif field.label == "地積":
                 field.widget.attrs.update({
-                    "class": "form-control rounded-end",
+                    "class": "form-control",
                 })
             elif field.label == "固定資産評価額":
                 field.widget.attrs.update(WidgetAttributes.price)
@@ -1105,10 +1105,10 @@ class StepUserInquiryForm(CustomModelForm):
         fields = model.fields
 
     def __init__(self, *args, **kwargs):
-        for field in self.base_fields.values():
-            if field.label == "進捗状況":
+        for name, field in self.base_fields.items():
+            if name == "category":
                 field.widget.attrs.update(WidgetAttributes.select)
-            elif field.label == "項目":
+            elif name == "subject":
                 field.widget.attrs.update(WidgetAttributes.select)                
                 field.widget.attrs['disabled'] = "true"
             else:

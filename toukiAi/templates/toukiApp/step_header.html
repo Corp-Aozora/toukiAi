@@ -7,6 +7,11 @@
         <a class="me-lg-4" href="{% url 'toukiApp:index' %}">
             <img class="logo-img" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </a>
+        {% if not user.basic_date %}
+            <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
+                相続人判定
+            </a>
+        {% endif %}
         <button class="menu-toggler-btn p-2 btn btn-primary fw-bold bg-gradient bg-opacity-50 border-0 shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">
             メニュー
         </button>
@@ -22,7 +27,7 @@
                 <ul class="navbar-nav py-md-0 justify-content-start">
                     <li class="nav-item mx-3">
                         <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:option_select' %}" onclick="storeCurrentLocation()">
-                            オプションを利用
+                            サービスを申し込む
                         </a>
                     </li>
                     <li class="nav-item mx-3">
@@ -42,7 +47,7 @@
                     </li>
                     <hr class="my-4">
                     <li class="nav-item mx-3 li_logout">
-                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                        <a class="btn btn-primary p-2 fw-bold" href="{% url 'account_logout' %}">
                             ログアウト
                         </a>
                     </li>

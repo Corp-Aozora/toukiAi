@@ -23,6 +23,14 @@ import unicodedata
 from common.const import common
 from toukiApp.company_data import CompanyData
 
+def int_to_string_with_commas(number):
+    """
+    
+        整数をコンマ付きの文字列に変換する
+    
+    """
+    return "{:,}".format(number)
+
 def zenkaku_currency_to_int(value):
     """
     
@@ -226,6 +234,6 @@ def is_anonymous(request, need_message = True):
         return False
     
     if need_message:
-        messages.warning(request, "アクセス不可 会員専用のページです。ログインしてください。")
+        messages.warning(request, "アクセス制限 会員専用のページです。\nログインしてください。")
         
     return True

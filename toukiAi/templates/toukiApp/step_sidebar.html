@@ -8,7 +8,7 @@
                 {% url 'toukiApp:step_one_trial' as step_one_trial_url %}
                 <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_one_url or request.path == step_one_trial_url %}fw-bold{% endif %}">
                     <div class="d-flex align-items-center">
-                        １．{{service_content.0}}
+                        1 {{service_content.0}}
                         {% if progress == 0 or progress == 0.5 or progress == 1 or progress == 1.5 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -27,7 +27,7 @@
                 {% url 'toukiApp:step_two' as step_two_url %}
                 <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_two_url %}fw-bold{% endif %}" {% if progress < 2 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ２．{{service_content.1}}
+                        2 {{service_content.1}}
                         {% if progress == 2 or progress == 2.5 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -46,7 +46,7 @@
                 {% url 'toukiApp:step_three' as step_three_url %}
                 <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_three_url %}fw-bold{% endif %}" {% if progress < 3 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ３．{{service_content.2}}
+                        3 {{service_content.2}}
                         {% if progress == 3 or progress == 3.5%}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -65,7 +65,7 @@
                 {% url 'toukiApp:step_four' as step_four_url %}
                 <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_four_url %}fw-bold{% endif %}" {% if progress < 4 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ４．{{service_content.3}}
+                        4 {{service_content.3}}
                         {% if progress == 4 or progress == 4.5 %}
                             <svg id="stepFourArrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
@@ -84,7 +84,7 @@
                 {% url 'toukiApp:step_five' as step_five_url %}
                 <button type="button" class="border-0 bg-white fs-5 {% if request.path == step_five_url %}fw-bold{% endif %}" {% if progress < 5 %}disabled{% endif %}>
                     <div class="d-flex align-items-center">
-                        ５．{{service_content.4}}
+                        5 {{service_content.4}}
                         {% if progress == 5 or progress == 5.5 %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="ms-2 bg-primary rounded-1 text-white bi bi-caret-left-fill" viewBox="0 0 16 16">
                                 <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>

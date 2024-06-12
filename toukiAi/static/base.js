@@ -441,7 +441,7 @@ function isEmail(email) {
  * @param {HTMLElement} el
  */
 function trimAllSpace(val, el = null){
-    const trimedVal = val.replace(/ |　/g, "");
+    const trimedVal = val.replace(/[\s\u3000]+/g, "");
     
     if(el)
         el.value = trimedVal;
@@ -718,17 +718,13 @@ function getDaysInMonth(year, month) {
  * submitされてしまうのを防ぐため
  */
 function disableEnterKeyForInputs(){
-    const inputArr = document.getElementsByTagName("input");
-    const inputArrLength = inputArr.length;
-    if(inputArrLength === 0)
-        return;
-
-    for(let i = 0; i < inputArrLength; i++){
-        inputArr[i].addEventListener("keydown",(e)=>{
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach(x => {
+        x.addEventListener("keydown", (e)=>{
             if(e.key === "Enter")
                 e.preventDefault();
-        })
-    }
+        });
+    });
 }
 
 /**
@@ -847,9 +843,16 @@ function enableAllInputsAndSelects(){
  * @param {string} functionName 関数名
  * @param {Error} e エラーオブジェクト
  * @param {string} message 開発者メッセージ
+ * @param {string} level エラーレベル("info", "warn", "error"(デフォルト)のいずれか)
  */
-function basicLog(functionName, e = null, message = null){
-    console.error(`エラーを補足した関数：${functionName}\n開発者メッセージ：${message}\n${e}`);
+function basicLog(functionName, e = null, message = null, level = null){
+    const msg = `functionName=${functionName}\nmessage=${message}\ne=${e}`;
+    if(level === "info")
+        console.info(msg);
+    else if(level === "warn")
+        console.warn(msg);
+    else
+        console.error(msg);
 }
 
 /**

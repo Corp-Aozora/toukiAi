@@ -1,5 +1,3 @@
-from common.utils import int_to_string_with_commas
-
 class CompanyData:
     """
     
@@ -47,6 +45,7 @@ class Service:
         サービス内容
     
     """    
+    
     def calculate_tax_inclusive(inclusive):
         """税抜価格と税額を返す"""
         tax_rate = 0.1
@@ -56,6 +55,8 @@ class Service:
     
     def get_price_str(price_int):
         """価格の文字列を返す"""
+        from common.utils import int_to_string_with_commas
+        
         return f"{int_to_string_with_commas(price_int)}円"
     
     def get_price_exclude_and_tax_str(price_int):

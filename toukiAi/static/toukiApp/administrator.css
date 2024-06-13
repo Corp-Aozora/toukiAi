@@ -18,7 +18,8 @@ div .card{
 }
 
 /* 会社メッセージと相続登記についてのテキスト */
-.company_message > p, .card-text > p{
+.company_message > p,
+.card-text > p{
     text-indent: 1rem!important;
 }
   

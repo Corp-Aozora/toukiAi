@@ -21,26 +21,23 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-8 col-md-10 px-4 mx-auto mt-3">
+<div class="col-lg-8 col-md-10 px-3 mx-auto mt-3">
     <div>
-        <h3 class="text-center">
+        <h3 class="mb-5 text-center">
             <img class="company_logo" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </h3>
-        <div class="mt-5 company_message">
+        <div class="company_message">
             <p>
-                当サイトをご覧いただきありがとうございます。
+                弊サイトをご覧いただきありがとうございます。
             </p>
             <p>
-                弊社では、不動産登記手続きを皆様にとってより身近な手続きにすることで日本の不動産が有効活用され、適切に資産承継が行われるようになることを目標にシステムを制作しております。
+                弊社では、不動産登記手続きを皆様にとってより身近な手続きにすることで日本の不動産が有効活用され、適切に資産承継が行われるようになることを目標にシステムを制作しております。元司法書士のシステムエンジニアがシステムを制作して、お問い合わせ対応を行っておりますので万全なサポートが可能です。
             </p>
             <p>
-                元司法書士のシステムエンジニアが本システムを制作してお問い合わせ対応を行っておりますので、万全なサポートが可能です。
+                相続人の判定と必要書類を一覧表示する機能を公開しておりますので、ご興味をお持ちいただけましたらお試しいただけますと幸いです。
             </p>
             <p>
-                アカウント登録（無料）をするとシステムの一部（相続人判定の機能）をご試用いただけますので、ご興味をお持ちいただけましたらご登録いただけますと幸いです。
-            </p>
-            <p>
-                そのほか気になる点がございましたら、トップページ下部にあるお問い合わせからお気軽にお問い合わせください。
+                今後も登記手続きがより利用しやすいものになるようシステムの開発に励みますので、引き続き何卒よろしくお願い申し上げます。
             </p>
         </div>
     </div>
@@ -52,9 +49,9 @@
             <div class="card-text p-3 bg-white border rounded-3">
                 <p>
                     <span class="fw-bold border-bottom border-dark">
-                        令和６年４月１日から相続登記が義務化
+                        令和6年4月1日から相続登記を義務化
                     </span>
-                    される法律が施行されました。
+                    する法律が施行されました。
                 </p>
                 <p>
                     これは相続登記の放置により所有者不明の不動産が増加して、公共事業や都市開発など不動産の活用に支障が出ているためで、
@@ -67,8 +64,7 @@
                     </span>
                 </p>
                 <p>
-                    相続登記は書類を集めたり作成したり提出したり手間がかかりますが、戸籍謄本の取得が簡単になる法改正があり
-                    書類集めについては比較的容易になりましたので、これを機にご自身で手続きすることを検討してみてはいかがでしょうか？
+                    令和6年3月1日から原則的に最寄りの役所で戸籍謄本の収集を可能とする法改正があり、相続登記で一番大変な部分が簡単になりましたので、これを機にご自身で相続登記をすることを検討してみてはいかがでしょうか？
                     その際には、本システムの利用についてもご検討いただけますと幸いです。
                 </p>
             </div>
@@ -76,13 +72,13 @@
     </div>
     <div class="mx-auto mt-5">
         <h1 class="fs-5 text-center my-3">
-            運営者・お問い合わせ先
+            会社概要
         </h1>
         <div id="company-info" class="mt-3 mx-auto">
             <hr>
             <div class="d-md-flex">
                 <div class="col-md-4 fw-bold">
-                    運営者
+                    社名
                 </div>
                 <div class="col-md-8">
                     {{company_data.NAME}}
@@ -94,6 +90,7 @@
                     住所
                 </div>
                 <div class="col-md-8">
+                    {{company_data.POST_NUMBER}}<br>
                     {{company_data.ADDRESS}}<br>
                     {{company_data.BLDG}}
                 </div>
@@ -113,9 +110,10 @@
                     電話番号
                 </div>
                 <div class="col-md-8">
-                    {{company_data.RECEIVING_PHONE_NUMBER}}<br>
-                    {{company_data.CALLING_PHONE_NUMBER}}<br>
-                    ※弊社からの電話はこちらの番号が表示されます。<br>
+                    {{company_data.RECEIVING_PHONE_NUMBER}}
+                    <br>
+                    {{company_data.CALLING_PHONE_NUMBER}}
+                    <br>
                     ※お問い合わせはメール又はLINEのみ。
                 </div>
             </div>
@@ -135,8 +133,10 @@
                     <br>
                     お問い合わせ受付
                 </div>
-                <div class="col-md-8 my-auto">
-                    <img class="ms-3 line-qr" src="{{company_data.OPEN_LINE_QR}}">
+                <div class="col-md-8 md-mt-3">
+                    <a class=" btn btn-success fw-bold bg-gradient bg-opacity-50 shadow" href="{{ company_data.OPEN_LINE_LINK }}" target="_blank" rel="noopener noreferrer">
+                        友だち追加
+                    </a>
                 </div>
             </div>
             <hr>

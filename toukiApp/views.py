@@ -629,7 +629,16 @@ def step_one_trial(request):
                             break
                     else:
                         save_formset(key, data)
-                
+        
+        def ini_session():
+            """セッションを初期化する"""
+            session_keys = session_key_form.LIST + session_key_form_set.LIST
+            for x in session_keys:
+                if x in request.session:
+                    del request.session[x]
+            
+        ini_session()
+        
         key_and_data_group = [
             [
                 (session_key_form.DECEDENT, forms[FORMS_IDXS["decedent"]]),
@@ -647,6 +656,7 @@ def step_one_trial(request):
                 (session_key_form_set.COLLATERAL, form_sets[FORMSETS_IDXS["collateral"]])
             ]
         ]
+        
         for x in key_and_data_group:
             process_save(x)
     
@@ -4733,28 +4743,32 @@ def step_inquiry(request):
         return handle_error(e, request, request_user, function_name, this_url_name, notices = f"form={form}")
 
 def administrator(request):
-    """会社概要"""
+    """
     
+        会社概要ページ
+        
+    """
     function_name = get_current_function_name()
     this_url_name = "toukiApp:administrator"
     html = "toukiApp/administrator.html"
     redirect_to = "toukiApp:index"
     title = "会社概要"
+    request_user = request.user
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
-        
         context = {
             "title": title,
             "company_data": CompanyData,
             "canonical_url": canonical_url
         }
+        
         return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
             redirect_to
         )

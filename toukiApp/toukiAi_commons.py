@@ -796,23 +796,3 @@ class ConvertHtmlToPdf:
         asset_id = ConvertHtmlToPdf.create_asset(html_content)
         pdf_url  = ConvertHtmlToPdf.create_pdf_download_url(asset_id)
         return pdf_url
-
-def is_basic_user(request) -> Tuple[bool, str]:
-    """
-    
-        システム利用の会員か判定する
-       
-        システム利用の会員のときは空文字、違うときはリダイレクト先を返す。
-        
-    """
-    request_user = request.user
-    
-    if not request_user.is_authenticated:
-        messages.warning(request, "アクセス制限 ログインをお願いします。")
-        return False, "accounts:account_login"
-    
-    if not request_user.basic_date:
-        messages.warning(request, "アクセス制限 システム利用の会員専用のページです。")
-        return False, "toukiApp:step_one_trial"
-    
-    return True, ""

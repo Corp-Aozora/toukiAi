@@ -22,18 +22,35 @@ class WidgetAttributes:
         'class': 'form-control',
         'autocomplete': 'on',
         "placeholder": "",
+        "maxlength": "254"
+    }
+    oldpassword = {
+        "class": "form-control",
+        "placeholder": "",
+        'autocomplete': 'off',
+        "maxlength" :"30",
     }
     # パスワード1
     password1 = {
         'class': 'form-control',
         'autocomplete': 'off',
         "placeholder": "半角で英数記号3種類を含む8文字",
+        "maxlength" :"30",
     }
     # パスワード2(確認用)
-    password2 = {
+    option_select_password2 = {
         'class': 'form-control',
         'autocomplete': 'off',
         "placeholder": "パスワードを再入力",
+    }
+    password2 = {
+        "class": "form-control",
+        "placeholder": "",
+        'autocomplete': 'off',
+        "maxlength": "0",
+    }
+    remember_me = {
+        "class": "form-check-input ms-0 float-none"
     }
     # 問い合わせ内容
     inquiry_content = {

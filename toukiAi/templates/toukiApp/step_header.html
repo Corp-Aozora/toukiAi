@@ -26,28 +26,28 @@
             <div class="offcanvas-body">
                 <ul class="navbar-nav py-md-0 justify-content-start">
                     <li class="nav-item mx-3">
-                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:option_select' %}" onclick="storeCurrentLocation()">
+                        <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'accounts:option_select' %}" onclick="storeCurrentLocation()">
                             サービスを申し込む
                         </a>
                     </li>
                     <li class="nav-item mx-3">
-                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_change_password' %}" onclick="storeCurrentLocation()">
+                        <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'account_change_password' %}" onclick="storeCurrentLocation()">
                             パスワードを変更
                         </a>
                     </li>
                     <li class="nav-item mx-3">
-                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:change_email' %}" onclick="storeCurrentLocation()">
+                        <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'accounts:change_email' %}" onclick="storeCurrentLocation()">
                             メールアドレスを変更
                         </a>
                     </li>
                     <li class="nav-item mx-3">
-                        <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'accounts:delete_account' %}" onclick="storeCurrentLocation()">
+                        <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'accounts:delete_account' %}" onclick="storeCurrentLocation()">
                             アカウントを削除
                         </a>
                     </li>
                     <hr class="my-4">
                     <li class="nav-item mx-3 li_logout">
-                        <a class="btn btn-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                        <a class="btn btn-primary p-2 fw-bold shadow" href="{% url 'account_logout' %}">
                             ログアウト
                         </a>
                     </li>
@@ -80,11 +80,11 @@
                 </ul>
             </div>
         </div>
-        <a class="btn btn-outline-primary p-2 fw-bold logout" href="{% url 'account_logout' %}">
+        <a class="btn btn-outline-primary p-2 fw-bold logout shadow" href="{% url 'account_logout' %}">
             ログアウト
         </a>
         {% if progress %}
-            <button type="button" class="btn btn-outline-primary p-2 fw-bold show-progress-offcanvas-btn" style="display: none;" data-bs-toggle="offcanvas" data-bs-target="#progress_list_offcanvas" aria-controls="progress_list_offcanvas">
+            <button type="button" class="btn btn-outline-primary p-2 fw-bold show-progress-offcanvas-btn shadow" style="display: none;" data-bs-toggle="offcanvas" data-bs-target="#progress_list_offcanvas" aria-controls="progress_list_offcanvas">
                 進捗状況
             </button>
         {% endif %}

@@ -28,14 +28,14 @@
                 <ul class="navbar-nav py-md-0">
                     {% if user.is_authenticated %}
                         <li class="nav-item col col-md-auto account-menu">
-                            <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                            <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'account_logout' %}">
                                 ログアウト
                             </a>
                         </li>
                         {% if user.basic_date %}
                             <li class="nav-item col col-md-auto account-menu pb-3 border-bottom">
-                                <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
-                                    会員ページに戻る
+                                <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
+                                    作業に戻る
                                 </a>
                             </li>
                         {% endif %}
@@ -46,7 +46,7 @@
                         </li>
                     {% else %}
                         <li class="nav-item col col-md-auto account-menu">
-                            <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">
+                            <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'account_login' %}">
                                 ログイン
                             </a>
                         </li>
@@ -97,12 +97,12 @@
         </div>
         <div id="accountLink">
             {% if user.is_authenticated %}
-                <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_logout' %}">
+                <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'account_logout' %}">
                     ログアウト
                 </a>
                 {% if user.basic_date %}
                     <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:nav_to_last_user_page' %}">
-                        会員ページに戻る
+                        作業に戻る
                     </a>
                 {% else %}
                     <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
@@ -110,7 +110,7 @@
                     </a>
                 {% endif %}
             {% else %}
-                <a class="btn btn-outline-primary p-2 fw-bold" href="{% url 'account_login' %}">
+                <a class="btn btn-outline-primary p-2 fw-bold shadow" href="{% url 'account_login' %}">
                     ログイン
                 </a>
                 <a class="btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">

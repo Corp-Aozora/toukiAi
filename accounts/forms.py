@@ -12,83 +12,24 @@ from common.forms import CustomModelForm
 
 CustomUser = get_user_model()
 
-"""
-
-    全体共通
-
-"""
-class WidgetAttributes:
-    """
-    
-        フォームの属性
-    
-    """
-    oldpassword = {
-        "class": "form-control",
-        "placeholder": "",
-        'autocomplete': 'off',
-        "maxlength" :"30",
-    }
-    password = {
-        "class": "form-control",
-        "placeholder": "半角で英数記号3種類を含む8文字以上",
-        'autocomplete': 'off',
-        "maxlength" :"30",
-    }
-    password2 = {
-        "class": "form-control",
-        "placeholder": "",
-        'autocomplete': 'off',
-        "maxlength": "0",
-    }
-    
-
 # 新規登録
 class CustomSignupForm(SignupForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields['email'].widget.attrs.update({
-            'class': 'form-control',
-            'autocomplete': 'on',
-            "placeholder": "",
-            "autofocus": True,
-        })
-        
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-control',
-            'autocomplete': 'off',
-            "placeholder": "半角で英数記号3種類を含む8文字以上",
-        })
-        
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'もう一度ご入力ください',
-            'autocomplete': 'off',
-            "maxlength": "0",
-        })
+        self.fields['email'].widget.attrs.update(WidgetAttributes.email)
+        self.fields['password1'].widget.attrs.update(WidgetAttributes.password1)
+        self.fields['password2'].widget.attrs.update(WidgetAttributes.password2)
 
 #ログイン       
 class CustomLoginForm(LoginForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["login"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "",
-            'autocomplete': 'on',
-        })
-        
-        self.fields["password"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "",
-            'autocomplete': 'off',
-        })
-        self.fields["remember"].widget.attrs.update({
-            "class": "form-check-input ms-0 float-none"
-        })
-        
+        self.fields["login"].widget.attrs.update(WidgetAttributes.email)
+        self.fields["password"].widget.attrs.update(WidgetAttributes.oldpassword)
+        self.fields["remember"].widget.attrs.update(WidgetAttributes.remember_me)
         self.fields["remember"].label = "ログインを記憶"
 
 # パスワードの再設定申請       
@@ -96,11 +37,7 @@ class CustomResetPasswordForm(ResetPasswordForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields["email"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "登録したメールアドレス",
-            'autocomplete': 'on',
-        })
+        self.fields["email"].widget.attrs.update(WidgetAttributes.email)
         
     def save(self, request):
         input_email = self.cleaned_data["email"]
@@ -113,19 +50,8 @@ class CustomResetPasswordKeyForm(ResetPasswordKeyForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields["password1"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "半角英数記号を含むで8文字以上",
-            'autocomplete': 'off',
-        })
-        
-        self.fields["password2"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "もう一度ご入力ください",
-            'autocomplete': 'off',
-            "maxlength": "0",
-        })
-        
+        self.fields["password1"].widget.attrs.update(WidgetAttributes.password1)
+        self.fields["password2"].widget.attrs.update(WidgetAttributes.password2)
         self.fields["password2"].label = "再入力"
         
 class CustomChangePasswordForm(ChangePasswordForm):
@@ -138,7 +64,7 @@ class CustomChangePasswordForm(ChangePasswordForm):
         super().__init__(*args, **kwargs)
         
         self.fields["oldpassword"].widget.attrs.update(WidgetAttributes.oldpassword)
-        self.fields["password1"].widget.attrs.update(WidgetAttributes.password)
+        self.fields["password1"].widget.attrs.update(WidgetAttributes.password1)
         self.fields["password2"].widget.attrs.update(WidgetAttributes.password2)
         self.fields["password2"].label = "再入力"
 
@@ -158,23 +84,9 @@ class ChangeEmailForm(CustomModelForm):
         
         super().__init__(*args, **kwargs)
         
-        self.fields['email'].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "",
-            'autocomplete': 'off',
-        })
-        
-        self.fields["current_email"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "",
-            'autocomplete': 'off',
-        })
-        
-        self.fields["password"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "半角で英数記号3種類を含む8文字以上",
-            'autocomplete': 'off',
-        })
+        self.fields['email'].widget.attrs.update(WidgetAttributes.email)
+        self.fields["current_email"].widget.attrs.update(WidgetAttributes.email)
+        self.fields["password"].widget.attrs.update(WidgetAttributes.password1)
     
     def clean(self):
         cleaned_data = super().clean()
@@ -208,17 +120,8 @@ class DeleteAccountForm(forms.Form):
         
         super().__init__(*args, **kwargs)
         
-        self.fields["email"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "登録したメールアドレス",
-            'autocomplete': 'off',
-        })
-        
-        self.fields["password"].widget.attrs.update({
-            "class": "form-control",
-            "placeholder": "半角で英数記号3種類を含む8文字以上",
-            'autocomplete': 'off',
-        })
+        self.fields["email"].widget.attrs.update(WidgetAttributes.email)
+        self.fields["password"].widget.attrs.update(WidgetAttributes.password1)
     
     def clean(self):
         cleaned_data = super().clean()
@@ -289,7 +192,7 @@ class RegistUserForm(UserCreationForm):
         
         self.fields["password1"].widget.attrs.update(WidgetAttributes.password1)
         
-        self.fields["password2"].widget.attrs.update(WidgetAttributes.password2)
+        self.fields["password2"].widget.attrs.update(WidgetAttributes.option_select_password2)
         self.fields["password2"].label = "確認用"
         
 class OptionSelectForm(CustomModelForm):

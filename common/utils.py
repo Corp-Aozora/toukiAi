@@ -235,7 +235,9 @@ def is_anonymous(request, need_message = True):
         return False
     
     if need_message:
-        messages.warning(request, "アクセス制限 会員専用のページです。\nログインしてください。")
+        from toukiApp.toukiAi_commons import basic_log, get_current_function_name
+        basic_log(get_current_function_name(), None, None, f"get_ip(request)={get_ip(request)}")
+        messages.warning(request, "アクセス制限 会員専用のページです。\nログインをお願いします。")
         
     return True
 
@@ -270,3 +272,11 @@ def get_decedent_progress(user):
     
     decedent = Decedent.objects.filter(user=user).first()
     return decedent.progress if decedent else 1
+
+def get_ip(request):
+    """
+
+        リクエストしたユーザーのipアドレスを取得する
+    
+    """
+    return request.META.get('REMOTE_ADDR')

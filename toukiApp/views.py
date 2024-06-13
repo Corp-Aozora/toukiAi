@@ -73,12 +73,16 @@ class ToukiAppUrlName:
     step_inquiry = f"{root}step_inquiry"
 
 def index(request):
-    """トップページの処理"""
+    """
+    
+        トップページの処理
+        
+    """
     
     function_name = get_current_function_name()
     this_url_name = "toukiApp:index"
-    this_html = "toukiApp/index.html"
-    tab_title = "相続登記を自分で行いたい方のためのシステム"
+    html = "toukiApp/index.html"
+    title = "相続登記を自分で行いたい方のためのシステム"
     meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って手続を進めるだけで相続登記が完了します。詳細な解説と迅速なお問い合わせ対応もありますので、悩みなくスムーズに手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
     
     try:
@@ -113,7 +117,7 @@ def index(request):
         update_articles = UpdateArticle.objects.order_by("-updated_at")[:2]
         print()
         context = {
-            "title" : tab_title,
+            "title" : title,
             "update_articles": update_articles,
             "form": form,
             "field_names": list(form.fields.keys()),
@@ -124,7 +128,7 @@ def index(request):
             "canonical_url": canonical_url,
             "meta_description": meta_description
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -140,7 +144,11 @@ def index(request):
 
 """
 def create_formset(form, extra, max_num):
-    """フォームセットを生成する"""
+    """
+    
+        フォームセットを生成する
+        
+    """
     return formset_factory(form=form, extra=extra, max_num=max_num)
 
 def create_formsets_by_configuration(configuration):
@@ -158,12 +166,13 @@ def create_forms_by_configuration(configuration, request):
         単一のフォームを一括で生成する
         
         configuration は [(form_class, prefix), ...] の形式
-    
     """
     return [form_class(request.POST or None, prefix=prefix) for form_class, prefix in configuration]
 
 def is_form_in_formset(formset):
-    """フォームセット内の各フォームにデータがあるかどうかをチェックする
+    """
+    
+        フォームセット内の各フォームにデータがあるかどうかをチェックする
     
         フォームセット内の少なくとも一つのフォームに初期値から変更があるデータがあればTrue、そうでなければFalse
     """
@@ -173,21 +182,27 @@ def is_form_in_formset(formset):
     return False
 
 def check_is_heir(form):
-    """法定相続人判定"""
+    """
+    
+        法定相続人判定
+        
+    """
     return bool(form.cleaned_data.get("is_live") and form.cleaned_data.get("is_refuse") ==  False)
 
 def save_step_one_datas(user, forms, form_sets, is_trial):
-    """ステップ１のデータ登録処理
+    """
+    
+        ステップ１のデータ登録処理
 
-    常に被相続人のデータ削除と新規登録
-    
-    他のデータは全て被相続人と紐づいてるため全データが削除される
-    
-    Args:
-        user (User): requestしたユーザー
-        forms (_type_): _description_
-        form_sets (_type_): _description_
-        is_trial (boolean): 無料アカウント用ページか判別フラグ
+        常に被相続人のデータ削除と新規登録
+        
+        他のデータは全て被相続人と紐づいてるため全データが削除される
+        
+        Args:
+            user (User): requestしたユーザー
+            forms (_type_): _description_
+            form_sets (_type_): _description_
+            is_trial (boolean): 無料アカウント用ページか判別フラグ
     """            
     
     @staticmethod
@@ -874,7 +889,7 @@ def step_one(request):
     this_url_name = "toukiApp:step_one"
     html = "toukiApp/step_one.html"
     next_url_name = "toukiApp:step_two"
-    step_progress = 1
+    required_progress = 1
     request_user = request.user
     
     try:
@@ -884,9 +899,9 @@ def step_one(request):
             return redirect(redirect_to)
         
         if get_boolean_session(request.session, "new_basic_user"):
-            message = "サービス開始 ご利用いただき誠にありがとうございます。\n\nお客様の相続登記が完了するまでしっかりサポートさせていただきます!\n\nご不明なことがありましたら、お気軽にお問い合わせください。"
+            message = "サービス開始 ご利用いただき誠にありがとうございます。\n\nお客様の相続登記が完了するまでしっかりサポートさせていただきます。\n\nご不明なことがありましたら、お気軽にお問い合わせください。"
             if get_boolean_session(request.session, "new_option1_user"):
-                message += f"\n\n{Service.OPTION1_NAME}につきましては、平日3日以内に弊社からご入力いただいたご住所に書類を発送いたしますので到着まで今しばらくお待ちください。"
+                message += f"\n\n{Service.OPTION1_NAME}につきましては、平日3日以内に弊社からご入力いただいたご住所に書類を発送いたしますので、到着まで今しばらくお待ちください。"
                 
             messages.success(request, message)
         
@@ -901,7 +916,7 @@ def step_one(request):
         
         if request.method == "POST":
             
-            if decedent and not is_progress_equal_to_step(decedent.progress, step_progress):
+            if decedent and not is_progress_equal_to_step(decedent.progress, required_progress):
                 return redirect_to_progress_page(request)
                 
             forms = [
@@ -1043,14 +1058,17 @@ def step_one(request):
         )
 
 def sort_out_trial(request):
-    """ユーザーの属性に応じて遷移先を振り分ける"""
-    if not request.user.is_authenticated:
-        return redirect("accounts:signup")
+    """
+    
+        ユーザーの属性に応じてstep_oneかstep_one_trialのどちらかに遷移する
         
-    if not request.user.basic_date:
-        return redirect("toukiApp:step_one_trial")
+    """
+    request_user = request.user
+    
+    if request_user.is_authenticated and request_user.basic_date:
+        return redirect("toukiApp:step_one")
         
-    return redirect("toukiApp:step_one")
+    return redirect("toukiApp:step_one_trial")
 
 def get_sorted_child_heirs(child_heirs):
     """ソートされた子の相続人を格納した配列を返す"""
@@ -1127,7 +1145,6 @@ def get_legal_heirs(decedent):
     ステップ２関連
 
 """
-
 def extract_file_id_from_url(url):
     """GoogleドライブのダウンロードリンクからファイルIDを抽出"""
     query = urlparse(url).query
@@ -1146,33 +1163,30 @@ def get_refused_heirs(decedent):
     return result
 
 def step_two(request):
-    """ステップ２．必要書類一覧"""
+    """
+    
+        ステップ2 必要書類一覧のページ
+        
+    """
     function_name = get_current_function_name()
     this_url_name = "toukiApp:step_two"
-    this_html = "toukiApp/step_two.html"
-    next_url_name = "toukiApp:step_three"
-    step_progress = 2
+    html = "toukiApp/step_two.html"
+    required_progress = 2
     
     try:
-        # 会員判定
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
-        
-        progress = decedent.progress
-        # アクセス権限判定
-        if not is_fulfill_required_progress(progress, step_progress):
-            return redirect_to_progress_page(request)
         
         registry_files = Register.objects.filter(decedent=decedent)
         
         if request.method == "POST":
             try:
-                if not is_progress_equal_to_step(progress, step_progress):
+                if not is_progress_equal_to_step(progress, required_progress):
                     return redirect_to_progress_page(request)
                 
                 with transaction.atomic():
-                    decedent.progress = step_progress + 1
+                    decedent.progress = required_progress + 1
                     decedent.save()
 
                     # if os.getenv('DJANGO_SETTINGS_MODULE') == 'toukiAi.settings.development':
@@ -1230,6 +1244,7 @@ def step_two(request):
                         )
                         register.save()  # データベースに保存
                     return JsonResponse({'status': 'success'})
+                
             except Exception as e:
                 return handle_error(
                     e,
@@ -1296,7 +1311,7 @@ def step_two(request):
             "sections" : Sections.SECTIONS[Sections.STEP2],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     
     except Exception as e:
         return handle_error(
@@ -2434,19 +2449,15 @@ def step_three(request):
     ]
     
     function_name = get_current_function_name()
-    this_html = "toukiApp/step_three.html"
+    html = "toukiApp/step_three.html"
     this_url_name = "toukiApp:step_three"
     next_url_name = "toukiApp:step_four"
-    step_progress = 3
+    required_progress = 3
     
     try:
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
-        
-        progress = decedent.progress
-        if not is_fulfill_required_progress(progress, step_progress):
-            return redirect_to_progress_page(request)
         
         #被相続人に紐づくデータを取得する
         data = get_all_decedent_related_data(decedent)
@@ -2459,7 +2470,7 @@ def step_three(request):
         #フォームからデータがPOSTされたとき
         if request.method == "POST":
 
-            if not is_progress_equal_to_step(progress, step_progress):
+            if not is_progress_equal_to_step(progress, required_progress):
                 return redirect_to_progress_page(request)
 
             #フォームセットの属性を更新
@@ -2787,7 +2798,7 @@ def step_three(request):
             "sections" : Sections.SECTIONS[Sections.STEP3],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
@@ -2796,31 +2807,6 @@ def step_three(request):
             function_name,
             this_url_name
         )
-
-def check_user_and_decedent(request):
-    """ページへのアクセス権限判定"""
-    function_name = get_current_function_name()
-    login_url_name = "account_login"
-    first_step_url_name = "toukiApp:step_one"
-    
-    try:
-        if not request.user.is_authenticated:
-            messages.error(request, "アクセス不可 会員専用のページです。先に会員登録をお願いします。")
-            basic_log(function_name, None, None, "非会員が会員専用のページにアクセスを試みました")
-            return redirect(login_url_name), None, None
-        
-        user = User.objects.get(email=request.user.email)
-        decedent = user.decedent.first()
-        
-        if not decedent:
-            messages.error(request, "アクセス不可 被相続人のデータがまだ登録されていません。\n先に１．基本データ入力の入力をお願いします。")
-            basic_log(function_name, None, user, "step_oneが未了の会員がその先のページにアクセスを試みました")
-            return redirect(first_step_url_name), None, None
-        
-    except Exception as e:
-        raise e
-
-    return None, user, decedent
 
 #
 # ステップ4
@@ -2832,26 +2818,22 @@ def step_four(request):
         遺産分割協議証明書、相続関係説明図、登記申請書、委任状へのリンクを表示する
     """
     function_name = get_current_function_name()
-    this_html = "toukiApp/step_four.html"
+    html = "toukiApp/step_four.html"
     this_url_name = "toukiApp:step_four"
-    step_progress = 4
+    required_progress = 4
     
     try:   
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
 
-        progress = decedent.progress
-        if not is_fulfill_required_progress(progress, step_progress):
-            return redirect_to_progress_page(request)
-        
         if request.method == "POST":
             try:
-                if not is_progress_equal_to_step(progress, step_progress):
+                if not is_progress_equal_to_step(progress, required_progress):
                     return redirect_to_progress_page(request)
                 
                 with transaction.atomic():
-                    decedent.progress = step_progress + 1
+                    decedent.progress = required_progress + 1
                     decedent.save()
                     
                     return redirect('toukiApp:step_five')
@@ -2880,7 +2862,7 @@ def step_four(request):
             "sections" : Sections.SECTIONS[Sections.STEP4],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     
     except Exception as e:
         return handle_error(
@@ -2976,16 +2958,16 @@ def step_division_agreement(request):
         遺産分割協議証明書を表示するページ
 
     """
+    function_name = get_current_function_name()
+    html = "toukiApp/step_division_agreement.html"
+    redirect_to = "toukiApp:step_four"
+    required_progress = 4
+    
     try:
-        function_name = get_current_function_name()
-        this_html = "toukiApp/step_division_agreement.html"
-        redirect_to = "toukiApp:step_four"
         
-        responese, user, decedent = check_user_and_decedent(request)
-        if responese:
-            return responese
-        
-        progress = decedent.progress
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
+        if response:
+            return response
         
         #被相続人の氏名、生年月日、死亡年月日、死亡時の本籍、死亡時の住所
         decedent_info = get_decedent_info_for_document(decedent)
@@ -3015,7 +2997,7 @@ def step_division_agreement(request):
             "exchange_division_properties": exchange_division_properties,
             "sites": sites,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -3338,17 +3320,21 @@ def get_decedent_info_for_document(decedent):
         raise e
 
 def step_diagram(request):
-    """相続関係説明図の表示"""
-    try:
-        function_name = get_current_function_name()
-        this_html = "toukiApp/step_diagram.html"
-        redirect_to = "toukiApp/step_four"
+    """
+    
+        相続関係説明図の表示
         
-        response, user, decedent = check_user_and_decedent(request)
+    """
+    function_name = get_current_function_name()
+    html = "toukiApp/step_diagram.html"
+    redirect_to = "toukiApp/step_four"
+    title = "相続関係説明図"
+    required_progress = 4
+    try:
+        
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
-        
-        progress = decedent.progress
         
         #被相続人データを取得する
         decedent_info = get_decedent_info_for_document(decedent)
@@ -3363,7 +3349,7 @@ def step_diagram(request):
         diagram_data = get_diagram_data(application_data, related_persons_data)
         
         context = {
-            "title": "相続関係説明図",
+            "title": title,
             "progress": progress,
             "company_data": CompanyData,
             "user_email": user.email,
@@ -3372,7 +3358,7 @@ def step_diagram(request):
             "related_persons_data": related_persons_data,
         }
         
-        return render(request, this_html, context)
+        return render(request, html, context)
     
     except Exception as e:
         return handle_error(
@@ -3940,37 +3926,37 @@ def step_application_form(request):
     
     function_name = get_current_function_name()
     redirect_to = "toukiApp:step_four"
-    this_html = "toukiApp/step_application_form.html"
-    tab_title = "登記申請書"
+    html = "toukiApp/step_application_form.html"
+    title = "登記申請書"
+    request_user = request_user
+    required_progress = 4
     
     try:
-        
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
 
-        progress = decedent.progress
-        
         # 申請に必要なデータを取得する
         data = get_data_for_application_form(decedent, True)
 
         # データを申請書の形式に修正する
         application_data = get_application_form_data(data, decedent)
         
+        decedent_name = decedent.name
         context = {
-            "title" : tab_title,
+            "title" : title,
             "user_email": user.email,
             "progress": progress,
             "company_data": CompanyData,
             "application_data": application_data,
-            "decedent_name": decedent.name,
+            "decedent_name": decedent_name,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e, 
             request, 
-            request.user,
+            request_user,
             function_name, 
             redirect_to, 
         )
@@ -4397,20 +4383,22 @@ def get_purpose_of_registration(properties, decedent_name):
         return f"{decedent_name}持分全部移転"
 
 def step_POA(request):
-    """委任状を表示する"""
+    """
     
+        委任状を表示するページ
+        
+    """
     function_name = get_current_function_name()
-    this_html = "toukiApp/step_POA.html"
+    html = "toukiApp/step_POA.html"
     redirect_to = "toukiApp:step_four"
-    tab_title = "委任状"
+    title = "委任状"
+    required_progress = 4
     
     try:
         
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
-
-        progress = decedent.progress
         
         # 登記申請書データを取得する
         data = get_data_for_application_form(decedent, True)
@@ -4419,14 +4407,14 @@ def step_POA(request):
         POA_data = get_POA_data(data, decedent)
         
         context = {
-            "title" : tab_title,
+            "title" : title,
             "user_email": user.email,
             "progress": progress,
             "company_data": CompanyData,
             "POA_data": POA_data,
             "decedent_name": decedent.name,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e, 
@@ -4535,29 +4523,24 @@ def step_five(request):
     """ステップ５のメイン処理"""
     
     function_name = get_current_function_name()
-    this_html = "toukiApp/step_five.html"
+    html = "toukiApp/step_five.html"
     this_url_name = "toukiApp:step_five"
     next_url_name = "toukiApp:step_six"
-    step_progress = 5
+    required_progress = 5
     title = Service.STEP_TITLES["five"]
     
     try:
-                
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
         
-        progress = decedent.progress
-        if not is_fulfill_required_progress(progress, step_progress):
-            return redirect_to_progress_page(request)
-        
         if request.method == "POST":
             try:
-                if not is_progress_equal_to_step(progress, step_progress):
+                if not is_progress_equal_to_step(progress, required_progress):
                     return redirect_to_progress_page(request)
                 
                 with transaction.atomic():
-                    decedent.progress = step_progress + 1
+                    decedent.progress = required_progress + 1
                     decedent.save()
                     
                     return redirect(next_url_name)
@@ -4592,7 +4575,7 @@ def step_five(request):
             "sections" : Sections.SECTIONS[Sections.STEP5],
             "service_content" : Sections.SERVICE_CONTENT,
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     
     except Exception as e:
         return handle_error(
@@ -4621,20 +4604,15 @@ def step_six(request):
     """申請後のメイン処理"""
     
     function_name = get_current_function_name()
-    this_html = "toukiApp/step_six.html"
+    html = "toukiApp/step_six.html"
     this_url_name = "toukiApp:step_six"
-    step_progress = 6
+    required_progress = 6
     title = Service.STEP_TITLES["six"]
     
     try:
-        
-        response, user, decedent = check_user_and_decedent(request)
+        response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
         if response:
             return response
-        
-        progress = decedent.progress
-        if not is_fulfill_required_progress(progress, step_progress):
-            return redirect_to_progress_page(request)
 
         context = {
             "title" : title,
@@ -4648,7 +4626,7 @@ def step_six(request):
             "touki_info_charge": ExternalLinks.charge["touki_info"],
             "touki_info_link": ExternalLinks.links["touki_info"]
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     
     except Exception as e:
         return handle_error(
@@ -4659,10 +4637,7 @@ def step_six(request):
             this_url_name, 
         )
 
-def is_fulfill_required_progress(decedent_progress, required_progress):
-    """ユーザーの進捗がシステムの段階を満たしているか判定"""
-    return decedent_progress >= required_progress
-    
+
 def is_progress_equal_to_step(decedent_progress, step):
     """ユーザーの進捗がシステムの段階と一致しているか判定"""
     return int(decedent_progress) == step
@@ -4762,19 +4737,19 @@ def administrator(request):
     
     function_name = get_current_function_name()
     this_url_name = "toukiApp:administrator"
-    this_html = "toukiApp/administrator.html"
+    html = "toukiApp/administrator.html"
     redirect_to = "toukiApp:index"
-    tab_title = "会社概要"
+    title = "会社概要"
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
         
         context = {
-            "title": tab_title,
+            "title": title,
             "company_data": CompanyData,
             "canonical_url": canonical_url
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
@@ -4789,19 +4764,19 @@ def commerceLaw(request):
         
     function_name = get_current_function_name()
     this_url_name = "toukiApp:commerce_law"
-    this_html = "toukiApp/commerce_law.html"
+    html = "toukiApp/commerce_law.html"
     redirect_to = "toukiApp:index"
-    tab_title = "特定商取引法に基づく表記"
+    title = "特定商取引法に基づく表記"
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
         
         context = {
-            "title": tab_title,
+            "title": title,
             "company_data": CompanyData,
             "canonical_url": canonical_url
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
@@ -4816,20 +4791,20 @@ def privacy(request):
     
     function_name = get_current_function_name()
     this_url_name = "toukiApp:privacy"
-    this_html = "toukiApp/privacy.html"
+    html = "toukiApp/privacy.html"
     redirect_to = "toukiApp:index"
-    tab_title = "プライバシーポリシー"
+    title = "プライバシーポリシー"
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
         
         context = {
-            "title" : tab_title,
+            "title" : title,
             "company_data" : CompanyData,
             "canonical_url": canonical_url
         }
         
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
@@ -4844,19 +4819,19 @@ def terms(request):
     
     function_name = get_current_function_name()
     this_url_name = "toukiApp:terms"
-    this_html = "toukiApp/terms.html"
+    html = "toukiApp/terms.html"
     redirect_to = "toukiApp:index"
-    tab_title = "利用規約"
+    title = "利用規約"
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
         
         context = {
-            "title": tab_title,
+            "title": title,
             "company_data": CompanyData,
             "canonical_url": canonical_url
         }
-        return render(request, this_html, context)
+        return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
@@ -4874,11 +4849,11 @@ def terms(request):
 #     """
     
 #     function_name = get_current_function_name()
-#     this_html = "toukiApp/condition.html"
+#     html = "toukiApp/condition.html"
 #     this_url_name = "toukiApp:condition"
 #     error_redirect_to = "toukiApp:index"
 #     next_redirect_to = "accounts:signup"
-#     tab_title = "利用条件確認"
+#     title = "利用条件確認"
     
 #     try:
 #         canonical_url = get_canonical_url(request, this_url_name)
@@ -4894,11 +4869,11 @@ def terms(request):
 #                 messages.warning("アクセス不可 利用条件を満たしていない場合は、本システムで対応できないためアカウント登録できません。")
 
 #         context = {
-#             "title" : tab_title,
+#             "title" : title,
 #             "canonical_url": canonical_url
 #         }
         
-#         return render(request, this_html, context)
+#         return render(request, html, context)
     
 #     except Exception as e:
 #         return handle_error(
@@ -5163,7 +5138,6 @@ def nav_to_last_user_page(request):
     """ログインしたとき会員が最後に滞在していた会員ページに遷移させる、ないときは進捗状況に合わせたページ"""
     try:
         function_name = get_current_function_name()
-        this_html = "account/login.html"
         redirect_to = "account:login"
         
         # セッションから前の会員ページのURLを取得
@@ -5182,18 +5156,6 @@ def nav_to_last_user_page(request):
             redirect_to, 
         )
 
-def redirect_to_progress_page(request):
-    """ユーザーの進捗状況に基づいてリダイレクトする"""
-    decedent = request.user.decedent.first()
-    
-    if decedent:
-        return redirect_to_step(decedent.progress)
-    
-    if request.user.basic_date:
-        return redirect(reverse("toukiApp:step_one"))
-        
-    return redirect(reverse("toukiApp:step_one_trial"))
-
 def redirect_to_step(progress):
     """進捗に基づいて適切なステップページにリダイレクトする"""
     steps = [
@@ -5206,6 +5168,87 @@ def redirect_to_step(progress):
         "toukiApp:step_six",
     ]
     return redirect(reverse(steps[int(progress)]))
+
+
+def is_basic_user(request) -> Tuple[bool, str]:
+    """
+    
+        会員かつシステム利用の会員か判定する
+       
+        システム利用の会員のときは空文字、違うときはリダイレクト先を返す。
+        
+    """
+    from common.utils import is_anonymous
+    request_user = request.user
+    
+    if is_anonymous(request):
+        return False, "accounts:account_login"
+    
+    if not request_user.basic_date:
+        messages.warning(request, "アクセス制限 システム利用の会員専用のページです。")
+        return False, "toukiApp:step_one_trial"
+    
+    return True, ""
+
+def redirect_to_progress_page(request):
+    """ユーザーの進捗状況に基づいてリダイレクトする"""
+    decedent = request.user.decedent.first()
+    
+    if decedent:
+        return redirect_to_step(decedent.progress)
+    
+    if request.user.basic_date:
+        return redirect(reverse("toukiApp:step_one"))
+        
+    return redirect(reverse("toukiApp:step_one_trial"))
+
+def check_access_permission_to_step(request, required_progress):
+    """
+    
+        ページへのアクセス権限判定
+    
+    """
+    def has_decedent():
+        """被相続人データの有無をチェック"""
+        from accounts.models import User
+        
+        user = User.objects.get(email=request.user.email)
+        decedent = user.decedent.first()
+        
+        if not decedent:
+            messages.error(request, f"アクセス不可 被相続人のデータがまだ登録されていません。\n先に{Service.STEP_TITLES['one']}の入力をお願いします。")
+            basic_log(get_current_function_name(), None, user, "step_oneが未了の会員がその先のページにアクセスを試みました")
+            
+            step_one_url_name = "toukiApp:step_one"
+            return redirect(step_one_url_name), None, None
+        
+        return None, user, decedent
+            
+    
+    def is_fulfill_required_progress(current_progress, required_progress):
+        """ユーザーの進捗がシステムの段階を満たしているか判定"""
+        if not current_progress >= required_progress:
+            messages.warning(request, "アクセス制限 順番通りに入力をお願いします。")
+            return False
+        
+        return True
+            
+        
+    """メイン"""
+    result, redirect_to = is_basic_user(request)
+    if not result:
+        return redirect(redirect_to), None, None, None
+    
+    response, user, decedent = has_decedent()
+    if response:
+        return response, None, None, None
+    
+    progress = decedent.progress
+    
+    if not is_fulfill_required_progress(progress, required_progress):
+        return redirect_to_progress_page(request), None, None, progress
+    
+    return None, user, decedent, progress
 
 # def import_offices(html_file_path):
 #     """法務局データスクレイピング処理"""

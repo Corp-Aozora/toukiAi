@@ -836,45 +836,63 @@ def is_valid_email_pattern(request):
     return JsonResponse(context)
 
 def delete_account(request):
-    """アカウント削除"""
-    function_name = get_current_function_name()
-    current_url_name = "accounts:delete_account"
-    current_html = "account/delete_account.html"
-    next_url_name = "toukiApp:index"
-
-    try:
-        if not request.user.is_authenticated:
-            messages.warning(request, "アクセス不可 会員専用のページです。アカウント登録が必要です。")
-            return redirect("accounts:signup")
+    """
+    
+        アカウント削除
         
-        user = request.user
+    """
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        return redirect("toukiApp:index")
+    
+    function_name = get_current_function_name()
+    this_url_name = "accounts:delete_account"
+    html = "account/delete_account.html"
+    next_url_name = "toukiApp:index"
+    title = "アカウント削除"
+    request_user = request.user 
+    
+    try:
+        if is_anonymous(request):
+            return redirect("accounts:account_login")
+        
+        user = request_user
+        form = DeleteAccountForm(user, request.POST or None)
         
         if request.method == "POST":
-            form = DeleteAccountForm(user, request.POST,)
             if form.is_valid():
-                request.user.delete()
-                logout(request)
-                request.session["account_delete"] = True
-                return redirect(next_url_name)
+                with transaction.atomic():
+                    try:
+                        request_user.delete()
+                        logout(request)
+                        request.session["account_delete"] = True
+                    
+                        return redirect(next_url_name)
+                    
+                    except Exception as e:
+                        cleaned_data_str = ", ".join(f"{field_name}={value}" for field_name, value in form.cleaned_data.items())
+                        raise Exception(f"POSTでエラー\n{cleaned_data_str}") from e
             else:
-                messages.error(request, "削除に失敗 入力されたメールアドレスまたはパスワードに誤りがあるため、アカウントを削除できませんでした。")
-        else:            
-            form = DeleteAccountForm(user)
+                messages.warning(request, "削除に失敗 入力されたメールアドレスまたはパスワードに誤りがあるため、アカウントを削除できませんでした。")
         
-        progress = user.decedent.progress
+        progress = get_decedent_progress(user)
+        service_content = Sections.SERVICE_CONTENT
         context = {
+            "title": title,
             "form": form,
-            "progress": progress
+            "progress": progress,
+            "service_content": service_content
         }
         
-        return render(request, current_html, context)
+        return render(request, html, context)
+    
     except Exception as e:
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
-            current_url_name,
+            this_url_name,
+            notices = f"request.POST={request.POST}"
         )
 
 def is_new_email(request):
@@ -1080,7 +1098,7 @@ def change_email(request):
     function_name = get_current_function_name()
     this_url_name = "accounts:change_email"
     html = "account/change_email.html"
-    title = "メールアドレスを変更"
+    title = "メールアドレス変更"
     request_user = request.user
     
     def get_form(request):
@@ -1151,7 +1169,7 @@ def change_email(request):
             request_user,
             function_name,
             this_url_name,
-            notices=request.POST
+            notices = f"request.POST={request.POST}"
         )
 
 def confirm_email(request, token):

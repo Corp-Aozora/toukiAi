@@ -7,11 +7,10 @@ EMAIL_SIGNATURE = textwrap.dedent('''
     {company_post_number}
     {company_address}
     {company_bldg}
-    電話番号 {company_receiving_phone_number}
-    ※弊社からお客様にお電話するときに表示される電話番号
-      {company_calling_phone_number}
+    {company_receiving_phone_number}
+    {company_calling_phone_number}
     営業時間 {company_opening_hours}
-    ホームページ {company_url}
+    {company_url}
 ''').rstrip()
 
 EMAIL_TEMPLATE = textwrap.dedent('''

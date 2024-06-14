@@ -70,14 +70,14 @@
 /* 画面のサイズがlg以上 */
 @media(min-width: 992px){
     .option .card-body{
-        min-height: 425px;
+        min-height: 450px;
     }
 }
 
 /* 画面のサイズがxl以上 */
 @media(min-width: 1200px){
     .option .card-body{
-        min-height: 395px;
+        min-height: 400px;
     }
 
     /* 悩み事 */
@@ -163,16 +163,10 @@
         width: 100%!important;
         text-align-last: initial!important;
         text-align: center!important;
-        border-radius: 0!important;
-        border-top-left-radius:var(--bs-border-radius)!important;
-        border-top-right-radius:var(--bs-border-radius)!important;
     }
 
     form .input-group input, form .input-group select{
         margin-left: 0px!important;
-        border-radius: 0!important;
-        border-bottom-left-radius:var(--bs-border-radius)!important;
-        border-bottom-right-radius:var(--bs-border-radius)!important;
         text-align: center!important;
     }
     

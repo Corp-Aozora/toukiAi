@@ -5,7 +5,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
-from django.core.validators import validate_email
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -78,9 +77,12 @@ def index(request):
         トップページの処理
         
     """
+    this_url_name = "toukiApp:index"
+    
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        return redirect(this_url_name)
     
     function_name = get_current_function_name()
-    this_url_name = "toukiApp:index"
     html = "toukiApp/index.html"
     title = "相続登記を自分で行いたい方のためのシステム"
     meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って手続を進めるだけで相続登記が完了します。詳細な解説と迅速なお問い合わせ対応もありますので、悩みなくスムーズに手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
@@ -91,11 +93,10 @@ def index(request):
         # お問い合わせが成功したメッセージを表示するためのセッション（messagesのsuccessはログアウトメッセージと重複するため）
         is_inquiry = get_boolean_session(request.session, "post_success")
         is_account_delete = get_boolean_session(request.session, "account_delete")
+        form = OpenInquiryForm(request.POST or None)
         
         # お問い合わせがあったとき
         if request.method == "POST":
-            
-            form = OpenInquiryForm(request.POST)
             if form.is_valid():
                 with transaction.atomic():
                     try:
@@ -110,12 +111,10 @@ def index(request):
             else:
                 basic_log(function_name, None, None, f"{form.errors}")
                 messages.warning(request, "入力に不備があるため受付できませんでした。")
-        else:
-            form = OpenInquiryForm()
         
         # 更新情報（表示は最新２つまで）
         update_articles = UpdateArticle.objects.order_by("-updated_at")[:2]
-        print()
+
         context = {
             "title" : title,
             "update_articles": update_articles,
@@ -4770,21 +4769,25 @@ def administrator(request):
             request,
             request_user,
             function_name,
-            redirect_to
+            redirect_to,
+            notices=f"request.POST={request.POST}"
         )
 
-def commerceLaw(request):
-    """特商法"""
+def commerce_law(request):
+    """
+    
+        特商法のページ
         
+    """
     function_name = get_current_function_name()
     this_url_name = "toukiApp:commerce_law"
     html = "toukiApp/commerce_law.html"
     redirect_to = "toukiApp:index"
     title = "特定商取引法に基づく表記"
+    request_user = request.user
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
-        
         context = {
             "title": title,
             "company_data": CompanyData,
@@ -4795,27 +4798,34 @@ def commerceLaw(request):
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
-            redirect_to
+            redirect_to,
+            notices=f"request.POST={request.POST}"
         )
 
 def privacy(request):
-    """プライバシーポリシー"""
+    """
+    
+        プライバシーポリシー
+        
+    """
     
     function_name = get_current_function_name()
     this_url_name = "toukiApp:privacy"
     html = "toukiApp/privacy.html"
     redirect_to = "toukiApp:index"
     title = "プライバシーポリシー"
+    request_user = request.user
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
-        
+        google_privacy_link = ExternalLinks.links["google_privacy"]
         context = {
             "title" : title,
             "company_data" : CompanyData,
-            "canonical_url": canonical_url
+            "canonical_url": canonical_url,
+            "google_privacy_link": google_privacy_link
         }
         
         return render(request, html, context)
@@ -4823,36 +4833,43 @@ def privacy(request):
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
-            redirect_to
+            redirect_to,
+            notices=f"request.POST={request.POST}"
         )
 
 def terms(request):
-    """利用規約"""
+    """
+    
+        利用規約ページ
+        
+    """
     
     function_name = get_current_function_name()
     this_url_name = "toukiApp:terms"
     html = "toukiApp/terms.html"
     redirect_to = "toukiApp:index"
     title = "利用規約"
+    request_user = request.user
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)
-        
         context = {
             "title": title,
             "company_data": CompanyData,
             "canonical_url": canonical_url
         }
+        
         return render(request, html, context)
     except Exception as e:
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
-            redirect_to
+            redirect_to,
+            notices=f"request.POST={request.POST}"
         )
 
 # def condition(request):           事前の利用条件確認は一旦停止中
@@ -5098,20 +5115,6 @@ def get_office(request):
         return JsonResponse({'error': 'データがありません'}, status=404)
     except Exception as e:
         return JsonResponse({'error': 'エラーが発生しました', 'details': str(e)}, status=500)
-
-#djangoのメール形式チェック
-def is_email(request):
-    input_email = request.POST.get("email")
-    
-    try:
-        validate_email(input_email)
-    except ValidationError:
-        context = {"message" : "メールアドレスの規格と一致しません",}
-        return JsonResponse(context)
-
-    context = {"message":"",}
-    
-    return JsonResponse(context)
 
 def step_back(request):
     """前のステップに戻る処理"""

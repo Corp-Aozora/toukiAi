@@ -442,14 +442,12 @@ def compare_dict_by_two_key(x, y, key_one, key_two):
     """
     return x[key_one] == y[key_one] and x[key_two] == y[key_two]
 
-INQUIRY_FULL_TEXT = textwrap.dedent('''
-                                    
-    件名
-    　{inquiry_category}{inquiry_subject}について
+INQUIRY_FULL_TEXT = textwrap.dedent('''                       
+    ＜件名＞
+    {inquiry_category}{inquiry_subject}について
 
-    お問い合わせ内容
-    　{content}
-
+    ＜お問い合わせ内容＞
+    {content}
 ''')
 
 ANSWER_TO_INQUIRY_EMAIL_TEMPLATE = INQUIRY_FULL_TEXT + common.EMAIL_SIGNATURE
@@ -460,7 +458,6 @@ AUTO_REPLY_EMAIL_TEMPLATE = textwrap.dedent('''
                                             
     以下の内容でお問い合わせを受け付けました。
     ※金土日祝日にお問い合わせいただいた場合は、翌営業日になることもあります。
-    
     ----------------------------------
 ''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE
 
@@ -470,11 +467,10 @@ ANSWER_EMAIL_TEMPLATE = textwrap.dedent('''
     
     お問い合わせありがとうございます。
     いただいたお問い合わせに対するご回答です。
-    -----------------------------------
+    --------------ご回答---------------
     
     {answer}
 
-    
     ----------お問い合わせ内容----------
 ''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE
 
@@ -796,3 +792,27 @@ class ConvertHtmlToPdf:
         asset_id = ConvertHtmlToPdf.create_asset(html_content)
         pdf_url  = ConvertHtmlToPdf.create_pdf_download_url(asset_id)
         return pdf_url
+    
+
+def is_email(request):
+    """
+    
+        djangoのメール形式チェック
+        
+    """
+    from common.utils import is_valid_request_method
+    
+    if not is_valid_request_method(request, ["POST"], True):
+        return JsonResponse({"message": "不正なリクエストです。"})
+        
+    email = request.POST.get("email")
+    
+    try:
+        from django.core.validators import validate_email
+        validate_email(email)
+        
+        return JsonResponse({"message": ""})
+    except ValidationError:
+        return JsonResponse({"message" : "メールアドレスの規格と一致しません。"})
+    except Exception as e:
+        return handle_error(e, request, request.user, get_current_function_name(), None, True, notices=f"request.POST={request.POST}")

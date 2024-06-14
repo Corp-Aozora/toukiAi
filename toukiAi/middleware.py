@@ -15,11 +15,8 @@ class SaveLastUserPageMiddleware(MiddlewareMixin):
     """
     def process_view(self, request, view_func, view_args, view_kwargs):
         # リクエストが会員ページかどうかを判定
-        is_user_page = any(
-            x in request.path
-            for x in ["step", "bank_transfer", "delete_account", "change_email", "password/change/", "guidance"]
-            if "step_one_trial" not in request.path
-        )
+        user_page = ["step_one", "step_two", "step_three", "step_four", "step_five", "step_six"]
+        is_user_page = any(page in request.path for page in user_page)
 
         # 現在のページが会員ページで、セッションにlast_public_viewedがない場合、訪問を記録
         if is_user_page:

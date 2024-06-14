@@ -3,7 +3,7 @@
 
 {% block stylesheet %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'toukiApp/terms.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/privacy_and_terms.css' %}">
 {% endblock %}
 
 {% block og %}
@@ -50,7 +50,7 @@
                                 本サイト: 本サービスの提供のためにユーザーに表示されるWebサイト
                             </li>
                             <li class="list-group-item">
-                                登録ユーザー: 本サービスを利用するためにアカウント登録が完了したユーザー
+                                登録ユーザー: 本サービスの利用申込みをしてアカウント登録が完了したユーザー
                             </li>
                             <li class="list-group-item">
                                 個人情報: 住所、氏名、電話番号など個人を特定することのできる情報の総称
@@ -101,9 +101,9 @@
                                 当社は、登録ユーザーの本サービスの利用目的に則する範囲で登録ユーザーの承諾を得ることなく、いつでも本規約の内容を改定することができるものとします。
                             </li>
                             <li class="list-group-item">
-                                本規約の改定にあたり、改定の効力発生日の１ヶ月前までに
-                                <a href="{% url 'toukiApp:index' %}">
-                                    当社ホームページ
+                                本規約の改定にあたり、改定の効力発生日の1ヶ月前までに
+                                <a class="fw-bold" href="{% url 'toukiApp:index' %}" target="_blank" rel="noopener noreferrer">
+                                    トップページ
                                 </a>
                                 にその旨及び効力発生日を表示します。
                             </li>
@@ -201,12 +201,12 @@
                     <div class="card-text">
                         <ol class="list-group list-group-numbered">
                             <li class="list-group-item">
-                                本サービスを有料で登録したアカウントの有効期間は、登録日から１年間（登録日を含まない）とする。
+                                アカウントの有効期間は、登録日から1年間（登録日を含まない）とする。
                             </li>
                             <li class="list-group-item">
-                                当社は、アカウントの有効期間満了日から２週間以上前に当社所定の方法により登録ユーザーに通知します。
+                                当社は、アカウントの有効期間満了日から2週間以上前に当社所定の方法により登録ユーザーに通知します。
                                 <br>
-                                なお、登録されているメールアドレスの変更などにより通知ができない場合でも有効期間の満了日は変更されません。
+                                なお、登録されているメールアドレスの変更などにより通知が届かない場合でも有効期間の満了日は変更されません。
                             </li>
                             <li class="list-group-item">
                                 アカウントの有効期間満了後、当社は登録ユーザーに関する一切の情報を遅滞なく削除します。
@@ -223,7 +223,7 @@
                     </div>
                     <div class="card-text bg-white border rounded-3 p-3">
                         当社が別途定める
-                        <a href="{% url 'toukiApp:privacy' %}" target="_blank" rel="noopener noreferrer">
+                        <a class="fw-bold" href="{% url 'toukiApp:privacy' %}" target="_blank" rel="noopener noreferrer">
                             プライバシーポリシー
                         </a>
                         に準拠して適切に取り扱います。
@@ -392,9 +392,9 @@
                 </div>
             </div>
             <div class="mt-3 text-end fw-bold">
-                制定日：令和６年４月１日
-                <br>                
-                制定日：令和６年６月１０日
+                制定日: 令和6年4月1日
+                <br>             
+                最終更新日: 令和6年6月14日
             </div>
         </div>
     </div>
@@ -407,5 +407,4 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiApp/terms.js' %}"></script>
 {% endblock %}

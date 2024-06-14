@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}特定商取引法に基づく表記 | {{ block.super}}{% endblock title %}
+{% block title %}{{ title }} | {{ block.super }}{% endblock title %}
 
 {% block stylesheet %}
     {% load static %}
@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-lg-7 col-md-9 col-sm-11 mx-auto">
+<div class="col-lg-7 col-md-9 col-sm-11 mx-auto px-3">
     <h1 class="fs-5 text-center my-3">
         特定商取引法に基づく表記
     </h1>
@@ -42,7 +42,10 @@
                 所在地
             </div>
             <div class="col-sm-8">
-                {{company_data.ADDRESS}}<br>
+                {{company_data.POST_NUMBER}}
+                <br>
+                {{company_data.ADDRESS}}
+                <br>
                 {{company_data.BLDG}}
             </div>
         </div>
@@ -61,10 +64,11 @@
                 電話番号
             </div>
             <div class="col-sm-8">
-                {{company_data.RECEIVING_PHONE_NUMBER}}<br>
-                {{company_data.CALLING_PHONE_NUMBER}}<br>
-                ※弊社からの電話はこちらの番号が表示されます。<br>
-                ※お問い合わせはメール又はＬＩＮＥのみ。
+                {{company_data.RECEIVING_PHONE_NUMBER}}
+                <br>
+                {{company_data.CALLING_PHONE_NUMBER}}
+                <br>
+                ※お問い合わせはメール又はLINEのみ。
             </div>
         </div>
         <hr>
@@ -84,7 +88,9 @@
                 お問い合わせ受付
             </div>
             <div class="col-sm-8 my-auto">
-                <img class="ms-3 line-qr" src="{{company_data.OPEN_LINE_QR}}">
+                <a class=" btn btn-success fw-bold bg-gradient bg-opacity-50 shadow" href="{{ company_data.OPEN_LINE_LINK }}" target="_blank" rel="noopener noreferrer">
+                    友だち追加
+                </a>
             </div>
         </div>
         <hr>
@@ -163,5 +169,4 @@
 
 {% block js %}
     {% load static %}
-    <script src="{% static 'toukiApp/commerce_law.js' %}"></script>
 {% endblock %}

@@ -1,7 +1,8 @@
 class ExternalLinks:
     links = {
         "moj_online_request": "https://www.touki-kyoutaku-online.moj.go.jp/web/top/SC01WL01-ViewLogin.do",
-        "touki_info": "https://www1.touki.or.jp/"
+        "touki_info": "https://www1.touki.or.jp/",
+        "google_privacy": "https://policies.google.com/privacy"
     }
     
     charge = {

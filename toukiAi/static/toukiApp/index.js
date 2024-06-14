@@ -23,12 +23,18 @@ class Inquiry{
     constructor(){
         this.form = document.getElementsByTagName("form")[0];
         this.inputs = Array.from(this.form.querySelectorAll("input, select, textarea")).slice(1);
-        this.mailAddress = this.inputs[Inquiry.idxs["mailAddress"]];
-        this.subject = this.inputs[Inquiry.idxs["subject"]];
-        this.content = this.inputs[Inquiry.idxs["content"]];
+        [
+            this.mailAddress,
+            this.subject,
+            this.content
+        ] = this.inputs
         this.submitBtn = document.getElementById("submitBtn");
         this.errMsgEls = this.form.getElementsByClassName("errorMessage");
-
+        [
+            this.mailAddressErrMsgEl,
+            this.subjectErrMsgEl,
+            this.contentErrMsgEl,
+        ]
     }
 
     static idxs = {
@@ -53,11 +59,12 @@ function addScrollEvent(from, to){
 }
 
 /**
- * 重複メールアドレスとdjangoによるメールアドレス形式チェック
+ * djangoによるメールアドレス形式チェック
  * @param {string} email 
  * @param {HTMLElement} errMsgEl 
  */
 async function isDjangoEmail(email, errMsgEl){
+    const functionName = "isDjangoEmail";
     const url = 'is_email';
   
     try{
@@ -72,16 +79,14 @@ async function isDjangoEmail(email, errMsgEl){
         }).then(response => {
             return response.json();
         }).then(response => {
-            if(response.message !== ""){
-                toggleErrorMessage(false, errMsgEl, "メールアドレスが規格に一致しません");
-            }else{
-                toggleErrorMessage(true, errMsgEl, "");
-            }
+            const message = response.message;
+            const result = message? false: true;
+            toggleErrorMessage(result, errMsgEl, message);
         }).catch(e => {
-            basicLog("isDjangoEmail", e, "responseエラー");
+            basicLog(functionName, e, `fetchでエラー\nemail=${email}`);
         });
     }catch(e){
-        basicLog("isDjangoEmail", e, "tryエラー");
+        basicLog(functionName, e, `tryでエラー\nemail=${email}`);
     }
 }
 
@@ -171,6 +176,24 @@ window.addEventListener("load", ()=>{
         })
     }
 
+    /**
+     * 送信ボタンイベント
+     * @param {event} event 
+     * @param {Inquiry} instance 
+     */
+    function handleSubmitEvent(event, instance){
+        const spinner = document.getElementById("submitSpinner");
+
+        try{
+            instance.submitBtn.disabled = true;
+            spinner.style.display = "";
+        }catch(error){
+            basicLog("submit", error);
+            event.preventDefault();
+            spinner.style.display = "none";
+        }    
+    }
+
     navToTargetSection();
 
     setEventToInquiryLink();
@@ -211,24 +234,6 @@ window.addEventListener("load", ()=>{
         handleSubmitEvent(e, inquiry);
     });
 }) 
-
-/**
- * 送信ボタンイベント
- * @param {event} event 
- * @param {Inquiry} instance 
- */
-function handleSubmitEvent(event, instance){
-    const spinner = document.getElementById("submitSpinner");
-
-    try{
-        instance.submitBtn.disabled = true;
-        spinner.style.display = "";
-    }catch(error){
-        basicLog("submit", error);
-        event.preventDefault();
-        spinner.style.display = "none";
-    }    
-}
 
 /**
  * 確認モーダル表示ボタンのイベント

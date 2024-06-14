@@ -2,9 +2,4 @@
     #company-info{
         text-align: center!important;
     }
-
-    #mainContainer div:first-child{
-        margin-left: 2rem!important;
-        margin-right: 2rem!important;
-    }
 }

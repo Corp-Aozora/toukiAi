@@ -177,6 +177,16 @@ h1, h2, h3, h4, h5, h6{
     display: inline;
 }
 
+/* max-widthで設定するコード */
+/* .linebreak-wrapper{
+    flex-direction: column;
+}
+
+.linebreak-wrapper span{
+    display: block;
+    text-align: center;
+} */
+
 /* SweetAlert2 ボタンの配置を変更する */
 .swal2-actions {
     display: flex;

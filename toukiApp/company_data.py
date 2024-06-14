@@ -30,7 +30,7 @@ class CompanyData:
     URL = "https://aozoratouki.com"
     LOGIN_URL = "https://aozoratouki.com/account/login/"
     TRIAL_URL = "https://aozoratouki.com/toukiApp/step_one_trial"
-    CHARGE = "サイト上部の「料金」からご確認いただけます。"
+    CHARGE = "トップページに料金表があります。"
     PAYMENT = "銀行振込・クレジットカード"
     PAYMENT_TERMS = "サービス利用開始時"
     START_TIME = "お支払いを確認後直ちに"

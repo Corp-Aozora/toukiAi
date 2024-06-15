@@ -98,6 +98,11 @@ h1, h2, h3, h4, h5, h6{
     font-weight: 700!important;
 }
 
+.additional-text{
+    display: flex!important;
+    margin-top: 0.5rem!important;
+}
+
 .text-indent{
     text-indent: 1rem!important;
 }
@@ -165,6 +170,23 @@ h1, h2, h3, h4, h5, h6{
     border-left: 2px solid rgb(25, 135, 84);
     border-bottom: 2px solid rgb(25, 135, 84);
     transform: rotate(-45deg);
+}
+
+/* 三角形 */
+.triangle{
+    position: relative;
+}
+
+.triangle:after {
+    content: "";
+    display: block;
+    position: absolute;
+    background: var(--bs-warning);
+    top: .35em;
+    left: -1em;
+    height: calc(tan(60deg) * 13px / 2);
+    width: 13px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
 /* 画面サイズに応じた改行をする要素に付与する ※max-widthの設定が必要 */

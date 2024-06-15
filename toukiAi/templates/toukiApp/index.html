@@ -1341,36 +1341,42 @@
                                         <li>
                                             <div>
                                                 <span class="bg-primary-subtle rounded-3">
-                                                    第１順位
+                                                    第1順位
                                                 </span>
                                             </div>
                                             <div class="ms-3">
                                                 <span class="bg-primary-subtle rounded-3">
-                                                    直系卑属(子、孫、ひ孫...(養子を含む))
+                                                    直系卑属(子、孫、ひ孫...)
+                                                    <br>
+                                                    ※養子を含みます
                                                 </span>
                                             </div>
                                         </li>
                                         <li>
                                             <div>
                                                 <span class="bg-success-subtle rounded-3">
-                                                    第２順位
+                                                    第2順位
                                                 </span>
                                             </div>
                                             <div class="ms-3">
-                                                直系卑属がいない場合は、
+                                                直系卑属がいない場合
+                                                <br>
                                                 <span class="bg-success-subtle rounded-3">
-                                                    直系尊属(父母、祖父母、曽祖父...(養親を含む))
+                                                    直系尊属(父母、祖父母、曽祖父...)
+                                                    <br>
+                                                    ※養親を含む
                                                 </span>
                                             </div>
                                         </li>
                                         <li>
                                             <div>
                                                 <span class="bg-warning-subtle rounded-3">
-                                                    第３順位
+                                                    第3順位
                                                 </span>
                                             </div>
                                             <div class="ms-3">
-                                                直系尊属がいない場合は、
+                                                直系尊属がいない場合
+                                                <br>
                                                 <span class="bg-warning-subtle rounded-3">
                                                     兄弟姉妹
                                                 </span>
@@ -1415,11 +1421,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mt-3 ms-3 fw-bold">
-                                    ※
-                                    <a class="text-decoration-none" href="{% url 'toukiApp:step_one_trial' %}" target="_blank" rel="noopener noreferrer">
-                                        相続人判定で実際にご確認いただけます。
-                                    </a>
+                                <div class="mt-3 ms-3 fw-bold d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        <a class="text-decoration-none" href="{% url 'toukiApp:step_one_trial' %}" target="_blank" rel="noopener noreferrer">
+                                            相続人判定で実際にご確認いただけます。
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1595,7 +1605,7 @@
                                             </div>
                                             <div>
                                                 <span class="border-bottom border-dark">
-                                                    必要な時間の目安(配偶者と子が相続人などの一般的な相続の場合)
+                                                    必要な時間の目安(配偶者と子が相続人の場合)
                                                 </span>
                                             </div>
                                         </div>
@@ -1609,25 +1619,27 @@
                                             <li class="mt-3">
                                                 システムに入力
                                                 <div class="ms-3">
-                                                    1 , 2時間
+                                                    1, 2時間
                                                 </div>
                                             </li>
                                             <li class="mt-3">
                                                 各相続人の書類を収集
                                                 <div class="ms-3">
-                                                    1日～2週間
+                                                    1日～1週間
+                                                    <br>
+                                                    (相続人間のやりとり次第)
                                                 </div>
                                             </li>
                                             <li class="mt-3">
                                                 書類整理と法務局に提出
                                                 <div class="ms-3">
-                                                    1 , 3時間
+                                                    1, 2時間
                                                 </div>
                                             </li>
                                         </ul>
                                     </div>
                                     <p>
-                                        お問い合わせには平均5分以内にご対応しますので、不明点はすぐに解決できます。
+                                        お問い合わせには平均5分以内にご対応しておりますので、不明点はすぐに解決できます。
                                     </p>
                                 </div>
                             </div>
@@ -1813,10 +1825,7 @@
                                 </div>
                                 <div class="mt-3 ps-sm-3">
                                     <p>
-                                        必要事項をお尋ねいたしますので、いただいたご回答をもとに本システムの利用でも問題ないか判定いたします。
-                                    </p>
-                                    <p>
-                                        無料のアカウント登録後の相続人判定を実施して、お問い合わせの際にご登録したメールアドレスをお知らせいただけると詳細なデータをもとに回答できるため精度が上がります。
+                                        必要事項をお尋ねいたしますので、いただいたご回答をもとに本システムの利用でも問題ないか判定させていただきます。
                                     </p>
                                 </div>
                             </div>

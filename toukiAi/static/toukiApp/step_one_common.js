@@ -738,15 +738,6 @@ function isActivateOkBtn(instance){
     nextBtn.disabled = noInputs.length !== 0;
 }
 
-/**
- * 次へボタンを実行する
- */
-async function dispatchNextBtnEvent(instance){
-    if(!instance.nextBtn.disabled)
-        await oneStepFoward(instance);
-    else
-        throw new Error(CustomMessageTemplates.someInvalidInputWhenLoad(instance)); 
-}
 
 /**
  * 復元するデータがboolean型か判別
@@ -1207,6 +1198,16 @@ async function loadData(){
         }
     }
 
+    /**
+     * 次へボタンを実行する
+     */
+    async function dispatchNextBtnEvent(instance){
+        if(!instance.nextBtn.disabled)
+            await oneStepFoward(instance, true);
+        else
+            throw new Error(CustomMessageTemplates.someInvalidInputWhenLoad(instance)); 
+    }
+    
     // 被相続人
     if(userDataScope.includes("decedent"))
         await loadDecedent();
@@ -1238,6 +1239,8 @@ async function loadData(){
     // 兄弟姉妹
     if(userDataScope.includes("collateral"))
         await loadCollateral();
+
+    scrollToTarget(document.getElementById("main"))
 }
 
 /**
@@ -1262,9 +1265,12 @@ function createChildOrCollateralFieldset(preFieldset, relation, newIdx){
  * 次のfieldsetを表示する
  * @param {HTMLElement} nextFieldset 表示するfieldset
  */
-async function displayNextFieldset(nextFieldset){
+async function displayNextFieldset(nextFieldset, isLoad){
     //次のfieldsetを表示/hrを挿入/次のfieldsetにスクロール/最初の入力欄にフォーカス
-    await slideDownIfHidden(nextFieldset);
+    if(isLoad)
+        slideDown(nextFieldset);
+    else
+        await slideDownIfHidden(nextFieldset);
     const hr = document.createElement("hr");
     hr.className = "my-5";
     nextFieldset.before(hr);
@@ -5032,7 +5038,7 @@ function setEventAndIniData(nextInstance){
  * 次の項目と次のガイドを有効化して前の項目を無効化する
  * @param fromInstance 直前に入力されていた欄
  */
-async function oneStepFoward(fromInstance){
+async function oneStepFoward(fromInstance, isLoad = false){
     try{
         // 次に表示すべきフィールドセットとインスタンスを用意する
         const nextInstance = getNextInstance(fromInstance);
@@ -5045,7 +5051,7 @@ async function oneStepFoward(fromInstance){
         // 次の入力欄がboolかつtrueのとき
         if(typeof nextInstance === "boolean" && nextInstance){
             // 入力完了のとき完了fieldsetを表示する
-            await enableSubmitBtnFieldset(fromInstance);
+            await enableSubmitBtnFieldset(fromInstance, isLoad);
             return;
         }
 
@@ -5054,7 +5060,7 @@ async function oneStepFoward(fromInstance){
 
         // 次のfieldsetを表示と要素を取得
         const {fieldset: nextFieldset, preBtn: nextPreBtn, nextBtn: nextNextBtn} = nextInstance;
-        await displayNextFieldset(nextFieldset);
+        await displayNextFieldset(nextFieldset, isLoad);
         
         // ガイドを更新
         updateGuide(fromInstance, nextInstance);

@@ -664,7 +664,7 @@ def step_one_trial(request):
         if not data.get("name"):
             return
         
-        is_deceased = data.get("is_live") == False and data.get("is_refuse") == False
+        is_deceased = data.get("is_live") == False and data.get("is_refuse") != True
         
         arr.append({
             "name": data.get("name"),
@@ -739,7 +739,7 @@ def step_one_trial(request):
                 for x in data:
                     x["child_id"] = x.get("target") if session_key == session_key_form_set.CHILD_SPOUSE else x.get("target1")
             
-            return data
+            return data or []
                     
         child_spouses_data = get_data(session_key_form_set.CHILD_SPOUSE)
         grand_childs_data = get_data(session_key_form_set.GRAND_CHILD)
@@ -1103,20 +1103,20 @@ def get_deceased_persons(decedent):
     """相続時に生存していて手続前に死亡した相続人を取得する"""
     deceased_heirs = []
     
-    deceased_heirs += get_persons_by_condition(Spouse, decedent, is_live=False, is_refuse=False)
+    deceased_heirs += get_persons_by_condition(Spouse, decedent, is_live=False, is_refuse__in=[False, None])
     
-    childs = Descendant.objects.filter(object_id1=decedent.id, is_live=False, is_refuse=False)
+    childs = Descendant.objects.filter(object_id1=decedent.id, is_live=False, is_refuse__in=[False, None])
     if childs.exists():
         deceased_heirs += [x for x in childs]
-        child_spouses = [x for x in Spouse.objects.filter(decedent=decedent, is_live=False, is_refuse=False).exclude(object_id=decedent.id)]
-        grand_childs = [x for x in Descendant.objects.filter(decedent=decedent, is_live=False, is_refuse=False).exclude(object_id1=decedent.id)]
+        child_spouses = [x for x in Spouse.objects.filter(decedent=decedent, is_live=False, is_refuse__in=[False, None]).exclude(object_id=decedent.id)]
+        grand_childs = [x for x in Descendant.objects.filter(decedent=decedent, is_live=False, is_refuse__in=[False, None]).exclude(object_id1=decedent.id)]
         child_heirs = child_spouses + grand_childs
 
         if child_heirs:
             deceased_heirs += get_sorted_child_heirs(child_heirs)
     
-    deceased_heirs += get_persons_by_condition(Ascendant, decedent, is_live=False, is_refuse=False)
-    deceased_heirs += get_persons_by_condition(Collateral, decedent, is_live=False, is_refuse=False)
+    deceased_heirs += get_persons_by_condition(Ascendant, decedent, is_live=False, is_refuse__in=[False, None])
+    deceased_heirs += get_persons_by_condition(Collateral, decedent, is_live=False, is_refuse__in=[False, None])
     
     return deceased_heirs
 

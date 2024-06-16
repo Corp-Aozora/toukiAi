@@ -654,7 +654,7 @@ def step_one_trial(request):
                         for i in range(1, 3):
                             assign_target_data(i, target_content_type)
                     else:
-                        is_father = cleaned_data[f"{form.prefix}-is_father"] == "true"
+                        is_father = post_data[f"{form.prefix}-is_father"] == "true"
                         prefix = 1 if is_father else 2
                         assign_target_data(prefix, target_content_type)
                 
@@ -675,6 +675,7 @@ def step_one_trial(request):
                 except Exception as e:
                     message = f"cleaned_data={cleaned_data}, post_data={post_data}"
                     basic_log(get_current_function_name(), e, request_user, message, False)
+                    raise
                         
             # メイン
             if not is_form_in_formset(form_set):

@@ -1271,6 +1271,7 @@ async function displayNextFieldset(nextFieldset, isLoad){
         slideDown(nextFieldset);
     else
         await slideDownIfHidden(nextFieldset);
+    
     const hr = document.createElement("hr");
     hr.className = "my-5";
     nextFieldset.before(hr);

@@ -682,7 +682,7 @@ def step_one_trial(request):
             
             for f in form_set:
                 if session_key == session_key_form_set.ASCENDANT and not f.has_changed():
-                    break
+                    continue
                 
                 fulfill_data(f)
             

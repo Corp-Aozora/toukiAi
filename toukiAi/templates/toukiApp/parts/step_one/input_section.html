@@ -103,13 +103,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input id="id_spouse-is_spouse_0" class="form-check-input" type="radio" name="spouse_is_spouse">
+                                                <input id="id_spouse-is_spouse_0" class="form-check-input" type="radio" name="spouse_is_spouse" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input id="id_spouse-is_spouse_1" class="form-check-input" type="radio" name="spouse_is_spouse">
+                                                <input id="id_spouse-is_spouse_1" class="form-check-input" type="radio" name="spouse_is_spouse" value="false">
                                                 いない
                                             </label>
                                         </div>
@@ -126,13 +126,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input id="id_spouse-is_step_child_0" class="form-check-input" type="radio" name="spouse_is_step_child">
+                                                <input id="id_spouse-is_step_child_0" class="form-check-input" type="radio" name="spouse_is_step_child" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input id="id_spouse-is_step_child_1" class="form-check-input" type="radio" name="spouse_is_step_child">
+                                                <input id="id_spouse-is_step_child_1" class="form-check-input" type="radio" name="spouse_is_step_child", value="false">
                                                 いない
                                             </label>
                                         </div>
@@ -253,23 +253,31 @@
                                     </span>
                                 </div>
                                 <div class="Q">
-                                    <div>
-                                        <span class="input-group-text fw-bold text-start">
-                                            配偶者との子ですか？
-                                            <br>
-                                            ※配偶者がいない又は先に亡くなっているときは「いいえ」
-                                        </span>
+                                    <div class="input-group-text fw-bold text-start">
+                                        <div>
+                                            <div>
+                                                配偶者との子ですか？
+                                            </div>
+                                            <div class="d-flex">
+                                                <div>
+                                                    ※
+                                                </div>
+                                                <div>
+                                                    配偶者がいない又は先に亡くなっているときは「いいえ」
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input id="id_{{form.prefix}}-is_same_parents_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents">
+                                                <input id="id_{{form.prefix}}-is_same_parents_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input id="id_{{form.prefix}}-is_same_parents_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents">
+                                                <input id="id_{{form.prefix}}-is_same_parents_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents" value="false">
                                                 いいえ
                                             </label>
                                         </div>
@@ -304,23 +312,31 @@
                                     </div>
                                 {% if field.name == "is_refuse" %}
                                     <div class="Q" style="display: none;">
-                                        <div>
-                                            <span class="input-group-text fw-bold text-start">
-                                                死亡時に配偶者はいましたか？
-                                                <br>
-                                                ※被相続人から見ると子の配偶者
-                                            </span>
+                                        <div class="input-group-text fw-bold text-start">
+                                            <div>
+                                                <div>
+                                                    死亡時に配偶者はいましたか？
+                                                </div>
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        被相続人から見ると子の配偶者
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -329,23 +345,31 @@
                                         </div>
                                     </div>
                                     <div class="Q" style="display: none;">
-                                        <div>
-                                            <span class="input-group-text fw-bold text-start">
-                                                子供はいましたか？（亡くなった子や養子を含む）
-                                                <br>
-                                                ※被相続人から見ると孫
-                                            </span>
+                                        <div class="input-group-text fw-bold text-start">
+                                            <div>
+                                                <div>
+                                                    子供はいましたか？（亡くなった子や養子を含む）
+                                                </div>
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        被相続人から見ると孫
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -455,13 +479,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_remarriage_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_remarriage_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_remarriage_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_remarriage_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="false">
                                                     いない
                                                 </label>
                                             </div>
@@ -470,23 +494,31 @@
                                         </div>
                                     </div>
                                     <div class="Q" style="display: none;">
-                                        <div>
-                                            <span class="input-group-text fw-bold text-start">
-                                                子以外との子（連れ子や再婚後の子）はいますか？
-                                                <br>
-                                                ※死亡している連れ子や再婚後の子を含む
-                                            </span>
+                                        <div class="input-group-text fw-bold text-start">
+                                            <div>
+                                                <div>
+                                                    子以外との子（連れ子や再婚後の子）はいますか？
+                                                </div>
+                                                <div class="d-flex">
+                                                    <div>
+                                                        ※
+                                                    </div>
+                                                    <div>
+                                                        死亡している連れ子や再婚後の子を含む
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_step_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_step_child">
+                                                    <input id="id_{{form.prefix}}-is_step_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_step_child" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_step_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_step_child">
+                                                    <input id="id_{{form.prefix}}-is_step_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_step_child" value="false">
                                                     いない
                                                 </label>
                                             </div>
@@ -545,13 +577,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input id="id_{{form.prefix}}-is_same_parents_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents">
+                                                <input id="id_{{form.prefix}}-is_same_parents_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input id="id_{{form.prefix}}-is_same_parents_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents">
+                                                <input id="id_{{form.prefix}}-is_same_parents_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents" value="false">
                                                 いいえ
                                             </label>
                                         </div>
@@ -594,13 +626,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -617,13 +649,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -715,13 +747,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="false">
                                                     いいえ・逝去していた
                                                 </label>
                                             </div>
@@ -750,13 +782,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_remarriage_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_remarriage">
+                                                    <input id="id_{{form.prefix}}-is_remarriage_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_remarriage" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_remarriage_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_remarriage">
+                                                    <input id="id_{{form.prefix}}-is_remarriage_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_remarriage" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -773,13 +805,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -909,13 +941,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input id="id_{{form.prefix}}-is_same_parents_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents">
+                                                <input id="id_{{form.prefix}}-is_same_parents_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents" value="true">
                                                 はい
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input id="id_{{form.prefix}}-is_same_parents_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents">
+                                                <input id="id_{{form.prefix}}-is_same_parents_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_same_parents" value="false">
                                                 いいえ
                                             </label>
                                         </div>
@@ -932,13 +964,13 @@
                                     <div class="form-control input-group">
                                         <div class="form-check col">
                                             <label class="form-check-label ms-5">
-                                                <input id="id_{{form.prefix}}-is_father_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_father">
+                                                <input id="id_{{form.prefix}}-is_father_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_father" value="true">
                                                 父
                                             </label>
                                         </div>
                                         <div class="form-check col">
                                             <label class="form-check-label">
-                                                <input id="id_{{form.prefix}}-is_father_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_father">
+                                                <input id="id_{{form.prefix}}-is_father_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_father" value="false">
                                                 母
                                             </label>
                                         </div>
@@ -981,13 +1013,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse">
+                                                    <input id="id_{{form.prefix}}-is_spouse_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_spouse" value="false">
                                                     いいえ
                                                 </label>
                                             </div>
@@ -1004,13 +1036,13 @@
                                         <div class="form-control input-group">
                                             <div class="form-check col">
                                                 <label class="form-check-label ms-5">
-                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_0" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="true">
                                                     はい
                                                 </label>
                                             </div>
                                             <div class="form-check col">
                                                 <label class="form-check-label">
-                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child">
+                                                    <input id="id_{{form.prefix}}-is_child_1" class="form-check-input" type="radio" name="{{form.prefix}}-is_child" value="false">
                                                     いいえ
                                                 </label>
                                             </div>

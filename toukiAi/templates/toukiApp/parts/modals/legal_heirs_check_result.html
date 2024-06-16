@@ -10,7 +10,7 @@
             </div>
             <div class="modal-body">
                 <h4 class="text-center text-success">
-                    ＜相続人一覧＞
+                    ＜法定相続人一覧＞
                 </h4>
                 <div class="d-flex justify-content-center">
                     <ul class="p-0 mb-0">
@@ -42,22 +42,24 @@
                                     ※重複する戸籍謄本は1通で足ります。
                                 </span>
                             </div>
-                            <ul class="ps-3 ps-sm-5 mb-0 mt-3">
-                                <li class="checkmark ms-3">
-                                    {{ decedent_name }}
-                                    <span class="ms-3">
-                                        さん
-                                    </span>
-                                </li>
-                                {% for x in deceased_person_names %}
+                            <div class="d-flex justify-content-center">
+                                <ul class="ps-0 mb-0">
                                     <li class="checkmark ms-3">
-                                        {{ x }}
+                                        {{ decedent_name }}
                                         <span class="ms-3">
                                             さん
                                         </span>
-                                    </li>                            
-                                {% endfor %}
-                            </ul>
+                                    </li>
+                                    {% for x in deceased_person_names %}
+                                        <li class="checkmark ms-3">
+                                            {{ x }}
+                                            <span class="ms-3">
+                                                さん
+                                            </span>
+                                        </li>                            
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
                     {% endif %}
                     <div class="mt-3">
@@ -125,7 +127,7 @@
                     <div class="mt-3">
                         <div class="text-center">
                             <span class="border-bottom border-dark fw-bold">
-                                相続人に関する書類
+                                法定相続人に関する書類
                             </span>
                         </div>
                         <ul class="ps-3 ps-sm-5 mb-0 mt-3">
@@ -151,7 +153,15 @@
                                         ※
                                     </div>
                                     <div>
-                                        日本に住民票がない方は、遺産分割協議書などの不動産の配分について相続人全員の合意を証明する書面に署名証明書が付されたもの
+                                        法定相続人が1名の場合は不要
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div>
+                                        ※
+                                    </div>
+                                    <div>
+                                        日本に住民票がない方は、遺産分割協議書などの不動産の配分について法定相続人全員の合意を証明する書面に署名証明書が付されたもの
                                     </div>
                                 </div>
                             </li>
@@ -185,14 +195,14 @@
                             </li>
                             <li class="checkmark ms-3">
                                 <div>
-                                    遺産分割協議書などの不動産の配分について相続人全員の合意を証明する書面
+                                    遺産分割協議書などの不動産の配分について法定相続人全員の合意を証明する書面
                                 </div>
                                 <div class="additional-text">
                                     <div>
                                         ※
                                     </div>
                                     <div>
-                                        法定相続分による配分のときは不要
+                                        法定相続人が1名または法定相続分による配分のときは不要
                                     </div>
                                 </div>
                             </li>
@@ -205,7 +215,7 @@
                                         ※
                                     </div>
                                     <div>
-                                        戸籍謄本等をコピーを提出せずに返却してもらいたい場合
+                                        戸籍謄本等のコピーを提出せずに返却してもらいたい場合
                                     </div>
                                 </div>
                             </li>

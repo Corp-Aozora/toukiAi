@@ -29,12 +29,12 @@
         {% include "toukiApp/parts/step_one/top.html" %}
         {% if persons_data|length > 0 %}
             <hr>
-            <h4 class="text-primary lg-text-center">
+            <h4 class="text-primary lg-text-center mb-4">
                 判定結果
             </h4>
-            <section id="heirs_list" class="p-3">
+            <section id="heirs_list">
                 <h5 class="text-success lg-text-center">
-                    ＜相続人一覧＞
+                    ＜法定相続人一覧＞
                 </h5>
                 <div class="d-flex lg-justify-content-center">
                     <ul class="p-0 mb-0">
@@ -53,30 +53,36 @@
                 <h5 class="text-success lg-text-center mt-5">
                     ＜必要書類＞
                 </h5>
-                <ul class="ps-3 mb-0">
+                <ul class="ps-0 mb-0">
                     {% if deceased_person_names|length > 0 %}
                         <li>
                             <div class="lg-text-center">
                                 <span class="border-bottom border-dark fw-bold">
                                     以下の方々の出生から死亡までの戸籍謄本
                                 </span>
+                                <br>
+                                <span class="form-text">
+                                    ※重複する戸籍謄本は1通で足ります。
+                                </span>
                             </div>
-                            <ul class="ps-3 mb-0 mt-3">
-                                <li class="checkmark">
-                                    {{ decedent_name }}
-                                    <span class="ms-3">
-                                        さん
-                                    </span>
-                                </li>
-                                {% for x in deceased_person_names %}
+                            <div class="d-flex lg-justify-content-center">
+                                <ul class="ps-3 mb-0">
                                     <li class="checkmark">
-                                        {{ x }}
+                                        {{ decedent_name }}
                                         <span class="ms-3">
                                             さん
                                         </span>
-                                    </li>                            
-                                {% endfor %}
-                            </ul>
+                                    </li>
+                                    {% for x in deceased_person_names %}
+                                        <li class="checkmark">
+                                            {{ x }}
+                                            <span class="ms-3">
+                                                さん
+                                            </span>
+                                        </li>                            
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </li>
                         <li class="lg-text-center">
                             <span class="border-bottom border-dark fw-bold">
@@ -97,7 +103,7 @@
                     {% endif %}
                     <li class="checkmark ms-3">
                         不動産の登記記録がわかるもの
-                        <div class="d-flex">
+                        <div class="additional-text">
                             <div>
                                 例）
                             </div>
@@ -113,7 +119,7 @@
                     </li>
                     <li class="checkmark ms-3">
                         不動産の固定資産評価額がわかるもの
-                        <div class="d-flex">
+                        <div class="additional-text">
                             <div>
                                 例）
                             </div>
@@ -129,7 +135,7 @@
                     </li>
                     <li class="checkmark ms-3">
                         登記記録上の住所から死亡時の住所までの履歴を証明できるもの
-                        <div class="d-flex">
+                        <div class="additional-text">
                             <div>
                                 例）
                             </div>
@@ -146,18 +152,55 @@
                     <li>
                         <div class="lg-text-center">
                             <span class="border-bottom border-dark fw-bold">
-                                相続人に関する書類
+                                法定相続人に関する書類
                             </span>
                         </div>
                         <div class="checkmark ms-3 mt-3">
                             戸籍(全部または個人)事項証明書
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    重複する戸籍謄本は1通で足ります。
+                                </div>
+                            </div>
                         </div>
                     </li>
                     <li class="checkmark ms-3">
                         印鑑証明書
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                法定相続人が1名の場合は不要
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                日本に住民票がない方は、遺産分割協議書などの不動産の配分について法定相続人全員の合意を証明する書面に署名証明書が付されたもの
+                            </div>
+                        </div>
                     </li>
                     <li class="checkmark ms-3">
-                        住民票(不動産を取得する方のみ)
+                        <div>
+                            不動産を取得する方の住民票
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                日本に住民票がない方は、在留証明書
+                            </div>
+                        </div>
+                    </li>
+                    <li class="checkmark ms-3">
+                        相続放棄した方がいる場合は相続放棄申述受理証明書
                     </li>
                     <li>
                         <div class="lg-text-center">
@@ -170,13 +213,26 @@
                         </div>
                     </li>
                     <li class="checkmark ms-3">
-                        遺産分割協議書
+                        遺産分割協議書などの不動産の配分について法定相続人全員の合意を証明する書面
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                法定相続人が1名または法定相続分による配分のときは不要
+                            </div>
+                        </div>
                     </li>
                     <li class="checkmark ms-3">
                         相続関係説明図
-                    </li>
-                    <li class="checkmark ms-3">
-                        委任状(代理人が手続する場合)
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                戸籍謄本等のコピーを提出せずに返却してもらいたい場合
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </section>

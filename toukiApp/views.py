@@ -591,9 +591,13 @@ def step_one_trial(request):
         """セッションにフォームデータを保存する"""
         
         def save_form(session_key, form):
-            """フォームを保存"""
+            """フォームを保存(被相続人, 配偶者, 子供共通, 兄弟姉妹共通)"""
             try:
+                if not form.has_changed():
+                    return
+                
                 if session_key == session_key_form.DECEDENT_SPOUSE:
+                    form.cleaned_data["id"] = form.cleaned_data["index"]
                     form.cleaned_data["is_heir"] = check_is_heir(form)
                     
                 request.session[session_key] = form.cleaned_data
@@ -602,20 +606,89 @@ def step_one_trial(request):
                 raise
         
         def save_formset(session_key, form_set):
-            """フォームセットを保存"""
-            try:
-                if not is_form_in_formset(form_set):
-                    return False
+            """フォームセットを保存(子, 子の配偶者, 孫, 尊属, 兄弟姉妹)"""
+            
+            def fulfill_data(form):
+                """データベースに登録するデータと同様のデータにする"""
+                cleaned_data = form.cleaned_data
+                post_data = request.POST
                 
-                for f in form_set:
-                    f.cleaned_data["is_heir"] = check_is_heir(f)
+                def check_is_same_parents():
+                    """同じ親か判定"""
+                    return post_data.get(f"{form.prefix}-is_same_parents") == "true"
                 
-                request.session[session_key] = [f.cleaned_data for f in form_set]
+                def assign_target_data(prefix, content_type):
+                    """target2のデータを登録する"""
+                    form.cleaned_data[f"content_type{prefix}"] = content_type
+                    
+                    target = cleaned_data[f"target{prefix}"]
+                    form.cleaned_data[f"object_id{prefix}"] = target
                 
-                return True
-            except Exception as e:
-                basic_log(get_current_function_name(), e, None, f"session_key={session_key}, form_set_cleaned_data={[f.cleaned_data for f in form_set]}", False)
-                raise
+                def assign_descendant_target2():
+                    """子と孫のtarget2データを追加する"""
+                    if check_is_same_parents():
+                        content_type = ContentType.objects.get_for_model(Spouse).id
+                        assign_target_data(2, content_type)
+                
+                def fulfill_child_data():
+                    """子のデータを補充する"""
+                    assign_descendant_target2()
+                    
+                    is_spouse = post_data.get(f"{form.prefix}-is_spouse") == "true"
+                    form.cleaned_data["is_spouse"] = 1 if is_spouse else 0
+                    
+                    count = post_data.get(f"{form.prefix}-child_count")
+                    form.cleaned_data["count"] = count
+                
+                def fulfill_grand_child_data():
+                    """孫のデータを補充する"""
+                    target1_content_type = ContentType.objects.get_for_model(Descendant).id
+                    assign_target_data(1, target1_content_type)
+                    
+                    assign_descendant_target2()
+                        
+                def fulfill_collateral_data():
+                    """兄弟姉妹のデータを補充する"""
+                    target_content_type = ContentType.objects.get_for_model(Ascendant).id
+                    if check_is_same_parents():
+                        for i in range(1, 3):
+                            assign_target_data(i, target_content_type)
+                    else:
+                        is_father = cleaned_data[f"{form.prefix}-is_father"] == "true"
+                        prefix = 1 if is_father else 2
+                        assign_target_data(prefix, target_content_type)
+                
+                # メイン
+                try:
+                    index = cleaned_data["index"]
+                    form.cleaned_data["id"] = index
+                    
+                    is_heir = check_is_heir(form)
+                    form.cleaned_data["is_heir"] = is_heir
+                    
+                    if session_key == session_key_form_set.CHILD:
+                        fulfill_child_data()
+                    elif session_key == session_key_form_set.GRAND_CHILD:
+                        fulfill_grand_child_data()
+                    elif session_key == session_key_form_set.COLLATERAL:
+                        fulfill_collateral_data()
+                except Exception as e:
+                    message = f"cleaned_data={cleaned_data}, post_data={post_data}"
+                    basic_log(get_current_function_name(), e, request_user, message, False)
+                        
+            # メイン
+            if not is_form_in_formset(form_set):
+                return False
+            
+            for f in form_set:
+                if session_key == session_key_form_set.ASCENDANT and not f.has_changed():
+                    break
+                
+                fulfill_data(f)
+            
+            request.session[session_key] = [f.cleaned_data for f in form_set if f.cleaned_data]
+
+            return True
 
         def process_save(key_and_data):
             """保存処理"""
@@ -722,10 +795,6 @@ def step_one_trial(request):
         result, data = check_session_data(session_key_form_set.CHILD, "child")
         if result:
             for x in data:
-                x["id"] = x.get("index")
-                x["count"] = x.get("child_count")
-                x["is_spouse"] = x.get("is_spouse")
-                
                 add_person_data(persons_data, x)
         
         return data
@@ -773,12 +842,10 @@ def step_one_trial(request):
         result, data = check_session_data(session_key, relation)
         if result:
             for x in data:
-                x["id"] = x.get("index")
-                
                 add_person_data(persons_data, x)
                 
             if session_key == session_key_form_set.ASCENDANT:
-                data = sorted(data, key=lambda x: x['id'])
+                data = sorted(data, key=lambda x: x['id']) # 全角数字でもOK
             
         return data
                 

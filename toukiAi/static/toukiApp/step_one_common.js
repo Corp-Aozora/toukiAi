@@ -861,7 +861,7 @@ async function loadData(){
 
         try{
             // 氏名
-            handleName(spouse_data, instance);
+            handleName(data, instance);
     
             // 相続時存在欄の処理
             const isExist = loadQData(data, "is_exist", inputs, idxs.isExist.input);
@@ -1207,7 +1207,7 @@ async function loadData(){
         else
             throw new Error(CustomMessageTemplates.someInvalidInputWhenLoad(instance)); 
     }
-    
+
     // 被相続人
     if(userDataScope.includes("decedent"))
         await loadDecedent();
@@ -2394,6 +2394,7 @@ class ChildRbHandler extends CommonRbHandler{
             ()=>{
                 //子の人数欄を非表示/エラーメッセージを初期化する
                 slideUp(Qs[CCount.form]);
+                inputs[CCount.input].value = "0"
                 iniErrMsgEls(errMsgEls[CCount.form]);
             }
         )
@@ -3941,7 +3942,7 @@ function handleSubmitBtnFieldsetPreBtnClick(e){
     getLastElFromArray(reqInstance).inputs[0].focus();
     enablePreGuide(true);
     //このイベントを削除する
-    replaceElements(submitBtnFieldset, "input");
+    replaceElements(submitBtnFieldset, "input, button");
 }
 
 /**

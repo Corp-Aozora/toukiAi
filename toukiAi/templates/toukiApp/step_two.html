@@ -16,14 +16,14 @@
 {% include "toukiApp/parts/modals/about_family_card.html" %}
 {% include "toukiApp/parts/modals/about_consecutive_family_card.html" %}
 {% include "toukiApp/parts/modals/about_duplicate_family_card.html" %}
-{% include "toukiApp/parts/decedent_resident_certification_one.html" %}
-{% include "toukiApp/parts/decedent_resident_certification_two.html" %}
-{% include "toukiApp/parts/voucher.html" %}
-{% include "toukiApp/parts/alt_decedent_resident_certification_one.html" %}
-{% include "toukiApp/parts/alt_decedent_resident_certification_two.html" %}
+{% include "toukiApp/parts/modals/decedent_resident_certification_one.html" %}
+{% include "toukiApp/parts/modals/decedent_resident_certification_two.html" %}
+{% include "toukiApp/parts/modals/voucher.html" %}
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_one.html" %}
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_two.html" %}
 {% include "toukiApp/parts/alt_decedent_resident_certification_three.html" %}
 {% include "toukiApp/parts/price_certification.html" %}
-{% include "toukiApp/parts/refuse_inheritance_document.html" %}
+{% include "toukiApp/parts/modals/refuse_inheritance_document.html" %}
 {% include "toukiApp/parts/check_decedent_address.html" %}
 {% include "toukiApp/parts/acquirer_resident_certification_three.html" %}
 {% include "toukiApp/parts/deleted_family_card_last_page.html" %}
@@ -62,7 +62,7 @@
                             <input class="form-check-input fs-5 reqDocCb" type="checkbox" value="" id="decedentFamilyCardCb">
                         </div>
                         <label class="form-check-label fw-bold fs-5 ps-2" for="decedentFamilyCardCb">
-                            {{decedent.name}}さん（被相続人）の出生から死亡までの戸籍謄本
+                            {{decedent.name}}さん（被相続人兼取得対象者）の出生から死亡までの戸籍謄本
                             <span class="ms-md-3 sheet-count">
                                 各１通ずつ
                             </span>
@@ -105,18 +105,18 @@
                 <div class="mt-4 p-3 border rounded-3 border-success overview">
                     <div>
                         <p class="text-indent">
-                            被相続人の戸籍謄本は法改正により
+                            戸籍謄本は法改正により
                             <span class="fw-bold">
-                                大半の方の場合、最寄りの役所窓口で全て収集できるようになりました。
+                                本人、配偶者、直系卑属(子、孫、ひ孫...)、直系尊属(父母、祖父母、曽祖父母...)に該当する方が請求する場合は、最寄りの役所窓口で全て収集できるようになりました。
                             </span>
-                            請求する際も役所の職員が全て検索して発行しますので、見方がわからなくても全て揃っていることが多いです。
+                            請求する際も役所の職員が全て検索して発行しますので、見方がわからなくても大丈夫です。
                         </p>
                         <div class="d-flex">
                             <div>
                                 ※
                             </div>
                             <div>
-                                兄弟姉妹や子の配偶者に該当する方が請求する場合や郵送請求する場合は、従来どおり取得対象者の本籍地でしか取得できません。
+                                上記以外の方が請求する場合や郵送請求する場合は、従来どおり被相続人や取得対象者の本籍地でしか取得できません。
                             </div>
                         </div>
                         <p class="mt-3 text-indent">
@@ -126,7 +126,7 @@
                     <div class="mt-3 text-center">
                         <p>
                             <button type="button" class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#about_family_card_modal">
-                                戸籍謄本とは
+                                戸籍謄本について
                             </button>
                         </p>
                         <p>
@@ -165,21 +165,29 @@
                                     <div class="text-indent">
                                         請求の際は、取得対象者の記載があるもの全て必要である旨を申請書に記載するか窓口の方にお伝えください。
                                     </div>
-                                    <div class="mt-3 ms-sm-3">
-                                        <div class="d-flex">
+                                    <div class="ms-sm-3">
+                                        <div class="additional-text">
                                             <div>
                                                 ※
                                             </div>
                                             <div>
-                                                すでに一部お持ちのものがある場合は、それを提示すると重複しないものを発行してもらえます。
+                                                預貯金の解約等で使用したものがある場合、それを再利用できますので再取得する必要はありません。
                                             </div>
                                         </div>
-                                        <div class="d-flex mt-3">
+                                        <div class="additional-text">
                                             <div>
                                                 ※
                                             </div>
                                             <div>
-                                                取得できない戸籍謄本があった場合は、その戸籍謄本を保管している市区町村に請求する必要があります。
+                                                一部だけ取得済みのものがある場合、それを提示すると重複しないものを発行してもらえます。
+                                            </div>
+                                        </div>
+                                        <div class="additional-text">
+                                            <div>
+                                                ※
+                                            </div>
+                                            <div>
+                                                取得できない戸籍謄本があった場合、その戸籍謄本を保管している市区町村に請求する必要があります。
                                             </div>
                                         </div>
                                     </div>
@@ -199,7 +207,7 @@
                                 <div class="text-indent">
                                     請求の際は、取得対象者の記載があるもの全て必要である旨を申請書に記載するか窓口の方にお伝えください。
                                 </div>
-                                <div class="d-flex">
+                                <div class="additional-text">
                                     <div>
                                         ※
                                     </div>
@@ -207,47 +215,66 @@
                                         取得対象者の死亡時に本籍があった市区町村から請求し始めると集めやすいです。
                                     </div>
                                 </div>
-                                <div class="mt-3 ms-sm-3">
-                                    <div class="d-flex">
-                                        <div class="text-danger">
-                                            ※
-                                        </div>
+                                <div class="additional-text">
+                                    <div class="text-danger">
+                                        ※
+                                    </div>
+                                    <div>
+                                        <p>
+                                            <span class="fw-bold border-bottom border-dark text-danger">
+                                                先に取得対象者の相続人であることを証明できる戸籍謄本を請求する必要があります。
+                                            </span>
+                                        </p>
+                                        <p>
+                                            例えば被相続人のものを取得したい場合、先に以下の戸籍謄本を請求する必要があります。
+                                        </p>
                                         <div>
-                                            <p>
-                                                <span class="fw-bold border-bottom border-dark text-danger">
-                                                    先に取得対象者の相続人であることを証明できる戸籍謄本を請求する必要があります。
-                                                </span>
-                                            </p>
-                                            <p>
-                                                例えば被相続人のものを取得したい場合、先に以下の戸籍謄本を請求する必要があります。
-                                            </p>
-                                            <div>
-                                                ＞兄弟姉妹に該当する方は、父母の出生から死亡までの戸籍謄本
-                                                <p class="ms-3">
-                                                    父母との関係では子に該当するため最寄りの役所窓口で取得することができます。
-                                                </p>
-                                            </div>
-                                            <div>
-                                                ＞子の配偶者に該当する方は、子の出生から死亡までの戸籍謄本
-                                                <div class="ms-3">
-                                                    子との関係では配偶者に該当するため最寄りの役所窓口で取得することができます。
+                                            <div class="d-flex">
+                                                <div>
+                                                    ＞
+                                                </div>
+                                                <div>
+                                                    兄弟姉妹に該当する方は、父母の出生から死亡までの戸籍謄本
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>                                
-                                    <div class="d-flex mt-3">
-                                        <div>
-                                            ※
+                                            <p class="ms-3">
+                                                父母との関係では子に該当するため最寄りの役所窓口で取得することができます。
+                                            </p>
                                         </div>
                                         <div>
-                                            取得対象者が転籍などにより複数の市区町村に本籍を置いたことがあるときは、複数の市区町村に請求する必要があります。
+                                            <div class="d-flex">
+                                                <div>
+                                                    ＞
+                                                </div>
+                                                <div>
+                                                    子の配偶者に該当する方は、子の出生から死亡までの戸籍謄本
+                                                </div>
+                                            </div>
+                                            <p class="ms-3">
+                                                子との関係では配偶者に該当するため最寄りの役所窓口で取得することができます。
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
+                                </div>         
                             </div>
                         </div>
-                        <div class="mt-3">
-                            いずれの場合も本人確認書類、印鑑（認印可）、手数料をご持参ください。
+                        <div class="mt-4 sm-d-flex-center">
+                            <div>
+                                <div class="fw-bold">
+                                    ＜持参物(どちらの場合も同じ)＞
+                                </div>
+                                <ul class="ps-3 mb-0">
+                                    <li>
+                                        本人確認書類
+                                    </li>
+                                    <li>
+                                        印鑑（認印可）
+                                    </li>
+                                    <li>
+                                        手数料
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -257,53 +284,63 @@
                     </button>
                     <div class="ms-sm-5" style="display: none;">
                         <div class="mt-3">
-                            <div>
+                            <p>
                                 <span class="px-3 border-bottom border-dark fw-bold">
                                     取得対象者が本籍を置いていた市区町村で取得できます。
                                 </span>
-                                <div class="d-flex mt-3">
-                                    <div>
-                                        ※
-                                    </div>
-                                    <div>
-                                        転籍などにより複数の市区町村に本籍を置いたことがあるときは、複数の市区町村に請求する必要があります。
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-flex">
+                            </p>
+                            <span class="fw-bold ms-3">
+                                以下の郵送請求書に記入（入力可）押印をして添付書類などと一緒に対象の市区町村にご郵送ください。
+                            </span>
+                            <div class="additional-text">
                                 <div>
                                     ※
                                 </div>
                                 <div>
-                                    取得対象者の死亡時に本籍があった市区町村から請求を始めると集めやすいです。
+                                    宛先は「(対象の市区町村)
+                                    <span class="mx-3">
+                                        戸籍
+                                    </span>
+                                    郵送請求」と検索して市区町村のホームページをご確認ください。
+                                    <!-- <p class="ms-3">
+                                        {{decedent.name}}さんの戸籍：<a href="{{ top_link }}" target="_blank" rel="noopener noreferrer">{{decedent.domicile_city}}の郵送請求サイト</a><br>
+                                    </p> -->
                                 </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    取得対象者の死亡時に本籍があった市区町村から請求を始めると集めやすいです。
+                                </p>
                             </div>
                         </div>
-                        <div class="mt-3">
-                            <span class="fw-bold ms-3">
-                                以下の郵送請求書に記入（入力可）押印をして添付書類などと一緒に対象の市区町村にご郵送ください。
-                            </span>
-                            <div class="text-indent">
-                                宛先は「（対象の市区町村）
-                                <span class="mx-3">
-                                    戸籍
-                                </span>
-                                郵送請求」と検索して市区町村のホームページからご確認ください。
-                                <br>
-                                <!-- <p class="ms-3">
-                                    {{decedent.name}}さんの戸籍：<a href="{{ top_link }}" target="_blank" rel="noopener noreferrer">{{decedent.domicile_city}}の郵送請求サイト</a><br>
-                                </p> -->
-                            </div>
-                            <div class="mt-3 ms-3">
-                                <div class="fw-bold">
-                                    郵送請求書：
-                                    <a href="{% static 'toukiApp/file/戸籍の郵送請求書.docx' %}">word</a>／
-                                    <a href="{% static 'toukiApp/file/戸籍の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">pdf</a>
+                        <div>
+                            <div class="ms-sm-3">
+                                <div class="fw-bold sm-text-center">
+                                    郵送請求書
+                                    <p class="ms-sm-5">
+                                        <a href="{% static 'toukiApp/file/戸籍の郵送請求書.docx' %}">
+                                            word
+                                        </a>
+                                        ／
+                                        <a href="{% static 'toukiApp/file/戸籍の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">
+                                            pdf
+                                        </a>
+                                    </p>
                                 </div>
-                                <div class="mt-3">
-                                    委任状：
-                                    <a href="{% static 'toukiApp/file/戸籍の請求に関する委任状.docx' %}">word</a>／
-                                    <a href="{% static 'toukiApp/file/戸籍の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">pdf</a>
+                                <div class="sm-text-center">
+                                    委任状
+                                    <div class="ms-sm-5">
+                                        <a href="{% static 'toukiApp/file/戸籍の請求に関する委任状.docx' %}">
+                                            word
+                                        </a>
+                                        ／
+                                        <a href="{% static 'toukiApp/file/戸籍の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">
+                                            pdf
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <div class="attachment-document">
@@ -314,7 +351,7 @@
                                 </div>
                                 <ul>
                                     <li>
-                                        <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher-modal">
+                                        <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher_modal">
                                             手数料分の定額小為替
                                         </button>
                                         <div class="mt-3 ms-3">
@@ -341,7 +378,7 @@
                                                 <span class="fw-bold">
                                                     請求者の戸籍謄本（戸籍（全部または個人）事項証明書）
                                                 </span>
-                                                <div class="d-flex">
+                                                <div class="additional-text">
                                                     <div>
                                                         ※
                                                     </div>
@@ -372,7 +409,7 @@
                                                         請求者の戸籍謄本（戸籍（全部または個人）事項証明書）
                                                     </div>
                                                 </div>
-                                                <div class="d-flex">
+                                                <div class="additional-text">
                                                     <div>
                                                         ※
                                                     </div>
@@ -406,7 +443,7 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div class="d-flex">
+                                                    <div class="additional-text">
                                                         <div>
                                                             <span class="border-bottom border-dark">
                                                                 ※
@@ -539,16 +576,16 @@
                                 住所
                             </span>
                             があった市区町村で取得することができます。
-                            <div class="d-flex">
+                            <div class="additional-text">
                                 <div>
                                     ※
                                 </div>
                                 <div>
                                     請求の際は、
                                     <span class="border-bottom border-dark">
-                                        本籍地も記載されるよう
+                                        筆頭者と本籍地の記載が必要
                                     </span>
-                                    申請書に記載するか窓口の方にお伝え下さい。
+                                    である旨を申請書に記載するか窓口の方にお伝え下さい。
                                 </div>
                             </div>
                         </div>
@@ -561,21 +598,47 @@
                                 本籍
                             </span>
                             があった市区町村で取得することができます。
-                            <div class="d-flex">
+                            <div class="additional-text">
                                 <div>
                                     ※
                                 </div>
                                 <div>
                                     請求の際は、
                                     <span class="border-bottom border-dark">
-                                        筆頭者と本籍地も記載されるよう
+                                        筆頭者の記載が必要
                                     </span>
-                                    申請書に記載するか窓口の方にお伝え下さい。
+                                    である旨を申請書に記載するか窓口の方にお伝え下さい。
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3">
-                            いずれの場合も本人確認書類、印鑑（認印可）、手数料、取得された戸籍謄本（同時に取得する場合は不要）をご持参ください。
+                        <div class="mt-4 sm-d-flex-center">
+                            <div>
+                                <div class="fw-bold sm-text-center" >
+                                    ＜持参物(どちらの場合も同じ)＞
+                                </div>
+                                <ul class="ps-3 mb-0">
+                                    <li>
+                                        本人確認書類
+                                    </li>
+                                    <li>
+                                        印鑑（認印可）
+                                    </li>
+                                    <li>
+                                        手数料
+                                    </li>
+                                    <li>
+                                        被相続人との続柄を証明する戸籍謄本
+                                        <div class="d-flex">
+                                            <div>
+                                                ※
+                                            </div>
+                                            <div>
+                                                戸籍謄本も同時に請求する場合は不要
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -591,57 +654,69 @@
                             <div class="fw-bold text-indent">
                                 以下の郵送請求書に記入（入力可）押印をして添付書類などと一緒に対象の市区町村にご郵送ください。
                             </div>
-                            <div class="text-indent">
-                                宛先と手数料額は「（対象の市区町村）
-                                <span class="mx-3">
-                                    住民票の除票（または戸籍の附票）
-                                </span>
-                                郵送請求」と検索して市区町村のホームページからご確認ください。
-                                <br>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    宛先と手数料額は「（対象の市区町村）
+                                    <span class="mx-3">
+                                        住民票の除票（または戸籍の附票）
+                                    </span>
+                                    郵送請求」と検索して市区町村のホームページからご確認ください。
                                 <!-- <p class="ms-3">
                                     {{decedent.name}}さんの住民票の除票：<a href="{{ top_link }}" target="_blank" rel="noopener noreferrer">{{decedent.domicile_city}}の郵送請求サイト</a><br>
                                 </p> -->
                                 <!-- <p class="ms-3">
                                     {{decedent.name}}さんの戸籍の附票：<a href="{{ top_link }}" target="_blank" rel="noopener noreferrer">{{decedent.domicile_city}}の郵送請求サイト</a><br>
                                 </p> -->
+                            </p>
                             </div>
-                            <div class="mt-3 ps-3">
-                                <div class="fw-bold">
-                                    住民票の除票の郵送請求書：
-                                    <a href="{% static 'toukiApp/file/住民票の除票の郵送請求書.docx' %}">
-                                        word
-                                    </a>／
-                                    <a href="{% static 'toukiApp/file/住民票の除票の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">
-                                        pdf
-                                    </a>
+                            <div class="ps-3">
+                                <div class="fw-bold sm-text-center">
+                                    住民票の除票の郵送請求書
+                                    <div class="ms-sm-5">
+                                        <a href="{% static 'toukiApp/file/住民票の除票の郵送請求書.docx' %}">
+                                            word
+                                        </a>／
+                                        <a href="{% static 'toukiApp/file/住民票の除票の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">
+                                            pdf
+                                        </a>
+                                    </div>
                                 </div>
-                                <p>
-                                    委任状：
-                                    <a href="{% static 'toukiApp/file/住民票の除票の請求に関する委任状.docx' %}">
-                                        word
-                                    </a>／
-                                    <a href="{% static 'toukiApp/file/住民票の除票の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">
-                                        pdf
-                                    </a>
-                                </p>
-                                <div class="fw-bold">
-                                    戸籍の附票の郵送請求書：
-                                    <a href="{% static 'toukiApp/file/戸籍の附票の郵送請求書.docx' %}">
-                                        word
-                                    </a>／
-                                    <a href="{% static 'toukiApp/file/戸籍の附票の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">
-                                        pdf
-                                    </a>
+                                <div class="sm-text-center">
+                                    委任状
+                                    <p class="ms-sm-5">
+                                        <a href="{% static 'toukiApp/file/住民票の除票の請求に関する委任状.docx' %}">
+                                            word
+                                        </a>／
+                                        <a href="{% static 'toukiApp/file/住民票の除票の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">
+                                            pdf
+                                        </a>
+                                    </p>
                                 </div>
-                                <p>
-                                    委任状：
-                                    <a href="{% static 'toukiApp/file/戸籍の附票の請求に関する委任状.docx' %}">
-                                        word
-                                    </a>／
-                                    <a href="{% static 'toukiApp/file/戸籍の附票の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">
-                                        pdf
-                                    </a>
-                                </p>
+                                <div class="fw-bold sm-text-center">
+                                    戸籍の附票の郵送請求書
+                                    <div class="ms-sm-5">
+                                        <a href="{% static 'toukiApp/file/戸籍の附票の郵送請求書.docx' %}">
+                                            word
+                                        </a>／
+                                        <a href="{% static 'toukiApp/file/戸籍の附票の郵送請求書.pdf' %}" target="_blank" rel="noopener noreferrer">
+                                            pdf
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="sm-text-center">
+                                    委任状
+                                    <p class="ms-sm-5">
+                                        <a href="{% static 'toukiApp/file/戸籍の附票の請求に関する委任状.docx' %}">
+                                            word
+                                        </a>／
+                                        <a href="{% static 'toukiApp/file/戸籍の附票の請求に関する委任状.pdf' %}" target="_blank" rel="noopener noreferrer">
+                                            pdf
+                                        </a>
+                                    </p>
+                                </div>
                             </div>
                             <div class="attachment-document">
                                 <div class="sm-text-center ms-sm-3">
@@ -651,7 +726,7 @@
                                 </div>
                                 <ul>
                                     <li>
-                                        <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher-modal">
+                                        <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher_modal">
                                             手数料分の定額小為替
                                         </button>
                                         <div class="mt-3 ms-3">
@@ -670,7 +745,7 @@
                                                 <span class="fw-bold">
                                                     請求者の戸籍謄本（戸籍（全部または個人）事項証明書）
                                                 </span>
-                                                <div class="d-flex">
+                                                <div class="additional-text">
                                                     <div>
                                                         ※
                                                     </div>
@@ -701,7 +776,7 @@
                                                         請求者の戸籍謄本（戸籍（全部または個人）事項証明書）
                                                     </div>
                                                 </div>
-                                                <div class="d-flex">
+                                                <div class="additional-text">
                                                     <div>
                                                         ※
                                                     </div>
@@ -735,7 +810,7 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div class="d-flex">
+                                                    <div class="additional-text">
                                                         <div>
                                                             <span class="border-bottom border-dark">
                                                                 ※
@@ -945,7 +1020,7 @@
                                                     </p>
                                                     <ul class="ps-3">
                                                         <li>
-                                                            <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher-modal">
+                                                            <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher_modal">
                                                                 手数料分の定額小為替
                                                             </button>
                                                             <div class="mt-3 ms-3">
@@ -1124,7 +1199,7 @@
                                 </div>
                                 <ul class="ps-0 ps-sm-5">
                                     <li>
-                                        <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher-modal">
+                                        <button type="button" class="text-primary fw-bold border-bottom border-primary" data-bs-toggle="modal" data-bs-target="#voucher_modal">
                                             手数料分の定額小為替
                                         </button>
                                         <div class="mt-3 ms-3">

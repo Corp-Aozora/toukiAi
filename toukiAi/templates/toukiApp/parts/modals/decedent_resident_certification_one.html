@@ -5,17 +5,15 @@
         <div class="modal-content">
             <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
                 <h5 class="modal-title">
-                    住民票の除票（じょひょう）
+                    住民票の除票
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h5 class="text-center lh-lg">
+                <h5 class="text-center lh-lg mb-3">
                     転居や死亡などによって更新されなくなった住民票です。
-                    <br>
-                    被相続人の死亡時に住所があった市区町村で取得できます。
                 </h5>
-                <ul class="mt-3 supplement mx-auto border rounded-3 p-3 border-warning">
+                <ul class="supplement">
                     <li class="d-flex">
                         <div>
                             ※
@@ -24,7 +22,7 @@
                             本籍と筆頭者の記載があるものをご請求ください。
                         </div>
                     </li>
-                    <li class="d-flex mt-3">
+                    <li class="additional-text">
                         <div>
                             ※
                         </div>
@@ -32,7 +30,7 @@
                             保存期間切れにより廃棄されているときは、戸籍の附票をご取得ください。
                         </div>
                     </li>
-                    <li class="d-flex mt-3">
+                    <li class="additional-text">
                         <div>
                             ※
                         </div>
@@ -45,10 +43,15 @@
                         </div>
                     </li>
                 </ul>
-                <hr>
-                <div class="mt-3 text-center">
+                <hr class="my-4">
+                <div class="text-center">
                     <img class="modal-image" src="{% static 'toukiApp/img/住民票の除票.png' %}" alt="住民票の除票の参考画像">
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    閉じる
+                </button>
             </div>
         </div>
     </div>

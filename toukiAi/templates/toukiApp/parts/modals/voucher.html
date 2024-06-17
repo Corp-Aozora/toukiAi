@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="modal fade reference-document" id="voucher-modal" tabindex="-1">
+<div class="modal fade reference-document" id="voucher_modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-warning-subtle bg-gradient bg-opacity-50">
@@ -10,16 +10,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body mx-auto">
-                <h5 class="text-center lh-lg">
+                <h5 class="text-center lh-lg mb-3">
                     郵便局で購入できる金券で役所へ郵送請求する際の手数料の支払いに使用します。
                 </h5>
-                <div class="mt-3 supplement mx-auto border rounded-3 p-3 border-warning">
-                    <p>
-                        種類は、３００円、４５０円、７５０円、１０００円など複数あります。
-                    </p>
-                    <p>
-                        １枚あたり別途２００円の郵便局の手数料が発生します。
-                    </p>
+                <div class="supplement">
+                    <div class="d-flex">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            種類は、３００円分、４５０円分、７５０円分、１０００円分など複数あります。
+                        </div>
+                    </div>
+                    <div class="additional-text">
+                        <div>
+                            ※
+                        </div>
+                        <p>
+                            １枚あたり別途２００円の郵便局の手数料が発生します。
+                        </p>
+                    </div>
                     <div>
                         <div class="sm-text-center">
                             <span class="fw-bold border-bottom border-dark">
@@ -28,19 +38,8 @@
                         </div>
                         <ul class="ps-3 mb-0">
                             <li class="mt-3">
-                                出生から死亡までの戸籍謄本を請求するなど役所から送られる証明書の通数が不明なとき
-                                <div class="d-flex">
-                                    <div>
-                                        ＞
-                                    </div>
-                                    <div>
-                                        大体の金額分を同封する（不足する場合は役所から連絡が来ます）。
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="mt-3">
                                 手数料額がわかっているとき
-                                <div class="d-flex">
+                                <div class="additional-text">
                                     <div>
                                         ＞
                                     </div>
@@ -49,20 +48,31 @@
                                     </div>
                                 </div>
                             </li>
+                            <li class="mt-3">
+                                出生から死亡までの戸籍謄本を請求するなど役所から送られる証明書の通数が不明なとき
+                                <div class="additional-text">
+                                    <div>
+                                        ＞
+                                    </div>
+                                    <div>
+                                        大体の金額分を同封する（不足する場合は役所から連絡が来ます）。
+                                    </div>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                     <div class="mt-3">
-                        <div class="sm-text-center">
+                        <p class="sm-text-center">
                             <span class="fw-bold border-bottom border-dark">
                                 各証明書の手数料一覧
                             </span>
-                        </div>
+                        </p>
                         <div class="d-flex">
                             <div>
                                 ※
                             </div>
                             <div>
-                                戸籍の証明書以外は市区町村により金額が異なります。
+                                戸籍の証明書以外は市区町村により金額が異なることがあります。
                             </div>
                         </div>
                         <ul class="ps-0 ps-sm-3 mb-0">
@@ -92,7 +102,7 @@
                             </li>
                             <li class="mt-3 d-sm-flex">
                                 <div>
-                                    戸籍の附票
+                                    戸籍の附票、戸籍の附票の除票
                                 </div>
                                 <div class="ms-sm-3 text-end">
                                     ３００円程度
@@ -109,10 +119,15 @@
                         </ul>
                     </div>
                 </div>
-                <hr>
+                <hr class="my-4">
                 <p class="text-center">
                     <img class="modal-image" src="{% static 'toukiApp/img/定額小為替.png' %}" alt="住民票の除票の参考画像">
                 </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    閉じる
+                </button>
             </div>
         </div>
     </div>

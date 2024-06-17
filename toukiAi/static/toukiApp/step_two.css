@@ -65,17 +65,9 @@
         display: block!important;
         text-align: end;
     }
-
-    .md-mt-3{
-        margin-top: 1rem!important;
-    }
 }
 
 @media (max-width:575px){
-    .sm-text-center{
-        text-align: center!important;
-    }
-
     .sm-center-button{
         display: block;
         margin: 0 auto;
@@ -84,8 +76,11 @@
     .attachment-document > ul{
         padding-left: 1rem;
     }
+}
 
-    .sm-justify-content-center{
-        justify-content: center;
+@media (max-width:460px){
+    #about_family_card_modal ul,
+    #about_duplicate_family_card_modal ul{
+        padding-left: 0px!important;
     }
 }

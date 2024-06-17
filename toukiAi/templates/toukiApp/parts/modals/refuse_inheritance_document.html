@@ -10,30 +10,50 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h5 class="text-center lh-lg">
+                <h5 class="text-center lh-lg mb-3">
                     家庭裁判所で相続放棄（相続人ではなくなる手続）をしたときに発行される書類です。
                 </h5>
-                <div class="d-flex justify-content-center mt-4">
+                <div class="d-flex justify-content-center">
                     <div class="supplement">
                         <div>
                             相続放棄申述受理
-                            <span class="border-bottom border-dark px-3">
+                            <span class="border-bottom border-dark fw-bold px-3">
                                 通知書
                             </span>
-                            の場合は、以下の全てが記載されているかご確認ください。
+                            の場合は、以下の事項が全てが記載されているかご確認ください。
                         </div>
                         <ul class="mt-3 ps-3 ps-sm-5">
-                            <li>
-                                事件番号
+                            <li class="d-flex">
+                                <div>
+                                    ・
+                                </div>
+                                <div>
+                                    事件番号
+                                </div>
                             </li>
-                            <li>
-                                申述人の氏名
+                            <li class="d-flex">
+                                <div>
+                                    ・
+                                </div>
+                                <div>
+                                    申述人の氏名
+                                </div>
                             </li>
-                            <li>
-                                被相続人の氏名、本籍、死亡年月日
+                            <li class="d-flex">
+                                <div>
+                                    ・
+                                </div>
+                                <div>
+                                    被相続人の氏名、本籍、死亡年月日
+                                </div>
                             </li>
-                            <li>
-                                手続が受理された年月日
+                            <li class="d-flex">
+                                <div>
+                                    ・
+                                </div>
+                                <div>
+                                    手続が受理された年月日
+                                </div>
                             </li>
                         </ul>
                         <div class="d-flex">
@@ -42,7 +62,7 @@
                             </div>
                             <div>
                                 記載がないものがある場合は、相続放棄申述受理
-                                <span class="px-3 border-bottom border-dark">
+                                <span class="px-3 fw-bold border-bottom border-dark">
                                     証明書
                                 </span>
                                 が必要です。
@@ -68,6 +88,11 @@
                         <img class="modal-image" src="{% static 'toukiApp/img/相続放棄申述受理証明書.png' %}" alt="相続放棄申述受理証明書の説明画像">
                     </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    閉じる
+                </button>
             </div>
         </div>
     </div>

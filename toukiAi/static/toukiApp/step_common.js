@@ -501,6 +501,77 @@ function disablePage(progress){
     }
 }
 
+/**
+ * 前に戻るボタンのイベント
+ * @param {number} currentStep 
+ */
+function handlePreBtnEvent(currentStep){
+
+    const dialogTitle = "ここでの入力内容が初期化されますがよろしいですか？";
+    const html = "他のページの入力内容を確認するだけの場合は、進捗状況からご移動ください";
+    const icon = "warning";
+    const preBtn = document.getElementById("preBtn");
+    const spinner = document.getElementById("preBtnSpinner");
+    
+    // 1つ前のパスを取得する
+    function getPrePath(){
+        if(currentStep >= 2 && currentStep < 3){
+            return "step_one";
+        }else if(currentStep >= 3 && currentStep < 4){
+            return "step_two";
+        }else if(currentStep >= 4 && currentStep < 5){
+            return "step_three";
+        }else if(currentStep >= 5 && currentStep < 6){
+            return "step_four";
+        }else if(currentStep >= 6 && currentStep < 7){
+            return "step_five";
+        }else{
+            throw new Error(`getPrePathでエラー\ncurrentStep=${currentStep}`);
+        }
+    }
+    
+    const prePath = getPrePath();
+    
+    // 申請後のページのときは確認モーダル不要
+    if(currentStep >= 6){
+        toggleProcessing(true, preBtn, spinner);
+        window.location.href = prePath;
+        return;
+    }
+    
+    showConfirmDialog(dialogTitle, html, icon).then(async(result) =>{
+        
+        if(!result.isConfirmed)
+            return;
+        
+        toggleProcessing(true, preBtn, spinner);
+        
+        const progress = currentStep - 0.5;
+        const data = { "progress" : progress };
+        try{
+            const response = await fetch('step_back', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                mode: "same-origin"
+            });
+            
+            const responseData = await response.json();
+            if(response.ok)
+                window.location.href = prePath;
+            else
+                throw new Error(responseData.message);
+        }catch(e){
+            basicLog("handlePreBtnEvent", e, "showConfirmDialog処理中にエラー");
+            alert(`システムエラー\n\n再試行しても同じエラーが出る場合は、恐れ入りますが、お問い合わせをお願いします。`);
+            toggleProcessing(false, preBtn, spinner);
+        }
+    })
+}
+
 /*
     イベント
 */

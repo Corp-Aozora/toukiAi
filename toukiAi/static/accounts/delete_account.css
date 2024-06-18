@@ -17,7 +17,7 @@ form:first-child{
 }
 
 
-@media (max-width:767px){
+@media (max-width:768px){
     #eyeToggleBtn{
         left: 101%!important;
     }

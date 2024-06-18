@@ -1245,9 +1245,13 @@ def step_two(request):
         ステップ2 必要書類一覧のページ
         
     """
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        return redirect("toukiApp:index")
+        
     function_name = get_current_function_name()
     this_url_name = "toukiApp:step_two"
     html = "toukiApp/step_two.html"
+    request_user = request.user
     required_progress = 2
     
     try:
@@ -1260,7 +1264,7 @@ def step_two(request):
         if request.method == "POST":
             try:
                 if not is_progress_equal_to_step(progress, required_progress):
-                    return redirect_to_progress_page(request)
+                    return JsonResponse({'message': 'progressの値が不正です'})
                 
                 with transaction.atomic():
                     decedent.progress = required_progress + 1
@@ -1319,14 +1323,15 @@ def step_two(request):
                             created_by=user,
                             updated_by=user
                         )
-                        register.save()  # データベースに保存
-                    return JsonResponse({'status': 'success'})
+                        register.save()
+                        
+                    return JsonResponse({'message': ''})
                 
             except Exception as e:
                 return handle_error(
                     e,
                     request,
-                    request.user,
+                    request_user,
                     function_name,
                     None,
                     True
@@ -1356,7 +1361,7 @@ def step_two(request):
         heirs = get_legal_heirs(decedent)
         if not heirs:
             basic_log(function_name, None, user, "相続人が登録されていない状態でstep_twoにアクセスしました")
-            messages.error(request, "アスセス不可 相続人データが登録されていません。\n先に基本データ入力を入力してください")
+            messages.error(request, "アスセス制限 相続人データが登録されていません。\n先に基本データ入力を入力してください")
             return redirect(ToukiAppUrlName.step_one)
             
         deceased_persons = get_deceased_persons(decedent)
@@ -1388,15 +1393,17 @@ def step_two(request):
             "sections" : Sections.SECTIONS[Sections.STEP2],
             "service_content" : Sections.SERVICE_CONTENT,
         }
+        
         return render(request, html, context)
     
     except Exception as e:
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
             this_url_name,
+            notices=f"request.GET.dict()={request.GET.dict()}"
         )
 
 
@@ -1484,21 +1491,36 @@ def step_three_input_status(data):
     
     def is_properties():
         """不動産情報"""
-        attr = [data.number, data.address, data.purparty, data.price, data.is_exchange, data.office]
-        return all(attr)
+        for d in data:  # QuerySet内のすべてのオブジェクトをループ
+            attr = [d.number, d.address, d.purparty, d.price, d.is_exchange, d.office]
+            
+            if not all(attr):
+                return False
+            
+        return True
     
     def is_site():
         """敷地権情報"""
-        attr = [data.bldg, data.number, data.address_and_land_number, data.type, 
-                data.purparty_bottom, data.purparty_top, data.price,]
-        return all(attr)
+        for d in data:
+            attr = [d.bldg, d.number, d.address_and_land_number, d.type, 
+                    d.purparty_bottom, d.purparty_top, d.price,]
+            
+            if not all(attr):
+                return False
+            
+        return True
     
     def is_acquirer():
         """取得者情報"""
-        attr = [data.content_type1, data.object_id1, data.content_object1, 
-                data.content_type2, data.object_id2, data.content_object2,
-                data.percentage]
-        return all(attr)
+        for d in data:
+            attr = [d.content_type1, d.object_id1, d.content_object1, 
+                    d.content_type2, d.object_id2, d.content_object2,
+                    d.percentage]
+            
+            if not all(attr):
+                return False
+            
+        return True
     
     def is_application():
         """申請情報"""
@@ -1727,7 +1749,6 @@ def update_form_set_validation(data, form_set, user):
 
     """
     function_name = get_current_function_name()
-    form_class_name = get_form_set_class_name(form_set)
     
     def is_form_set_count_equal_to_data_count():
         """データの数とフォームセットの数を検証する"""
@@ -1759,6 +1780,8 @@ def update_form_set_validation(data, form_set, user):
     
     if is_data(data) == False:
         return False
+    
+    form_class_name = get_form_set_class_name(form_set)
 
     update_target_ids = [form.cleaned_data.get("id") for form in form_set if form.cleaned_data.get('id')]
     data_dict = {d.id: d for d in data}
@@ -1779,17 +1802,17 @@ def update_form_set(data, form_set, user, decedent, content_type = None, relatio
         
     """
     function_name = get_current_function_name()
-    form_class_name = get_form_set_class_name(form_set)
     
     if update_form_set_validation(data, form_set, user) == False:
         return
     
+    form_class_name = get_form_set_class_name(form_set)
     if form_class_name in ["StepThreeDescendantForm", "StepThreeCollateralForm"]:
         save_step_three_descendant_or_collateral(decedent, user, data, form_set, content_type, relationship)
     elif form_class_name in ["StepThreeSpouseForm", "StepThreeAscendantForm"]:
         save_step_three_child_spouse_or_ascendant(user, form_set, data)
     else:
-        basic_log(get_current_function_name(), None, user, form_class_name)
+        basic_log(function_name, None, user, form_class_name)
         raise ValidationError(f"{function_name}\nform_class_name={form_class_name}")
     
 def save_step_three_child_spouse_or_ascendant(user, form_set, data):
@@ -2034,7 +2057,7 @@ def get_form_set_class_name(form_set):
     if (len(form_set.forms) > 0):
         return form_set.forms[0].__class__.__name__
     else:
-        raise ValidationError(f"{get_form_set_class_name}でエラー\nform_set={form_set}")
+        raise ValidationError(f"{get_current_function_name()}でエラー\nform_set={form_set}")
 
 def is_form_set(form_set):
     return form_set.management_form.cleaned_data["TOTAL_FORMS"] > 0
@@ -2280,7 +2303,7 @@ def save_step_three_datas(user, forms, form_sets, data, data_idx):
                 )
     except Exception as e:
         basic_log(function_name, e, user)
-        raise e
+        raise
         
 def get_data_idx_for_step_three():
     idxs = {
@@ -2563,7 +2586,7 @@ def step_three(request):
                         return redirect(next_url_name)
                 except Exception as e:
                     basic_log(function_name, e, user, "POSTのフォーム検証後にエラー")
-                    raise e
+                    raise
             else:
                 for form in forms:
                     if not form.is_valid():
@@ -4679,12 +4702,20 @@ def get_where_to_apply(decedent):
 #
 def step_six(request):
     """申請後のメイン処理"""
+    if not is_valid_request_method(request, ["GET", "POST"], True):
+        redirect("toukiApp:index")
     
     function_name = get_current_function_name()
     html = "toukiApp/step_six.html"
     this_url_name = "toukiApp:step_six"
     required_progress = 6
+    request_user = request.user
     title = Service.STEP_TITLES["six"]
+    sections = Sections.SECTIONS[Sections.STEP6]
+    service_content = Sections.SERVICE_CONTENT
+    moj_online_request_page_link = ExternalLinks.links["moj_online_request"]
+    touki_info_charge = ExternalLinks.charge["touki_info"]
+    touki_info_link = ExternalLinks.links["touki_info"]
     
     try:
         response, user, decedent, progress = check_access_permission_to_step(request, required_progress)
@@ -4697,11 +4728,11 @@ def step_six(request):
             "user_email" : user.email,
             "decedent": decedent,
             "progress": progress,
-            "sections" : Sections.SECTIONS[Sections.STEP6],
-            "service_content" : Sections.SERVICE_CONTENT,
-            "moj_online_request_page_link": ExternalLinks.links["moj_online_request"],
-            "touki_info_charge": ExternalLinks.charge["touki_info"],
-            "touki_info_link": ExternalLinks.links["touki_info"]
+            "sections" : sections,
+            "service_content" : service_content,
+            "moj_online_request_page_link": moj_online_request_page_link,
+            "touki_info_charge": touki_info_charge,
+            "touki_info_link": touki_info_link
         }
         return render(request, html, context)
     
@@ -4709,9 +4740,10 @@ def step_six(request):
         return handle_error(
             e, 
             request, 
-            request.user,
+            request_user,
             function_name, 
-            this_url_name, 
+            this_url_name,
+            notices = f"request.GET.dict()={request.GET.dict()}"
         )
 
 
@@ -5187,36 +5219,32 @@ def get_office(request):
 def step_back(request):
     """前のステップに戻る処理"""
     function_name = get_current_function_name()
+    request_user = request.user
     
     try:
-        user = request.user
-        decedent = Decedent.objects.filter(user=user).first()
-        
         data = json.loads(request.body)
         progress = data.get('progress')
         
         if not progress:
-            return JsonResponse({
-                'status': 'error',
-                "message": "progressに値が設定されていません。"
-            })
+            return JsonResponse({"message": "progressに値が設定されていません。"}, 400)
         
+        user = request.user
+        decedent = Decedent.objects.filter(user=user).first()
+    
         with transaction.atomic():
             decedent.progress = Decimal(progress)
             decedent.save()
         
-        return JsonResponse({
-            'status': 'success',
-            "message": ""
-        })
+        return JsonResponse({"message": ""})
     except Exception as e:
         return handle_error(
             e,
             request,
-            request.user,
+            request_user,
             function_name,
             None,
-            True        
+            True,
+            notices=f"request.POST={request.POST}"
         )
 
 def nav_to_last_user_page(request):

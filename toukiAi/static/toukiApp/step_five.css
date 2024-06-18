@@ -50,7 +50,7 @@ button{
     }
 }
 
-@media (max-width:767px){
+@media (max-width:768px){
     form .list-group-item{
         padding-left: 0.5rem;
         padding-right: 0.5rem;

@@ -2,14 +2,14 @@
     max-width: 75px!important;
 }
 
-@media (min-width: 992px){
+@media (min-width: 993px){
 
     .li_logout, .proxy-footer-li{
         display: none;
     }
 }
 
-@media (max-width: 991px){
+@media (max-width: 992px){
 
     #offcanvasMenus li:not(:last-child), #progress_list_offcanvas li:not(:last-child){
         margin-top: 1rem;
@@ -33,7 +33,7 @@
     }
 }
 
-@media (max-width:767px){
+@media (max-width:768px){
     #offcanvasMenus, #progress_list_offcanvas{
         width: 260px;
     }

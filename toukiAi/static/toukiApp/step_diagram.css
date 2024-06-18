@@ -143,10 +143,10 @@ ul > li > span:first-child{
         }
     }
 
-    @media (min-width:768px){
+    @media (min-width:769px){
     }
 
-    @media (max-width:767px){
+    @media (max-width:768px){
         #print_page_wrapper{
             width:100%;
         }

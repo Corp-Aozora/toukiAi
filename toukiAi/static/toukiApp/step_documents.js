@@ -66,33 +66,8 @@ window.addEventListener("DOMContentLoaded", ()=>{
 
     // ステップ４に戻る
     function backToStepFour(){
-
-        backBtn.disabled = true;
-        backBtnSpinner.style.display = "";
-        
-        const data = { "progress" : parseFloat(progress) };
-    
-        fetch('step_back', {  // PythonビューのURL
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-            mode: "same-origin"
-        }).then(response => {
-            return response.json();
-        }).then(response => {
-    
-            if (response.status === 'success'){
-                window.location.href = 'step_four';
-            }else{
-                window.location.href = 'step_division_agreement';
-            }
-        }).catch(e => {
-            basicLog("backToStepFour", e, "前のページに戻る処理でエラー発生");
-            window.location.href = 'step_division_agreement';
-        });
+        toggleProcessing(true, backBtn, backBtnSpinner);
+        window.location.href = 'step_four';
     }
 
     // 表示サイズに合わせて2通目以降を再配置する

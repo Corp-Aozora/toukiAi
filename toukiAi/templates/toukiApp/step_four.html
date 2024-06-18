@@ -21,7 +21,7 @@
     <div class="pt-4 ps-sm-4 container-xxl">
         <div>
             <h4>
-                各書類を印刷してご署名押印などをお願いします。
+                各書類を印刷して署名押印などをお願いします。
             </h4>
             <div class="text-danger fw-bold d-flex">
                 <div>
@@ -56,7 +56,7 @@
                     <div class="mt-4">
                         <div class="mt-3">
                             <span class="fw-bold">
-                                ＞相続人に該当する方々
+                                ＞相続人一覧
                             </span>
                             <div class="ps-3 ps-sm-5">
                                 <ul id="heirsList" class="list-group">
@@ -73,7 +73,7 @@
                                         </div>
                                         <div>
                                             <span class="text-danger">
-                                                各自の印鑑証明書と戸籍（全部または個人）事項証明書１通ずつも必要です。
+                                                各自の印鑑登録証明書１通と戸籍（全部または個人）事項証明書１通も必要です。
                                             </span>
                                         </div>
                                     </li>
@@ -101,9 +101,9 @@
                                 {% if minors|length > 0 %}
                                     <div class="mt-3">
                                         <span class="fw-bold border-bottom border-primary">
-                                            未成年のため法定代理人の署名押印と印鑑証明書が必要です。
+                                            未成年のため法定代理人の署名押印と印鑑登録証明書が必要です。
                                             <br>
-                                            ただし、印鑑証明書を取得できる場合は、未成年者の署名押印と印鑑証明書で大丈夫です。
+                                            ただし、印鑑登録証明書を取得できる場合は、未成年者の署名押印と印鑑登録証明書で大丈夫です。
                                         </span>
                                         <ul>
                                             {% for minor in minors %}
@@ -123,7 +123,7 @@
                                             <div>
                                                 <div>
                                                     <span class="fw-bold">
-                                                        日本に住民票がない方は、印鑑証明書の代わりに現地の領事館または大使館での
+                                                        日本に住民票がない方は、印鑑登録証明書の代わりに現地の領事館または大使館での
                                                         <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#alt_stamp_certificate_modal">
                                                             署名証明
                                                         </button>
@@ -238,7 +238,7 @@
                     </a>
                 </div>
                 <div class="mt-4 fw-bold">
-                    複数の市区町村にわたって不動産がある場合や、不動産ごとに取得者が異なる場合は２通以上になることもあります。
+                    複数の市区町村に不動産を所有している場合や、不動産ごとに取得者が異なる場合は２通以上になることがあります。
                 </div>
             </section>
             <hr>
@@ -271,7 +271,7 @@
                     <div>
                         <button id="preBtn" type="button" class="btn btn-secondary fw-bold bg-gradient bg-opacity-50">
                             前に戻る
-                            <span id="spinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
+                            <span id="preBtnSpinner" class="spinner-border spinner-border-sm text-warning" role="status" style="display: none;">
                             </span>
                         </button>
                     </div>

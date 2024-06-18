@@ -27,6 +27,16 @@
     .heading{
         text-align: center;
     }
+
+    .linebreak-wrapper{
+        flex-direction: column;
+    }
+
+    .linebreak-wrapper span{
+        display: block;
+        text-align: center;
+    }
+
 }
 
 @media (max-width:575px){

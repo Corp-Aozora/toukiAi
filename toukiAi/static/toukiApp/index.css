@@ -68,7 +68,7 @@
 }
 
 /* 画面のサイズがlg以上 */
-@media(min-width: 992px){
+@media(min-width: 993px){
     .option .card-body{
         min-height: 450px;
     }
@@ -118,7 +118,7 @@
     }
 }
 
-@media (max-width:767px){
+@media (max-width:768px){
     #whoToA ul{
         padding-right: 0px!important;
     }

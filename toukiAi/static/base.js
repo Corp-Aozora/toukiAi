@@ -858,16 +858,12 @@ function basicLog(functionName, e = null, message = null, level = null){
 /**
  * 市区町村のバリデーション
  * 
- * 空欄/ 英数字/ 最後の文字が市区町村のいずれかで終了する
+ * 検証内容: 空欄/ 英数字/ 最後の文字が市区町村のいずれかで終了する
  * @param {HTMLInputElement} input 
  */
 function validateCity(input){
     
-    /**
-     * 文字列の最後が市、区、町、村で終わるかどうかをチェックする関数
-     * @param {string} val - 検証する住所文字列
-     * @returns {boolean} - 文字列が市、区、町、村で終わる場合はtrue、そうでない場合はfalse
-     */
+    // 文字列の最後が市、区、町、村で終わるかどうかをチェックする関数
     function endsWithCity(val) {
 
         const pattern = /(市|区|町|村)$/;

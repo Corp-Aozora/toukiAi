@@ -703,9 +703,6 @@ class StepThreeTypeOfDivisionForm(CustomModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        
-        self.legal_heirs = kwargs.pop('legal_heirs', None)
-        
         for field in self.base_fields.values():
             field.required = False
             if field.label in  ["遺産分割協議書の種類", "不動産の分配方法", "換価した金銭の分配方法"]:

@@ -11,8 +11,8 @@ window.addEventListener("load", ()=>{
         }
 
         setEvent(){
-            this.preBtn.addEventListener("click", ()=>{
-                handlePreBtnEvent(progress);
+            this.preBtn.addEventListener("click", async ()=>{
+                await handlePreBtnEvent(progress);
             })
         }
     }

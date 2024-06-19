@@ -505,13 +505,17 @@ function disablePage(progress){
  * 前に戻るボタンのイベント
  * @param {number} currentStep 
  */
-function handlePreBtnEvent(currentStep){
+async function handlePreBtnEvent(currentStep){
 
     const dialogTitle = "ここでの入力内容が初期化されますがよろしいですか？";
     const html = "他のページの入力内容を確認するだけの場合は、進捗状況からご移動ください";
     const icon = "warning";
     const preBtn = document.getElementById("preBtn");
     const spinner = document.getElementById("preBtnSpinner");
+    const prePath = getPrePath();
+    const diff = Number.isInteger(currentStep)? 0.5: 1;
+    const progress = currentStep - diff;
+    const data = { "progress" : progress };
     
     // 1つ前のパスを取得する
     function getPrePath(){
@@ -530,24 +534,8 @@ function handlePreBtnEvent(currentStep){
         }
     }
     
-    const prePath = getPrePath();
-    
-    // 申請後のページのときは確認モーダル不要
-    if(currentStep >= 6){
-        toggleProcessing(true, preBtn, spinner);
-        window.location.href = prePath;
-        return;
-    }
-    
-    showConfirmDialog(dialogTitle, html, icon).then(async(result) =>{
-        
-        if(!result.isConfirmed)
-            return;
-        
-        toggleProcessing(true, preBtn, spinner);
-        
-        const progress = currentStep - 0.5;
-        const data = { "progress" : progress };
+    // 前のページに戻る処理
+    async function stepBack(){
         try{
             const response = await fetch('step_back', {
                 method: 'POST',
@@ -569,6 +557,22 @@ function handlePreBtnEvent(currentStep){
             alert(`システムエラー\n\n再試行しても同じエラーが出る場合は、恐れ入りますが、お問い合わせをお願いします。`);
             toggleProcessing(false, preBtn, spinner);
         }
+    }
+
+    // 申請後のページのときは確認モーダル不要
+    if(currentStep >= 6){
+        toggleProcessing(true, preBtn, spinner);
+        await stepBack();
+        return;
+    }
+    
+    showConfirmDialog(dialogTitle, html, icon).then(async(result) =>{
+        
+        if(!result.isConfirmed)
+            return;
+        
+        toggleProcessing(true, preBtn, spinner);
+        await stepBack();
     })
 }
 

@@ -1785,11 +1785,11 @@ function setHeirsEvent(instance){
         // 最後の入力欄のとき
         function getNextBtnOrNull(){
             return !SpouseOrAscendant.okBtn.disabled ? SpouseOrAscendant.okBtn :
-                !okBtn.disabled ? okBtn : null;
+                !okBtn.disabled ? okBtn : nextInput;
         }
 
-        // メイン
-        targetInput.addEventListener("keydown", (e)=>{
+        // 次の要素にフォーカスする処理
+        function handleSetEnterKeyFocusNext(e){
             if(targetInput === name && deathDateDiv.style.display === "none")
                 nextInput = birthYear;
             else if(
@@ -1799,13 +1799,19 @@ function setHeirsEvent(instance){
             )
                 nextInput = getNextBtnOrNull();
 
-            // enterキーで次の要素にフォーカス
-            setEnterKeyFocusNext(e, nextInput);
+            if(nextInput.type !== "hidden")
+                setEnterKeyFocusNext(e, nextInput);
+        }
 
-            // 氏名欄は数字入力不可
-            if([name, otherParentName].includes(targetInput)){
+        // メイン
+        targetInput.addEventListener("keydown", (e)=>{
+
+            // 共通
+            handleSetEnterKeyFocusNext(e);
+
+            // 氏名のみ
+            if([name, otherParentName].includes(targetInput))
                 disableNumKey(e);
-            }
         })
     }
 

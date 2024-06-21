@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    <p class="ps-4">
+        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
+            お役立ち情報に戻る
+        </a>
+    </p>
+    <div class="text-center">
+        <h3 class="mb-3">
+            {{ title }}
+        </h3>
+        <div class="form-text text-center">
+            (1分ほどで読み終えることができます。)
+        </div>
+        <div class="form-text text-end mt-3">
+            最終更新日
+            <br>
+            令和6年6月21日
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                主なものを列挙しています。
+            </span>
+        </h5>
+        <div>
+            <ul class="ps-0 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        相続登記は義務になったため３年以内に相続登記または予告登記をしないと１０万円以下の過料を課される可能性が生じる。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        認知症になる相続人が現れることで遺産分割協議を行えなくなる可能性が生じる。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        死亡する相続人が現れることで相続人が増えて遺産分割協議がまとまらなくなる可能性が生じる。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        後の世代では当時の状況を把握することが難しく、手続きが難航する状況を承継させる可能性が生じる。
+                    </p>
+                </li>
+            </ul>
+            <p class="text-indent">
+                現在は全く使用しないと考えていても予期せぬタイミングで公共事業や購入希望者が現れて名義を変更する必要が出てくることがあります。
+                後の世代の方々が大変な思いをすることもありますので、可能であれば速やかに相続登記を完了させることをおすすめします。
+            </p>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="text-center">
+        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}とはの記事について&body=">
+            この記事について問い合わせる
+        </a>
+        <br>
+        (メールソフトが起動します)
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

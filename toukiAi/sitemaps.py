@@ -88,7 +88,7 @@ class UsefulInfoSitemap(Sitemap):
     priority = 0.8
 
     def items(self):
-        return ['about_inheritance', 'check_legal_heirs', 'refuse_inheritance']  # 動的URL用のパラメータ
+        return ['about_inheritance', 'check_legal_heirs', 'refuse_inheritance', 'about_inheritance_touki']  # 動的URL用のパラメータ
 
     def location(self, item):
         return reverse('toukiApp:useful_info', args=[item])  # 動的URLの生成

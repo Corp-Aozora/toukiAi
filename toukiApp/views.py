@@ -5008,6 +5008,8 @@ def useful_info(request, param):
             return html, "相続放棄"
         if param == "about_inheritance_touki":
             return html, "相続登記とは"
+        if param == "if_late":
+            return html, "放置したときのリスク"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"

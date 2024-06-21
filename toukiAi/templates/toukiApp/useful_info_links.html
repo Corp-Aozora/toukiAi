@@ -31,6 +31,9 @@
         <h3 class="mb-3">
             お役立ち情報
         </h3>
+        <p class="px-3">
+            ご自身で相続登記を完了させようとしている方への一助になるべく随時更新してます。
+        </p>
     </div>
     <div class="d-flex flex-wrap justify-content-evenly">
         <div class="card m-2">
@@ -52,14 +55,12 @@
                         </a>
                         <br>
                         <div class="ms-3">
-                            （数次相続）
-                            <br>
-                            （代襲相続）
+                            （数次相続、代襲相続など）
                         </div>
                     </li>
                     <li>
                         <a href="{% url 'toukiApp:useful_info' 'refuse_inheritance' %}">
-                            相続放棄
+                            相続放棄とは
                         </a>
                     </li>
                 </ul>
@@ -77,6 +78,9 @@
                         <a href="{% url 'toukiApp:useful_info' 'about_inheritance_touki' %}">
                             相続登記とは
                         </a>
+                        <div class="ms-3">
+                            （必要書類、実費など）
+                        </div>
                     </li>
                     <li>
                         <a href="{% url 'toukiApp:useful_info' 'if_late' %}">
@@ -84,7 +88,12 @@
                         </a>
                     </li>
                     <li>
-                        相続登記を猶予したい（予告登記）
+                        <a href="{% url 'toukiApp:useful_info' 'postpone_inheritance_touki' %}">
+                            相続登記を猶予したい
+                        </a>
+                        <div class="ms-3">
+                            （相続人申告登記）
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -98,23 +107,20 @@
             <div class="card-body fw-bold">
                 <ul class="ps-3 mb-0">
                     <li>
-                        相続登記の必要書類
+                        <a href="{% url 'toukiApp:useful_info' 'about_family_card' %}">
+                            戸籍謄本とは
+                        </a>
                     </li>
                     <li>
-                        戸籍謄本
+                        戸籍謄本の見方
                     </li>
                     <li>
-                        戸籍謄本の確認方法
-                    </li>
-                    <li>
-                        死亡時の住所を証する書面
+                        死亡時の住所と登記記録上の住所の履歴を証する書面
                     </li>
                     <li>
                         登記簿謄本
                         <div class="ps-3">
-                            登記情報
-                            <br>
-                            全部事項証明書
+                            （登記情報、全部事項証明書）
                         </div>
                     </li>
                 </ul>

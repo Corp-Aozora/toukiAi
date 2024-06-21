@@ -49,7 +49,7 @@
     <div>
         <h5 class="md-text-center mb-4">
             <span class="pe-md-4 md-px-2 border-bottom border-dark">
-                定義
+                概要
             </span>
         </h5>
         <p class="text-indent">
@@ -304,7 +304,7 @@
     </div>
     <hr class="my-4">
     <div class="text-center">
-        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続とはの記事について&body=">
+        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}の記事について&body=">
             この記事について問い合わせる
         </a>
         <br>

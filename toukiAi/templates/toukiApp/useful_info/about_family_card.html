@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    <p class="ps-4">
+        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
+            お役立ち情報に戻る
+        </a>
+    </p>
+    <div class="text-center">
+        <h3 class="mb-3">
+            {{ title }}
+        </h3>
+        <div class="form-text text-center">
+            (5分ほどで読み終えることができます。)
+        </div>
+        <div class="form-text text-end mt-3">
+            最終更新日
+            <br>
+            令和6年6月20日
+        </div>
+    </div>
+    <hr class="my-4">
+    <div>
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                概要
+            </span>
+        </h5>
+        <p class="text-indent">
+            親子単位で作成される書類で各自の出生・結婚・死亡などの事項が記載されている市区町村が発行する証明書です。
+        </p>
+        <p class="text-indent">
+            法改正により何度も記載内容が変更されていて明治時代のものなどは親子単位ではなく家単位で記載されていました。
+        </p>
+        <div>
+            <div class="text-indent">
+                婚姻により夫または妻を筆頭者としたものが新しく作られ、子が生まれると子はその戸籍謄本に記録されます。
+            </div>
+            <div class="additional-text">
+                <div>
+                    ※
+                </div>
+                <p>
+                    筆頭者とは婚姻時に名字を変えなかった夫または妻のことです。
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                種類
+            </span>
+        </h5>
+        <div>
+            <div class="text-indent">
+                戸籍謄本という呼称がよく使われていますが、厳密には以下の種類があります。
+            </div>
+            <ul class="ps-0 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        戸籍全部事項証明書
+                        <br>
+                        (以前は戸籍謄本)
+                        <p class="ms-3">
+                            その戸籍に入っている全員の記載があり現在も記録が更新されているもの
+                        </p>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        戸籍個人事項証明書
+                        <br>
+                        (以前は戸籍抄本)
+                        <p class="ms-3">
+                            戸籍全部事項証明書のうち１人のみの記載にしたもの
+                            <br>
+                            提出先に自分以外の情報を提供したくないときなどに使用します。
+                        </p>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        除籍全部事項証明書
+                        <br>
+                        (以前は除籍謄本や改製原戸籍謄本)
+                        <p class="ms-3">
+                            その戸籍に入っていた全員の記載があり記録が更新されなくなったもの
+                        </p>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        除籍個人事項証明書
+                        <br>
+                        (以前は除籍抄本や改製原戸籍抄本)
+                        <p class="ms-3">
+                            除籍全部事項証明書のうち１人のみの記載にしたもの
+                        </p>
+                    </div>
+                </li>
+            </ul>
+            <div class="additional-text">
+                <div>
+                    ※
+                </div>
+                <div>
+                    謄本（とうほん）は書き写し、抄本（しょうほん）は抜粋という意味があります。
+                </div>                    
+            </div>
+            <div class="additional-text">
+                <div>
+                    ※
+                </div>
+                <div>
+                    改製原戸籍というのは法改正前の古い様式による戸籍という意味です。
+                </div>                    
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                被相続人の出生から死亡までの戸籍謄本の取得方法
+            </span>
+        </h5>
+        <div>
+            <div>
+                <div class="text-indent">
+                    被相続人の配偶者、子（孫、ひ孫、、、を含む）、父母（祖父母、曽祖父母を含む）に該当する方が役所の窓口で請求する場合は、最寄りの役所で全て請求できます。
+                </div>
+                <div class="additional-text">
+                    <div>
+                        ※
+                    </div>
+                    <p>
+                        一部例外的な戸籍は、被相続人の本籍があった役所に請求する必要があります。
+                    </p>
+                </div>
+            </div>
+            <p class="text-indent">
+                郵送により請求する場合または上記以外に該当する方が請求する場合は、被相続人の本籍があった役所に請求する必要があります。
+                <div class="additional-text">
+                    <div>
+                        ※
+                    </div>
+                    <p>
+                        この場合の請求では、被相続人の相続人であることを証明する戸籍謄本の提出が必要になります。
+                    </p>
+                </div>
+            </p>
+            <p class="text-indent">
+                以前は、誰が請求する場合でも被相続人の本籍がある役所でしか取得できず相続手続きにおいて重労働になる部分でしたが、
+                今では多くの方の場合は、最寄りの役所で被相続人の出生から死亡までの戸籍が取得できるため、相続手続きがだいぶ簡単になったと思います。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                出生から死亡までの戸籍謄本とは
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                戸籍謄本には親族関係を示す事項が記載されているため、被相続人の出生から死亡までの全てを収集することで相続人全員を
+                確定し証明できるようになります。
+            </p>
+            <p class="text-indent">
+                被相続人の戸籍謄本は、婚姻や転籍、法改正などにより２通以上作成されていることが多く、前述の通り配偶者などが最寄りの役所窓口で
+                被相続人の本籍に関係なく全て取得できるような場合を除いては、被相続人の本籍があった役所に請求する必要があり、
+                その中に遠方の役所があったりすると郵送で請求することになり手間がかかります。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                数次相続または代襲相続が発生している場合
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                死亡している相続人がいる場合は、その相続人の出生から死亡までの戸籍謄本も取得して、その相続人の相続人を確定し証明する必要があります。
+            </p>
+            <p class="text-indent">
+                この場合も被相続人の戸籍謄本を取得する場合と同様に死亡した相続人の配偶者、子（孫、ひ孫、、、を含む）、父母（祖父母、曽祖父母を含む）に該当する方は
+                最寄りの役所窓口で全て請求することができて、郵送請求や前述の続柄に該当しない方が請求する場合は死亡した相続人の本籍がある役所で
+                請求する必要があります。
+            </p>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="text-center">
+        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}の記事について&body=">
+            この記事について問い合わせる
+        </a>
+        <br>
+        (メールソフトが起動します)
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

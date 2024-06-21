@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info_links.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content="お役立ち情報">
+    <meta property="og:description" content="相続登記に関するお役立ち情報">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info_links' %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="そうぞくとうきくん | お役立ち情報">
+    <meta name="twitter:description" content="相続登記に関するお役立ち情報">
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="px-sm-3 mx-auto mt-3">
+    <div class="text-center">
+        <h3 class="mb-3">
+            お役立ち情報
+        </h3>
+    </div>
+    <div class="d-flex flex-wrap justify-content-evenly">
+        <div class="card m-2">
+            <div class="card-header pt-3 bg-warning-subtle bg-gradient bg-opacity-75">
+                <h5 class="text-center">
+                    相続
+                </h5>
+            </div>
+            <div class="card-body fw-bold">
+                <ul class="ps-3 mb-0">
+                    <li>
+                        <a href="{% url 'toukiApp:useful_info' 'about_inheritance' %}">
+                            相続とは
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'toukiApp:useful_info' 'check_legal_heirs' %}">
+                            相続人の判定方法
+                        </a>
+                        <br>
+                        <div class="ms-3">
+                            （数次相続）
+                            <br>
+                            （代襲相続）
+                        </div>
+                    </li>
+                    <li>
+                        <a href="{% url 'toukiApp:useful_info' 'refuse_inheritance' %}">
+                            相続放棄
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-2">
+            <div class="card-header pt-3 bg-primary-subtle bg-gradient bg-opacity-75">
+                <h5 class="text-center">
+                    相続登記
+                </h5>
+            </div>
+            <div class="card-body fw-bold">
+                <ul class="ps-3 mb-0">
+                    <li>
+                        <a href="{% url 'toukiApp:useful_info' 'about_inheritance_touki' %}">
+                            相続登記とは
+                        </a>
+                    </li>
+                    <li>
+                        申請人
+                    </li>
+                    <li>
+                        放置したとき
+                    </li>
+                    <li>
+                        相続登記を猶予したい（予告登記）
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-2">
+            <div class="card-header pt-3 bg-success-subtle bg-gradient bg-opacity-75">
+                <h5 class="text-center">
+                    書類
+                </h5>
+            </div>
+            <div class="card-body fw-bold">
+                <ul class="ps-3 mb-0">
+                    <li>
+                        相続登記の必要書類
+                    </li>
+                    <li>
+                        戸籍謄本
+                    </li>
+                    <li>
+                        戸籍謄本の確認方法
+                    </li>
+                    <li>
+                        死亡時の住所を証する書面
+                    </li>
+                    <li>
+                        登記簿謄本
+                        <div class="ps-3">
+                            登記情報
+                            <br>
+                            全部事項証明書
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-2">
+            <div class="card-header pt-3 bg-secondary-subtle bg-gradient bg-opacity-75">
+                <h5 class="text-center">
+                    不動産
+                </h5>
+            </div>
+            <div class="card-body fw-bold">
+                <ul class="ps-3 mb-0">
+                    <li>
+                        不動産とは
+                    </li>
+                    <li>
+                        固定資産評価額
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

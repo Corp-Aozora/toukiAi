@@ -15,7 +15,7 @@
     font-weight: 700;
 }
 
-@media (min-width: 993px){
+@media (min-width: 992px){
     #offcanvasMenus{
         display: none;
     }
@@ -25,7 +25,7 @@
     }
 }
 
-@media (max-width: 992px){
+@media (max-width: 991px){
     #offcanvasMenus li:first-child{
         margin-left: 1rem;
     }
@@ -51,7 +51,7 @@
     }
 }
 
-@media (max-width:768px){
+@media (max-width:767px){
     #offcanvasMenus{
         width: 240px;
     }
@@ -64,6 +64,10 @@
 @media (max-width: 575px){   
     #header .navbar-toggler{
         position: absolute;
+    }
+
+    .useful-info-links-btn{
+        display: none!important;
     }
 }
 

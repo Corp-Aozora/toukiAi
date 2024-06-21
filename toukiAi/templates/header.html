@@ -8,11 +8,16 @@
         <a class="me-lg-4" href="{% url 'toukiApp:index' %}">
             <img class="logo-img" src="{% static 'toukiApp/img/company_logo.png' %}" alt="会社ロゴ">
         </a>
-        {% if request.path != "/toukiApp/step_one_trial" %}
-            <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
-                相続人判定
+        <div>
+            <a class="useful-info-links-btn btn btn-outline-success p-2 fw-bold shadow" href="{% url 'toukiApp:useful_info_links' %}">
+                お役立ち情報
             </a>
-        {% endif %}
+            {% if request.path != "/toukiApp/step_one_trial" %}
+                <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
+                    相続人判定
+                </a>
+            {% endif %}
+        </div>
         <button class="menu-toggler-btn btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">
             サイトマップ
         </button>
@@ -59,6 +64,11 @@
                     <li class="nav-item col col-md-auto proxy-footer-li">
                         <a class="proxy-footer" href="{% url 'toukiApp:index' %}">
                             トップページ
+                        </a>
+                    </li>
+                    <li class="nav-item col col-md-auto proxy-footer-li">
+                        <a class="proxy-footer" href="{% url 'toukiApp:useful_info_links' %}">
+                            お役立ち情報
                         </a>
                     </li>
                     <li class="nav-item col col-md-auto proxy-footer-li">

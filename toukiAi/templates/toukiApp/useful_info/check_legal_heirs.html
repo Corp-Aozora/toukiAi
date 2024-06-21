@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    <p class="ps-4">
+        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
+            お役立ち情報に戻る
+        </a>
+    </p>
+    <div class="text-center">
+        <h3 class="mb-3">
+            {{ title }}
+        </h3>
+        <div class="form-text text-center">
+            (3分ほどで読み終えることができます。)
+        </div>
+        <div class="form-text text-end mt-3">
+            最終更新日
+            <br>
+            令和6年6月20日
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                基本
+            </span>
+        </h5>
+        <div>
+            <div>
+                <div class="text-indent">
+                    法定相続人と法定相続分は、以下の順番で決定されます。
+                </div>
+            </div>
+            <div class="ps-sm-5 ps-4 mt-3">
+                <ul class="ps-0 mb-0">
+                    <li>
+                        <div class="fw-bold">
+                            １，配偶者と子（養子を含む）のとき
+                        </div>
+                        <div class="ms-3">
+                            <div>
+                                ＞２分の１ずつ
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    子が複数名いるとき、各自の法定相続分は２分の１を子の人数で割ったもの
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="fw-bold">
+                            ２，配偶者と直系尊属のとき
+                        </div>
+                        <div class="ms-3">
+                            <div class="d-flex">
+                                <div>
+                                    ＞配偶者
+                                    <br>
+                                    ＞直系尊属
+                                </div>    
+                                <div class="ms-3">
+                                    ３分の２
+                                    <br>
+                                    ３分の１
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    直系尊属には、父母（養親を含む）、父または母が被相続人より先に死亡しているときは、父または母の祖父母が該当します。
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    直系尊属が複数名いるとき、各自の法定相続分は３分の１を直系尊属の人数で割ったもの
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="fw-bold">
+                            ３，配偶者と兄弟姉妹のとき
+                        </div>
+                        <div class="ms-3">
+                            <div class="d-flex">
+                                <div>
+                                    ＞配偶者
+                                    <br>
+                                    ＞兄弟姉妹
+                                </div>    
+                                <div class="ms-3">
+                                    ４分の３
+                                    <br>
+                                    ４分の１
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    兄弟姉妹が複数名いるとき、各自の法定相続分は４分の１を兄弟姉妹の人数で割ったもの
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    異父母の兄弟姉妹は、父母双方を同じくする兄弟姉妹の２分の１の割合になります。
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="d-flex mt-3">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        上記１，２，３で配偶者がいないときは、もう一方が全て取得します。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                数次相続について
+            </span>
+        </h5>
+        <div class="text-indent">
+            <p>
+                相続人が死亡して相続が連鎖している状態の相続のことを指します。
+            </p>
+            <p>
+                相続人が死亡したとき、その相続人についても上記「基本」に従って相続人を判定します。
+            </p>
+            <p>
+                相続を放置した場合、これを繰り返すことにより相続人が増え、さらに面識のない相続人も現れることにより相続手続きが難航することが多々あります。
+            </p>
+            <p>
+                例）Ａが死亡して相続人が配偶者Ｂと子Ｃの２名であったところ、Ｂが死亡した場合、ＢにＡ以外との子がいたときはその子、Ｂが再婚していれば、その再婚相手、再婚相手との子がいればその子もＡの相続人になります。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                代襲相続について
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                本来相続人になる続柄の方が先に死亡しているときにその方に代わって相続することを指します。
+            </p>
+            <p class="text-indent">
+                例）子が先に死亡しているときは、孫が相続人になります。孫も先に死亡しているときはひ孫、、、のように続きます。
+            </p>
+            <p class="text-indent">
+                例）父母が相続人になる場合で父または母が先に死亡しているときは、祖父母が相続人になります。祖父母も先に死亡しているときは曽祖父母、、、のように続きます。
+            </p>
+            <div>
+                <p class="text-indent">
+                    例）兄弟姉妹が相続人になる場合で先に死亡している兄弟姉妹がいるとき、その兄弟姉妹の子が相続人になります。兄弟姉妹の子も死亡している場合、他の兄弟姉妹に相続分が移ります。
+                </p>
+                <div class="ms-3 additional-text">
+                    <div>
+                        ※
+                    </div>
+                    <p>
+                        兄弟姉妹の場合は子より後の世代への代襲は起こりません。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                異父母の兄弟姉妹が相続したときの例
+            </span>
+        </h5>
+        <div>
+            <ul class="ps-0 mb-0">
+                <li>
+                    <div class="text-indent">
+                        配偶者Ａと父母双方を同じくする兄弟姉妹Ｂと異父母の兄弟姉妹がＣの３名が相続人になるとき
+                    </div>
+                    <p class="mt-2 ms-5">
+                        Ａは１２分の９
+                        <br>
+                        Ｂは１２分の２
+                        <br>
+                        Ｃは１２分の１
+                    </p>
+                </li>
+                <li>
+                    <div class="text-indent">
+                        配偶者Ａと父母双方を同じくする兄弟姉妹Ｂ、Ｃと異父母の兄弟姉妹がＤ、Ｅの５名が相続人になるとき
+                    </div>
+                    <p class="mt-2 ms-5">
+                        Ａは２４分の１８
+                        <br>
+                        Ｂは２４分の２
+                        <br>
+                        Ｃは２４分の２
+                        <br>
+                        Ｄは２４分の１
+                        <br>
+                        Ｅは２４分の１
+                    </p>
+                </li>
+                <li>
+                    <div class="text-indent">
+                        父母双方を同じくする兄弟姉妹Ａと異父母の兄弟姉妹がＢの２名が相続人になるとき
+                    </div>
+                    <p class="mt-2 ms-5">
+                        Ａは３分の２
+                        <br>
+                        Ｂは３分の１
+                        <br>
+                    </p>
+                </li>
+                <li>
+                    <div class="text-indent">
+                        父母双方を同じくする兄弟姉妹Ａ、Ｂと異父母の兄弟姉妹がＣ、Ｄの４名が相続人になるとき
+                    </div>
+                    <p class="mt-2 ms-5">
+                        Ａは６分の２
+                        <br>
+                        Ｂは６分の２
+                        <br>
+                        Ｃは６分の１
+                        <br>
+                        Ｄは６分の１
+                        <br>
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                養子について
+            </span>
+        </h5>
+        <div>
+            <div>
+                <div class="text-indent">
+                    <p>
+                        養子縁組には、普通養子縁組と特別養子縁組の２種類あります。
+                    </p>
+                    <p>
+                        特別養子縁組では実親との親族関係が終了するため、実親の相続人になりませんが、普通養子縁組では実親との親族関係は継続したままの状態で
+                        養親との親族関係が発生するため実親と養親両方の相続人となります。
+                    </p>
+                    <p>
+                        養子に子がいる場合、養子縁組後に生まれた子は養親の親族となりますが、養子縁組前に生まれていた子は養親の親族にはなりません。
+                        そのため、養子が養親より先に亡くなった場合、養子縁組後の子は代襲により養親を相続しますが、養子縁組前の子は相続しません。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="text-center">
+        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}とはの記事について&body=">
+            この記事について問い合わせる
+        </a>
+        <br>
+        (メールソフトが起動します)
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

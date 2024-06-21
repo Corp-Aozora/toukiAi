@@ -255,8 +255,12 @@ form div.input-group-text{
     border-bottom-right-radius: 0!important;
 }
 
+.article-font{
+    font-family: 'Noto Serif JP', serif;
+}
+
 /* レスポンシブ用 */
-@media (max-width:992px){
+@media (max-width:991px){
     .lg-text-center{
         text-align: center!important;
     }
@@ -275,7 +279,7 @@ form div.input-group-text{
     }
 }
 
-@media (max-width:768px){
+@media (max-width:767px){
     div.form-control{
         margin-left: 0px!important;
     }
@@ -297,6 +301,11 @@ form div.input-group-text{
 
     .md-mt-3{
         margin-top: 1rem!important;
+    }
+
+    .md-px-2{
+        padding-left: 0.5rem!important;
+        padding-right: 0.5rem!important;
     }
 }
 

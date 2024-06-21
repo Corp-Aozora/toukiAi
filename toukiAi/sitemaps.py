@@ -16,7 +16,8 @@ class StaticViewSitemap(Sitemap):
         'toukiApp:commerce_law': 0.5,
         'toukiApp:privacy': 0.5,
         'toukiApp:terms': 0.5,
-        'toukiApp:condition': 0.6,
+        'toukiApp:useful_info_links': 0.7,
+        # 'toukiApp:condition': 0.6,
         'accounts:signup': 0.6,
         'accounts:account_reset_password': 0.5,
         'account_login': 0.6,
@@ -29,7 +30,8 @@ class StaticViewSitemap(Sitemap):
         'toukiApp:commerce_law': 'monthly',
         'toukiApp:privacy': 'monthly',
         'toukiApp:terms': 'monthly',
-        'toukiApp:condition': 'monthly',
+        'toukiApp:useful_info_links': 'weekly',
+        # 'toukiApp:condition': 'monthly',
         'accounts:signup': 'monthly',
         'accounts:account_reset_password': 'monthly',
         'account_login': 'monthly',
@@ -42,7 +44,8 @@ class StaticViewSitemap(Sitemap):
         'toukiApp:commerce_law': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'commerce_law.html'),
         'toukiApp:privacy': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'privacy.html'),
         'toukiApp:terms': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'terms.html'),
-        'toukiApp:condition': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'condition.html'),
+        'toukiApp:useful_info_links': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'useful_info', 'useful_info_links.html'),
+        # 'toukiApp:condition': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'toukiApp', 'condition.html'),
         'accounts:signup': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'account', 'signup.html'),
         'accounts:account_reset_password': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'account', 'password_reset.html'),
         'account_login': os.path.join(settings.BASE_DIR, 'toukiAi', 'templates', 'account', 'login.html'),
@@ -55,7 +58,8 @@ class StaticViewSitemap(Sitemap):
             'toukiApp:commerce_law',
             'toukiApp:privacy',
             'toukiApp:terms',
-            'toukiApp:condition',
+            'toukiApp:useful_info_links',
+            # 'toukiApp:condition',
             'accounts:signup',
             'accounts:account_reset_password',
             'account_login',  # allauth のログインページ
@@ -78,3 +82,13 @@ class StaticViewSitemap(Sitemap):
         
         basic_log(get_current_function_name, None, None, f"サイトマップにテンプレートが存在しないパスがあります\nitem={item}\npath={path}")    
         raise Exception(f"テンプレートファイルが見つかりません: path={path}")
+    
+class UsefulInfoSitemap(Sitemap):
+    changefreq = "monthly"
+    priority = 0.8
+
+    def items(self):
+        return ['about_inheritance', 'check_legal_heirs', 'refuse_inheritance']  # 動的URL用のパラメータ
+
+    def location(self, item):
+        return reverse('toukiApp:useful_info', args=[item])  # 動的URLの生成

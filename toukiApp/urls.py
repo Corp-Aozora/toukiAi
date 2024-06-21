@@ -10,6 +10,8 @@ urlpatterns = [
     path("commerce_law", views.commerce_law, name="commerce_law"),
     path("privacy", views.privacy, name="privacy"),
     path("terms", views.terms, name="terms"),
+    path("useful_info_links", views.useful_info_links, name="useful_info_links"),
+    path("useful_info_links/<str:param>", views.useful_info, name="useful_info"),
     # path("condition", views.condition, name="condition"),
     
     path('step_one_trial', views.step_one_trial, name='step_one_trial'),

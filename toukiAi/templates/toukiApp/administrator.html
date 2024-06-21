@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-{% block title %} {{ title }} | {{ block.super}}{% endblock title %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
 {% block stylesheet %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'toukiApp/administrator.css' %}">

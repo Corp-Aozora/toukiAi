@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    <p class="ps-4">
+        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
+            お役立ち情報に戻る
+        </a>
+    </p>
+    <div class="text-center">
+        <h3 class="mb-3">
+            {{ title }}
+        </h3>
+        <div class="form-text text-center">
+            (3分ほどで読み終えることができます。)
+        </div>
+        <div class="form-text text-end mt-3">
+            最終更新日
+            <br>
+            令和6年6月20日
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                定義
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                亡くなった方から承継した一切の財産（借り入れなどの負債以外にも預貯金などの資産を含む）を放棄して相続人ではなくなることです。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                手続
+            </span>
+        </h5>
+        <div class="text-indent">
+            <p>
+                自分が相続人であることを知った日から３ヶ月以内（熟慮期間）に家庭裁判所で手続を開始する必要があります。
+            </p>
+            <p>
+                自分が相続人であることを知った日とは、原則亡くなった方の死亡日を知った日のことですが、例外的に
+                亡くなった方に想定していなかった財産があることを初めて知った日に遅らせることができる場合もあります。
+            </p>
+            <p>
+                手続きは、亡くなった方の出生から死亡までの戸籍謄本など相続手続きで使用する一般的な書類と裁判所に備え付けの
+                申請書を提出することで開始され、後は家庭裁判所から相続放棄を本当にするのか確認の文書が届いたら間違いない旨の
+                回答書を返送して完了するという簡単なものです。
+            </p>
+            <div>
+                <div>
+                    手続きが完了すると相続放棄申述受理通知書というものが届きます。
+                </div>
+                <p>
+                    この通知書は１度しか発行されないため紛失した場合は、相続放棄申述受理証明書を請求する必要があります。
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                手続きが完了したら
+            </span>
+        </h5>
+        <div>
+            <div class="text-indent">
+                <div>
+                    相続放棄申述受理通知書または証明書のコピーを関係各所に送付して知らせることで自己に被相続人の負債に関する請求が来ないようにすることができます。
+                </div>
+                <p>
+                    請求が来たときに知らせても問題ないですが、知っている関係各所に対しては書類が手元にあり状況をよく把握している間に済ませたほうがスムーズに対処できます。
+                </p>
+            </div>
+            <ul class="ps-3 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        不動産があったときは、市区町村の固定資産を取り扱う係に送付をすることで固定資産税の支払を避けることができます。
+                        <br>
+                        ただし、固定資産税は１月１日に役所が課税対象者と決定した人に納税義務が発生するため、タイミングによっては１年分だけ避けることができない場合があります。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        車があったときは、市区町村の自動車税を取り扱う係に送付をすることで自動車税の支払を避けることができます。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        消費者金融などからの借り入れがあったときは、その消費者金融などに送付することで請求を避けることができます。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        交通事故などによる損害賠償債務があったときは、その被害者に送付することで請求を避けることができます。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        <div>
+                            他の相続人がいる又は相続が次の順位の相続人に移るときは、書類を送らずとも可能であればその相続人に知らせておいたほうが良いです。
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                他の相続人が相続手続きをするときに相続放棄した人の相続放棄申述受理通知書または証明書が必要になることがあります。
+                            </div>
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                相続が次の順位の相続人に移るときとは、例えば子全員が相続放棄することにより父母が相続人になる場合などのことです。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                手続きが完了した後でも負担する義務
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                もし手元に相続放棄により手放すべき家財道具等の財産がある場合や不動産、車がある場合、他の相続人（他に相続人がいないときは相続財産管理人）に
+                引き渡すまで自分の財産と同様に適切に管理を継続する必要があります。
+            </p>
+            <div>
+                <div>
+                    例えば遺産として家屋があり、壊れかけていたり枝が敷地を越境しているようなときに相続人全員が放棄した場合でも、
+                    その建物を適切に管理して周囲に被害が出ないようにする義務があるため、適宜修繕や伐採をするか相続財産管理人を
+                    選任する手続きを家庭裁判所でして、その相続財産管理人に引き渡す必要があります。
+                </div>
+                <div class="additional-text">
+                    <div>
+                        ※
+                    </div>
+                    <div>
+                        相続財産管理人とは、相続人がいないときに遺産に対して利害関係がある人の請求により選任される相続財産を任される人です。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                相続放棄ができなくなる場合
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                遺産に預貯金や不動産などの資産があったときに使用、名義変更、譲渡など客観的に相続を受け入れたと判断されるような行為をしていた場合は相続放棄ができなくなります。
+            </p>
+            <p class="text-indent">
+                以下は被相続人の財産に関する行為ですが、相続を受け入れたとは判断されず相続放棄が可能です（主なものを列挙しています）。
+            </p>
+            <ul class="ps-3 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        <div>
+                            亡くなった方の葬儀費用として預貯金の一部または全部を使用した
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                葬儀費用の額が過大なときは、相続を受け入れたとみなされる可能性があります。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        亡くなった方の負債を相続人自身の財産から支払った
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        <div>
+                            周囲に被害を出す可能性がある老朽化した建物を相続人の財産から支払って修繕した
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                解体は相続を受け入れたと判断されます。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        食料品など腐敗しそうなものを廃棄した
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
+                熟慮期間を超えても相続放棄できる場合
+            </span>
+        </h5>
+        <div class="text-indent">
+            <p>
+                亡くなった方に相続財産が全くないと信じ，かつそのように信じたことに相当な理由があるときなどは，相続財産の存在を
+                認識したときから３ヶ月以内に家庭裁判所で手続を開始すれば相続放棄をすることができます。
+            </p>
+            <p>
+                例）亡くなった方が保管していた書類や郵便物などを調べたところ少額の預金以外の財産は見当たらず、その少額の預金は解約して
+                葬儀費用のために使用して財産の相続手続きは終了したと考えていたところ、数カ月後に消費者金融から亡くなった方宛に督促状が
+                届き、それによって初めて借り入れがあったことを知ったときは、借り入れがあったことを知った日から３ヶ月以内に相続放棄の手続をすれば
+                家庭裁判所に相続放棄を認めてもらえる可能性があります。
+            </p>
+            <p>
+                このケースは家庭裁判所を説得するための追加書類が必要になりますので、弁護士や司法書士にご相談することをおすすめします。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                相続放棄しても取得できる財産
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent">
+                亡くなった方の財産とみなされないものは相続放棄をした後でも取得できます（主なものを列挙しています）。
+            </p>
+            <ul class="ps-3 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        墓地、墓石、仏具、遺骨など祭祀に関するもの
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        香典
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        健康保険から支給される葬祭、埋葬に関する費用
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        遺族年金、死亡一時金、未支給の年金
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        <div>
+                            亡くなった方が契約していた受取人が相続人に指定されている保険金
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                受取人が亡くなった方になっている保険金は受け取れなくなります。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="text-center">
+        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}とはの記事について&body=">
+            この記事について問い合わせる
+        </a>
+        <br>
+        (メールソフトが起動します)
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

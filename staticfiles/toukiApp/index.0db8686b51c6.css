@@ -3,13 +3,6 @@
     cursor: hand;
 }
 
-@media(min-width: 992px){
-    #introSubtitle{
-        display: flex!important;
-        justify-content: center!important;
-    }
-}
-
 .supportStep::before,
 .supportStep::after {
     content: "";
@@ -47,4 +40,11 @@ label{
 .emPosition{
     top: -55px;
     left: 110px;
+}
+
+@media(min-width: 992px){
+    #introSubtitle{
+        display: flex!important;
+        justify-content: center!important;
+    }
 }

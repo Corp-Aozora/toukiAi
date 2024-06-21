@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    <p class="ps-4">
+        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
+            お役立ち情報に戻る
+        </a>
+    </p>
+    <div class="text-center">
+        <h3 class="mb-3">
+            {{ title }}
+        </h3>
+        <div class="form-text text-center">
+            (3分ほどで読み終えることができます。)
+        </div>
+        <div class="form-text text-end mt-3">
+            最終更新日
+            <br>
+            令和6年6月20日
+        </div>
+    </div>
+    <hr class="my-4">
+    <div>
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                定義
+            </span>
+        </h5>
+        <p class="text-indent">
+            人の死亡により発生するもので、死亡した人（被相続人）の一切の権利、財産、義務（権利義務）は無条件で相続人に承継されます。
+            ただし、被相続人固有のもの（年金の受給権など）は承継されません。
+        </p>
+        <div class="text-indent">
+            <div>
+                ※
+            </div>
+            <p>
+                親が生前に子に財産を無償で譲渡するのは相続ではなく贈与に該当し、手続や税率が大幅に異なります。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                承継される権利義務
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent md-text-center">
+                主なものを列挙してます。
+            </p>
+            <div class="ps-md-5">
+                <ul class="ps-0 mb-0">
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            現金、預貯金、車、家財道具、不動産など資産
+                        </p>
+                    </li>
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            他人に貸していたお金や家賃を請求する権利、ものやマンションなどを借りる権利、損害賠償を請求する権利
+                        </p>
+                    </li>
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            借り入れ、家賃、住民税などの負債
+                        </p>
+                    </li>
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            家主として不動産を借主に契約通りに貸し渡す契約上の義務や損害賠償を負担する法的義務
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                承継されない権利義務
+            </span>
+        </h5>
+        <div>
+            <p class="text-indent md-text-center">
+                主なものを列挙してます。
+            </p>
+            <div class="ps-md-5">
+                <ul class="ps-0 mb-0">
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            年金を受給する権利や生活保護を受給する権利
+                        </p>
+                    </li>
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            他人の借り入れの連帯保証人の地位
+                        </p>
+                    </li>
+                    <li class="d-flex">
+                        <div>
+                            ・
+                        </div>
+                        <p>
+                            会社勤めしていた場合の雇用契約における労働者の地位
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                法定相続人と法定相続分
+            </span>
+        </h5>
+        <div>
+            <div>
+                <div class="text-indent">
+                    <div>
+                        法定相続人と法定相続分は、以下の順番で決定されます。
+                    </div>
+                    <div>
+                        配偶者がいないときは、もう一方が全て取得します。
+                    </div>
+                </div>
+            </div>
+            <div class="ps-sm-5 ps-4 mt-3">
+                <ul class="ps-0 mb-0">
+                    <li>
+                        <div>
+                            １，配偶者と子（養子を含む）のとき
+                        </div>
+                        <div class="ms-3">
+                            <div>
+                                ＞２分の１ずつ
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    子が複数名いるとき、各自の法定相続分は２分の１を子の人数で割ったもの
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            ２，配偶者と直系尊属のとき
+                        </div>
+                        <div class="ms-3">
+                            <div class="d-flex">
+                                <div>
+                                    ＞配偶者
+                                    <br>
+                                    ＞直系尊属
+                                </div>    
+                                <div class="ms-3">
+                                    ３分の２
+                                    <br>
+                                    ３分の１
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    直系尊属には、父母（養親を含む）、父または母が被相続人より先に死亡しているときは、父または母の祖父母が該当します。
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    直系尊属が複数名いるとき、各自の法定相続分は３分の１を直系尊属の人数で割ったもの
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
+                            ３，配偶者と兄弟姉妹のとき
+                        </div>
+                        <div class="ms-3">
+                            <div class="d-flex">
+                                <div>
+                                    ＞配偶者
+                                    <br>
+                                    ＞兄弟姉妹
+                                </div>    
+                                <div class="ms-3">
+                                    ４分の３
+                                    <br>
+                                    ４分の１
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <div>
+                                    兄弟姉妹が複数名いるとき、各自の法定相続分は４分の１を兄弟姉妹の人数で割ったもの
+                                </div>
+                            </div>
+                            <div class="additional-text">
+                                <div>
+                                    ※
+                                </div>
+                                <p>
+                                    異父母の兄弟姉妹は、父母双方を同じくする兄弟姉妹の２分の１の割合になります。
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                遺産分割協議
+            </span>
+        </h5>
+        <div class="text-indent">
+            <p>
+                各自法定相続分に従った相続にする場合を除いて、法定相続人全員の合意により各自の取得割合を決定する必要があります。
+            </p>
+            <p>
+                負債や義務については、遺産分割協議を行ったとしても、債権者側の同意がないかぎり法定相続人各自が法定相続分に従った負担を負うことになります。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4">
+            <span class="pe-md-4 md-px-2 border-bottom border-dark">
+                財産を取得するための手続
+            </span>
+        </h5>
+        <div >
+            <p class="text-indent">
+                現金や家財道具などは相続人間の協議で解決できますが、不動産や預貯金、車などは名義変更や解約の手続が必要になります。
+            </p>
+            <div class="text-indent">
+                <p>
+                    不動産は、被相続人が保管していた権利証や役所から毎年届く固定資産税の納税通知書を参考にその不動産を管轄する法務局で手続きが必要になります。専門家は司法書士です。
+                </p>
+                <p>
+                    預貯金は、被相続人が持っていた通帳やキャッシュカード、クレジットカードなどを参考に金融機関に照会をかけて口座が存在するときは、その金融機関で手続が必要になります。
+                </p>
+                <p>
+                    車は、現物や車検証、役所から毎年届く自動車税の納税通知書を参考に管轄の運輸局で手続が必要になります。専門家は行政書士です。
+                </p>
+            </div>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="text-center">
+        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject=相続とはの記事について&body=">
+            この記事について問い合わせる
+        </a>
+        <br>
+        (メールソフトが起動します)
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

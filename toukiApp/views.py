@@ -861,7 +861,7 @@ def step_one_trial(request):
         child_spouse_form_set,\
         grand_child_form_set,\
         ascendant_form_set,\
-        collateral_form_set = ini_formsets(form_sets, request)
+        collateral_form_set = ini_formsets(form_sets)
         
         decedent_form,\
         spouse_form,\
@@ -4776,6 +4776,9 @@ def administrator(request):
         会社概要ページ
         
     """
+    if not is_valid_request_method(request, ["GET"], True):
+        redirect("toukiApp:index")
+        
     function_name = get_current_function_name()
     this_url_name = "toukiApp:administrator"
     html = "toukiApp/administrator.html"
@@ -4799,7 +4802,7 @@ def administrator(request):
             request_user,
             function_name,
             redirect_to,
-            notices=f"request.POST={request.POST}"
+            notices=f"request.GET.dict()={request.GET.dict()}"
         )
 
 def commerce_law(request):
@@ -4808,6 +4811,9 @@ def commerce_law(request):
         特商法のページ
         
     """
+    if not is_valid_request_method(request, ["GET"], True):
+        redirect("toukiApp:index")
+        
     function_name = get_current_function_name()
     this_url_name = "toukiApp:commerce_law"
     html = "toukiApp/commerce_law.html"
@@ -4830,7 +4836,7 @@ def commerce_law(request):
             request_user,
             function_name,
             redirect_to,
-            notices=f"request.POST={request.POST}"
+            notices=f"request.GET.dict()={request.GET.dict()}"
         )
 
 def privacy(request):
@@ -4839,7 +4845,9 @@ def privacy(request):
         プライバシーポリシー
         
     """
-    
+    if not is_valid_request_method(request, ["GET"], True):
+        redirect("toukiApp:index")
+        
     function_name = get_current_function_name()
     this_url_name = "toukiApp:privacy"
     html = "toukiApp/privacy.html"
@@ -4865,7 +4873,7 @@ def privacy(request):
             request_user,
             function_name,
             redirect_to,
-            notices=f"request.POST={request.POST}"
+            notices=f"request.GET.dict()={request.GET.dict()}"
         )
 
 def terms(request):
@@ -4874,7 +4882,9 @@ def terms(request):
         利用規約ページ
         
     """
-    
+    if not is_valid_request_method(request, ["GET"], True):
+        redirect("toukiApp:index")
+            
     function_name = get_current_function_name()
     this_url_name = "toukiApp:terms"
     html = "toukiApp/terms.html"
@@ -4898,7 +4908,7 @@ def terms(request):
             request_user,
             function_name,
             redirect_to,
-            notices=f"request.POST={request.POST}"
+            notices=f"request.GET.dict()={request.GET.dict()}"
         )
 
 # def condition(request):           事前の利用条件確認は一旦停止中
@@ -4944,6 +4954,87 @@ def terms(request):
 #             error_redirect_to, 
 #         )
 
+def useful_info_links(request):
+    """
+    
+        お役立ち情報ページ
+        
+    """
+    if not is_valid_request_method(request, ["GET"], True):
+        redirect("toukiApp:index")
+        
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:useful_info_links"
+    html = "toukiApp/useful_info_links.html"
+    redirect_to = "toukiApp:index"
+    title = "お役立ち情報"
+    request_user = request.user
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name)
+        context = {
+            "title": title,
+            "canonical_url": canonical_url
+        }
+        
+        return render(request, html, context)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            request_user,
+            function_name,
+            redirect_to,
+            notices=f"request.GET.dict()={request.GET.dict()}"
+        )
+        
+def useful_info(request, param):
+    """
+    
+        各お役立ち情報ページ（共通のビュー）
+        
+    """
+    if not is_valid_request_method(request, ["GET"], True):
+        return redirect("toukiApp:index")
+    
+    def get_page_data():
+        """各ページのパラメータ、html、タイトルを返す"""
+        html = f"toukiApp/useful_info/{param}.html"
+        if param == "about_inheritance":
+            return html, "相続とは"
+        if param == "check_legal_heirs":
+            return html, "相続人の判定方法"
+        if param == "refuse_inheritance":
+            return html, "相続放棄"
+        if param == "about_inheritance_touki":
+            return html, "相続登記とは"
+
+    function_name = get_current_function_name()
+    this_url_name = "toukiApp:useful_info"
+    html, title = get_page_data()
+    redirect_to = "toukiApp:index"
+    request_user = request.user
+    
+    try:
+        canonical_url = get_canonical_url(request, this_url_name, param)
+        context = {
+            "title": title,
+            "company_data": CompanyData,
+            "canonical_url": canonical_url,
+            "param": param
+        }
+        
+        return render(request, html, context)
+    except Exception as e:
+        return handle_error(
+            e,
+            request,
+            request_user,
+            function_name,
+            redirect_to,
+            notices=f"request.GET.dict()={request.GET.dict()}"
+        )     
+           
 #不正な投稿があったとき
 def csrf_failure(request, reason=""):
 

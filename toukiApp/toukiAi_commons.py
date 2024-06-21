@@ -571,11 +571,11 @@ def get_content_types_for_models(*models):
             raise ObjectDoesNotExist(f"{get_current_function_name}でエラー\nmodelsの中にContentTypeを取得できない要素があります。\nmodel={model.__name__}")
     return content_types
 
-def get_canonical_url(request, url_name):
+def get_canonical_url(request, url_name, param = None):
     """正規のurlを取得する（www.を削除したurl）"""
     current_site = get_current_site(request)
     canonical_domain = f"https://{current_site.domain}".replace("www.", "")
-    canonical_url = f"{canonical_domain}{reverse(url_name)}"
+    canonical_url = f"{canonical_domain}{reverse(url_name, args=[param])}" if param else f"{canonical_domain}{reverse(url_name)}"
     
     return canonical_url
 

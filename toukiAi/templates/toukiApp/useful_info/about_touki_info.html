@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/touki_info.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="3" update_at="令和6年6月24日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <div class="text-indent">
+            <p>
+                登記記録を確認できるPDFファイルまたは書面の総称で、主に登記情報と全部事項証明書の2種類があります。
+            </p>
+            <p>
+                登記情報と全部事項証明書には両方とも同じ内容が記載されていますが、登記情報は登記情報提供サービスからPDFファイルとして、全部事項証明書は法務局から証明書として提供されています。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜登記記録の内容＞
+        </h5>
+        <div>
+            <div>
+                <p class="text-indent">
+                    登記記録には、不動産の物理的な現況についての情報（表題部）と権利関係についての情報（権利部）の２種類が記録されています。
+                </p>
+                <p class="text-indent">
+                    現況と言っても、登記記録は、原則として当事者からの申請がない限り更新されることはないため、表題部や権利部が古い情報のままのことがよくあります。
+                </p>
+                <p class="text-indent">
+                    表題部や権利部が古い情報のままだと現状と一致しないために、当事者が変わったときに土地の境界や譲渡したのか貸しただけなのかなど
+                    現状がどこまで正しいのか紛争になりやすいです。
+                </p>
+                <p class="md-text-center">
+                    <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#touki_info_modal">
+                        （登記情報の参考例）
+                    </button>
+                </p>
+            </div>
+            <div>
+                <p class="md-text-center">
+                    <span class="border-bottom border-dark">
+                        ・表題部について
+                    </span>
+                </p>
+                <div>
+                    <div class="text-indent">
+                        不動産の所在地、用途、面積などの物理的な現況と履歴が記録されています。
+                    </div>
+                    <div class="additional-text">
+                        <div>
+                            ※
+                        </div>
+                        <p>
+                            下線が引かれている欄は更新されたことを意味するため現在効力はありません。
+                        </p>
+                    </div>
+                </div>
+                <p class="text-indent">
+                    不動産の所在地は住所（人の所在地）とは異なる定め方のため、特に住居表示（◯丁目◯番◯号の形式の住所）の地域では
+                    不動産の所在地と住所が同じではありません。
+                    <br>
+                    毎年４月ごろに届く固定資産税の納税通知書に付属している課税明細書を見ると不動産の所在地を確認することができます。
+                </p>
+            </div>
+            <div>
+                <p class="md-text-center">
+                    <span class="border-bottom border-dark">
+                        ・権利部について
+                    </span>
+                </p>
+                <div>
+                    <div class="text-indent">
+                        不動産の所有者や抵当権者（住宅ローンの金融機関や保証会社）など権利に関する現況と履歴が記録されています。
+                    </div>
+                    <div class="additional-text">
+                        <div>
+                            ※
+                        </div>
+                        <p>
+                            下線が引かれている欄は更新されたことを意味するため現在効力はありません。
+                        </p>
+                    </div>
+                </div>
+                <p class="text-indent">
+                    所有者の欄には、所有権を取得した原因、当時の住所、氏名が記載されています。
+                </p>
+                <div>
+                    <div class="text-indent">
+                        引っ越しをしても原則として所有者自身が住所変更登記を申請しないと住所は引越し先に更新されません。
+                    </div>
+                    <div class="text-indent">
+                        住所変更登記がされていない場合、登記記録上の住所と実際の住所が一致せず同一人物の扱われないため、
+                        不動産の売買、住宅ローンの借り換えなどにより登記記録を更新する必要が生じたときには住所変更登記が必要になります。
+                    </div>
+                    <div class="additional-text">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            相続により登記記録を更新する場合は、住所変更登記は必要ありませんが追加の書類が必要になることがあります。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5">
+            <h5 class="md-text-center mb-4 lh-lg">
+                ＜登記簿謄本の取得方法＞
+            </h5>
+            <div>
+                <p class="md-text-center">
+                    <span class="border-bottom border-dark">
+                        ・登記情報の場合
+                    </span>
+                </p>
+                <p class="text-indent">
+                    <a href="{{ touki_info_link }}" target="_blank" rel="noopener noreferrer">
+                        登記情報提供サービス
+                    </a>
+                    でPDFファイルでオンライン上で請求と取得ができます。
+                </p>
+                <p class="text-indent">
+                    全部事項証明書より取得方法が簡単で料金が安いため、何かの登記手続きをするための登記記録の確認をする場合は、登記情報を取得したほうが良いです。
+                </p>
+            </div>
+            <div>
+                <p class="md-text-center">
+                    <span class="border-bottom border-dark">
+                        ・全部事項証明書の場合
+                    </span>
+                </p>
+                <p class="text-indent">
+                    オンラインで請求して郵送または法務局窓口で受け取る、法務局窓口または郵送で請求して受け取るのいずれかの方法で取得できます。
+                </p>
+                <p class="text-indent">
+                    オンラインで請求する場合は、
+                    <a href="{{ moj_online_request_link }}" target="_blank" rel="noopener noreferrer">
+                        かんたん証明書請求
+                    </a>
+                    から請求できます。
+                </p>
+                <p>
+                    証明書として発行されるため、提出先があるときは全部事項証明書を取得したほうが良いです。
+                </p>
+            </div>
+        </div>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

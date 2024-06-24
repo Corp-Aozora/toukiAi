@@ -5016,6 +5016,8 @@ def useful_info(request, param):
             return html, "戸籍謄本とは"
         if param == "is_match_decedent_and_owner":
             return html, "死亡時の住所から登記記録上の住所までの履歴を証する書面"
+        if param == "about_touki_info":
+            return html, "登記簿謄本とは"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"
@@ -5029,7 +5031,9 @@ def useful_info(request, param):
             "title": title,
             "company_data": CompanyData,
             "canonical_url": canonical_url,
-            "param": param
+            "param": param,
+            "touki_info_link": ExternalLinks.links["touki_info"],
+            "moj_online_request_link": ExternalLinks.links["moj_online_request"],
         }
         
         return render(request, html, context)

@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_one.html" %}
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_two.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="3" update_at="令和6年6月22日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <p class="text-indent">
+            亡くなった方（被相続人）の死亡時の住所が登記記録上の所有者（所有者）の住所と一致しないとき、
+            被相続人と所有者が同一人物であることを証明するために死亡時の住所から所有者の住所までの履歴を
+            証明する書類が必要になります。
+        </p>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜手順＞
+        </h5>
+        <div>
+            <p class="text-indent">
+                最初に住民票の除票（本籍地と筆頭者の記載があるもの）を取得して、そこに記載の死亡時の住所または
+                前住所が所有者の住所と一致しないときは、以下の順で追加の書類を取得する必要があります。
+            </p>
+            <ul class="ps-0 mb-0">
+                <li class="d-flex">
+                    <div>
+                        １．
+                    </div>
+                    <div>
+                        <span class="border-bottom border-dark">
+                            住民票の除票に記載の本籍の役所で戸籍の附票を取得する。
+                        </span>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                戸籍の附票には、その本籍があった間の住所の履歴が記載されています。
+                            </div>
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                請求の際は、請求書に所有者の住所までつながるものがほしい旨を記載すると役所職員がその役所で保管している範囲で必要な分を探してくれます。
+                                <br>
+                                所有者の住所に一致するものがない場合でも、その戸籍の附票は必要です。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ２．
+                    </div>
+                    <div>
+                        <span class="border-bottom border-dark">
+                            １で一致しないときは、取得済みの被相続人の戸籍謄本を参考に一つ前の本籍の市区町村に戸籍の附票を請求する。
+                        </span>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                所有者の住所と一致するものが取得できる又は役所での保存期間切れ等により取得できなくなるまで
+                                過去の本籍の役所での戸籍の附票の取得を繰り返します。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ３．
+                    </div>
+                    <div>
+                        <span class="border-bottom border-dark">
+                            ２で一致しないときは、所有者の住所の市区町村で不在住証明書を取得して４に進む。
+                        </span>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                不在住証明書とは、請求書に記載した住所氏名に該当する生存している人はいないことを証明するものです。
+                            </div>
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                少数ですが、役所よっては発行していないところもあります。そのときは、４にお進みください。
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ４．
+                    </div>
+                    <div>
+                        <span class="border-bottom border-dark">
+                            被相続人が対象の不動産について権利証（登記済証または登記識別情報通知）を保管していたか確認する。
+                        </span>
+                        <div class="additional-text">
+                            <div class="text-primary">
+                                ※
+                            </div>
+                            <div>
+                                <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_one">
+                                    登記済証の参考例
+                                </button>
+                            </div>
+                        </div>
+                        <div class="additional-text">
+                            <div class="text-primary">
+                                ※
+                            </div>
+                            <p>
+                                <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_two">
+                                    登記識別情報通知の参考例
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ５．
+                    </div>
+                    <div>
+                        <span class="border-bottom border-dark">
+                            ４の権利証がないとき、固定資産税の納税通知書に付属している課税明細書を用意または固定資産評価証明書を取得する。
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

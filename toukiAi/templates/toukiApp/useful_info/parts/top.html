@@ -1,0 +1,19 @@
+<p class="ps-4">
+    <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
+        お役立ち情報に戻る
+    </a>
+</p>
+<div class="text-center">
+    <h3 class="mb-3">
+        {{ title|linebreaksbr }}
+    </h3>
+    <div class="form-text text-center">
+        ({{ time }}分ほどで読み終えることができます。)
+    </div>
+    <div class="form-text text-end mt-3">
+        最終更新日
+        <br>
+        {{ update_at }}
+    </div>
+</div>
+<hr class="my-4">

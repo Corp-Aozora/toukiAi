@@ -5011,9 +5011,11 @@ def useful_info(request, param):
         if param == "if_late":
             return html, "放置したときのリスク"
         if param == "postpone_inheritance_touki":
-            return html, "相続登記を猶予したい\n（相続人申告登記）"
+            return html, "相続登記を猶予する\n（相続人申告登記）"
         if param == "about_family_card":
             return html, "戸籍謄本とは"
+        if param == "is_match_decedent_and_owner":
+            return html, "死亡時の住所から登記記録上の住所までの履歴を証する書面"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"

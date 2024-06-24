@@ -59,6 +59,11 @@
                         </div>
                     </li>
                     <li>
+                        <a href="#">
+                            財産調査の方法
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'toukiApp:useful_info' 'refuse_inheritance' %}">
                             相続放棄とは
                         </a>
@@ -89,7 +94,7 @@
                     </li>
                     <li>
                         <a href="{% url 'toukiApp:useful_info' 'postpone_inheritance_touki' %}">
-                            相続登記を猶予したい
+                            相続登記を猶予する
                         </a>
                         <div class="ms-3">
                             （相続人申告登記）
@@ -115,7 +120,9 @@
                         戸籍謄本の見方
                     </li>
                     <li>
-                        死亡時の住所と登記記録上の住所の履歴を証する書面
+                        <a href="{% url 'toukiApp:useful_info' 'is_match_decedent_and_owner' %}">
+                            死亡時の住所から登記記録上の住所までの履歴を証する書面
+                        </a>
                     </li>
                     <li>
                         登記簿謄本

@@ -27,53 +27,32 @@
 
 {% block content %}
 <div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
-    <p class="ps-4">
-        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
-            お役立ち情報に戻る
-        </a>
-    </p>
-    <div class="text-center">
-        <h3 class="mb-3">
-            {{ title|linebreaksbr }}
-        </h3>
-        <div class="form-text text-center">
-            (1分ほどで読み終えることができます。)
-        </div>
-        <div class="form-text text-end mt-3">
-            最終更新日
-            <br>
-            令和6年6月21日
-        </div>
-    </div>
-    <hr class="my-4">
+    {% include "toukiApp/useful_info/parts/top.html" with time="1" update_at="令和6年6月22日" %}
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark">
-                概要
-            </span>
+            ＜概要＞
         </h5>
         <div class="text-indent">
             <p>
                 遺産分割協議がまとまらないなどの事情により亡くなった方の死亡日から３年以内に相続登記を行うことが難しい場合の
                 代替手続きで法務局が管轄しています。専門家は司法書士です。
             </p>
+            <p>
+                相続人の把握を容易にするためのもので手続きをする相続人の氏名住所が記録されます。
+            </p>
         </div>
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
-                効果
-            </span>
+            ＜効果＞
         </h5>
         <p class="text-indent">
-            相続登記の義務を果たしたものと扱われ、過料を課されることがなくなります。
+            相続登記の義務を果たしたものと扱われ、過料を課されることはなくなります。
         </p>
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark">
-                手続
-            </span>
+            ＜手続＞
         </h5>
         <div class="text-indent">
             <p>
@@ -94,12 +73,10 @@
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
-                必要書類
-            </span>
+            ＜必要書類＞
         </h5>
         <div>
-            <ul class="ps-3 mb-0">
+            <ul class="ps-0 ps-sm-3 mb-0">
                 <li class="d-flex">
                     <div>
                         ・
@@ -143,14 +120,7 @@
             </ul>
         </div>
     </div>
-    <hr class="my-4">
-    <div class="text-center">
-        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}とはの記事について&body=">
-            この記事について問い合わせる
-        </a>
-        <br>
-        (メールソフトが起動します)
-    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
 </div>
 {% endblock %}
 

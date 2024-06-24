@@ -27,30 +27,10 @@
 
 {% block content %}
 <div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
-    <p class="ps-4">
-        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
-            お役立ち情報に戻る
-        </a>
-    </p>
-    <div class="text-center">
-        <h3 class="mb-3">
-            {{ title }}
-        </h3>
-        <div class="form-text text-center">
-            (1分ほどで読み終えることができます。)
-        </div>
-        <div class="form-text text-end mt-3">
-            最終更新日
-            <br>
-            令和6年6月21日
-        </div>
-    </div>
-    <hr class="my-4">
+    {% include "toukiApp/useful_info/parts/top.html" with time="1" update_at="令和6年6月22日" %}
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
-                主なものを列挙しています。
-            </span>
+            ＜主なものを列挙しています＞
         </h5>
         <div>
             <ul class="ps-0 mb-0">
@@ -83,24 +63,17 @@
                         ・
                     </div>
                     <p>
-                        後の世代では当時の状況を把握することが難しく、手続きが難航する状況を承継させる可能性が生じる。
+                        後の世代が相続するとき当時の状況を把握することが難しく、手続きがより難航する状況を承継させる可能性が生じる。
                     </p>
                 </li>
             </ul>
             <p class="text-indent">
-                現在は全く使用しないと考えていても予期せぬタイミングで公共事業や購入希望者が現れて名義を変更する必要が出てくることがあります。
+                今は全く使用する予定がない不動産と考えていても予期せぬタイミングで公共事業や購入希望者が現れて名義を変更する必要が出てくることがあります。
                 後の世代の方々が大変な思いをすることもありますので、可能であれば速やかに相続登記を完了させることをおすすめします。
             </p>
         </div>
     </div>
-    <hr class="my-4">
-    <div class="text-center">
-        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}とはの記事について&body=">
-            この記事について問い合わせる
-        </a>
-        <br>
-        (メールソフトが起動します)
-    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
 </div>
 {% endblock %}
 

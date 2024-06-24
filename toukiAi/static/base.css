@@ -309,16 +309,6 @@ form div.input-group-text{
     }
 }
 
-@media (min-width:576px){
-    .text-md-center{
-        text-align: center!important;
-    }
-
-    .text-sm-indent{
-        text-indent: 1rem!important;
-    }
-}
-
 @media (max-width:575px){
     .sm-text-center{
         text-align: center!important;
@@ -343,6 +333,22 @@ form div.input-group-text{
     }
 
     .sm-text-indent{
+        text-indent: 1rem!important;
+    }
+}
+
+@media (min-width:576px){
+    .text-sm-center{
+        text-align: center!important;
+    }
+
+    .text-sm-indent{
+        text-indent: 1rem!important;
+    }
+}
+
+@media (min-width:768px){
+    .text-md-indent{
         text-indent: 1rem!important;
     }
 }

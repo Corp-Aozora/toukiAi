@@ -27,34 +27,14 @@
 
 {% block content %}
 <div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
-    <p class="ps-4">
-        <a class="fw-bold" href="{% url 'toukiApp:useful_info_links' %}">
-            お役立ち情報に戻る
-        </a>
-    </p>
-    <div class="text-center">
-        <h3 class="mb-3">
-            {{ title }}
-        </h3>
-        <div class="form-text text-center">
-            (3分ほどで読み終えることができます。)
-        </div>
-        <div class="form-text text-end mt-3">
-            最終更新日
-            <br>
-            令和6年6月20日
-        </div>
-    </div>
-    <hr class="my-4">
+    {% include "toukiApp/useful_info/parts/top.html" with time="3" update_at="令和6年6月22日" %}
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark">
-                概要
-            </span>
+            ＜概要＞
         </h5>
         <div class="text-indent">
             <p>
-                亡くなった方（被相続人）の名義の不動産を相続人の名義に変更する手続きのことで法務局が管轄しています。専門家は司法書士です。
+                亡くなった方（被相続人）名義の不動産を相続人名義に変更する手続きのことで法務局が管轄しています。専門家は司法書士です。
             </p>
             <p>
                 現在では相続登記は義務となっており、亡くなった方の死亡日から３年以内に相続登記または相続人申告登記を行わないと１０万円以下の
@@ -64,29 +44,27 @@
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
-                効果
-            </span>
+            ＜効果＞
         </h5>
         <div>
-            <p class="text-indent">
+            <p class="text-md-indent md-text-center">
                 主なものを列挙しています。
             </p>
-            <ul>
+            <ul class="ps-0 ps-sm-3 mb-0">
                 <li class="d-flex">
                     <div>
                         ・
                     </div>
-                    <div>
+                    <p>
                         相続人が増えて手続きが複雑になるのを防ぎ子の世代へスムーズに承継させることができるようになる
-                    </div>
+                    </p>
                 </li>
                 <li class="d-flex">
                     <div>
                         ・
                     </div>
                     <p>
-                        リフォームや増築、売却など管理または処分ができるようになる
+                        リフォーム、増築、売却などの不動産の管理または処分ができるようになる
                     </p>
                 </li>
                 <li class="d-flex">
@@ -110,14 +88,12 @@
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark">
-                手続
-            </span>
+            ＜手続＞
         </h5>
         <div class="text-indent">
             <div>
                 <div>
-                    不動産を取得（共有持分の取得も含む）した相続人がその不動産の所在地を管轄する法務局で行うことができます。
+                    不動産を取得した相続人（共有持分の取得も含む）がその不動産の所在地を管轄する法務局で行うことができます。
                 </div>
                 <p>
                     申請期限はないため、相続した後であればいつでもできます。
@@ -125,7 +101,7 @@
             </div>
             <p>
                 法定相続分に従った割合による相続または相続人が１人（遺言により単独で取得する場合を含む）のときは単独で手続きを行うことができますが、
-                それ以外の場合は、相続人全員で誰が不動産を相続するかを決めて（遺産分割協議をして）から手続きを行う必要があります。
+                それ以外の場合は、相続人全員で誰が不動産を取得するかを決めて（遺産分割協議をして）から手続きを行う必要があります。
             </p>
             <p>
                 手続きは、後述の必要書類を収集、作成して登録免許税（法務局に支払う手数料）と一緒に法務局に提出することで開始します。
@@ -134,9 +110,7 @@
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
-                必要書類（遺言書がない場合）
-            </span>
+            ＜必要書類（遺言書がない場合）＞
         </h5>
         <div>
             <div>
@@ -152,7 +126,7 @@
                     </p>
                 </div>
             </div>
-            <ul class="ps-3 mb-0">
+            <ul class="ps-0 ps-sm-3 mb-0">
                 <li class="d-flex">
                     <div>
                         ・
@@ -165,9 +139,29 @@
                     <div>
                         ・
                     </div>
-                    <p>
-                        被相続人の死亡時の住所から登記記録上の住所までの履歴を証する住民票の除票や戸籍の附票
-                    </p>
+                    <div>
+                        被相続人の死亡時の住所を証する住民票の除票や戸籍の附票
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <div>
+                                本籍と筆頭者の記載があるもの
+                            </div>
+                        </div>
+                        <div class="additional-text">
+                            <div>
+                                ※
+                            </div>
+                            <p>
+                                死亡時の住所が登記記録上の住所と一致しないときは、別途の書類が必要になります。
+                                <br>
+                                <a href="{% url 'toukiApp:useful_info' 'is_match_decedent_and_owner' %}" target="_blank" rel="noopener noreferrer">
+                                    詳細はこちら
+                                </a>
+                            </p>
+                        </div>
+                    </div>
                 </li>
                 <li class="d-flex">
                     <div>
@@ -175,14 +169,14 @@
                     </div>
                     <div>
                         <div>
-                            手続きをする時の年度の不動産の固定資産評価額を確認できるもの
+                            手続きをする時点の年度の不動産の固定資産評価額を確認できるもの
                         </div>
                         <div class="additional-text">
                             <div>
                                 ※
                             </div>
                             <p>
-                                固定資産評価証明書や固定資産税の納税通知書に付属している課税明細書など
+                                固定資産評価証明書や固定資産税の納税通知書に付属されている課税明細書など
                             </p>
                         </div>
                     </div>
@@ -248,9 +242,7 @@
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark lh-lg">
-                手続きに最低限かかる費用
-            </span>
+            ＜手続きに最低限かかる費用＞
         </h5>
         <div>
             <div>
@@ -268,7 +260,7 @@
                     </div>
                 </div>
             </div>
-            <ul>
+            <ul class="ps-0 ps-sm-3 mb-0">
                 <li class="d-flex">
                     <div>
                         ・
@@ -324,15 +316,13 @@
     </div>
     <div class="mt-5">
         <h5 class="md-text-center mb-4">
-            <span class="pe-md-4 md-px-2 border-bottom border-dark">
-                相続登記が難しくなる要因
-            </span>
+            ＜相続登記が難しくなる要因＞
         </h5>
         <div>
             <p class="text-indent">
                 主に以下の事由に該当すると専門的な知識が必要になり相続登記の難易度が上がります。
             </p>
-            <ul class="ps-3 mb-0">
+            <ul class="ps-0 ps-sm-3 mb-0">
                 <li class="d-flex">
                     <div>
                         ・
@@ -360,7 +350,7 @@
                                 ＞
                             </div>
                             <p>
-                                死亡している相続人の出生から死亡までの戸籍謄本の取得も必要になり、さらに死亡している相続人を相続する人も遺産分割協議に参加する必要があります。
+                                死亡している相続人の出生から死亡までの戸籍謄本の取得も必要になり、さらに死亡している相続人の相続人も遺産分割協議に参加する必要があります。
                             </p>
                         </div>
                     </div>
@@ -393,6 +383,10 @@
                             </div>
                             <p>
                                 住民票の除票や戸籍の附票以外の書類も必要になります。
+                                <br>
+                                <a href="{% url 'toukiApp:useful_info' 'is_match_decedent_and_owner' %}" target="_blank" rel="noopener noreferrer">
+                                    詳細はこちら
+                                </a>
                             </p>
                         </div>
                     </div>
@@ -424,7 +418,7 @@
                                 ＞
                             </div>
                             <p>
-                                子全員、父母、祖父母の出生から死亡までの戸籍謄本が必要になります。
+                                子、父母、祖父母の出生から死亡までの戸籍謄本が必要になります。
                             </p>
                         </div>
                     </div>
@@ -440,8 +434,8 @@
                                 ＞
                             </div>
                             <p>
-                                通常法定代理人が未成年者の代理人になりますが、法定代理人自身も相続人のため利害が衝突する可能性があるため、
-                                家庭裁判所で特別代理人を選任する手続きをする必要があります。
+                                通常法定代理人が未成年者の代理人になりますが、法定代理人自身も相続人であり利害が衝突する可能性があるため、
+                                家庭裁判所で他の代理人を選任する手続きをする必要があります。
                             </p>
                         </div>
                     </div>
@@ -465,14 +459,7 @@
             </ul>
         </div>
     </div>
-    <hr class="my-4">
-    <div class="text-center">
-        <a class="fw-bold text-primary" href="mailto:{{ company_data.MAIL_ADDRESS|urlencode }}?subject={{ title|urlencode }}とはの記事について&body=">
-            この記事について問い合わせる
-        </a>
-        <br>
-        (メールソフトが起動します)
-    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
 </div>
 {% endblock %}
 

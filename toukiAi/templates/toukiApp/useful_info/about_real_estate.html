@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/touki_info.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="3" update_at="令和6年6月24日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <div class="text-indent">
+            <p>
+                不動産とは、土地とその定着物（建物や木など）のことで登記上は、土地、建物、区分建物の３つに分けて記録されます。
+            </p>
+            <p>
+                登記記録は当事者が申請をしない限り更新されることはないため、現状と一致しないことが結構あります。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <div>
+            <h5 class="md-text-center mb-4 lh-lg">
+                ＜土地＞
+            </h5>
+            <div class="text-indent">
+                <p>
+                    登記簿謄本には、所在地や地目、地積などの物理的な現況と所有者や抵当権者（住宅ローンの債権者）などの権利関係が記載されています。
+                </p>
+                <div>
+                    登記簿謄本以外にも地積測量図というものが作成されていて、隣接する土地との境界点の位置や地積の計算根拠などが記載されています。
+                </div>
+                <p>
+                    ただし、昭和３５年４月１日以降に一度も測量がされていないときは、作成されていないこともあります。
+                </p>
+            </div>
+        </div>
+        <div class="mt-5">
+            <h5 class="md-text-center mb-4 lh-lg">
+                ＜建物＞
+            </h5>
+            <div class="text-indent">
+                <p>
+                    登記簿謄本には、所在地や用途、附属の建物（倉庫や物置など）の構造などの物理的な現況と所有者や抵当権者（住宅ローンの債権者）などの権利関係が記載されています。
+                </p>
+                <div>
+                    登記簿謄本以外にも建物図面・各階平面図というものが作成されていて、敷地に対する建物の位置や床面積の計算根拠などが記載されています。
+                </div>
+                <p>
+                    ただし、昭和３５年４月１日より前に建てられているときは、作成されていないこともあります。
+                </p>
+            </div>
+        </div>
+        <div class="mt-5">
+            <h5 class="md-text-center mb-4 lh-lg">
+                ＜区分建物＞
+            </h5>
+            <div class="text-indent">
+                <p>
+                    区分建物とは、分譲マンションのような各部屋が独立する構造になっていて、それぞれに所有者を設定できる建物のことです。
+                </p>
+                <p>
+                    登記簿謄本には、①建物全体（マンションそのもの）、個別の部屋、附属の建物（集会所など）についての物理的な現況②敷地に関する物理的現況と権利関係③所有者や抵当権者（住宅ローンの債権者）などの個別の部屋に関する権利関係が記載されています。
+                </p>
+                <div>
+                    登記簿謄本以外にも建物図面・各階平面図というものが作成されていて、敷地に対する建物の位置や床面積の計算根拠などが記載されています。
+                </div>
+                <p>
+                    ただし、昭和３５年４月１日より前に建てられているときは、作成されていないこともあります。
+                </p>
+            </div>
+        </div>
+        <div class="mt-5">
+            <p class="md-text-center">
+                <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#touki_info_modal">
+                    （登記情報の参考例）
+                </button>
+            </p>
+        </div>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

@@ -4998,30 +4998,32 @@ def useful_info(request, param):
         return redirect("toukiApp:index")
     
     def get_page_data():
-        """各ページのパラメータ、html、タイトルを返す"""
-        html = f"toukiApp/useful_info/{param}.html"
+        """各ページのパラメータ、html、タイトルを返す"""        
         if param == "about_inheritance":
-            return html, "相続とは"
+            return "相続とは"
         if param == "check_legal_heirs":
-            return html, "相続人の判定方法"
+            return "相続人の判定方法"
         if param == "refuse_inheritance":
-            return html, "相続放棄"
+            return "相続放棄"
         if param == "about_inheritance_touki":
-            return html, "相続登記とは"
+            return "相続登記とは"
         if param == "if_late":
-            return html, "放置したときのリスク"
+            return "放置したときのリスク"
         if param == "postpone_inheritance_touki":
-            return html, "相続登記を猶予する\n（相続人申告登記）"
+            return "相続登記を猶予する\n（相続人申告登記）"
         if param == "about_family_card":
-            return html, "戸籍謄本とは"
+            return "戸籍謄本とは"
         if param == "is_match_decedent_and_owner":
-            return html, "死亡時の住所から登記記録上の住所までの履歴を証する書面"
+            return "死亡時の住所から登記記録上の住所までの履歴を証する書面"
         if param == "about_touki_info":
-            return html, "登記簿謄本とは"
+            return "登記簿謄本とは"
+        if param == "about_real_estate":
+            return "不動産とは"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"
-    html, title = get_page_data()
+    html = f"toukiApp/useful_info/{param}.html"
+    title = get_page_data()
     redirect_to = "toukiApp:index"
     request_user = request.user
     

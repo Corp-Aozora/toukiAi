@@ -97,7 +97,8 @@ class UsefulInfoSitemap(Sitemap):
             'postpone_inheritance_touki',
             'about_family_card',
             'is_match_decedent_and_owner',
-            'about_touki_info'
+            'about_touki_info',
+            'about_real_estate'
         ]  # 動的URL用のパラメータ
 
     def location(self, item):

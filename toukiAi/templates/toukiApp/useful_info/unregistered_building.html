@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/touki_info.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="1" update_at="令和6年6月25日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <div>
+            <p class="text-indent">
+                登記は、原則当事者からの申請がない限り新たに記録または更新されることがないため、登記されていない建物が結構あります。
+            </p>
+            <p class="text-indent">
+                特に借り入れなしで建てた場合は、登記することを要求されることがないため登記されていないことが割とあります。
+            </p>
+            <p class="text-indent">
+                登記されていない場合でも、市区町村では工事に関する届け出や現地確認などによりその建物を把握しており固定資産税は課税されていることが多いです。
+            </p>
+            <div class="additional-text">
+                <div>
+                    ※
+                </div>
+                <p>
+                    物理的現況を記録する表題登記は法律で義務付けられており、違反すると１０万円以下の過料が課せられるとされていますが、
+                    実際にこの違反により過料が発生したという事例は聞いたことがありません。ただ、相続登記が義務になったことを考えると
+                    今後は厳しく運用されていくことも考えられます。
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜確認方法＞
+        </h5>
+        <p class="text-indent">
+            固定資産税の納税通知書に付属されている課税明細書を確認または固定資産評価証明書などの証明書を取得して、
+            対象の家屋に家屋番号が付されているか確認する。
+        </p>
+        <div class="additional-text">
+            <div>
+                ※
+            </div>
+            <p>
+                登記されている場合は、家屋番号という欄に番号が付されています。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜手続＞
+        </h5>
+        <div class="text-indent">
+            <div>
+                未登記家屋の名義変更をする場合、市区町村で納税義務者を変更する手続きをする必要があります。
+            </div>
+            <div>
+                手続きの名称は未登記家屋所有者変更届や家屋補充課税台帳記載事項変更届など各市区町村により異なります。
+            </div>
+            <p>
+                手続きにあたっては戸籍謄本などの書類が必要になります。
+            </p>
+            <p>
+                この手続きをしない場合は、市区町村が一緒に住んでいた相続人や長男・長女など任意の判断基準で課税対象者を決めて納税義務者を変更します。
+            </p>
+        </div>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

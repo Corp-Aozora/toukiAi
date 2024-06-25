@@ -100,7 +100,8 @@ class UsefulInfoSitemap(Sitemap):
             'about_touki_info',
             'about_real_estate',
             'price_for_property_tax',
-            'heritage_survey'
+            'heritage_survey',
+            'unregistered_building',
         ]  # 動的URL用のパラメータ
 
     def location(self, item):

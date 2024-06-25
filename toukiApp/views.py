@@ -5023,6 +5023,8 @@ def useful_info(request, param):
             return "固定資産評価額とは"
         if param == "heritage_survey":
             return "遺産調査の方法"
+        if param == "unregistered_building":
+            return "未登記家屋とは"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"

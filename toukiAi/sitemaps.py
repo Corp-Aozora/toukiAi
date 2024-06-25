@@ -98,7 +98,8 @@ class UsefulInfoSitemap(Sitemap):
             'about_family_card',
             'is_match_decedent_and_owner',
             'about_touki_info',
-            'about_real_estate'
+            'about_real_estate',
+            'price_for_property_tax'
         ]  # 動的URL用のパラメータ
 
     def location(self, item):

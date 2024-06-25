@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/touki_info.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="1" update_at="令和6年6月25日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <div class="text-indent">
+            <p>
+                市区町村は、固定資産（土地、建物、償却資産（事業用の機械など））に対して固定資産税を課税していて、この固定資産税を算出するために
+                固定資産に固定資産評価額（以下、「評価額」）というものを設定しています。
+            </p>
+            <p>
+                土地と建物の評価額は原則３年毎に見直されます。土地や建物の売買価格や建築価格は、評価額とは別に不動産会社やハウスメーカーが算定しますので、
+                評価額とは一致しないことが通常です。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <div>
+            <h5 class="md-text-center mb-4 lh-lg">
+                ＜確認できる主な書類＞
+            </h5>
+            <ul class="ps-0 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        毎年４月ごろに届く固定資産税の納税通知書に付属されている課税明細書
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        固定資産評価証明書
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        名寄帳
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        固定資産公課証明書（固定資産課税台帳登録事項証明書）
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

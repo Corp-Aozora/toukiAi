@@ -5019,6 +5019,8 @@ def useful_info(request, param):
             return "登記簿謄本とは"
         if param == "about_real_estate":
             return "不動産とは"
+        if param == "price_for_property_tax":
+            return "固定資産評価額とは"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"

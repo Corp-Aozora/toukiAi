@@ -16,13 +16,13 @@
 
 {% block og %}
     <meta property="og:title" content="トップページ">
-    <meta property="og:description" content="相続登記を自分で行いたい方のためのシステムです！システムの案内に従って手続を進めるだけで相続登記が完了します。">
+    <meta property="og:description" content="相続登記を自分で行いたい方を補助するシステムです！システムの案内に従って手続を進めるだけで相続登記が完了します。">
     <meta property="og:url" content="{% url 'toukiApp:index' %}">
 {% endblock %}
 
 {% block twitter %}
     <meta name="twitter:title" content="トップページ | そうぞくとうきくん">
-    <meta name="twitter:description" content="相続登記を自分で行いたい方のためのシステムです！システムの案内に従って手続を進めるだけで相続登記が完了します。">
+    <meta name="twitter:description" content="相続登記を自分で行いたい方を補助するシステムです！システムの案内に従って手続を進めるだけで相続登記が完了します。">
 {% endblock %}
 
 {% load custom_filters %}
@@ -39,31 +39,49 @@
                 {{company_data.APP_NAME}}とは？
             </span>
         </h1>
-        <h4 id="introSubtitle" class="mt-4 text-center lh-lg">
-            相続登記を自分で行って節約したい方のためのシステムです！
+        <h4 id="introSubtitle" class="mt-4 justify-content-center lh-lg linebreak-wrapper">
+            <span>
+                相続登記を自分で行いたい方を
+            </span>
+            <span>
+                補助するシステムです！
+            </span>
         </h4>
         <h5 class="mt-3 text-center">
             <span class="border-bottom border-dark px-3">
                 {{company_service.CAMPAIGN_BASIC_PRICE_STR}}(税込)
             </span>
         </h5>
-        <p class="fw-bold text-success mt-4 text-center">
-            システムの案内に従って手続を進めるだけで相続登記が完了します。
-            <br>
-            ＜スマホ・タブレット対応＞
-        </p>
+        <div class="fw-bold text-success mt-4">
+            <div class="linebreak-wrapper justify-content-center">
+                <span>
+                    システムの案内に従って手続を進めるだけで
+                </span>
+                <span>
+                    相続登記が完了します。
+                </span>
+            </div>
+            <p class="text-center">
+                ＜スマホ・タブレット対応＞
+            </p>
+        </div>
         <div class="text-center mt-4">
             <h5 class="fw-bold">
-                相続人判定の機能を公開中!
+                一部機能を公開中!
             </h5>
             <p>
-                必要書類も確認できますので、ご自身で相続登記を行うことができるかの参考にできます。
+                相続人と必要書類を確認できますので、ご自身で相続登記を行えるかの参考にできます。
             </p>
             <div>
                 <a class="mt-3 btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
                     試してみる
                 </a>
             </div>
+        </div>
+        <div class="text-center mt-4">
+            <a class="text-primary fw-bold" href="#charge">
+                書類取得の代行、司法書士への依頼も受け付けています。
+            </a>
         </div>
         <hr>
         <div class="justify-content-center d-flex">

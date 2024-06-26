@@ -15,3 +15,17 @@
 #heirs_list li, #legal_heirs_check_result_modal li{
     margin-top: 1rem;
 }
+
+
+@media (max-width:575px){
+
+    .linebreak-wrapper{
+        flex-direction: column;
+    }
+
+    .linebreak-wrapper span{
+        display: block;
+        text-align: center;
+    }
+
+}

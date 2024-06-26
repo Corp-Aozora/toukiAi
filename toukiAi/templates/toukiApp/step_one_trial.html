@@ -6,6 +6,7 @@
     {% load static %}
     {% include "toukiApp/parts/step_one/block_stylesheet.html" %}
     <link rel="stylesheet" href="{% static 'toukiApp/step_one_trial.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
 {% endblock %}
 
 {% block header %}
@@ -18,6 +19,7 @@
 
 {% include "toukiApp/parts/step_messages.html" %}
 {% include "toukiApp/parts/modals/not_available.html" %}
+{% include "toukiApp/parts/modals/trial_result.html" %}
 
 {% if persons_data|length > 0 %}
     {% include "toukiApp/parts/modals/legal_heirs_check_result.html" %}
@@ -128,7 +130,7 @@
                                     固定資産評価証明書
                                 </div>
                                 <div>
-                                    課税明細書、など
+                                    固定資産税の納税通知書に付属の課税明細書、など
                                 </div>
                             </div>
                         </div>

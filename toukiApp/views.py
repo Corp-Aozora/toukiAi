@@ -84,8 +84,8 @@ def index(request):
     
     function_name = get_current_function_name()
     html = "toukiApp/index.html"
-    title = "相続登記を自分で行いたい方のためのシステム"
-    meta_description = "相続登記を自分で行い費用を節約したい方のためのシステムです。システムの案内に従って手続を進めるだけで相続登記が完了します。詳細な解説と迅速なお問い合わせ対応もありますので、悩みなくスムーズに手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
+    title = "相続登記を自分で行いたい方を補助するのシステム"
+    meta_description = "相続登記を自分で行いたい方を補助するシステムです。システムの案内に従って手続を進めるだけで相続登記が完了します。詳細な解説と迅速なお問い合わせ対応もありますので、悩みなくスムーズに手続を進めることができます。必要に応じてオプション（有料）もご利用いただけます。"
     
     try:
         canonical_url = get_canonical_url(request, this_url_name)

@@ -1,6 +1,27 @@
+{% if request.path == "/toukiApp/step_one_trial" %}
+    <div class="mb-3">
+        <div class="lg-text-center fw-bold">
+            <div class="linebreak-wrapper">
+                <span>
+                    亡くなった方の親族関係を入力すると
+                </span>
+                <span>
+                    相続人と必要書類を確認できます。
+                </span>
+            </div>
+            <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#trial_result_modal">
+                （判定結果の参考例）
+            </button>
+        </div>
+    </div>
+{% endif %}
 <h4 class="lg-text-center">
     相続人判定
 </h4>
 <p class="form-text lg-text-center">
-    （入力時間の目安は5~10分です）
+    （入力時間の目安は3 ~ 5分です）
+    {% if request.path == "/toukiApp/step_one_trial" %}
+        <br>
+        ※氏名は仮名でも大丈夫です。
+    {% endif %}
 </p>

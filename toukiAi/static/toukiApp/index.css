@@ -124,6 +124,17 @@
     }
 }
 
+@media (max-width:600px){
+    .linebreak-wrapper{
+        flex-direction: column;
+    }
+
+    .linebreak-wrapper span{
+        display: block;
+        text-align: center;
+    }
+}
+
 /* 画面のサイズがxs以下 */
 @media (max-width:575px){
 

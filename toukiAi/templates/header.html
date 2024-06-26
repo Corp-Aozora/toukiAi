@@ -16,6 +16,10 @@
                 <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'toukiApp:step_one_trial' %}">
                     相続人判定
                 </a>
+            {% else %}
+                <a class="btn btn-success p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" href="{% url 'accounts:option_select' %}">
+                    利用する
+                </a>
             {% endif %}
         </div>
         <button class="menu-toggler-btn btn btn-primary p-2 fw-bold bg-gradient bg-opacity-50 border-0 shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenus" aria-controls="offcanvasMenus" style="display: none;">

@@ -30,6 +30,7 @@
 
 {% include "toukiApp/parts/modals/alt_decedent_resident_certification_one.html" %}
 {% include "toukiApp/parts/modals/alt_decedent_resident_certification_two.html" %}
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_three.html" %}
 
 <div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
     {% include "toukiApp/useful_info/parts/top.html" with time="3" update_at="令和6年6月22日" %}
@@ -113,7 +114,11 @@
                                 ※
                             </div>
                             <div>
-                                不在住証明書とは、請求書に記載した住所氏名に該当する生存している人はいないことを証明するものです。
+                                不在住証明書とは、請求書に記載した住所氏名に該当する人の住民票がないことを証明するものです
+                                <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_three">
+                                    （不在住証明書の参考例）
+                                </button>
+                                。
                             </div>
                         </div>
                         <div class="additional-text">

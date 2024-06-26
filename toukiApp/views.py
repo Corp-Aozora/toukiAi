@@ -5025,6 +5025,8 @@ def useful_info(request, param):
             return "遺産調査の方法"
         if param == "unregistered_building":
             return "未登記家屋とは"
+        if param == "alt_decedent_resident_certification_three":
+            return "不在住証明書とは"
 
     function_name = get_current_function_name()
     this_url_name = "toukiApp:useful_info"

@@ -11,8 +11,8 @@
 
 @media (max-width: 991px){
 
-    #offcanvasMenus li:not(:last-child), #progress_list_offcanvas li:not(:last-child){
-        margin-top: 1rem;
+    #offcanvasMenus li, #progress_list_offcanvas li:not(:last-child){
+        margin-top: 0.75rem;
     }
 
     .show-progress-offcanvas-btn{

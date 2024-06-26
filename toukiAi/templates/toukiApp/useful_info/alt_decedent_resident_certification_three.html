@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_three.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="1" update_at="令和6年6月26日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <div>
+            <p class="text-indent">
+                証明書に記載された住所氏名に一致する人の住民票（除票を含む）が存在しないことを証明するものです。
+            </p>
+            <div>
+                <div class="text-indent">
+                    相続登記では、以下の全てに該当する場合に登記記録上の住所氏名を証明対象として取得します。
+                </div>
+                <div class="additional-text">
+                    <div>
+                        ・
+                    </div>
+                    <div>
+                        被相続人の死亡時の住所から登記記録上の所有者の住所までの履歴を証明できない。
+                    </div>
+                </div>
+                <div class="additional-text">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        対象の不動産について登記済証や登記識別情報通知がない。
+                    </p>
+                </div>
+            </div>
+            <p class="text-indent">
+                登記記録上の住所氏名に一致する住民票がないことを証明することで被相続人以外の人が所有者である可能性がないことが推測されるようになります。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜取得方法＞
+        </h5>
+        <div>
+            <div class="text-indent">
+                <p>
+                    個人情報が含まれない証明書のため誰でも委任状なしで取得することができます。
+                </p>
+                <p>
+                    手数料は役所により異なりますが、300円ほどのところが多いです。
+                </p>
+                <p>
+                    少数ですが、役所によっては書式を持っていないことがありますので、事前に役所ホームページや問い合わせをして取得方法を確認したほうが良いです。
+                </p>
+            </div>
+            <div class="d-flex">
+                <div>
+                    ※
+                </div>
+                <p>
+                    少数ですが、役所よっては発行していないところもあります。
+                    <br>
+                    この場合は、代替書類を法務局に確認する必要があります。
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <button type="button" class="fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#alt_decedent_resident_certification_three">
+            （不在住証明書の参考例）
+        </button>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

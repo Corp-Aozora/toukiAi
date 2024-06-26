@@ -102,6 +102,7 @@ class UsefulInfoSitemap(Sitemap):
             'price_for_property_tax',
             'heritage_survey',
             'unregistered_building',
+            'alt_decedent_resident_certification_three',
         ]  # 動的URL用のパラメータ
 
     def location(self, item):

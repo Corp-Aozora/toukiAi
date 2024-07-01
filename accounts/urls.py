@@ -18,13 +18,13 @@ urlpatterns = [
     # path('confirm-email/<key>/', views.CustomConfirmEmailView.as_view(), name='account_confirm_email'), # 本登録確認ページ
     path('confirm-email/<key>/', views.error_404, name='account_confirm_email'),
     
-    path('password/change/', views.CustomPasswordChangeView.as_view(), name='account_change_password'),
     path('password/change/is_oldpassword/', views.is_oldpassword, name='is_oldpassword'),
+    path('password/change/', views.CustomPasswordChangeView.as_view(), name='account_change_password'),  # ユーザーページでのパスワード変更ページ
     path("login/", views.CustomLoginView.as_view(), name="account_login"), #ログインページ
     path('password/reset/', views.CustomPasswordResetView.as_view(), name='account_reset_password'),
     path("change_email/", views.change_email, name="change_email"),
+    path("delete_account/", views.delete_account, name="delete_account"), # アカウント削除
     path('confirm/<str:token>/', views.confirm_email, name='confirm_email'),
-    path("delete_account/", views.delete_account, name="delete_account"), # 汎用の重複メールアドレスチェック
     path("option_select/", views.option_select, name="option_select"), # オプション選択
     path("bank_transfer/", views.bank_transfer, name="bank_transfer"), # 銀行振込のとき
     path("option_select/card_regist", card_regist.main, name="card_regist"), # 決済情報登録

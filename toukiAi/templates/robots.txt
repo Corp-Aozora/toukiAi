@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 
 Disallow: /toukiApp/step*
+Allow: /toukiApp/step_one_trial
 
 Disallow: /account/
 Allow: /account/login/

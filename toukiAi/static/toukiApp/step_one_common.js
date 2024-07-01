@@ -1239,8 +1239,6 @@ async function loadData(){
     // 兄弟姉妹
     if(userDataScope.includes("collateral"))
         await loadCollateral();
-
-    scrollToTarget(document.getElementById("main"))
 }
 
 /**
@@ -1267,10 +1265,12 @@ function createChildOrCollateralFieldset(preFieldset, relation, newIdx){
  */
 async function displayNextFieldset(nextFieldset, isLoad){
     //次のfieldsetを表示/hrを挿入/次のfieldsetにスクロール/最初の入力欄にフォーカス
-    if(isLoad)
+    if(isLoad){
         slideDown(nextFieldset);
-    else
-        await slideDownIfHidden(nextFieldset);
+    }else{
+        nextFieldset.style.display = "";
+        scrollToTarget(nextFieldset);
+    }
     
     const hr = document.createElement("hr");
     hr.className = "my-5";

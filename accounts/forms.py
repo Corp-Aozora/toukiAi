@@ -194,7 +194,7 @@ class RegistUserForm(UserCreationForm):
         
         self.fields["password2"].widget.attrs.update(WidgetAttributes.option_select_password2)
         self.fields["password2"].label = "確認用"
-        
+
 class OptionSelectForm(CustomModelForm):
     """"
     

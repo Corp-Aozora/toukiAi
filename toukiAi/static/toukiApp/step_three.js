@@ -2163,7 +2163,7 @@ function handleCorrectBtnEvent(){
  * @param {number} index 
  */
 function handleOkBtnEventCommon(section, preSection, index){
-    slideDown(section);
+    section.style.display = "";
     //前のセクション内にあるフィールドセットを無効化する
     const fieldsets = Array.from(preSection.querySelectorAll("fieldset"));
     fieldsets.forEach(x => x.disabled = true);

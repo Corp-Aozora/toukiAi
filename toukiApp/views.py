@@ -5007,6 +5007,8 @@ def useful_info(request, param):
             return "相続放棄"
         if param == "about_inheritance_touki":
             return "相続登記とは"
+        if param == "by_self":
+            return "自分でできる？"
         if param == "if_late":
             return "放置したときのリスク"
         if param == "postpone_inheritance_touki":

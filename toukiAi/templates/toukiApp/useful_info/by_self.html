@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %} 
+    {{ title }} | {{ block.super }}
+{% endblock title %}
+
+{% block stylesheet %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'toukiApp/useful_info.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'toukiApp/parts/reference-document.css' %}">
+{% endblock %}
+
+{% block og %}
+    <meta property="og:title" content={{ title }}>
+    <meta property="og:description" content="{{ title }}">
+    <meta property="og:url" content="{% url 'toukiApp:useful_info' param %}">
+{% endblock %}
+
+{% block twitter %}
+    <meta name="twitter:title" content="{{ title }} | お役立ち情報">
+    <meta name="twitter:description" content={{ title }}>
+{% endblock %}
+
+{% block header %}
+    {% include "header.html" %}
+{% endblock %}
+
+{% block content %}
+
+{% include "toukiApp/parts/modals/alt_decedent_resident_certification_three.html" %}
+
+<div class="container px-sm-3 mx-auto mt-3 article-font mb-5">
+    {% include "toukiApp/useful_info/parts/top.html" with time="3" update_at="令和6年7月1日" %}
+    <div>
+        <h5 class="md-text-center mb-4">
+            ＜概要＞
+        </h5>
+        <div class="text-indent">
+            <p>
+                相続登記手続きは、専門的な知識が必要なことや書類の収集・作成が大変なことにより司法書士に依頼することがほとんどですが、
+                中には簡単な事案もあるため、ある程度の時間があれば相続人自身でも行えるものもあります。
+            </p>
+            <p>
+                具体的には、配偶者と成人の子が相続人で不動産は自宅の土地建物のみ、戸籍謄本は預貯金解約のときに使用したものが残っているというような場合は、
+                作業量が少ないため比較的簡単に行うことができるかと思います。
+            </p>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜自分で行うメリット＞
+        </h5>
+        <div>
+            <div class="d-flex">
+                <div>
+                    ・
+                </div>
+                <div>
+                    実費のみの出費で済ませることができる。
+                    <div class="additional-text">
+                        <div>
+                            ※
+                        </div>
+                        <div>
+                            司法書士に依頼すると実費とは別に最低でも10万円以上の報酬がかかることが多いため大幅の節約になります。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h5 class="md-text-center mb-4 lh-lg">
+            ＜自分で行うデメリット＞
+        </h5>
+        <div>
+            <ul class="ps-0 mb-0">
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        手続きの方法を調べる労力と時間がかかる。
+                    </p>
+                </li>
+                <li class="d-flex">
+                    <div>
+                        ・
+                    </div>
+                    <p>
+                        登記対象の不動産を見落としてしまい登記できていない物件が残る可能性がある。
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% include "toukiApp/useful_info/parts/bottom.html" %}
+</div>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script src="{% static 'toukiApp/parts/messages.js' %}"></script>
+{% endblock %}

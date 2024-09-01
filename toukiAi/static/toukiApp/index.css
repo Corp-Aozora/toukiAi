@@ -129,7 +129,7 @@
         flex-direction: column;
     }
 
-    .linebreak-wrapper span{
+    .linebreak-wrapper > span{
         display: block;
         text-align: center;
     }

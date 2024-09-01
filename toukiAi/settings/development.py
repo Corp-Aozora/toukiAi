@@ -6,7 +6,7 @@ DEBUG = False
 SECRET_KEY=env("DEV_SECRET_KEY")
 
 ALLOWED_HOSTS = [
-    "https://toukiai-6ctj.onrender.com",
+    "toukiai-6ctj.onrender.com",
 ]
 
 DEFAULT_FROM_EMAIL = CompanyData.DEBUG_MAIL_ADDRESS

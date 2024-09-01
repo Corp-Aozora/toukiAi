@@ -20,10 +20,10 @@ FINCODE_BASE_URL = 'https://api.test.fincode.jp'
 DATABASES = {
     'default':{
         'ENGINE':'django.db.backends.postgresql',
-        'NAME':'souzokutoukikun',
+        'NAME':'souzokutoukikun_4fnm',
         'USER':'souzokutoukikun',
-        'PASSWORD':'FYamYIRWv3826xBsE1w9NIY0yXQ9kuwF',
-        'HOST':'dpg-cndci6f79t8c738dmkl0-a',
+        'PASSWORD':'sjfzZCGZI7L3yZrb0VgR8sO2uo2XQIo0',
+        'HOST':'dpg-craejjrtq21c73bvou3g-a',
         # 'HOST':'dpg-cndci6f79t8c738dmkl0-a.singapore-postgres.render.com',
         'PORT':'5432',
     }

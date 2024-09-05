@@ -13,7 +13,7 @@ class CompanyData:
     MANAGER = "佐賀達也"
     RECEIVING_PHONE_NUMBER = "0800-805-1528(受付専用)"
     CALLING_PHONE_NUMBER = "050-5482-5832(発信専用)"
-    MAIL_ADDRESS = "support@aozoratouki.com"
+    MAIL_ADDRESS = "toukiaidev@gmail.com"
     DEBUG_MAIL_ADDRESS = "toukiaidev@gmail.com"
     OPEN_LINE_ID = "@souzokutoukikun-o"
     OPEN_LINE_QR = "https://qr-official.line.me/gs/M_747qqpex_GW.png?oat_content=qr"

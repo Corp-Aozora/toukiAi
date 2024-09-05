@@ -101,7 +101,7 @@ def index(request):
                 with transaction.atomic():
                     try:
                         form.save()
-                        send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+                        # send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
                         request.session["post_success"] = True
                         
                         return redirect(this_url_name)
@@ -4738,7 +4738,7 @@ def step_inquiry(request):
                 if form.is_valid():
                     with transaction.atomic():
                         add_user_info_and_save(user, form)
-                        send_auto_email_to_inquiry(form.cleaned_data, user.email)
+                        # send_auto_email_to_inquiry(form.cleaned_data, user.email)
                         messages.success(request, "受付完了 お問い合わせありがとうございます。\nご回答まで少々お待ちください。")
                         
                         return redirect(this_url_name)

@@ -1,0 +1,367 @@
+        function_name: index
+        current_time: 2024-09-04 16:11:24
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-7d4fbd92473sm1033034a12.48 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 509, in send_auto_email_to_inquiry
+    message.send()
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\message.py", line 298, in send
+    return self.get_connection(fail_silently).send_messages([self])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 127, in send_messages
+    new_conn_created = self.open()
+                       ^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 94, in open
+    self.connection.login(self.username, self.password)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 750, in login
+    raise last_exception
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 739, in login
+    (code, resp) = self.auth(
+                   ^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 662, in auth
+    raise SMTPAuthenticationError(code, resp)
+smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-7d4fbd92473sm1033034a12.48 - gsmtp')
+        function_name: index
+        current_time: 2024-09-04 16:11:24
+        user_id: 
+        message: 考えられる原因: メールサーバーの認証情報の誤り
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-7d4fbd92473sm1033034a12.48 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 509, in send_auto_email_to_inquiry
+    message.send()
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\message.py", line 298, in send
+    return self.get_connection(fail_silently).send_messages([self])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 127, in send_messages
+    new_conn_created = self.open()
+                       ^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 94, in open
+    self.connection.login(self.username, self.password)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 750, in login
+    raise last_exception
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 739, in login
+    (code, resp) = self.auth(
+                   ^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 662, in auth
+    raise SMTPAuthenticationError(code, resp)
+smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-7d4fbd92473sm1033034a12.48 - gsmtp')
+Not Found: /toukiApp/admin
+Not Found: /favicon.ico
+Not Found: /admin
+        function_name: index
+        current_time: 2024-09-05 07:44:10
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-7178669ff60sm785786b3a.7 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 509, in send_auto_email_to_inquiry
+    message.send()
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\message.py", line 298, in send
+    return self.get_connection(fail_silently).send_messages([self])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 127, in send_messages
+    new_conn_created = self.open()
+                       ^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 94, in open
+    self.connection.login(self.username, self.password)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 750, in login
+    raise last_exception
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 739, in login
+    (code, resp) = self.auth(
+                   ^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 662, in auth
+    raise SMTPAuthenticationError(code, resp)
+smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-7178669ff60sm785786b3a.7 - gsmtp')
+        function_name: index
+        current_time: 2024-09-05 07:44:10
+        user_id: 
+        message: 考えられる原因: メールサーバーの認証情報の誤り
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-7178669ff60sm785786b3a.7 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 509, in send_auto_email_to_inquiry
+    message.send()
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\message.py", line 298, in send
+    return self.get_connection(fail_silently).send_messages([self])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 127, in send_messages
+    new_conn_created = self.open()
+                       ^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\django\core\mail\backends\smtp.py", line 94, in open
+    self.connection.login(self.username, self.password)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 750, in login
+    raise last_exception
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 739, in login
+    (code, resp) = self.auth(
+                   ^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 662, in auth
+    raise SMTPAuthenticationError(code, resp)
+smtplib.SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-7178669ff60sm785786b3a.7 - gsmtp')
+        function_name: index
+        current_time: 2024-09-05 09:27:21
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: Authorized user info was not in the expected format, missing fields client_id, client_secret, refresh_token.
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 514, in send_auto_email_to_inquiry
+    access_token = get_oauth2_access_token()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 600, in get_oauth2_access_token
+    creds = Credentials.from_authorized_user_file('google_api_client_secret.json', ['https://mail.google.com/'])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 538, in from_authorized_user_file
+    return cls.from_authorized_user_info(data, scopes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 485, in from_authorized_user_info
+    raise ValueError(
+ValueError: Authorized user info was not in the expected format, missing fields client_id, client_secret, refresh_token.
+        function_name: index
+        current_time: 2024-09-05 09:27:21
+        user_id: 
+        message: None
+        e: Authorized user info was not in the expected format, missing fields client_id, client_secret, refresh_token.
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 514, in send_auto_email_to_inquiry
+    access_token = get_oauth2_access_token()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 600, in get_oauth2_access_token
+    creds = Credentials.from_authorized_user_file('google_api_client_secret.json', ['https://mail.google.com/'])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 538, in from_authorized_user_file
+    return cls.from_authorized_user_info(data, scopes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 485, in from_authorized_user_info
+    raise ValueError(
+ValueError: Authorized user info was not in the expected format, missing fields client_id, client_secret, refresh_token.
+        function_name: index
+        current_time: 2024-09-05 10:01:56
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: Authorized user info was not in the expected format, missing fields client_id, refresh_token, client_secret.
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 514, in send_auto_email_to_inquiry
+    access_token = get_oauth2_access_token()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 600, in get_oauth2_access_token
+    creds = Credentials.from_authorized_user_file('google_api_client_secret.json', ['https://mail.google.com/'])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 538, in from_authorized_user_file
+    return cls.from_authorized_user_info(data, scopes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 485, in from_authorized_user_info
+    raise ValueError(
+ValueError: Authorized user info was not in the expected format, missing fields client_id, refresh_token, client_secret.
+        function_name: index
+        current_time: 2024-09-05 10:01:56
+        user_id: 
+        message: None
+        e: Authorized user info was not in the expected format, missing fields client_id, refresh_token, client_secret.
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 514, in send_auto_email_to_inquiry
+    access_token = get_oauth2_access_token()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 600, in get_oauth2_access_token
+    creds = Credentials.from_authorized_user_file('google_api_client_secret.json', ['https://mail.google.com/'])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 538, in from_authorized_user_file
+    return cls.from_authorized_user_info(data, scopes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 485, in from_authorized_user_info
+    raise ValueError(
+ValueError: Authorized user info was not in the expected format, missing fields client_id, refresh_token, client_secret.
+        function_name: index
+        current_time: 2024-09-05 10:05:54
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: Authorized user info was not in the expected format, missing fields client_secret, client_id.
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 514, in send_auto_email_to_inquiry
+    access_token = get_oauth2_access_token()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 600, in get_oauth2_access_token
+    creds = Credentials.from_authorized_user_file('google_api_client_secret.json', ['https://mail.google.com/'])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 538, in from_authorized_user_file
+    return cls.from_authorized_user_info(data, scopes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 485, in from_authorized_user_info
+    raise ValueError(
+ValueError: Authorized user info was not in the expected format, missing fields client_secret, client_id.
+        function_name: index
+        current_time: 2024-09-05 10:05:54
+        user_id: 
+        message: None
+        e: Authorized user info was not in the expected format, missing fields client_secret, client_id.
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 514, in send_auto_email_to_inquiry
+    access_token = get_oauth2_access_token()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 600, in get_oauth2_access_token
+    creds = Credentials.from_authorized_user_file('google_api_client_secret.json', ['https://mail.google.com/'])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 538, in from_authorized_user_file
+    return cls.from_authorized_user_info(data, scopes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\.toukiAi\Lib\site-packages\google\oauth2\credentials.py", line 485, in from_authorized_user_info
+    raise ValueError(
+ValueError: Authorized user info was not in the expected format, missing fields client_secret, client_id.
+        function_name: index
+        current_time: 2024-09-05 10:09:47
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-2dab2c77269sm330857a91.0 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 525, in send_auto_email_to_inquiry
+    server.send_message(message)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 944, in send_message
+    resent = msg.get_all('Resent-Date')
+             ^^^^^^^^^^^
+AttributeError: 'EmailMessage' object has no attribute 'get_all'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 519, in send_auto_email_to_inquiry
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 284, in __exit__
+    raise SMTPResponseException(code, message)
+smtplib.SMTPResponseException: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-2dab2c77269sm330857a91.0 - gsmtp')
+        function_name: index
+        current_time: 2024-09-05 10:09:47
+        user_id: 
+        message: 考えられる原因: メールサーバーの認証情報の誤り
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-2dab2c77269sm330857a91.0 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 525, in send_auto_email_to_inquiry
+    server.send_message(message)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 944, in send_message
+    resent = msg.get_all('Resent-Date')
+             ^^^^^^^^^^^
+AttributeError: 'EmailMessage' object has no attribute 'get_all'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 519, in send_auto_email_to_inquiry
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 284, in __exit__
+    raise SMTPResponseException(code, message)
+smtplib.SMTPResponseException: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-2dab2c77269sm330857a91.0 - gsmtp')
+        function_name: index
+        current_time: 2024-09-05 10:14:57
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-71778520e34sm2212993b3a.5 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 525, in send_auto_email_to_inquiry
+    server.send_message(message)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 944, in send_message
+    resent = msg.get_all('Resent-Date')
+             ^^^^^^^^^^^
+AttributeError: 'EmailMessage' object has no attribute 'get_all'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 519, in send_auto_email_to_inquiry
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 284, in __exit__
+    raise SMTPResponseException(code, message)
+smtplib.SMTPResponseException: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-71778520e34sm2212993b3a.5 - gsmtp')
+        function_name: index
+        current_time: 2024-09-05 10:14:57
+        user_id: 
+        message: 考えられる原因: メールサーバーの認証情報の誤り
+        e: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-71778520e34sm2212993b3a.5 - gsmtp')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 525, in send_auto_email_to_inquiry
+    server.send_message(message)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 944, in send_message
+    resent = msg.get_all('Resent-Date')
+             ^^^^^^^^^^^
+AttributeError: 'EmailMessage' object has no attribute 'get_all'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 519, in send_auto_email_to_inquiry
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 284, in __exit__
+    raise SMTPResponseException(code, message)
+smtplib.SMTPResponseException: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-71778520e34sm2212993b3a.5 - gsmtp')
+        function_name: index
+        current_time: 2024-09-05 10:18:40
+        user_id: 
+        message: POST(お問い合わせの送信)でエラー
+        e: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError d2e1a72fcca58-717785b5183sm2197374b3a.197 - gsmtp', 'toukiaidev@gmail.com')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 518, in send_auto_email_to_inquiry
+    server.send_message(message)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 986, in send_message
+    return self.sendmail(from_addr, to_addrs, flatmsg, mail_options,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 887, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError d2e1a72fcca58-717785b5183sm2197374b3a.197 - gsmtp', 'toukiaidev@gmail.com')
+        function_name: index
+        current_time: 2024-09-05 10:18:40
+        user_id: 
+        message: 考えられる原因: メールサーバーの認証情報の誤り
+        e: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError d2e1a72fcca58-717785b5183sm2197374b3a.197 - gsmtp', 'toukiaidev@gmail.com')
+        traceback_info: Traceback (most recent call last):
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 110, in index
+    raise e
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\views.py", line 104, in index
+    send_auto_email_to_inquiry(form.cleaned_data, form.cleaned_data["created_by"], False)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\toukiAi\toukiApp\toukiAi_commons.py", line 518, in send_auto_email_to_inquiry
+    server.send_message(message)
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 986, in send_message
+    return self.sendmail(from_addr, to_addrs, flatmsg, mail_options,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 887, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError d2e1a72fcca58-717785b5183sm2197374b3a.197 - gsmtp', 'toukiaidev@gmail.com')

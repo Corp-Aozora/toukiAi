@@ -14,7 +14,9 @@ from django.http import JsonResponse, HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from email.utils import formataddr
+from google.auth.transport.requests import Request
 from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from io import BytesIO
@@ -24,12 +26,14 @@ from time import sleep
 from typing import Tuple
 from urllib.parse import urljoin
 
+import base64
 import inspect
 import json
 import logging
 import mojimoji
 import os
 import requests
+import smtplib
 import tempfile
 import textwrap
 import traceback
@@ -474,12 +478,11 @@ ANSWER_EMAIL_TEMPLATE = textwrap.dedent('''
     ----------お問い合わせ内容----------
 ''') + ANSWER_TO_INQUIRY_EMAIL_TEMPLATE
 
-def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
-    """問い合わせに対する自動返信メールを送信する
+from email.mime.text import MIMEText
+import smtplib
+import base64
 
-    Args:
-        cleaned_data (_type_): フォームのデータ
-    """
+def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
     mail_subject = f"{CompanyData.APP_NAME}からの自動返信です"
     category = cleaned_data.get("category", "")
     content = AUTO_REPLY_EMAIL_TEMPLATE.format(
@@ -495,18 +498,72 @@ def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
         company_opening_hours = CompanyData.OPENING_HOURS,
         company_url = CompanyData.URL,
     )
+
+    from_email = settings.DEFAULT_FROM_EMAIL
+    message = MIMEText(content)
+    message['Subject'] = mail_subject
+    message['From'] = from_email
+    message['To'] = to_email
+    message['Bcc'] = settings.DEFAULT_FROM_EMAIL
+
+    access_token = get_oauth2_access_token()
+
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        auth_string = f"user={from_email}\1auth=Bearer {access_token}\1\1"
+        server.docmd("AUTH", "XOAUTH2 " + base64.b64encode(auth_string.encode()).decode())
+        server.send_message(message)
+
+
+# def send_auto_email_to_inquiry(cleaned_data, to_email, is_user=True):
+#     """問い合わせに対する自動返信メールを送信する
+
+#     Args:
+#         cleaned_data (_type_): フォームのデータ
+#     """
+#     mail_subject = f"{CompanyData.APP_NAME}からの自動返信です"
+#     category = cleaned_data.get("category", "")
+#     content = AUTO_REPLY_EMAIL_TEMPLATE.format(
+#         inquiry_category = Sections.get_category(category) + "の" if category else "",
+#         inquiry_subject = Sections.get_subject(cleaned_data["subject"]) if is_user else cleaned_data["subject"],
+#         content = cleaned_data["content"], 
+#         company_name = CompanyData.NAME,
+#         company_post_number = CompanyData.POST_NUMBER,
+#         company_address = CompanyData.ADDRESS,
+#         company_bldg = CompanyData.BLDG,
+#         company_receiving_phone_number = CompanyData.RECEIVING_PHONE_NUMBER,
+#         company_calling_phone_number = CompanyData.CALLING_PHONE_NUMBER,
+#         company_opening_hours = CompanyData.OPENING_HOURS,
+#         company_url = CompanyData.URL,
+#     )
     
-    from_email = formataddr((CompanyData.NAME, settings.DEFAULT_FROM_EMAIL))
-    to_list = [to_email]
-    bcc_list = [settings.DEFAULT_FROM_EMAIL]
-    message = EmailMessage(
-        subject=mail_subject, 
-        body=content, 
-        from_email=from_email, 
-        to=to_list, 
-        bcc=bcc_list
-    )
-    message.send()
+#     from_email = formataddr((CompanyData.NAME, settings.DEFAULT_FROM_EMAIL))
+#     to_list = [to_email]
+#     bcc_list = [settings.DEFAULT_FROM_EMAIL]
+#     message = EmailMessage(
+#         subject=mail_subject, 
+#         body=content, 
+#         from_email=from_email, 
+#         to=to_list, 
+#         bcc=bcc_list
+#     )
+    
+#     access_token = get_oauth2_access_token()
+    
+#     smtp_server =  "smtp.gmail.com"
+#     smtp_port = 587
+    
+#     with smtplib.SMTP(smtp_server, smtp_port) as server:
+#         server.starttls()
+#         # OAuth2を使った認証
+#         server.ehlo()
+#         auth_string = f"user={settings.DEFAULT_FROM_EMAIL}\1auth=Bearer {access_token}\1\1"
+#         server.docmd("AUTH", "XOAUTH2 " + base64.b64encode(auth_string.encode()).decode())
+#         server.send_message(message)
+#     # message.send()
     
 def send_email_to_inquiry(cleaned_data, is_to_user=True):
     """問い合わせに回答したときのメール送信処理
@@ -578,6 +635,12 @@ def get_canonical_url(request, url_name, param = None):
     canonical_url = f"{canonical_domain}{reverse(url_name, args=[param])}" if param else f"{canonical_domain}{reverse(url_name)}"
     
     return canonical_url
+
+def get_oauth2_access_token():
+    creds = Credentials.from_authorized_user_file('token.json', ['https://mail.google.com/'])
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    return creds.token
 
 def get_gdrive_service():
     """gdriveの認証情報を取得する"""

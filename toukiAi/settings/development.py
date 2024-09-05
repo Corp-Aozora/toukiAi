@@ -23,8 +23,8 @@ DATABASES = {
         'NAME':'souzokutoukikun_4fnm',
         'USER':'souzokutoukikun',
         'PASSWORD':'sjfzZCGZI7L3yZrb0VgR8sO2uo2XQIo0',
-        'HOST':'dpg-craejjrtq21c73bvou3g-a',
-        # 'HOST':'dpg-cndci6f79t8c738dmkl0-a.singapore-postgres.render.com',
+        # 'HOST':'dpg-craejjrtq21c73bvou3g-a',
+        'HOST':'dpg-craejjrtq21c73bvou3g-a.singapore-postgres.render.com',
         'PORT':'5432',
     }
 }

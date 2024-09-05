@@ -365,3 +365,4 @@ smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more infor
   File "C:\Users\PC_User\AppData\Local\Programs\Python\Python311\Lib\smtplib.py", line 887, in sendmail
     raise SMTPSenderRefused(code, resp, from_addr)
 smtplib.SMTPSenderRefused: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError d2e1a72fcca58-717785b5183sm2197374b3a.197 - gsmtp', 'toukiaidev@gmail.com')
+file_cache is only supported with oauth2client<4.0.0

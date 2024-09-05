@@ -1,6 +1,7 @@
 # そうぞくとうきくん
 
-https://toukiai-6ctj.onrender.com
+https://toukiai-6ctj.onrender.com  
+※無料のサーバーを使用しているためページが表示されるまで10秒ほど時間がかかることがあります。
 
 ## 概要
 
